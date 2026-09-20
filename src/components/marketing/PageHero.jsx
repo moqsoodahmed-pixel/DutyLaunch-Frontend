@@ -1,0 +1,50 @@
+import { Container } from '../ui/Container.jsx';
+import { Breadcrumb } from '../ui/Breadcrumb.jsx';
+import { Button } from '../ui/Button.jsx';
+
+/**
+ * Shared header for every interior page. Ported from the LauncherDesk
+ * "page-hero" pattern: a soft radial glow plus a hairline grid, masked to
+ * the upper right, sitting above a light gradient wash — the same premium
+ * hero treatment repeats identically on every page that uses this component.
+ */
+export function PageHero({ eyebrow, title, lead, breadcrumb, actions, aside, tone = 'paper' }) {
+  const dark = tone === 'ink';
+  const surfaceClass = dark ? 'surface-dark' : tone === 'white' ? 'bg-white border-b border-line' : 'surface-hero';
+
+  return (
+    <section className={surfaceClass}>
+      <Container className={`py-12 lg:py-16 ${dark ? 'relative z-[1]' : ''}`}>
+        {breadcrumb && !dark && <Breadcrumb items={breadcrumb} />}
+        <div className="grid gap-8 lg:grid-cols-12 lg:gap-12">
+          <div className="lg:col-span-7">
+            {eyebrow && <p className={`mb-4 inline-flex ${dark ? 'eyebrow-dark' : 'eyebrow'}`}>{eyebrow}</p>}
+            <h1 className={`text-h1 font-extrabold ${dark ? 'text-white' : ''}`}>{title}</h1>
+            {lead && (
+              <p className={`mt-4 max-w-prose text-lead ${dark ? 'text-slate-300' : 'text-slate-600'}`}>{lead}</p>
+            )}
+            {actions && <div className="mt-7 flex flex-col gap-3 sm:flex-row">{actions}</div>}
+          </div>
+          {aside && <div className="lg:col-span-4 lg:col-start-9">{aside}</div>}
+        </div>
+      </Container>
+    </section>
+  );
+}
+
+export function HeroActions({ primary, secondary, dark }) {
+  return (
+    <>
+      {primary && (
+        <Button to={primary.to} size="lg" variant={dark ? 'onInk' : 'primary'}>
+          {primary.label}
+        </Button>
+      )}
+      {secondary && (
+        <Button to={secondary.to} size="lg" variant={dark ? 'outlineInk' : 'outline'}>
+          {secondary.label}
+        </Button>
+      )}
+    </>
+  );
+}

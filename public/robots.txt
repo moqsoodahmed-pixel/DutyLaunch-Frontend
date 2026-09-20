@@ -1,0 +1,9 @@
+User-agent: *
+Allow: /
+Disallow: /admin
+Disallow: /dashboard
+Disallow: /profile
+Disallow: /applications
+Disallow: /saved-jobs
+
+Sitemap: https://dutylaunch.com/sitemap.xml
