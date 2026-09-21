@@ -106,13 +106,6 @@ export function AppRoutes() {
             <Route path="cancellation-policy" element={<Cancellation />} />
             <Route path="refund-policy" element={<Refund />} />
 
-            {/* Candidate-only pages, nested under the public shell so they
-                keep the marketing nav rather than the app shell. */}
-            <Route element={<ProtectedRoute roles={['user']} />}>
-              <Route path="applications" element={<Applications />} />
-              <Route path="saved-jobs" element={<SavedJobs />} />
-            </Route>
-
             <Route path="*" element={<NotFound />} />
           </Route>
 
@@ -131,6 +124,8 @@ export function AppRoutes() {
               <Route path="dashboard" element={<Dashboard />} />
               <Route path="profile" element={<Profile />} />
               <Route element={<ProtectedRoute roles={['user']} />}>
+                <Route path="applications" element={<Applications />} />
+                <Route path="saved-jobs" element={<SavedJobs />} />
                 <Route path="assistant" element={<Assistant />} />
               </Route>
               <Route element={<ProtectedRoute roles={['employer']} />}>
