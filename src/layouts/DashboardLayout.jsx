@@ -27,6 +27,7 @@ export default function DashboardLayout() {
             { to: '/applications', label: 'Applications', icon: 'FileStack' },
             { to: '/saved-jobs', label: 'Saved jobs', icon: 'Bookmark' },
             { to: '/jobs', label: 'Browse jobs', icon: 'Search' },
+            { to: '/assistant', label: 'AI Career Assistant', icon: 'Sparkles' },
           ],
         },
   ];

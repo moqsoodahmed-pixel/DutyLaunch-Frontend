@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { Bookmark, BriefcaseBusiness, Building2, Check, IndianRupee, MapPin, Share2 } from 'lucide-react';
+import { Bookmark, BriefcaseBusiness, Building2, Check, CircleAlert, IndianRupee, MapPin, Share2, Sparkles } from 'lucide-react';
 import { Seo } from '../components/ui/Seo.jsx';
 import { Container, Section } from '../components/ui/Container.jsx';
 import { Badge } from '../components/ui/Badge.jsx';
@@ -8,12 +8,87 @@ import { Button } from '../components/ui/Button.jsx';
 import { Breadcrumb } from '../components/ui/Breadcrumb.jsx';
 import { LoadingBlock, ErrorState } from '../components/ui/States.jsx';
 import { ApplyModal } from '../components/jobs/ApplyModal.jsx';
+import { Progress } from '../components/ui/Progress.jsx';
 import { useApi } from '../hooks/useApi.js';
 import { jobService } from '../services/jobService.js';
 import { useAuth } from '../context/AuthContext.jsx';
 import { useToast } from '../context/ToastContext.jsx';
 import { formatExperience, formatSalary, relativeTime } from '../utils/format.js';
 import { jobPostingSchema } from '../utils/seo.js';
+import { analyzeJobMatch } from '../services/aiService.js';
+
+/**
+ * "Your Match" block — clearly separates what came from the job description
+ * (mandatory / preferred, driven by `job.skills`) from DutyLaunch's own
+ * suggestions (labelled "AI Recommendation"), per the product rule that AI
+ * output must never be presented as a job requirement.
+ */
+function MatchSection({ user, job }) {
+  const match = analyzeJobMatch(user, job);
+
+  return (
+    <div className="tile mt-8 p-6">
+      <div className="flex items-center justify-between gap-4">
+        <h2 className="inline-flex items-center gap-2 text-h3 font-bold text-ink">
+          <Sparkles className="h-4.5 w-4.5 text-azure" aria-hidden />
+          Your Match
+        </h2>
+        <span className="tabular rounded-full bg-azure-50 px-3 py-1 text-body font-extrabold text-azure-700">
+          {match.percent}%
+        </span>
+      </div>
+      <Progress value={match.percent} className="mt-3" />
+
+      {match.matches.length > 0 && (
+        <ul className="mt-5 flex flex-wrap gap-2">
+          {match.matches.map((m) => (
+            <li key={m} className="inline-flex items-center gap-1.5 rounded-full bg-success/10 px-3 py-1 text-caption font-semibold text-success">
+              <Check className="h-3 w-3" aria-hidden />
+              {m}
+            </li>
+          ))}
+        </ul>
+      )}
+
+      {(match.mandatoryGaps.length > 0 || match.suggested.length > 0) && (
+        <div className="mt-5 space-y-2">
+          {match.mandatoryGaps.map((g) => (
+            <p key={g.label} className="flex items-start gap-2 text-small">
+              <CircleAlert className="mt-0.5 h-4 w-4 shrink-0 text-danger" aria-hidden />
+              <span>
+                <span className="font-semibold text-ink">{g.label}</span>{' '}
+                <span className="text-slate-500">— {g.source}</span>
+              </span>
+            </p>
+          ))}
+          {match.suggested.map((g) => (
+            <p key={g.label} className="flex items-start gap-2 text-small">
+              <Sparkles className="mt-0.5 h-4 w-4 shrink-0 text-azure" aria-hidden />
+              <span>
+                <span className="font-semibold text-ink">{g.label}</span>{' '}
+                <span className="text-slate-500">— {g.source}</span>
+              </span>
+            </p>
+          ))}
+        </div>
+      )}
+
+      <div className="mt-5 rounded-lg border border-line bg-paper p-4">
+        <p className="text-caption font-bold uppercase tracking-wide text-azure-600">AI Recommendation</p>
+        <p className="mt-1.5 text-small text-slate-700">{match.recommendation}</p>
+      </div>
+
+      <div className="mt-5 flex flex-wrap gap-2">
+        <Button to="/profile" variant="outline" size="sm">
+          Improve My Profile
+        </Button>
+        <Button to="/upskills" variant="outline" size="sm">
+          View Recommended Courses
+        </Button>
+      </div>
+    </div>
+  );
+}
 
 function initials(name = '') {
   return name.split(/\s+/).filter(Boolean).slice(0, 2).map((w) => w[0]).join('').toUpperCase();
@@ -21,7 +96,7 @@ function initials(name = '') {
 
 export default function JobDetail() {
   const { id } = useParams();
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, user } = useAuth();
   const toast = useToast();
   const [applyOpen, setApplyOpen] = useState(false);
   const { data: job, loading, error, refetch } = useApi(() => jobService.get(id), [id]);
@@ -197,6 +272,25 @@ export default function JobDetail() {
                     ))}
                   </ul>
                 </>
+              )}
+
+              {isAuthenticated ? (
+                <MatchSection user={user} job={job} />
+              ) : (
+                <div className="tile mt-8 flex flex-col items-start gap-3 p-6 sm:flex-row sm:items-center sm:justify-between">
+                  <div>
+                    <p className="inline-flex items-center gap-2 text-body font-bold text-ink">
+                      <Sparkles className="h-4.5 w-4.5 text-azure" aria-hidden />
+                      See your match for this role
+                    </p>
+                    <p className="mt-1 text-small text-slate-600">
+                      Sign in to compare this job against your DutyLaunch profile.
+                    </p>
+                  </div>
+                  <Button to="/login" variant="outline" size="sm">
+                    Sign in
+                  </Button>
+                </div>
               )}
 
               <div className="mt-10 rounded-xl border border-line bg-paper p-6 text-center lg:hidden">

@@ -5,6 +5,9 @@ import { Container, Section } from '../components/ui/Container.jsx';
 import { SectionHeader } from '../components/ui/SectionHeader.jsx';
 import { Button } from '../components/ui/Button.jsx';
 import { Hero } from '../components/marketing/Hero.jsx';
+import { CareerJourney } from '../components/marketing/CareerJourney.jsx';
+import { OneProfile } from '../components/marketing/OneProfile.jsx';
+import { AiAssistantPreview } from '../components/marketing/AiAssistantPreview.jsx';
 import { ServiceMatrix } from '../components/marketing/ServiceMatrix.jsx';
 import { JourneyRail } from '../components/marketing/JourneyRail.jsx';
 import { TestimonialStrip } from '../components/marketing/TestimonialStrip.jsx';
@@ -43,6 +46,9 @@ export default function Home() {
       />
 
       <Hero />
+      <CareerJourney />
+      <OneProfile />
+      <AiAssistantPreview />
       <ServiceMatrix />
       <JourneyRail />
       <GlobalSpotlight />

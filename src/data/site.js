@@ -87,13 +87,28 @@ export const pillars = [
       { label: 'Your applications', path: '/applications', description: 'Track where each application stands' },
     ],
   },
+  {
+    id: 'career-tools',
+    label: 'Career Tools',
+    path: '/ats-resume-checker',
+    icon: 'Sparkles',
+    summary: 'AI-assisted tools built around your DutyLaunch profile.',
+    items: [
+      { label: 'AI Resume Builder', path: '/ats-resume-checker', description: 'ATS score and fixes for your CV' },
+      { label: 'LinkedIn Optimizer', path: '/career-tools/linkedin', description: 'Headline, About and keyword review' },
+      { label: 'Cover Letter', path: '/career-tools/cover-letter', description: 'A draft built from your profile' },
+      { label: 'AI Interview Coach', path: '/career-tools/interview', description: 'Practice questions by role' },
+      { label: 'Career Profile', path: '/profile', description: 'The foundation every tool reads from' },
+      { label: 'Career Assessment', path: '/assistant', description: 'Ask what to do next' },
+    ],
+  },
 ];
 
 export const primaryNav = [
   { label: 'Services', menu: ['career', 'education'] },
   { label: 'Global & documents', menu: ['global', 'documentation'] },
   { label: 'Jobs', menu: ['jobs'] },
-  { label: 'ATS Score', path: '/ats-resume-checker' },
+  { label: 'Career Tools', menu: ['career-tools'] },
   { label: 'Pricing', path: '/pricing' },
   { label: 'Blog', path: '/blog' },
   { label: 'About', path: '/about' },

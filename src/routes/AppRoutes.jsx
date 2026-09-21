@@ -22,6 +22,9 @@ const ProfessionalCourses = lazy(() => import('../pages/ProfessionalCourses.jsx'
 const DubaiPackage = lazy(() => import('../pages/DubaiPackage.jsx'));
 const Documentation = lazy(() => import('../pages/Documentation.jsx'));
 const AtsResumeChecker = lazy(() => import('../pages/AtsResumeChecker.jsx'));
+const LinkedInOptimizer = lazy(() => import('../pages/career-tools/LinkedInOptimizer.jsx'));
+const CoverLetter = lazy(() => import('../pages/career-tools/CoverLetter.jsx'));
+const InterviewCoach = lazy(() => import('../pages/career-tools/InterviewCoach.jsx'));
 const Jobs = lazy(() => import('../pages/Jobs.jsx'));
 const JobDetail = lazy(() => import('../pages/JobDetail.jsx'));
 const Employer = lazy(() => import('../pages/Employer.jsx'));
@@ -44,6 +47,7 @@ const ForgotPassword = lazy(() => import('../pages/auth/ForgotPassword.jsx'));
 
 /* Dashboard (candidate + employer) */
 const Dashboard = lazy(() => import('../pages/dashboard/Dashboard.jsx'));
+const Assistant = lazy(() => import('../pages/dashboard/Assistant.jsx'));
 const Profile = lazy(() => import('../pages/dashboard/Profile.jsx'));
 const Applications = lazy(() => import('../pages/dashboard/Applications.jsx'));
 const SavedJobs = lazy(() => import('../pages/dashboard/SavedJobs.jsx'));
@@ -86,6 +90,9 @@ export function AppRoutes() {
             <Route path="dubai-job-seeker-package" element={<DubaiPackage />} />
             <Route path="documentation" element={<Documentation />} />
             <Route path="ats-resume-checker" element={<AtsResumeChecker />} />
+            <Route path="career-tools/linkedin" element={<LinkedInOptimizer />} />
+            <Route path="career-tools/cover-letter" element={<CoverLetter />} />
+            <Route path="career-tools/interview" element={<InterviewCoach />} />
             <Route path="jobs" element={<Jobs />} />
             <Route path="jobs/:idOrSlug" element={<JobDetail />} />
             <Route path="employer" element={<Employer />} />
@@ -123,6 +130,9 @@ export function AppRoutes() {
             <Route element={<DashboardLayout />}>
               <Route path="dashboard" element={<Dashboard />} />
               <Route path="profile" element={<Profile />} />
+              <Route element={<ProtectedRoute roles={['user']} />}>
+                <Route path="assistant" element={<Assistant />} />
+              </Route>
               <Route element={<ProtectedRoute roles={['employer']} />}>
                 <Route path="employer/jobs" element={<EmployerJobs />} />
                 <Route path="employer/jobs/new" element={<EmployerJobForm />} />

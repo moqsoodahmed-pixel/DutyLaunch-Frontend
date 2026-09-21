@@ -42,7 +42,7 @@ export function Hero() {
             transition={{ duration: 0.5, ease }}
             className="eyebrow"
           >
-            Career &bull; Education &bull; Global opportunities
+            Your AI-Powered Career Launchpad
           </motion.p>
 
           <motion.h1
@@ -51,9 +51,9 @@ export function Hero() {
             transition={{ duration: 0.6, delay: 0.06, ease }}
             className="mt-5 text-display font-extrabold"
           >
-            Your next career move
+            Build a profile that
             <span className="block bg-gradient-to-r from-azure-600 via-azure to-violet bg-clip-text text-transparent">
-              starts here.
+              gets you noticed.
             </span>
           </motion.h1>
 
@@ -63,9 +63,9 @@ export function Hero() {
             transition={{ duration: 0.6, delay: 0.14, ease }}
             className="mt-5 max-w-xl text-lead text-slate-600"
           >
-            From building a stronger professional profile to finding the right course, job or
-            opportunity abroad, DutyLaunch gives you expert guidance at each step — and tells you
-            plainly when a step isn&apos;t worth taking.
+            Build your professional profile, discover relevant opportunities, identify your career
+            gaps and get personalised recommendations for education and upskilling — all in one
+            connected platform.
           </motion.p>
 
           <motion.div
@@ -74,11 +74,11 @@ export function Hero() {
             transition={{ duration: 0.6, delay: 0.22, ease }}
             className="mt-8 flex flex-col gap-3 sm:flex-row"
           >
-            <Button to="/contact#consultation" size="lg">
-              Book a free consultation
+            <Button to="/register" size="lg">
+              Create My Profile
             </Button>
-            <Button to="/career-services" variant="outline" size="lg">
-              Explore services
+            <Button to="/jobs" variant="outline" size="lg">
+              Explore Jobs
             </Button>
           </motion.div>
 
@@ -88,7 +88,7 @@ export function Hero() {
             transition={{ duration: 0.6, delay: 0.32 }}
             className="mt-5 text-small text-slate-500"
           >
-            The first consultation is free, and it is a conversation rather than a sales call.
+            Free to create a profile — career services and courses are paid separately, never automatically.
           </motion.p>
         </div>
 
