@@ -7,7 +7,7 @@ const ease = [0.16, 0.84, 0.44, 1];
 
 export function Hero() {
   return (
-    <section className="relative overflow-hidden bg-paper pb-24 pt-16 sm:pb-28 lg:pb-36 lg:pt-24">
+    <section className="relative overflow-hidden bg-paper pb-16 pt-12 sm:pb-20 lg:pb-24 lg:pt-16">
       {/* Layered depth: a soft radial glow behind a quiet grid wash. The
           composite still carries most of the visual weight. */}
       <div
@@ -34,8 +34,8 @@ export function Hero() {
         aria-hidden
       />
 
-      <Container className="relative grid items-center gap-16 lg:grid-cols-12 lg:gap-12">
-        <div className="lg:col-span-6">
+      <Container className="relative grid items-center gap-12 xl:grid-cols-12 xl:gap-10">
+        <div className="xl:col-span-7">
           <motion.p
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
@@ -45,13 +45,17 @@ export function Hero() {
             Your AI-Powered Career Launchpad
           </motion.p>
 
+          {/* Sized to the h1 scale (not the wider `display` scale) so the
+              first line fits this column without wrapping mid-phrase — the
+              only line break here is the intentional one before the
+              gradient line. */}
           <motion.h1
             initial={{ opacity: 0, y: 14 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.06, ease }}
-            className="mt-5 text-display font-extrabold"
+            className="mt-5 max-w-[19ch] text-h1 font-extrabold xl:max-w-none"
           >
-            Build a profile that
+            Build a profile that{' '}
             <span className="block bg-gradient-to-r from-azure-600 via-azure to-violet bg-clip-text text-transparent">
               gets you noticed.
             </span>
@@ -72,9 +76,9 @@ export function Hero() {
             initial={{ opacity: 0, y: 14 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.22, ease }}
-            className="mt-8 flex flex-col gap-3 sm:flex-row"
+            className="mt-7 flex flex-col gap-3 sm:flex-row"
           >
-            <Button to="/register" size="lg">
+            <Button to="/register" size="lg" className="group">
               Create My Profile
             </Button>
             <Button to="/jobs" variant="outline" size="lg">
@@ -92,7 +96,7 @@ export function Hero() {
           </motion.p>
         </div>
 
-        <div className="lg:col-span-5 lg:col-start-8">
+        <div className="xl:col-span-5">
           <HeroComposite />
         </div>
       </Container>

@@ -19,6 +19,22 @@ export function SectionHeader({ label, title, lead, aside, align = 'rail', class
     );
   }
 
+  /* Stacked heading — label, title and lead run full-width in a single
+     column. Use this (instead of the default rail split) whenever the
+     header already sits inside a half-width or narrower parent column,
+     so the heading keeps enough room to break naturally instead of
+     wrapping into three or four cramped lines. */
+  if (align === 'stack') {
+    return (
+      <div className={cn('max-w-2xl', className)}>
+        {label && <p className={cn('mb-4 inline-flex', labelClass)}>{label}</p>}
+        <h2 className={cn('text-h2 font-extrabold', tone === 'dark' && 'text-white')}>{title}</h2>
+        {lead && <p className={cn('mt-4 text-lead', muted)}>{lead}</p>}
+        {aside}
+      </div>
+    );
+  }
+
   return (
     <div className={cn('grid gap-6 lg:grid-cols-12 lg:gap-10', className)}>
       <div className="lg:col-span-5">

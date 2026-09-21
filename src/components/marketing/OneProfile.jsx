@@ -25,7 +25,13 @@ export function OneProfile() {
       <Container>
         <div className="grid gap-12 lg:grid-cols-12 lg:items-center">
           <div className="lg:col-span-6">
-            <SectionHeader label="One profile. Multiple opportunities." title="Fill it in once. It works everywhere." />
+            <SectionHeader
+              align="stack"
+              label="One profile. Multiple opportunities."
+              title={
+                <span className="block max-w-[24ch]">Fill it in once. It works everywhere.</span>
+              }
+            />
             <ul className="mt-8 grid grid-cols-2 gap-x-6 gap-y-3">
               {POWERS.map((label) => (
                 <li key={label} className="flex items-start gap-2 text-small text-slate-700">
