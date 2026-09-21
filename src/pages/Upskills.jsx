@@ -1,6 +1,7 @@
 import { Seo } from '../components/ui/Seo.jsx';
 import { Container, Section } from '../components/ui/Container.jsx';
 import { SectionHeader } from '../components/ui/SectionHeader.jsx';
+import { Reveal, RevealGroup, RevealItem } from '../components/ui/Reveal.jsx';
 import { Button } from '../components/ui/Button.jsx';
 import { CardSkeleton, EmptyState } from '../components/ui/States.jsx';
 import { PageHero, HeroActions } from '../components/marketing/PageHero.jsx';
@@ -57,14 +58,19 @@ export default function Upskills() {
 
       <Section tone="white">
         <Container>
-          <SectionHeader
-            label="Diagnosis"
-            title="What is actually stopping you?"
-            lead="Four patterns we see repeatedly, and what each one really calls for."
-          />
-          <div className="mt-10 divide-y divide-line border-y border-line">
+          <Reveal>
+            <SectionHeader
+              label="Diagnosis"
+              title="What is actually stopping you?"
+              lead="Four patterns we see repeatedly, and what each one really calls for."
+            />
+          </Reveal>
+          <RevealGroup className="mt-10 divide-y divide-line border-y border-line" staggerDelay={0.06}>
             {gaps.map((gap) => (
-              <div key={gap.signal} className="grid gap-4 py-6 lg:grid-cols-12 lg:gap-8">
+              <RevealItem
+                key={gap.signal}
+                className="grid gap-4 py-6 transition-colors duration-200 hover:bg-paper/70 lg:grid-cols-12 lg:gap-8"
+              >
                 <h3 className="text-body font-bold text-ink lg:col-span-4">{gap.signal}</h3>
                 <p className="text-body text-slate-600 lg:col-span-5">{gap.read}</p>
                 <div className="lg:col-span-3 lg:text-right">
@@ -72,25 +78,27 @@ export default function Upskills() {
                     {gap.action.label}
                   </Button>
                 </div>
-              </div>
+              </RevealItem>
             ))}
-          </div>
+          </RevealGroup>
         </Container>
       </Section>
 
       <Section tone="paper">
         <Container>
-          <SectionHeader
-            label="Short courses"
-            title="Weeks, not years."
-            aside={
-              <div className="mt-6">
-                <Button to="/courses?track=upskill" variant="outline">
-                  See all short courses
-                </Button>
-              </div>
-            }
-          />
+          <Reveal>
+            <SectionHeader
+              label="Short courses"
+              title="Weeks, not years."
+              aside={
+                <div className="mt-6">
+                  <Button to="/courses?track=upskill" variant="outline">
+                    See all short courses
+                  </Button>
+                </div>
+              }
+            />
+          </Reveal>
           <div className="mt-10">
             {loading && <CardSkeleton count={3} />}
             {!loading && !courses?.length && (

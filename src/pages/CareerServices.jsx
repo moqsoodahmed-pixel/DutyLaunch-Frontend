@@ -3,6 +3,7 @@ import { Check, FileCheck2, ShieldCheck, UserCheck, Zap } from 'lucide-react';
 import { Seo } from '../components/ui/Seo.jsx';
 import { Container, Section } from '../components/ui/Container.jsx';
 import { SectionHeader } from '../components/ui/SectionHeader.jsx';
+import { Reveal, RevealGroup, RevealItem } from '../components/ui/Reveal.jsx';
 import { Button } from '../components/ui/Button.jsx';
 import { PageHero, HeroActions } from '../components/marketing/PageHero.jsx';
 import { CTASection } from '../components/marketing/CTASection.jsx';
@@ -58,11 +59,11 @@ export default function CareerServices() {
 
       <Section tone="paper">
         <Container>
-          <div className="grid gap-5">
+          <RevealGroup className="grid gap-5" staggerDelay={0.06}>
             {careerServices.map((service, index) => {
               const Icon = Icons[service.icon] || Icons.Circle;
               return (
-                <article
+                <RevealItem
                   key={service.id}
                   id={service.id}
                   className="tile grid scroll-mt-24 gap-6 p-6 sm:p-8 lg:grid-cols-12 lg:gap-10"
@@ -100,34 +101,40 @@ export default function CareerServices() {
                       {service.link === '/pricing' ? 'See pricing' : 'Start with a consultation'}
                     </Button>
                   </div>
-                </article>
+                </RevealItem>
               );
             })}
-          </div>
+          </RevealGroup>
         </Container>
       </Section>
 
       <Section tone="white">
         <Container>
-          <SectionHeader
-            label="What happens"
-            title="From brief to final file in about a week."
-            lead="Written so you know exactly what is expected of you and when."
-          />
-          <ol className="mt-10 grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+          <Reveal>
+            <SectionHeader
+              label="What happens"
+              title="From brief to final file in about a week."
+              lead="Written so you know exactly what is expected of you and when."
+            />
+          </Reveal>
+          <RevealGroup as="ol" className="mt-10 grid gap-6 md:grid-cols-2 lg:grid-cols-4" staggerDelay={0.08}>
             {[
               ['You send what you have', 'Current CV, target roles and anything you have already been rejected from. No form-filling marathon.'],
               ['A short call', 'Twenty minutes to find the achievements that are missing from the document. This is where most of the value is.'],
               ['First draft in 2–3 days', 'CV, cover letter and LinkedIn copy together, so the three tell one story.'],
               ['A month of revisions', 'Unlimited, without needing to justify the request. Applications teach you things; the document should keep up.'],
             ].map(([title, body], i) => (
-              <li key={title} className="tile p-5">
+              <RevealItem
+                as="li"
+                key={title}
+                className="tile p-5 transition-transform duration-200 hover:-translate-y-1"
+              >
                 <p className="tabular text-caption font-bold text-azure">Step {i + 1}</p>
                 <h3 className="mt-1.5 text-body font-bold text-ink">{title}</h3>
                 <p className="mt-2 text-small text-slate-600">{body}</p>
-              </li>
+              </RevealItem>
             ))}
-          </ol>
+          </RevealGroup>
         </Container>
       </Section>
 

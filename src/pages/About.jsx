@@ -1,6 +1,7 @@
 import { Seo } from '../components/ui/Seo.jsx';
 import { Container, Section } from '../components/ui/Container.jsx';
 import { SectionHeader } from '../components/ui/SectionHeader.jsx';
+import { Reveal, RevealGroup, RevealItem } from '../components/ui/Reveal.jsx';
 import { PageHero, HeroActions } from '../components/marketing/PageHero.jsx';
 import { CTASection } from '../components/marketing/CTASection.jsx';
 import { pillars } from '../data/site.js';
@@ -43,47 +44,53 @@ export default function About() {
       <Section tone="white">
         <Container>
           <div className="grid gap-10 lg:grid-cols-12">
-            <div className="lg:col-span-5">
-              <h2 className="text-h2 font-bold">What we do</h2>
-              <p className="mt-4 text-lead text-slate-600">
+            <Reveal className="lg:col-span-5">
+              <h2 className="max-w-[16ch] text-h2 font-bold">What we do</h2>
+              <p className="mt-4 max-w-md text-lead text-slate-600">
                 Five connected practices. Most clients use two or three of them over a year rather than all five at once.
               </p>
-            </div>
-            <div className="lg:col-span-6 lg:col-start-7">
+            </Reveal>
+            <RevealGroup className="lg:col-span-6 lg:col-start-7" staggerDelay={0.05}>
               <dl className="divide-y divide-line border-y border-line">
                 {pillars.map((pillar) => (
-                  <div key={pillar.id} className="py-5">
+                  <RevealItem key={pillar.id} className="py-5">
                     <dt className="text-body font-bold text-ink">{pillar.label}</dt>
                     <dd className="mt-1 text-body text-slate-600">{pillar.summary}</dd>
-                  </div>
+                  </RevealItem>
                 ))}
               </dl>
-            </div>
+            </RevealGroup>
           </div>
         </Container>
       </Section>
 
       <Section tone="paper">
         <Container>
-          <SectionHeader
-            label="How we operate"
-            title="Four principles that decide what we sell."
-            lead="These are the rules we apply internally. They are published here so you can hold us to them."
-          />
-          <div className="mt-10 grid gap-x-10 gap-y-8 md:grid-cols-2">
+          <Reveal>
+            <SectionHeader
+              label="How we operate"
+              title="Four principles that decide what we sell."
+              lead="These are the rules we apply internally. They are published here so you can hold us to them."
+            />
+          </Reveal>
+          <RevealGroup className="mt-10 grid gap-x-10 gap-y-8 md:grid-cols-2" staggerDelay={0.08}>
             {principles.map((item, i) => (
-              <article key={item.title} className="border-t-2 border-ink-800 pt-5">
+              <RevealItem
+                key={item.title}
+                className="rounded-lg border-t-2 border-ink-800 px-1 pt-5 transition-transform duration-200 hover:-translate-y-0.5"
+              >
                 <p className="tabular text-caption font-bold text-azure">{String(i + 1).padStart(2, '0')}</p>
                 <h3 className="mt-2 text-h3 font-bold text-ink">{item.title}</h3>
                 <p className="mt-3 text-body text-slate-600">{item.body}</p>
-              </article>
+              </RevealItem>
             ))}
-          </div>
+          </RevealGroup>
         </Container>
       </Section>
 
       <Section tone="white">
         <Container size="narrow">
+          <Reveal>
           <h2 className="text-h2 font-bold">Who we are</h2>
           <div className="mt-5 space-y-4 text-body text-slate-600">
             <p>
@@ -103,6 +110,7 @@ export default function About() {
               still required.
             </p>
           </div>
+          </Reveal>
         </Container>
       </Section>
 

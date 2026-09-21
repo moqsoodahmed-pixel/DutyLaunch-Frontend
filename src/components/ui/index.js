@@ -11,3 +11,4 @@ export { SearchBar } from './SearchBar.jsx';
 export { Breadcrumb } from './Breadcrumb.jsx';
 export { Seo } from './Seo.jsx';
 export { Tabs } from './Tabs.jsx';
+export { Reveal, RevealGroup, RevealItem } from './Reveal.jsx';

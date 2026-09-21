@@ -3,6 +3,7 @@ import { Check, FileCheck2, Minus, ShieldCheck, Star, UserCheck, Zap } from 'luc
 import { Seo } from '../components/ui/Seo.jsx';
 import { Container, Section } from '../components/ui/Container.jsx';
 import { SectionHeader } from '../components/ui/SectionHeader.jsx';
+import { Reveal, RevealGroup, RevealItem } from '../components/ui/Reveal.jsx';
 import { Tabs } from '../components/ui/Tabs.jsx';
 import { Modal } from '../components/ui/Modal.jsx';
 import { LoadingBlock, ErrorState, EmptyState } from '../components/ui/States.jsx';
@@ -115,16 +116,19 @@ export default function Pricing() {
               />
             )}
             {visible.length > 0 && (
-              <div
+              <RevealGroup
                 className={cn(
                   'grid gap-4',
                   visible.length === 1 ? 'max-w-md' : 'md:grid-cols-2 xl:grid-cols-4'
                 )}
+                staggerDelay={0.07}
               >
                 {visible.map((pkg) => (
-                  <PricingCard key={pkg._id} pkg={pkg} onSelect={setSelected} />
+                  <RevealItem key={pkg._id}>
+                    <PricingCard pkg={pkg} onSelect={setSelected} />
+                  </RevealItem>
                 ))}
-              </div>
+              </RevealGroup>
             )}
           </div>
         </Container>
@@ -134,11 +138,13 @@ export default function Pricing() {
       {packages.length > 0 && (
         <Section tone="white">
           <Container>
-            <SectionHeader
-              label="Side by side"
-              title="What differs between the bands."
-              lead="The deliverables are identical. What changes is the depth of the rewrite and the price."
-            />
+            <Reveal>
+              <SectionHeader
+                label="Side by side"
+                title="What differs between the bands."
+                lead="The deliverables are identical. What changes is the depth of the rewrite and the price."
+              />
+            </Reveal>
 
             <div className="mt-10 hidden overflow-x-auto md:block">
               <table className="w-full border-collapse text-left">
@@ -237,20 +243,25 @@ export default function Pricing() {
           make a one-off, no-account purchase feel low-risk. */}
       <Section tone="paper">
         <Container>
-          <SectionHeader
-            label="How it works"
-            title="From payment to a finished CV in four steps."
-            lead="No account needed to start — just choose a bundle and a counsellor takes it from there."
-          />
-          <div className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+          <Reveal>
+            <SectionHeader
+              label="How it works"
+              title="From payment to a finished CV in four steps."
+              lead="No account needed to start — just choose a bundle and a counsellor takes it from there."
+            />
+          </Reveal>
+          <RevealGroup className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-4" staggerDelay={0.08}>
             {PROCESS.map((p) => (
-              <div key={p.step} className="tile relative p-6">
+              <RevealItem
+                key={p.step}
+                className="tile relative p-6 transition-transform duration-200 hover:-translate-y-1"
+              >
                 <span className="text-h1 font-extrabold text-azure-100">{p.step}</span>
                 <h3 className="mt-1 text-body font-bold text-ink">{p.title}</h3>
                 <p className="mt-2 text-small text-slate-600">{p.body}</p>
-              </div>
+              </RevealItem>
             ))}
-          </div>
+          </RevealGroup>
 
           <div className="mt-10 flex flex-wrap items-center justify-center gap-2 rounded-xl border border-line bg-white px-6 py-5 text-center shadow-xs">
             <div className="inline-flex items-center gap-1 text-amber-500">

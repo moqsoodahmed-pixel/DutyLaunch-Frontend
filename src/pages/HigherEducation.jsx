@@ -3,6 +3,7 @@ import { GraduationCap, MapPin, CalendarDays } from 'lucide-react';
 import { Seo } from '../components/ui/Seo.jsx';
 import { Container, Section } from '../components/ui/Container.jsx';
 import { SectionHeader } from '../components/ui/SectionHeader.jsx';
+import { Reveal, RevealGroup, RevealItem } from '../components/ui/Reveal.jsx';
 import { Tabs } from '../components/ui/Tabs.jsx';
 import { Badge } from '../components/ui/Badge.jsx';
 import { Button } from '../components/ui/Button.jsx';
@@ -55,36 +56,44 @@ export default function HigherEducation() {
       {/* Education journey — a horizontal rail, deliberately unlike the homepage's vertical one. */}
       <Section tone="ink">
         <Container>
-          <SectionHeader
-            tone="dark"
-            label="The process"
-            title="Five stages, in this order."
-            lead="Most applicants start at stage two and discover the first stage was the one that mattered."
-          />
-          <ol className="mt-12 grid gap-px overflow-hidden rounded-lg bg-white/10 md:grid-cols-5">
+          <Reveal>
+            <SectionHeader
+              tone="dark"
+              label="The process"
+              title="Five stages, in this order."
+              lead="Most applicants start at stage two and discover the first stage was the one that mattered."
+            />
+          </Reveal>
+          <RevealGroup as="ol" className="mt-12 grid gap-px overflow-hidden rounded-lg bg-white/10 md:grid-cols-5" staggerDelay={0.07}>
             {educationJourney.map((stage, i) => (
-              <li key={stage.stage} className="bg-ink-800 p-5">
+              <RevealItem
+                as="li"
+                key={stage.stage}
+                className="bg-ink-800 p-5 transition-colors duration-200 hover:bg-ink-700"
+              >
                 <span className="tabular text-caption font-bold text-amber-500">0{i + 1}</span>
                 <h3 className="mt-2 text-body font-bold text-white">{stage.stage}</h3>
                 <p className="mt-2 text-small text-slate-300">{stage.detail}</p>
-              </li>
+              </RevealItem>
             ))}
-          </ol>
+          </RevealGroup>
         </Container>
       </Section>
 
       <Section tone="white" id="programmes">
         <Container>
-          <SectionHeader
-            label="Programmes"
-            title="What we advise on."
-            lead="Indicative programme families rather than a list of institutions — the shortlist is built for your budget, intake and target market in the consultation."
-            aside={
-              <div className="mt-6">
-                <Tabs options={levelOptions} value={level} onChange={setLevel} label="Filter by level" />
-              </div>
-            }
-          />
+          <Reveal>
+            <SectionHeader
+              label="Programmes"
+              title="What we advise on."
+              lead="Indicative programme families rather than a list of institutions — the shortlist is built for your budget, intake and target market in the consultation."
+              aside={
+                <div className="mt-6">
+                  <Tabs options={levelOptions} value={level} onChange={setLevel} label="Filter by level" />
+                </div>
+              }
+            />
+          </Reveal>
 
           <div className="mt-10">
             {loading && <CardSkeleton count={6} />}
@@ -96,9 +105,9 @@ export default function HigherEducation() {
               />
             )}
             {!loading && data?.length > 0 && (
-              <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+              <RevealGroup className="grid gap-4 md:grid-cols-2 lg:grid-cols-3" staggerDelay={0.06}>
                 {data.map((program) => (
-                  <article key={program._id} className="tile flex flex-col p-5">
+                  <RevealItem as="article" key={program._id} className="tile flex flex-col p-5">
                     <div className="flex flex-wrap items-center gap-2">
                       <Badge tone="azure">{program.level}</Badge>
                       <Badge tone="outline">{program.field}</Badge>
@@ -129,9 +138,9 @@ export default function HigherEducation() {
                         </div>
                       )}
                     </dl>
-                  </article>
+                  </RevealItem>
                 ))}
-              </div>
+              </RevealGroup>
             )}
           </div>
         </Container>
@@ -140,16 +149,16 @@ export default function HigherEducation() {
       <Section tone="paper">
         <Container>
           <div className="grid gap-10 lg:grid-cols-12">
-            <div className="lg:col-span-5">
-              <h2 className="text-h2 font-bold">What the guidance covers</h2>
-              <p className="mt-4 text-lead text-slate-600">
+            <Reveal className="lg:col-span-5">
+              <h2 className="max-w-[16ch] text-h2 font-bold">What the guidance covers</h2>
+              <p className="mt-4 max-w-md text-lead text-slate-600">
                 The application itself is a small part of it. Most of the work is upstream and downstream.
               </p>
               <Button to="/contact#consultation" className="mt-7">
                 Book a free consultation
               </Button>
-            </div>
-            <div className="lg:col-span-6 lg:col-start-7">
+            </Reveal>
+            <RevealGroup className="lg:col-span-6 lg:col-start-7" staggerDelay={0.05}>
               <dl className="divide-y divide-line border-y border-line">
                 {[
                   ['Shortlisting', 'Against budget, entry requirements, intake dates and post-study work rules in each destination.'],
@@ -159,13 +168,13 @@ export default function HigherEducation() {
                   ['Visa paperwork', 'Document checklists, attestation where required, and the sequence to do it in.'],
                   ['Arrival planning', 'Accommodation, part-time work rules and the graduate job search before you land.'],
                 ].map(([term, detail]) => (
-                  <div key={term} className="py-4">
+                  <RevealItem key={term} className="py-4">
                     <dt className="text-body font-bold text-ink">{term}</dt>
                     <dd className="mt-1 text-body text-slate-600">{detail}</dd>
-                  </div>
+                  </RevealItem>
                 ))}
               </dl>
-            </div>
+            </RevealGroup>
           </div>
         </Container>
       </Section>
