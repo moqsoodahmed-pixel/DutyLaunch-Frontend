@@ -7,6 +7,7 @@ import { Button } from '../../components/ui/Button.jsx';
 import { Seo } from '../../components/ui/Seo.jsx';
 import { authService } from '../../services/authService.js';
 import { useToast } from '../../context/ToastContext.jsx';
+import { friendlyAuthError } from '../../utils/authErrors.js';
 
 export default function ForgotPassword() {
   const toast = useToast();
@@ -24,7 +25,7 @@ export default function ForgotPassword() {
       // confirming otherwise would let someone enumerate registered emails.
       setSent(true);
     } catch (error) {
-      toast.error(error.message);
+      toast.error(friendlyAuthError(error, 'We could not send that link. Please try again.'));
     }
   };
 
@@ -62,8 +63,8 @@ export default function ForgotPassword() {
           error={errors.email?.message}
           {...register('email', { required: 'Enter your email address' })}
         />
-        <Button type="submit" fullWidth loading={isSubmitting}>
-          Send reset link
+        <Button type="submit" fullWidth loading={isSubmitting} disabled={isSubmitting}>
+          {isSubmitting ? 'Sending…' : 'Send reset link'}
         </Button>
       </form>
 

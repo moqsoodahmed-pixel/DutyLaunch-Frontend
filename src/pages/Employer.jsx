@@ -23,7 +23,7 @@ const benefits = [
   { icon: FileText, title: 'Download candidate resumes', body: 'Every application arrives with a resume file you can open or download.' },
 ];
 
-function EmployerInfo() {
+function EmployerInfo({ isAuthenticated }) {
   return (
     <>
       <PageHero
@@ -34,7 +34,10 @@ function EmployerInfo() {
         actions={
           <HeroActions
             primary={{ label: 'Create an employer account', to: '/register' }}
-            secondary={{ label: 'Already registered? Sign in', to: '/login' }}
+            // A signed-in visitor is already authenticated, so "Already
+            // registered? Sign in" would be redundant — HeroActions already
+            // skips rendering a falsy `secondary` cleanly, no empty gap.
+            secondary={isAuthenticated ? undefined : { label: 'Already registered? Sign in', to: '/login' }}
           />
         }
       />
@@ -159,7 +162,11 @@ export default function Employer() {
   return (
     <>
       <Seo title="Employer" description="Post job openings and manage applicants on DutyLaunch." />
-      {isAuthenticated && isEmployer ? <EmployerDashboard /> : <EmployerInfo />}
+      {isAuthenticated && isEmployer ? (
+        <EmployerDashboard />
+      ) : (
+        <EmployerInfo isAuthenticated={isAuthenticated} />
+      )}
     </>
   );
 }

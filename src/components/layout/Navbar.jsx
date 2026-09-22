@@ -15,13 +15,19 @@ export function Navbar() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const { isAuthenticated, isAdmin, user } = useAuth();
-  const { pathname } = useLocation();
+  const location = useLocation();
   const navRef = useRef(null);
 
+  // Depending on `pathname` alone missed navigations that only change the
+  // query string or hash (e.g. /documentation?category=Apostille or
+  // /career-services#counselling) — the dropdown stayed visually open
+  // because pathname hadn't changed even though a real navigation had
+  // happened. Watching the full location tuple closes it for any
+  // navigation, not just a pathname change, with no per-route special-casing.
   useEffect(() => {
     setOpenMenu(null);
     setMobileOpen(false);
-  }, [pathname]);
+  }, [location.pathname, location.search, location.hash]);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 8);
