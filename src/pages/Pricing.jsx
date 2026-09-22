@@ -5,12 +5,14 @@ import { Container, Section } from '../components/ui/Container.jsx';
 import { SectionHeader } from '../components/ui/SectionHeader.jsx';
 import { Reveal, RevealGroup, RevealItem } from '../components/ui/Reveal.jsx';
 import { Tabs } from '../components/ui/Tabs.jsx';
+import { Button } from '../components/ui/Button.jsx';
 import { Modal } from '../components/ui/Modal.jsx';
 import { LoadingBlock, ErrorState, EmptyState } from '../components/ui/States.jsx';
 import { PageHero } from '../components/marketing/PageHero.jsx';
 import { PricingCard } from '../components/marketing/PricingCard.jsx';
 import { ConsultationForm } from '../components/marketing/ConsultationForm.jsx';
 import { CTASection } from '../components/marketing/CTASection.jsx';
+import { TemplateGallery } from '../components/cv/TemplateGallery.jsx';
 import { useApi } from '../hooks/useApi.js';
 import { pricingService } from '../services/contentService.js';
 import { formatCurrency } from '../utils/format.js';
@@ -78,6 +80,16 @@ export default function Pricing() {
         title="Four bundles, priced by experience."
         lead="More experience means more to weigh, cut and reposition — so the bands differ by the work involved, not by how much is included. Every bundle contains the same five deliverables."
         breadcrumb={[{ label: 'Pricing' }]}
+        actions={
+          <>
+            <Button to="/cv-builder?path=new" size="lg">
+              Create a new CV
+            </Button>
+            <Button to="/cv-builder?path=improve" variant="outline" size="lg">
+              Improve my existing CV
+            </Button>
+          </>
+        }
       />
 
       {/* Trust strip — the same social-proof row order-driven CV sites lead
@@ -285,6 +297,8 @@ export default function Pricing() {
       >
         {selected && <ConsultationForm defaultService="CV & LinkedIn" compact />}
       </Modal>
+
+      <TemplateGallery tone="white" />
 
       <CTASection
         title="Unsure which band you fall into?"
