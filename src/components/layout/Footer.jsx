@@ -124,7 +124,7 @@ export function Footer() {
         </div>
 
         {/* ── CONTACT + ADDRESS BAR ── */}
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 24, margin: '40px 0 0', padding: '28px 0', borderTop: '1px solid rgba(255,255,255,.07)', borderBottom: '1px solid rgba(255,255,255,.07)' }}>
+        <div className="dl-contactbar" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 24, margin: '40px 0 0', padding: '28px 0', borderTop: '1px solid rgba(255,255,255,.07)', borderBottom: '1px solid rgba(255,255,255,.07)' }}>
           {/* Contact */}
           <div>
             <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: '.1em', textTransform: 'uppercase', color: '#6da8e0', marginBottom: 14 }}>Contact</div>
@@ -154,6 +154,23 @@ export function Footer() {
             </div>
           </div>
 
+          {/* Registered Office — the registered address of DutyLaunch
+              Solutions Pvt. Ltd., the same legal entity that operates
+              LauncherDesk. Confirm before go-live if the registered address
+              has changed since; delete this block to drop back to two
+              columns (the grid below falls back cleanly). */}
+          <div>
+            <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: '.1em', textTransform: 'uppercase', color: '#6da8e0', marginBottom: 14 }}>Registered Office</div>
+            <div style={{ display: 'flex', gap: 10, alignItems: 'flex-start' }}>
+              <svg viewBox="0 0 24 24" width={14} height={14} fill="none" stroke="#6da8e0" strokeWidth={2} style={{ flexShrink: 0, marginTop: 2 }}><path d="M21 10c0 7-9 12-9 12s-9-5-9-12a9 9 0 0 1 18 0z" /><circle cx="12" cy="10" r="3" /></svg>
+              <span style={{ fontSize: 13, color: '#c8d8e8', lineHeight: 1.7 }}>
+                472/7, 20th L Cross Road<br />
+                4th Block, Koramangala<br />
+                Bangalore – 560095
+              </span>
+            </div>
+          </div>
+
           {/* Corporate Office */}
           <div>
             <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: '.1em', textTransform: 'uppercase', color: '#6da8e0', marginBottom: 14 }}>Corporate Office</div>
@@ -175,16 +192,36 @@ export function Footer() {
 
         {/* ── BOTTOM BAR ── */}
         <div style={{ padding: '20px 0 28px' }}>
-          {/* Registration badges */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap', marginBottom: 20 }}>
-            <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '7px 12px', background: 'rgba(255,255,255,.04)', border: '1px solid rgba(255,255,255,.08)', borderRadius: 999 }}>
-              <svg viewBox="0 0 24 24" width={13} height={13} fill="none" stroke="#93C5FD" strokeWidth={2}><path d="M12 2 3 7v6c0 5 3.8 8.7 9 9 5.2-.3 9-4 9-9V7l-9-5z" /><path d="m9 12 2 2 4-4" /></svg>
-              <span style={{ fontSize: 11.5, fontWeight: 600, color: '#c8d8e8', whiteSpace: 'nowrap' }}>MSME Registered</span>
-            </div>
-            <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '7px 12px', background: 'rgba(255,255,255,.04)', border: '1px solid rgba(255,255,255,.08)', borderRadius: 999 }}>
-              <svg viewBox="0 0 24 24" width={13} height={13} fill="none" stroke="#7ecef4" strokeWidth={2}><path d="M13 2 3 14h7l-1 8 11-14h-7l1-6z" /></svg>
-              <span style={{ fontSize: 11.5, fontWeight: 600, color: '#c8d8e8', whiteSpace: 'nowrap' }}>DPIIT Recognised <span style={{ color: '#7ecef4' }}>#StartupIndia</span></span>
-            </div>
+          {/* Government registration marks. The MSME mark is navy + gold
+              artwork, so it is filtered to flat white to sit on the dark
+              footer; the DPIIT/StartupIndia mark already ships with white
+              DPIIT text and keeps its saffron/green brand colours. */}
+          <div className="dl-badges" style={{ display: 'flex', alignItems: 'center', gap: 28, flexWrap: 'wrap', marginBottom: 20 }}>
+            <img
+              src="/badges/msme.png"
+              alt="MSME registered — Ministry of Micro, Small &amp; Medium Enterprises, Government of India"
+              style={{
+                height: 42,
+                width: 'auto',
+                filter: 'brightness(0) invert(1)',
+                opacity: 0.82,
+                transition: 'opacity .15s',
+              }}
+              onMouseEnter={e => (e.currentTarget.style.opacity = '1')}
+              onMouseLeave={e => (e.currentTarget.style.opacity = '0.82')}
+            />
+            <img
+              src="/badges/startup-india.png"
+              alt="DPIIT recognised — Startup India"
+              style={{
+                height: 42,
+                width: 'auto',
+                opacity: 0.92,
+                transition: 'opacity .15s',
+              }}
+              onMouseEnter={e => (e.currentTarget.style.opacity = '1')}
+              onMouseLeave={e => (e.currentTarget.style.opacity = '0.92')}
+            />
           </div>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 12 }}>
             <p style={{ fontSize: 12, color: '#8aadd0', lineHeight: 1.6, maxWidth: 700, margin: 0 }}>
@@ -198,6 +235,12 @@ export function Footer() {
       </div>
 
       <style>{`
+        @media(max-width:1000px){
+          .dl-contactbar {
+            grid-template-columns: 1fr 1fr !important;
+            gap: 28px 24px !important;
+          }
+        }
         @media(max-width:900px){
           footer > div > div:first-child {
             grid-template-columns: 1fr 1fr !important;
@@ -207,7 +250,7 @@ export function Footer() {
             grid-column: 1 / -1 !important;
             max-width: 560px;
           }
-          footer > div > div:nth-child(2) {
+          .dl-contactbar {
             grid-template-columns: 1fr !important;
             gap: 24px !important;
           }
@@ -220,6 +263,7 @@ export function Footer() {
           footer > div > div:first-child > div:first-child {
             grid-column: 1 / -1 !important;
           }
+          .dl-badges img { height: 34px !important; }
         }
       `}</style>
     </footer>
