@@ -11,7 +11,7 @@ export default defineConfig({
     port: 5173,
     proxy: {
       // Lets the dev client call /api directly without CORS preflight noise.
-      '/api': { target: 'http://localhost:5000', changeOrigin: true },
+      '/api': { target: 'http://localhost:8080', changeOrigin: true },
     },
   },
   build: {
