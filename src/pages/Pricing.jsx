@@ -298,7 +298,12 @@ export default function Pricing() {
         {selected && <ConsultationForm defaultService="CV & LinkedIn" compact />}
       </Modal>
 
-      <TemplateGallery tone="white" />
+      <TemplateGallery
+        tone="white"
+        limit={6}
+        title="ATS templates for your role."
+        cta={{ label: 'Browse all templates', to: '/cv-templates' }}
+      />
 
       <CTASection
         title="Unsure which band you fall into?"

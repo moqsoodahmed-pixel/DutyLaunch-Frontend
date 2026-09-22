@@ -1,429 +1,219 @@
 import { useMemo, useState } from 'react';
-import { useSearchParams } from 'react-router-dom';
-import { AnimatePresence, motion } from 'framer-motion';
-import {
-  ArrowLeft, ArrowRight, Check, FileCheck2, FilePlus2, GraduationCap,
-  PenLine, ScanSearch, ShieldCheck, Sparkles, Upload, Zap,
-} from 'lucide-react';
-import { Seo } from '../components/ui/Seo.jsx';
-import { Container, Section } from '../components/ui/Container.jsx';
-import { Button } from '../components/ui/Button.jsx';
-import { Modal } from '../components/ui/Modal.jsx';
-import { LoadingBlock, ErrorState, EmptyState } from '../components/ui/States.jsx';
-import { PageHero } from '../components/marketing/PageHero.jsx';
-import { ConsultationForm } from '../components/marketing/ConsultationForm.jsx';
-import { TemplateGallery } from '../components/cv/TemplateGallery.jsx';
-import { useApi } from '../hooks/useApi.js';
-import { pricingService } from '../services/contentService.js';
-import { formatCurrency } from '../utils/format.js';
-import { cn } from '../utils/cn.js';
+import { motion } from 'framer-motion';
+import { Check, Search, ShieldCheck, Maximize2 } from 'lucide-react';
+import { Container, Section } from '../ui/Container.jsx';
+import { SectionHeader } from '../ui/SectionHeader.jsx';
+import { Reveal } from '../ui/Reveal.jsx';
+import { Button } from '../ui/Button.jsx';
+import { Tabs } from '../ui/Tabs.jsx';
+import { Modal } from '../ui/Modal.jsx';
+import { EmptyState } from '../ui/States.jsx';
+import { ResumeTemplatePreview } from './ResumeTemplatePreview.jsx';
+import { TEMPLATES, FAMILIES, LAYOUTS, LEVELS, TEMPLATE_COUNT } from '../../data/resumeTemplates.js';
+import { cn } from '../../utils/cn.js';
 
-const EASE = [0.16, 0.84, 0.44, 1];
-
-/**
- * Two entry paths, then one shared pricing step.
- *
- * Prices are never hard-coded here — every figure on this page comes from the
- * CVPackage collection via /api/pricing/cv-packages, the same source the
- * /pricing page reads, so editing a bundle in the admin updates this flow too.
- *
- * If DutyLaunch later publishes a separate rate card for rewrites (a CV-only
- * band, say), add those as CVPackage records carrying `track: 'improve'` and
- * this page will split them automatically — see `packagesForTrack` below.
- * Until such records exist, both paths quote the same published bundles, which
- * is what the rate card actually says today.
- */
-
-const PATHS = {
-  new: {
-    id: 'new',
-    icon: FilePlus2,
-    title: 'Create a new CV',
-    blurb: 'Start from scratch with a career writer. Best if you have no CV, or the one you have is years out of date.',
-    points: [
-      'A writer builds the document from your brief and a short call',
-      'Layout chosen for the roles you are targeting',
-      'Cover letter and LinkedIn written to match',
-    ],
-    cta: 'Build a new CV',
-  },
-  improve: {
-    id: 'improve',
-    icon: PenLine,
-    title: 'Improve my existing CV',
-    blurb: 'Send the CV you already use. We check it against ATS parsing first, then rewrite what is holding it back.',
-    points: [
-      'Free ATS check before you pay anything',
-      'You see the score and the specific issues first',
-      'Rewrite keeps what already works in your document',
-    ],
-    cta: 'Improve my CV',
-  },
+const ATS_LABEL = {
+  max: 'Maximum ATS compatibility',
+  high: 'High ATS compatibility',
 };
 
-/* The path-specific journey. The "improve" route deliberately puts a free
-   diagnostic ahead of payment, because sending someone to checkout before
-   they know what is wrong with their CV is the thing most rewrite services
-   get wrong. */
-const JOURNEYS = {
-  new: [
-    { icon: GraduationCap, title: 'Tell us your experience', body: 'Pick your band so we can quote the right bundle.' },
-    { icon: Sparkles, title: 'Confirm the brief', body: 'A counsellor confirms scope and target roles within a working day.' },
-    { icon: PenLine, title: 'A writer drafts it', body: 'First draft in 2–3 days, written from your brief and call.' },
-    { icon: FileCheck2, title: 'Revise and receive', body: 'Final files plus a month of unlimited revisions.' },
-  ],
-  improve: [
-    { icon: Upload, title: 'Upload your current CV', body: 'Run the free ATS checker and see where it is losing marks.' },
-    { icon: ScanSearch, title: 'Read the report', body: 'Parsing issues, missing keywords and formatting problems, itemised.' },
-    { icon: GraduationCap, title: 'Pick your band', body: 'Quote is based on your experience, same published rate card.' },
-    { icon: PenLine, title: 'We rewrite it', body: 'Rewrite, ATS re-check, then a month of unlimited revisions.' },
-  ],
-};
-
-const TRUST = [
-  { icon: ShieldCheck, label: 'Pay only after the brief is confirmed' },
-  { icon: FileCheck2, label: 'ATS-checked before delivery' },
-  { icon: Zap, label: '2–3 day turnaround' },
-];
-
-function StepDots({ step, total = 3 }) {
+function TemplateCard({ tpl, selected, onSelect, onOpen }) {
   return (
-    <ol className="flex items-center gap-2" aria-label={`Step ${step} of ${total}`}>
-      {Array.from({ length: total }).map((_, i) => {
-        const n = i + 1;
-        const done = n < step;
-        const current = n === step;
-        return (
-          <li key={n} className="flex items-center gap-2">
-            <span
-              aria-current={current ? 'step' : undefined}
-              className={cn(
-                'grid h-7 w-7 place-items-center rounded-full text-caption font-bold transition-colors duration-200',
-                done && 'bg-azure text-white',
-                current && 'bg-ink text-white',
-                !done && !current && 'border border-line bg-white text-slate-400'
-              )}
-            >
-              {done ? <Check className="h-3.5 w-3.5" aria-hidden /> : n}
-            </span>
-            {n < total && <span className={cn('h-px w-6', done ? 'bg-azure' : 'bg-line')} aria-hidden />}
-          </li>
-        );
-      })}
-    </ol>
-  );
-}
-
-function PathCard({ path, onSelect }) {
-  const Icon = path.icon;
-  return (
-    <button
-      type="button"
-      onClick={() => onSelect(path.id)}
-      className="tile group flex h-full flex-col p-7 text-left transition-all duration-200 hover:-translate-y-1 hover:border-azure-300 hover:shadow-lift focus-visible:outline focus-visible:outline-[3px] focus-visible:outline-azure-300 focus-visible:outline-offset-2"
+    <div
+      className={cn(
+        'group flex h-full flex-col overflow-hidden rounded-xl border bg-white transition-all duration-200',
+        selected ? 'border-azure-400 shadow-blue' : 'border-line hover:-translate-y-1 hover:border-azure-200 hover:shadow-lift'
+      )}
     >
-      <span className="tile-icon grid h-12 w-12 place-items-center rounded-lg bg-azure-50 transition-colors duration-200 group-hover:bg-azure-100">
-        <Icon className="h-5 w-5 text-azure" aria-hidden />
-      </span>
-      <h2 className="mt-5 text-h3 font-bold text-ink">{path.title}</h2>
-      <p className="mt-2 text-pretty text-small text-slate-600">{path.blurb}</p>
-      <ul className="mt-5 space-y-2">
-        {path.points.map((point) => (
-          <li key={point} className="flex gap-2 text-small text-slate-700">
-            <Check className="mt-0.5 h-4 w-4 shrink-0 text-success" aria-hidden />
-            {point}
-          </li>
-        ))}
-      </ul>
-      <span className="mt-6 inline-flex items-center gap-1.5 text-small font-semibold text-azure">
-        {path.cta}
-        <ArrowRight className="h-4 w-4 transition-transform duration-200 group-hover:translate-x-1" aria-hidden />
-      </span>
-    </button>
+      <button
+        type="button"
+        onClick={() => onSelect(tpl.id)}
+        aria-pressed={selected}
+        className="relative block w-full border-b border-line bg-paper p-4 text-left focus-visible:outline focus-visible:outline-[3px] focus-visible:outline-azure-300 focus-visible:outline-offset-[-3px]"
+      >
+        <div className="overflow-hidden rounded-sm border border-line shadow-lift transition-transform duration-300 group-hover:-translate-y-1">
+          <ResumeTemplatePreview template={tpl} />
+        </div>
+
+        {selected && (
+          <span className="absolute right-6 top-6 inline-flex items-center gap-1 rounded-full bg-azure px-2.5 py-1 text-caption font-bold text-white shadow-lift">
+            <Check className="h-3 w-3" aria-hidden />
+            Selected
+          </span>
+        )}
+
+        <span
+          onClick={(e) => {
+            e.stopPropagation();
+            onOpen(tpl);
+          }}
+          role="button"
+          tabIndex={0}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+              e.preventDefault();
+              e.stopPropagation();
+              onOpen(tpl);
+            }
+          }}
+          className="absolute bottom-6 left-1/2 inline-flex -translate-x-1/2 translate-y-2 items-center gap-1.5 rounded-full bg-ink px-3.5 py-1.5 text-caption font-semibold text-white opacity-0 shadow-lift transition-all duration-200 group-hover:translate-y-0 group-hover:opacity-100 focus:translate-y-0 focus:opacity-100"
+        >
+          <Maximize2 className="h-3 w-3" aria-hidden />
+          Full preview
+        </span>
+      </button>
+
+      <div className="flex flex-1 flex-col p-5">
+        <div className="flex items-start justify-between gap-3">
+          <h3 className="text-body font-bold text-ink">{tpl.role}</h3>
+          <span className="shrink-0 rounded-full bg-slate-100 px-2.5 py-1 text-caption font-semibold capitalize text-slate-600">
+            {tpl.layout}
+          </span>
+        </div>
+        <p className="mt-2 flex-1 text-pretty text-small text-slate-600">{tpl.headline}</p>
+        <p
+          className={cn(
+            'mt-3 inline-flex items-center gap-1.5 text-caption font-semibold',
+            tpl.ats === 'max' ? 'text-success' : 'text-azure-700'
+          )}
+        >
+          <ShieldCheck className="h-3.5 w-3.5" aria-hidden />
+          {ATS_LABEL[tpl.ats]}
+        </p>
+      </div>
+    </div>
   );
 }
 
-export default function CvBuilder() {
-  const [params, setParams] = useSearchParams();
-  const { data, loading, error, refetch } = useApi(() => pricingService.cvPackages(), []);
-  const [checkout, setCheckout] = useState(null);
+export function TemplateGallery({
+  title = 'Pick the format your CV is written in.',
+  label = 'CV templates',
+  lead,
+  cta = { label: 'Start my CV', to: '/cv-builder' },
+  tone = 'white',
+  limit,
+}) {
+  const [family, setFamily] = useState('all');
+  const [layout, setLayout] = useState('all');
+  const [level, setLevel] = useState('all');
+  const [query, setQuery] = useState('');
+  const [selected, setSelected] = useState(TEMPLATES[0].id);
+  const [preview, setPreview] = useState(null);
 
-  const path = params.get('path') === 'improve' || params.get('path') === 'new' ? params.get('path') : null;
-  const bandSlug = params.get('band') || null;
-
-  const packages = useMemo(() => data || [], [data]);
-
-  /* Forward-compatible: if packages ever carry a `track`, honour it; if none
-     do, every bundle applies to both paths (which is the case today). */
-  const packagesForTrack = useMemo(() => {
-    const tracked = packages.filter((p) => p.track);
-    if (!tracked.length) return packages;
-    return packages.filter((p) => !p.track || p.track === path);
-  }, [packages, path]);
-
-  const ordered = useMemo(
-    () => [...packagesForTrack].sort((a, b) => (a.experienceMin ?? 0) - (b.experienceMin ?? 0)),
-    [packagesForTrack]
-  );
-
-  const selectedPackage = useMemo(
-    () => ordered.find((p) => p.slug === bandSlug) || null,
-    [ordered, bandSlug]
-  );
-
-  const step = !path ? 1 : !selectedPackage ? 2 : 3;
-
-  const go = (patch) => {
-    const next = new URLSearchParams(params);
-    Object.entries(patch).forEach(([k, v]) => (v ? next.set(k, v) : next.delete(k)));
-    setParams(next, { replace: false });
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  };
-
-  const activePath = path ? PATHS[path] : null;
+  const visible = useMemo(() => {
+    const q = query.trim().toLowerCase();
+    const list = TEMPLATES.filter((t) => {
+      if (family !== 'all' && t.family !== family) return false;
+      if (layout !== 'all' && t.layout !== layout) return false;
+      if (level !== 'all' && t.level !== level) return false;
+      if (!q) return true;
+      return (
+        t.role.toLowerCase().includes(q) ||
+        t.headline.toLowerCase().includes(q) ||
+        t.skills.some((s) => s.toLowerCase().includes(q))
+      );
+    });
+    return limit ? list.slice(0, limit) : list;
+  }, [family, layout, level, query, limit]);
 
   return (
-    <>
-      <Seo
-        title="Build or improve your CV"
-        description="Start a new CV with a career writer, or send the CV you already use for a free ATS check and a rewrite. Pricing is set by experience band and confirmed before you pay."
-      />
+    <Section tone={tone}>
+      <Container>
+        <Reveal>
+          <SectionHeader
+            label={label}
+            title={title}
+            lead={
+              lead ??
+              `${TEMPLATE_COUNT} role-specific formats, each written to the sections and keywords screeners look for in that job. Every template is filled in by a career writer with your real history — the bracketed figures below are blanks, not sample results.`
+            }
+          />
+        </Reveal>
 
-      <PageHero
-        eyebrow="CV writing"
-        title={activePath ? activePath.title : 'Start a new CV, or fix the one you have.'}
-        lead={
-          activePath
-            ? activePath.blurb
-            : 'Two ways in. Both end with an ATS-checked CV, a matching cover letter and LinkedIn copy, and a month of unlimited revisions.'
-        }
-        breadcrumb={[{ label: 'Pricing', to: '/pricing' }, { label: 'Build my CV' }]}
-      />
-
-      <div className="border-b border-line bg-white">
-        <Container>
-          <div className="flex flex-col items-start justify-between gap-4 py-5 sm:flex-row sm:items-center">
-            <StepDots step={step} />
-            <ul className="flex flex-wrap items-center gap-x-6 gap-y-2 text-small font-semibold text-slate-600">
-              {TRUST.map(({ icon: Icon, label }) => (
-                <li key={label} className="inline-flex items-center gap-2">
-                  <Icon className="h-4 w-4 text-azure" aria-hidden />
-                  {label}
-                </li>
-              ))}
-            </ul>
+        {/* Filters */}
+        <div className="mt-8 space-y-3">
+          <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+            <Tabs options={FAMILIES} value={family} onChange={setFamily} label="Filter templates by role family" />
+            <label className="relative w-full lg:max-w-xs">
+              <span className="sr-only">Search templates by role or skill</span>
+              <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" aria-hidden />
+              <input
+                type="search"
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+                placeholder="Search role or skill"
+                className="h-11 w-full rounded-sm border border-line bg-white pl-9 pr-3 text-small text-ink placeholder:text-slate-400 focus:border-azure focus:outline-none focus:ring-2 focus:ring-azure-100"
+              />
+            </label>
           </div>
-        </Container>
-      </div>
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+            <Tabs options={LAYOUTS} value={layout} onChange={setLayout} label="Filter templates by layout" />
+            <Tabs options={LEVELS} value={level} onChange={setLevel} label="Filter templates by experience" />
+          </div>
+        </div>
 
-      <Section tone="paper">
-        <Container>
-          <AnimatePresence mode="wait">
-            {/* ---------- Step 1: which path ---------- */}
-            {step === 1 && (
-              <motion.div
-                key="step-path"
-                initial={{ opacity: 0, y: 16 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -12 }}
-                transition={{ duration: 0.35, ease: EASE }}
+        <p className="mt-5 text-small text-slate-500" aria-live="polite">
+          Showing {visible.length} of {TEMPLATE_COUNT} templates
+        </p>
+
+        {visible.length === 0 ? (
+          <div className="mt-6">
+            <EmptyState
+              title="No templates match those filters"
+              description="Try a different role family, or clear the search box."
+            />
+          </div>
+        ) : (
+          <ul className="mt-6 grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
+            {visible.map((tpl, i) => (
+              <motion.li
+                key={tpl.id}
+                layout
+                initial={{ opacity: 0, y: 14 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: '-60px' }}
+                transition={{ duration: 0.35, delay: Math.min(i * 0.03, 0.2), ease: [0.16, 0.84, 0.44, 1] }}
               >
-                <h2 className="max-w-[22ch] text-h2 font-extrabold text-ink">
-                  Where are you starting from?
-                </h2>
-                <p className="mt-3 max-w-prose text-lead text-slate-600">
-                  This only changes how we begin. The deliverables are the same either way.
-                </p>
-                <div className="mt-8 grid gap-5 lg:grid-cols-2">
-                  {Object.values(PATHS).map((p) => (
-                    <PathCard key={p.id} path={p} onSelect={(id) => go({ path: id, band: null })} />
-                  ))}
-                </div>
-              </motion.div>
-            )}
+                <TemplateCard tpl={tpl} selected={selected === tpl.id} onSelect={setSelected} onOpen={setPreview} />
+              </motion.li>
+            ))}
+          </ul>
+        )}
 
-            {/* ---------- Step 2: experience band ---------- */}
-            {step === 2 && (
-              <motion.div
-                key="step-band"
-                initial={{ opacity: 0, y: 16 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -12 }}
-                transition={{ duration: 0.35, ease: EASE }}
-              >
-                <button
-                  type="button"
-                  onClick={() => go({ path: null, band: null })}
-                  className="inline-flex items-center gap-1.5 text-small font-semibold text-slate-600 hover:text-ink"
-                >
-                  <ArrowLeft className="h-4 w-4" aria-hidden />
-                  Back
-                </button>
-
-                <h2 className="mt-5 max-w-[22ch] text-h2 font-extrabold text-ink">
-                  How long have you been working?
-                </h2>
-                <p className="mt-3 max-w-prose text-lead text-slate-600">
-                  {path === 'improve'
-                    ? 'The rewrite is priced by how much there is to reposition, so the band sets the quote.'
-                    : 'More experience means more to weigh, cut and reposition — that is what the bands price.'}
-                </p>
-
-                <div className="mt-8">
-                  {loading && <LoadingBlock label="Loading bundles" />}
-                  {error && <ErrorState error={error} onRetry={refetch} />}
-                  {!loading && !error && !ordered.length && (
-                    <EmptyState
-                      title="Pricing is not published yet"
-                      description="CV bundles come from the database. Run the seed script or add them in the admin."
-                    />
-                  )}
-
-                  {ordered.length > 0 && (
-                    <ul className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-                      {ordered.map((pkg, i) => (
-                        <motion.li
-                          key={pkg._id}
-                          initial={{ opacity: 0, y: 14 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          transition={{ duration: 0.35, delay: i * 0.06, ease: EASE }}
-                        >
-                          <button
-                            type="button"
-                            onClick={() => go({ band: pkg.slug })}
-                            className="tile group flex h-full w-full flex-col p-6 text-left transition-all duration-200 hover:-translate-y-1 hover:border-azure-300 hover:shadow-lift focus-visible:outline focus-visible:outline-[3px] focus-visible:outline-azure-300 focus-visible:outline-offset-2"
-                          >
-                            {pkg.isPopular && (
-                              <span className="mb-3 inline-flex w-fit rounded-full bg-azure-50 px-2.5 py-1 text-caption font-bold text-azure-700">
-                                Most chosen
-                              </span>
-                            )}
-                            <span className="text-h3 font-extrabold text-ink">{pkg.experienceBand}</span>
-                            <span className="mt-1 text-small font-semibold text-slate-500">{pkg.name}</span>
-                            <p className="mt-3 flex-1 text-pretty text-small text-slate-600">{pkg.bestFor}</p>
-                            <span className="mt-5 inline-flex items-center gap-1.5 text-small font-semibold text-azure">
-                              See the price
-                              <ArrowRight
-                                className="h-4 w-4 transition-transform duration-200 group-hover:translate-x-1"
-                                aria-hidden
-                              />
-                            </span>
-                          </button>
-                        </motion.li>
-                      ))}
-                    </ul>
-                  )}
-                </div>
-              </motion.div>
-            )}
-
-            {/* ---------- Step 3: the quote ---------- */}
-            {step === 3 && selectedPackage && (
-              <motion.div
-                key="step-quote"
-                initial={{ opacity: 0, y: 16 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -12 }}
-                transition={{ duration: 0.35, ease: EASE }}
-              >
-                <button
-                  type="button"
-                  onClick={() => go({ band: null })}
-                  className="inline-flex items-center gap-1.5 text-small font-semibold text-slate-600 hover:text-ink"
-                >
-                  <ArrowLeft className="h-4 w-4" aria-hidden />
-                  Change experience band
-                </button>
-
-                <div className="mt-6 grid gap-6 lg:grid-cols-12">
-                  <div className="lg:col-span-7">
-                    <div className="tile p-7">
-                      <div className="flex flex-wrap items-start justify-between gap-4">
-                        <div>
-                          <p className="eyebrow">{selectedPackage.experienceBand}</p>
-                          <h2 className="mt-3 text-h2 font-extrabold text-ink">{selectedPackage.name}</h2>
-                          {selectedPackage.tagline && (
-                            <p className="mt-2 max-w-prose text-small text-slate-600">{selectedPackage.tagline}</p>
-                          )}
-                        </div>
-                        <div className="text-right">
-                          <p className="tabular text-display font-extrabold leading-none text-ink">
-                            {formatCurrency(selectedPackage.price, selectedPackage.currency)}
-                          </p>
-                          <p className="mt-1 text-caption text-slate-500">one-off, inclusive of revisions</p>
-                        </div>
-                      </div>
-
-                      <ul className="mt-7 grid gap-2.5 sm:grid-cols-2">
-                        {selectedPackage.features
-                          ?.filter((f) => f.included)
-                          .map((f) => (
-                            <li key={f.label} className="flex gap-2 text-small text-slate-700">
-                              <Check className="mt-0.5 h-4 w-4 shrink-0 text-success" aria-hidden />
-                              {f.label}
-                            </li>
-                          ))}
-                      </ul>
-
-                      <div className="mt-7 flex flex-col gap-3 sm:flex-row">
-                        <Button size="lg" onClick={() => setCheckout(selectedPackage)}>
-                          {path === 'improve' ? 'Send my CV for rewrite' : 'Start this bundle'}
-                        </Button>
-                        {path === 'improve' && (
-                          <Button to="/ats-resume-checker" variant="outline" size="lg">
-                            Run the free ATS check first
-                          </Button>
-                        )}
-                      </div>
-                      <p className="mt-4 text-small text-slate-500">
-                        Nothing is charged here. A counsellor confirms the brief and sends a payment link within one
-                        working day.
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="lg:col-span-5">
-                    <div className="rounded-xl border border-line bg-white p-6">
-                      <h3 className="text-body font-bold text-ink">What happens next</h3>
-                      <ol className="mt-5 space-y-5">
-                        {JOURNEYS[path].map(({ icon: Icon, title, body }, i) => (
-                          <li key={title} className="flex gap-3">
-                            <span className="grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-azure-50">
-                              <Icon className="h-4 w-4 text-azure" aria-hidden />
-                            </span>
-                            <div>
-                              <p className="text-small font-bold text-ink">
-                                <span className="tabular mr-1.5 text-slate-400">{i + 1}.</span>
-                                {title}
-                              </p>
-                              <p className="mt-0.5 text-small text-slate-600">{body}</p>
-                            </div>
-                          </li>
-                        ))}
-                      </ol>
-                    </div>
-                  </div>
-                </div>
-              </motion.div>
-            )}
-          </AnimatePresence>
-        </Container>
-      </Section>
-
-      <TemplateGallery
-        tone="white"
-        cta={{ label: 'See all bundles', to: '/pricing' }}
-      />
+        <div className="mt-8 flex flex-col items-center gap-3 rounded-xl border border-line bg-white px-6 py-6 text-center sm:flex-row sm:justify-between sm:text-left">
+          <p className="max-w-prose text-small text-slate-600">
+            Not sure which fits? A counsellor picks the format against your target roles, and the layout can be
+            swapped during the revision window at no extra cost.
+          </p>
+          <Button to={cta.to} className="shrink-0">
+            {cta.label}
+          </Button>
+        </div>
+      </Container>
 
       <Modal
-        open={Boolean(checkout)}
-        onClose={() => setCheckout(null)}
-        title={checkout ? `Start the ${checkout.name} bundle` : ''}
-        description="Send your details and a counsellor will confirm the brief and payment link within one working day."
+        open={Boolean(preview)}
+        onClose={() => setPreview(null)}
+        title={preview ? `${preview.role} — ${preview.layout} template` : ''}
+        description={preview ? ATS_LABEL[preview.ats] : ''}
         size="lg"
       >
-        {checkout && <ConsultationForm defaultService="CV & LinkedIn" compact />}
+        {preview && (
+          <div className="space-y-4">
+            <div className="overflow-hidden rounded-sm border border-line shadow-lift">
+              <ResumeTemplatePreview template={preview} crop={false} />
+            </div>
+            <div className="flex flex-col gap-3 sm:flex-row">
+              <Button to={cta.to} fullWidth>
+                {cta.label}
+              </Button>
+              <Button variant="outline" fullWidth onClick={() => setPreview(null)}>
+                Back to templates
+              </Button>
+            </div>
+          </div>
+        )}
       </Modal>
-    </>
+    </Section>
   );
 }

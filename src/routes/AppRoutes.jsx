@@ -15,6 +15,7 @@ const About = lazy(() => import('../pages/About.jsx'));
 const CareerServices = lazy(() => import('../pages/CareerServices.jsx'));
 const Pricing = lazy(() => import('../pages/Pricing.jsx'));
 const CvBuilder = lazy(() => import('../pages/CvBuilder.jsx'));
+const CvTemplates = lazy(() => import('../pages/CvTemplates.jsx'));
 const Upskills = lazy(() => import('../pages/Upskills.jsx'));
 const HigherEducation = lazy(() => import('../pages/HigherEducation.jsx'));
 const Courses = lazy(() => import('../pages/Courses.jsx'));
@@ -84,6 +85,7 @@ export function AppRoutes() {
             <Route path="career-services" element={<CareerServices />} />
             <Route path="pricing" element={<Pricing />} />
             <Route path="cv-builder" element={<CvBuilder />} />
+            <Route path="cv-templates" element={<CvTemplates />} />
             <Route path="upskills" element={<Upskills />} />
             <Route path="higher-education" element={<HigherEducation />} />
             <Route path="courses" element={<Courses />} />

@@ -1,174 +1,307 @@
+import { useEffect, useRef, useState } from 'react';
+
 /**
- * Abstract layout previews for the CV formats DutyLaunch writes in.
+ * Renders a real, ATS-formatted CV document for a given role template and
+ * scales it to whatever box it is dropped into.
  *
- * These are drawn as SVG structure — rules, blocks and column shapes — rather
- * than rendered sample CVs. That is deliberate: a gallery of realistic-looking
- * resumes would mean inventing candidate names, employers and achievements,
- * and putting invented logos on the page. The shape of the document is the
- * part that is actually being chosen here, so the shape is what is shown.
+ * The document is laid out at true A4 (794 x 1123 CSS px at 96dpi) and then
+ * transform-scaled, so a thumbnail and the full-size modal preview are the
+ * same markup at different scales — no separate "small" artwork to keep in
+ * sync, and the text stays crisp because it is text, not an image.
  *
- * Every layout below is single-column in its text flow (the "sidebar" variants
- * keep body content in one parseable column) because multi-column text is the
- * most common reason a CV is mis-read by an applicant tracking system.
+ * ATS rules deliberately followed in every layout below:
+ *   - one text flow, top to bottom (the sidebar variants place the rail AFTER
+ *     the main column in DOM order, so a parser reads role history first)
+ *   - no <table> for layout, no text boxes, no multi-column text
+ *   - real headings in document order: Summary, Experience, Skills, Education
+ *   - dates in a consistent "MM/YYYY – MM/YYYY" form on the same line as role
+ *   - no images, icons or graphics carrying information
  */
 
-const INK = 'var(--tpl-ink, #0f1f3d)';
-const ACCENT = 'var(--tpl-accent, #2563eb)';
-const MUTED = 'var(--tpl-muted, #cbd5e1)';
-const FAINT = 'var(--tpl-faint, #e2e8f0)';
+const PAGE_W = 794;
+const PAGE_H = 1123;
 
-/** A run of body-copy rules. */
-function Lines({ x, y, width, count = 3, gap = 7, color = MUTED, last = 0.62 }) {
-  return Array.from({ length: count }).map((_, i) => (
-    <rect
-      key={i}
-      x={x}
-      y={y + i * gap}
-      width={i === count - 1 ? width * last : width}
-      height={2.6}
-      rx={1.3}
-      fill={color}
-    />
+const CONTACT = 'your.email@example.com  |  +91 00000 00000  |  City, Country  |  linkedin.com/in/yourprofile';
+const COMPANIES = ['Company Name', 'Previous Company', 'Earlier Employer'];
+const DATES = ['MM/YYYY – Present', 'MM/YYYY – MM/YYYY', 'MM/YYYY – MM/YYYY'];
+
+function useFitScale(ref, deps = []) {
+  const [scale, setScale] = useState(0.25);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return undefined;
+    const set = () => setScale(el.clientWidth / PAGE_W);
+    set();
+    const ro = new ResizeObserver(set);
+    ro.observe(el);
+    return () => ro.disconnect();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, deps);
+  return scale;
+}
+
+function SectionTitle({ children, rule = true, center = false }) {
+  return (
+    <h3
+      style={{
+        fontSize: 13,
+        fontWeight: 700,
+        letterSpacing: '0.08em',
+        textTransform: 'uppercase',
+        color: '#0f1f3d',
+        margin: '18px 0 6px',
+        paddingBottom: rule ? 4 : 0,
+        borderBottom: rule ? '1px solid #0f1f3d' : 'none',
+        textAlign: center ? 'center' : 'left',
+      }}
+    >
+      {children}
+    </h3>
+  );
+}
+
+function Bullets({ items, size = 11.5 }) {
+  return (
+    <ul style={{ margin: '4px 0 0', paddingLeft: 16 }}>
+      {items.map((b, i) => (
+        <li key={i} style={{ fontSize: size, lineHeight: 1.45, color: '#26334d', marginBottom: 2 }}>
+          {b}
+        </li>
+      ))}
+    </ul>
+  );
+}
+
+function ExperienceBlock({ tpl, count = 3, size = 11.5 }) {
+  return COMPANIES.slice(0, count).map((company, i) => (
+    <div key={company} style={{ marginBottom: 10 }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', gap: 12 }}>
+        <span style={{ fontSize: size + 1, fontWeight: 700, color: '#0f1f3d' }}>
+          {tpl.titles[i] || tpl.titles[0]}
+        </span>
+        <span style={{ fontSize: size - 0.5, color: '#5b6880', whiteSpace: 'nowrap' }}>{DATES[i]}</span>
+      </div>
+      <div style={{ fontSize: size, color: '#26334d', fontStyle: 'italic' }}>{company} — City, Country</div>
+      <Bullets items={tpl.bullets.slice(0, i === 0 ? 4 : 2)} size={size} />
+    </div>
   ));
 }
 
-/** A section heading rule plus its underline. */
-function Heading({ x, y, width = 40, color = INK, rule = false, ruleWidth }) {
+function SkillsInline({ tpl, size = 11.5 }) {
   return (
-    <>
-      <rect x={x} y={y} width={width} height={4} rx={2} fill={color} />
-      {rule && <rect x={x} y={y + 7} width={ruleWidth ?? width * 2.6} height={1} fill={FAINT} />}
-    </>
+    <p style={{ fontSize: size, lineHeight: 1.6, color: '#26334d', margin: 0 }}>
+      {tpl.skills.join('  •  ')}
+    </p>
   );
 }
 
-function Classic() {
+function EducationBlock({ tpl, size = 11.5 }) {
   return (
-    <>
-      <rect x={22} y={18} width={76} height={7} rx={3.5} fill={INK} />
-      <rect x={22} y={30} width={52} height={3.5} rx={1.75} fill={ACCENT} />
-      <rect x={22} y={40} width={116} height={1} fill={FAINT} />
-      <Heading x={22} y={50} rule ruleWidth={116} />
-      <Lines x={22} y={64} width={116} count={3} />
-      <Heading x={22} y={92} rule ruleWidth={116} />
-      <Lines x={22} y={106} width={116} count={4} />
-      <Heading x={22} y={142} rule ruleWidth={116} />
-      <Lines x={22} y={156} width={116} count={3} />
-    </>
+    <div style={{ display: 'flex', justifyContent: 'space-between', gap: 12 }}>
+      <span style={{ fontSize: size, color: '#26334d' }}>
+        <strong style={{ color: '#0f1f3d' }}>{tpl.degree}</strong> — University / Institution Name
+      </span>
+      <span style={{ fontSize: size - 0.5, color: '#5b6880', whiteSpace: 'nowrap' }}>YYYY – YYYY</span>
+    </div>
   );
 }
 
-function SidebarLeft() {
-  return (
-    <>
-      <rect x={0} y={0} width={54} height={220} fill={INK} />
-      <circle cx={27} cy={30} r={12} fill="#ffffff" opacity={0.18} />
-      <Lines x={12} y={52} width={30} count={2} color="#ffffff" />
-      <rect x={12} y={74} width={22} height={3} rx={1.5} fill={ACCENT} />
-      <Lines x={12} y={84} width={30} count={4} color="#ffffff" />
-      <rect x={12} y={120} width={22} height={3} rx={1.5} fill={ACCENT} />
-      <Lines x={12} y={130} width={30} count={3} color="#ffffff" />
+/* ---------------- layouts ---------------- */
 
-      <rect x={68} y={20} width={70} height={7} rx={3.5} fill={INK} />
-      <rect x={68} y={32} width={48} height={3.5} rx={1.75} fill={ACCENT} />
-      <Heading x={68} y={48} rule ruleWidth={72} />
-      <Lines x={68} y={62} width={72} count={3} />
-      <Heading x={68} y={90} rule ruleWidth={72} />
-      <Lines x={68} y={104} width={72} count={4} />
-      <Heading x={68} y={140} rule ruleWidth={72} />
-      <Lines x={68} y={154} width={72} count={3} />
-    </>
+function Classic({ tpl }) {
+  return (
+    <div style={{ padding: '46px 56px' }}>
+      <h1 style={{ fontSize: 30, fontWeight: 800, letterSpacing: '0.02em', color: '#0f1f3d', margin: 0 }}>
+        YOUR NAME
+      </h1>
+      <p style={{ fontSize: 13.5, color: '#1d5db8', fontWeight: 600, margin: '4px 0 0' }}>{tpl.headline}</p>
+      <p style={{ fontSize: 11, color: '#5b6880', margin: '6px 0 0' }}>{CONTACT}</p>
+
+      <SectionTitle>Professional Summary</SectionTitle>
+      <p style={{ fontSize: 11.5, lineHeight: 1.5, color: '#26334d', margin: 0 }}>{tpl.summary}</p>
+
+      <SectionTitle>Professional Experience</SectionTitle>
+      <ExperienceBlock tpl={tpl} />
+
+      <SectionTitle>Skills</SectionTitle>
+      <SkillsInline tpl={tpl} />
+
+      <SectionTitle>Education</SectionTitle>
+      <EducationBlock tpl={tpl} />
+
+      {tpl.certs.length > 0 && (
+        <>
+          <SectionTitle>Certifications</SectionTitle>
+          <Bullets items={tpl.certs} />
+        </>
+      )}
+    </div>
   );
 }
 
-function Banner() {
+function Compact({ tpl }) {
   return (
-    <>
-      <rect x={0} y={0} width={160} height={46} fill={INK} />
-      <rect x={20} y={14} width={72} height={7} rx={3.5} fill="#ffffff" />
-      <rect x={20} y={26} width={50} height={3.5} rx={1.75} fill={ACCENT} />
-      <Heading x={20} y={62} rule ruleWidth={120} />
-      <Lines x={20} y={76} width={120} count={3} />
-      <Heading x={20} y={104} rule ruleWidth={120} />
-      <Lines x={20} y={118} width={120} count={4} />
-      <Heading x={20} y={154} rule ruleWidth={120} />
-      <Lines x={20} y={168} width={120} count={2} />
-    </>
+    <div style={{ padding: '38px 52px' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', gap: 16 }}>
+        <h1 style={{ fontSize: 25, fontWeight: 800, color: '#0f1f3d', margin: 0 }}>YOUR NAME</h1>
+        <span style={{ fontSize: 10.5, color: '#5b6880', textAlign: 'right' }}>{CONTACT}</span>
+      </div>
+      <p style={{ fontSize: 12.5, color: '#1d5db8', fontWeight: 600, margin: '3px 0 0' }}>{tpl.headline}</p>
+      <div style={{ borderTop: '2px solid #0f1f3d', marginTop: 8 }} />
+
+      <SectionTitle rule={false}>Summary</SectionTitle>
+      <p style={{ fontSize: 10.5, lineHeight: 1.45, color: '#26334d', margin: 0 }}>{tpl.summary}</p>
+
+      <SectionTitle rule={false}>Experience</SectionTitle>
+      <ExperienceBlock tpl={tpl} size={10.5} />
+
+      <SectionTitle rule={false}>Skills</SectionTitle>
+      <SkillsInline tpl={tpl} size={10.5} />
+
+      <SectionTitle rule={false}>Education</SectionTitle>
+      <EducationBlock tpl={tpl} size={10.5} />
+
+      {tpl.certs.length > 0 && (
+        <>
+          <SectionTitle rule={false}>Certifications</SectionTitle>
+          <Bullets items={tpl.certs} size={10.5} />
+        </>
+      )}
+    </div>
   );
 }
 
-function TwoTone() {
+function Banner({ tpl }) {
   return (
-    <>
-      <rect x={0} y={0} width={160} height={4} fill={ACCENT} />
-      <rect x={20} y={20} width={80} height={7} rx={3.5} fill={INK} />
-      <rect x={20} y={32} width={54} height={3.5} rx={1.75} fill={ACCENT} />
-      <rect x={20} y={46} width={120} height={22} rx={3} fill={FAINT} opacity={0.75} />
-      <Heading x={20} y={82} />
-      <Lines x={20} y={94} width={120} count={4} />
-      <rect x={20} y={130} width={58} height={34} rx={3} fill={FAINT} opacity={0.6} />
-      <rect x={82} y={130} width={58} height={34} rx={3} fill={FAINT} opacity={0.6} />
-      <Lines x={20} y={174} width={120} count={2} />
-    </>
+    <div>
+      <div style={{ background: '#0f1f3d', padding: '30px 56px 26px' }}>
+        <h1 style={{ fontSize: 29, fontWeight: 800, color: '#ffffff', margin: 0 }}>YOUR NAME</h1>
+        <p style={{ fontSize: 13, color: '#9fc2f5', fontWeight: 600, margin: '4px 0 0' }}>{tpl.headline}</p>
+        <p style={{ fontSize: 10.5, color: '#c7d6ec', margin: '6px 0 0' }}>{CONTACT}</p>
+      </div>
+      <div style={{ padding: '10px 56px 46px' }}>
+        <SectionTitle>Professional Summary</SectionTitle>
+        <p style={{ fontSize: 11.5, lineHeight: 1.5, color: '#26334d', margin: 0 }}>{tpl.summary}</p>
+
+        <SectionTitle>Professional Experience</SectionTitle>
+        <ExperienceBlock tpl={tpl} />
+
+        <SectionTitle>Skills</SectionTitle>
+        <SkillsInline tpl={tpl} />
+
+        <SectionTitle>Education</SectionTitle>
+        <EducationBlock tpl={tpl} />
+      </div>
+    </div>
   );
 }
 
-function Compact() {
+function Executive({ tpl }) {
   return (
-    <>
-      <rect x={20} y={18} width={66} height={6} rx={3} fill={INK} />
-      <rect x={20} y={28} width={44} height={3} rx={1.5} fill={ACCENT} />
-      <rect x={20} y={38} width={120} height={1} fill={FAINT} />
-      <Heading x={20} y={46} width={32} />
-      <Lines x={20} y={56} width={120} count={2} gap={6} />
-      <Heading x={20} y={76} width={32} />
-      <Lines x={20} y={86} width={120} count={3} gap={6} />
-      <Heading x={20} y={112} width={32} />
-      <Lines x={20} y={122} width={120} count={3} gap={6} />
-      <Heading x={20} y={148} width={32} />
-      <Lines x={20} y={158} width={120} count={3} gap={6} />
-    </>
+    <div style={{ padding: '46px 56px' }}>
+      <h1 style={{ fontSize: 31, fontWeight: 800, color: '#0f1f3d', margin: 0, textAlign: 'center' }}>
+        YOUR NAME
+      </h1>
+      <p style={{ fontSize: 13, color: '#1d5db8', fontWeight: 600, margin: '4px 0 0', textAlign: 'center' }}>
+        {tpl.headline}
+      </p>
+      <p style={{ fontSize: 10.5, color: '#5b6880', margin: '6px 0 0', textAlign: 'center' }}>{CONTACT}</p>
+      <div style={{ borderTop: '2px solid #0f1f3d', margin: '14px 0 0' }} />
+
+      <SectionTitle center rule={false}>Executive Summary</SectionTitle>
+      <p style={{ fontSize: 11.5, lineHeight: 1.55, color: '#26334d', margin: 0 }}>{tpl.summary}</p>
+
+      <SectionTitle center rule={false}>Core Competencies</SectionTitle>
+      <SkillsInline tpl={tpl} />
+
+      <SectionTitle center rule={false}>Professional Experience</SectionTitle>
+      <ExperienceBlock tpl={tpl} />
+
+      <SectionTitle center rule={false}>Education & Certifications</SectionTitle>
+      <EducationBlock tpl={tpl} />
+      {tpl.certs.length > 0 && <Bullets items={tpl.certs} />}
+    </div>
   );
 }
 
-function Executive() {
+/* Sidebar keeps the main column FIRST in DOM order so an ATS reads the role
+   history before the skills rail. The visual swap is done with flex order. */
+function Sidebar({ tpl }) {
   return (
-    <>
-      <rect x={20} y={18} width={90} height={8} rx={4} fill={INK} />
-      <rect x={20} y={31} width={60} height={3.5} rx={1.75} fill={ACCENT} />
-      <rect x={20} y={44} width={120} height={2} fill={INK} />
-      <rect x={20} y={54} width={120} height={26} rx={3} fill={FAINT} opacity={0.7} />
-      <Heading x={20} y={92} width={44} rule ruleWidth={120} />
-      <Lines x={20} y={106} width={120} count={3} />
-      <rect x={20} y={136} width={4} height={38} rx={2} fill={ACCENT} />
-      <Lines x={32} y={138} width={108} count={4} />
-    </>
+    <div>
+      <div style={{ padding: '38px 44px 18px' }}>
+        <h1 style={{ fontSize: 28, fontWeight: 800, color: '#0f1f3d', margin: 0 }}>YOUR NAME</h1>
+        <p style={{ fontSize: 12.5, color: '#1d5db8', fontWeight: 600, margin: '4px 0 0' }}>{tpl.headline}</p>
+        <p style={{ fontSize: 10.5, color: '#5b6880', margin: '6px 0 0' }}>{CONTACT}</p>
+      </div>
+      <div style={{ display: 'flex', gap: 26, padding: '0 44px 44px' }}>
+        <div style={{ flex: 1, order: 2 }}>
+          <SectionTitle>Experience</SectionTitle>
+          <ExperienceBlock tpl={tpl} size={10.5} />
+          <SectionTitle>Education</SectionTitle>
+          <EducationBlock tpl={tpl} size={10.5} />
+        </div>
+        <aside style={{ width: 210, order: 1, borderRight: '1px solid #dbe3ef', paddingRight: 22 }}>
+          <SectionTitle rule={false}>Summary</SectionTitle>
+          <p style={{ fontSize: 10, lineHeight: 1.45, color: '#26334d', margin: 0 }}>{tpl.summary}</p>
+          <SectionTitle rule={false}>Skills</SectionTitle>
+          <ul style={{ margin: 0, paddingLeft: 14 }}>
+            {tpl.skills.map((s) => (
+              <li key={s} style={{ fontSize: 10, lineHeight: 1.5, color: '#26334d' }}>{s}</li>
+            ))}
+          </ul>
+          {tpl.certs.length > 0 && (
+            <>
+              <SectionTitle rule={false}>Certifications</SectionTitle>
+              <ul style={{ margin: 0, paddingLeft: 14 }}>
+                {tpl.certs.map((c) => (
+                  <li key={c} style={{ fontSize: 10, lineHeight: 1.5, color: '#26334d' }}>{c}</li>
+                ))}
+              </ul>
+            </>
+          )}
+        </aside>
+      </div>
+    </div>
   );
 }
 
-const LAYOUTS = {
-  classic: Classic,
-  sidebar: SidebarLeft,
-  banner: Banner,
-  twoTone: TwoTone,
-  compact: Compact,
-  executive: Executive,
-};
+const LAYOUTS = { classic: Classic, compact: Compact, banner: Banner, executive: Executive, sidebar: Sidebar };
 
-export function ResumeTemplatePreview({ layout = 'classic', className }) {
-  const Layout = LAYOUTS[layout] || Classic;
+export function ResumeTemplatePreview({ template, className, crop = true }) {
+  const boxRef = useRef(null);
+  const scale = useFitScale(boxRef, [template?.id, crop]);
+  if (!template) return null;
+  const Layout = LAYOUTS[template.layout] || Classic;
+
   return (
-    <svg
-      viewBox="0 0 160 220"
-      role="img"
-      aria-label={`${layout} CV layout preview`}
+    <div
+      ref={boxRef}
       className={className}
-      preserveAspectRatio="xMidYMid meet"
+      style={{
+        position: 'relative',
+        width: '100%',
+        height: crop ? undefined : PAGE_H * scale,
+        aspectRatio: crop ? '794 / 700' : undefined,
+        overflow: 'hidden',
+        background: '#ffffff',
+      }}
+      role="img"
+      aria-label={`${template.role} ATS resume template preview`}
     >
-      <rect width={160} height={220} fill="#ffffff" />
-      <Layout />
-    </svg>
+      <div
+        aria-hidden
+        style={{
+          width: PAGE_W,
+          height: PAGE_H,
+          transform: `scale(${scale})`,
+          transformOrigin: 'top left',
+          fontFamily: "'Inter', Arial, Helvetica, sans-serif",
+          background: '#ffffff',
+        }}
+      >
+        <Layout tpl={template} />
+      </div>
+    </div>
   );
 }
-
-export const TEMPLATE_LAYOUTS = Object.keys(LAYOUTS);
