@@ -128,7 +128,7 @@ export function Footer() {
         </div>
 
         {/* ── CONTACT + ADDRESS BAR ── */}
-        <div className="dl-contactbar" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 24, margin: '40px 0 0', padding: '28px 0', borderTop: '1px solid rgba(255,255,255,.07)', borderBottom: '1px solid rgba(255,255,255,.07)' }}>
+        <div className="dl-contactbar" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 24, margin: '40px 0 0', padding: '28px 0', borderTop: '1px solid rgba(255,255,255,.07)', borderBottom: '1px solid rgba(255,255,255,.07)' }}>
           {/* Contact */}
           <div>
             <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: '.1em', textTransform: 'uppercase', color: '#6da8e0', marginBottom: 14 }}>Contact</div>
@@ -155,23 +155,6 @@ export function Footer() {
                 <svg viewBox="0 0 24 24" width={14} height={14} fill="none" stroke="currentColor" strokeWidth={2}><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" /><polyline points="22,6 12,13 2,6" /></svg>
                 Email us
               </a>
-            </div>
-          </div>
-
-          {/* Registered Office — the registered address of DutyLaunch
-              Solutions Pvt. Ltd., the same legal entity that operates
-              LauncherDesk. Confirm before go-live if the registered address
-              has changed since; delete this block to drop back to two
-              columns (the grid below falls back cleanly). */}
-          <div>
-            <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: '.1em', textTransform: 'uppercase', color: '#6da8e0', marginBottom: 14 }}>Registered Office</div>
-            <div style={{ display: 'flex', gap: 10, alignItems: 'flex-start' }}>
-              <svg viewBox="0 0 24 24" width={14} height={14} fill="none" stroke="#6da8e0" strokeWidth={2} style={{ flexShrink: 0, marginTop: 2 }}><path d="M21 10c0 7-9 12-9 12s-9-5-9-12a9 9 0 0 1 18 0z" /><circle cx="12" cy="10" r="3" /></svg>
-              <span style={{ fontSize: 13, color: '#c8d8e8', lineHeight: 1.7 }}>
-                472/7, 20th L Cross Road<br />
-                4th Block, Koramangala<br />
-                Bangalore – 560095
-              </span>
             </div>
           </div>
 
@@ -243,12 +226,6 @@ export function Footer() {
       </div>
 
       <style>{`
-        @media(max-width:1000px){
-          .dl-contactbar {
-            grid-template-columns: 1fr 1fr !important;
-            gap: 28px 24px !important;
-          }
-        }
         @media(max-width:900px){
           footer > div > div:first-child {
             grid-template-columns: 1fr 1fr !important;
