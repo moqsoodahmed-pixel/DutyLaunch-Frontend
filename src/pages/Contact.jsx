@@ -42,7 +42,21 @@ export default function Contact() {
                 </li>
                 <li className="flex items-start gap-3">
                   <MapPin className="mt-0.5 h-4.5 w-4.5 shrink-0 text-slate-400" aria-hidden />
-                  <span>{contact.addressLines.join(', ')}</span>
+                  <span>
+                    {contact.addressLines.map((line, i) => (
+                      <span key={i}>{line}{i < contact.addressLines.length - 1 && <br />}</span>
+                    ))}
+                    {contact.addressMapUrl && (
+                      <a
+                        href={contact.addressMapUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="mt-1 flex items-center gap-1 text-azure hover:underline"
+                      >
+                        Open on Google Maps →
+                      </a>
+                    )}
+                  </span>
                 </li>
                 <li className="flex items-start gap-3">
                   <Clock className="mt-0.5 h-4.5 w-4.5 shrink-0 text-slate-400" aria-hidden />

@@ -1,19 +1,25 @@
 /**
- * Mock AI service layer.
+ * AI service layer.
  *
- * Every DutyLaunch "AI" feature (profile strength, job match, career gaps,
- * course/education recommendations, the career assistant chat) calls into
- * this module rather than computing things inline in components. Today the
- * functions are deterministic heuristics over real profile/job data — no
- * network call, no model. Swapping in a real backend later means replacing
- * the bodies of these functions with `api.post('/ai/...')` calls; nothing
- * that imports this module needs to change.
+ * Most DutyLaunch "AI" features (profile strength, job match, career gaps,
+ * course/education recommendations) are deterministic heuristics computed
+ * here, client-side, over real profile/job data already in memory — no
+ * network call needed for those.
  *
- * Because there is no real AI behind this yet, every string surfaced to the
- * user is hedged ("may strengthen", "based on your profile") rather than
- * stated as fact, and nothing here promises an outcome (a job, an offer, a
- * placement).
+ * The career assistant chat (`careerAssistant`) is different: it calls the
+ * real backend endpoint `POST /ai/assistant`, which grounds a Groq-hosted
+ * LLM in DutyLaunch's live data (pricing, courses, programmes, documentation
+ * services, published jobs, FAQs) and the signed-in user's own profile, and
+ * is instructed never to answer outside that data. See
+ * DutyLaunch-Backend/services/aiAssistantService.js for the grounding logic.
+ *
+ * Because some of this is still heuristic rather than a live model, every
+ * string surfaced by the non-chat helpers is hedged ("may strengthen",
+ * "based on your profile") rather than stated as fact, and nothing here
+ * promises an outcome (a job, an offer, a placement).
  */
+
+import { api } from './api.js';
 
 const SKILL_LIBRARY = {
   operations: ['Power BI', 'Process Improvement', 'Vendor Management', 'SOP Documentation'],
@@ -211,55 +217,17 @@ export function analyzeCandidateForEmployer(candidateProfile, job) {
 }
 
 /**
- * Mock conversational assistant. Returns a canned, profile-aware response
- * plus a short list of action cards. Never claims real model inference is
- * happening — the UI around this labels it as a demo assistant.
+ * Live conversational assistant. Sends the message plus recent chat history
+ * to the backend, which grounds a Groq-hosted model in DutyLaunch's own
+ * data (pricing, courses, programmes, documentation, jobs, FAQs) and the
+ * signed-in user's profile, and returns a reply plus 0-3 suggested action
+ * links to real DutyLaunch pages.
+ *
+ * `history` is the prior turns as [{ role: 'user' | 'assistant', text }],
+ * oldest first — pass what's already on screen so the assistant keeps
+ * context across a multi-turn conversation.
  */
-export function careerAssistant(message, user) {
-  const profile = user?.profile || {};
-  const strength = calculateProfileStrength(user);
-  const text = normalize(message);
-
-  const targetRoleMatch = text.match(/become an? ([a-z ]+)/) || text.match(/target(?:ing)? ([a-z ]+)/);
-  const targetRole = targetRoleMatch ? targetRoleMatch[1].trim() : null;
-
-  let reply;
-  let actions;
-
-  if (targetRole) {
-    const suggestions = skillSetFor(targetRole).slice(0, 2);
-    reply = `Based on your current profile, you already have ${
-      profile.currentRole ? `relevant experience as ${profile.currentRole}` : 'a foundation to build on'
-    }. Your profile could be strengthened by improving ${suggestions.join(
-      ' and '
-    )} depending on the roles you are targeting for ${targetRole}.`;
-    actions = [
-      { label: `Improve ${suggestions[0]}`, to: '/upskills' },
-      { label: 'Explore relevant management programs', to: '/higher-education' },
-      { label: `Find ${targetRole} jobs`, to: `/jobs?q=${encodeURIComponent(targetRole)}` },
-      { label: 'Improve resume', to: '/ats-resume-checker' },
-    ];
-  } else if (text.includes('resume') || text.includes('cv')) {
-    reply = profile.resumeName
-      ? 'Your resume is on file. Running it through the ATS checker will show a category-by-category score and specific fixes.'
-      : 'You have not uploaded a resume yet — that is one of the biggest gaps in your profile strength right now. Upload one and I can point out what to tighten.';
-    actions = [{ label: 'Check my resume', to: '/ats-resume-checker' }, { label: 'Update my profile', to: '/profile' }];
-  } else if (text.includes('gap') || text.includes('missing')) {
-    reply =
-      strength.missing.length > 0
-        ? `Right now, ${strength.missing.slice(0, 3).join(', ')} ${
-            strength.missing.length > 1 ? 'are' : 'is'
-          } missing from your profile — those are the fastest wins.`
-        : 'Your profile looks complete on the basics. From here, closing skill gaps against specific jobs will matter more than profile fields.';
-    actions = [{ label: 'Complete my profile', to: '/profile' }, { label: 'See recommended courses', to: '/upskills' }];
-  } else {
-    reply =
-      "Tell me a role you're targeting (for example, \"I want to become an Operations Manager\") and I'll compare it with your current profile.";
-    actions = [
-      { label: 'See my profile strength', to: '/dashboard' },
-      { label: 'Browse jobs', to: '/jobs' },
-    ];
-  }
-
-  return { reply, actions };
+export async function careerAssistant(message, history = []) {
+  const res = await api.post('/ai/assistant', { message, history });
+  return { reply: res.data.reply, actions: res.data.actions || [] };
 }

@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom'
+import { contact } from '../../data/site.js'
 
 const WA_PATH = 'M16 2C8.268 2 2 8.268 2 16c0 2.434.658 4.714 1.806 6.68L2 30l7.52-1.774A13.93 13.93 0 0 0 16 30c7.732 0 14-6.268 14-14S23.732 2 16 2zm0 25.5a11.43 11.43 0 0 1-5.834-1.598l-.418-.248-4.333 1.022 1.044-4.224-.272-.434A11.46 11.46 0 0 1 4.5 16C4.5 9.648 9.648 4.5 16 4.5S27.5 9.648 27.5 16 22.352 27.5 16 27.5zm6.29-8.574c-.345-.172-2.04-1.006-2.355-1.12-.316-.115-.546-.172-.776.172-.23.345-.89 1.12-1.09 1.35-.2.23-.4.258-.746.086-.345-.172-1.458-.537-2.776-1.712-1.026-.916-1.719-2.047-1.92-2.392-.2-.345-.02-.532.15-.703.155-.155.345-.4.518-.603.172-.2.23-.345.345-.574.115-.23.058-.432-.029-.603-.086-.172-.776-1.87-1.063-2.56-.28-.673-.563-.581-.776-.592l-.66-.012c-.23 0-.603.086-.918.432s-1.205 1.178-1.205 2.873 1.233 3.333 1.405 3.563c.172.23 2.427 3.706 5.878 5.196.822.355 1.463.567 1.963.726.824.263 1.574.226 2.167.137.661-.099 2.04-.834 2.327-1.638.287-.805.287-1.494.2-1.638-.086-.144-.316-.23-.66-.4z'
 
@@ -132,10 +133,10 @@ export function Footer() {
           {/* Contact */}
           <div>
             <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: '.1em', textTransform: 'uppercase', color: '#6da8e0', marginBottom: 14 }}>Contact</div>
-            <a href="tel:+918458845826" style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 14, color: '#dde8f4', textDecoration: 'none', marginBottom: 10, transition: 'color .15s' }}
+            <a href={contact.phoneHref} style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 14, color: '#dde8f4', textDecoration: 'none', marginBottom: 10, transition: 'color .15s' }}
               onMouseEnter={e => e.currentTarget.style.color = '#fff'} onMouseLeave={e => e.currentTarget.style.color = '#dde8f4'}>
               <svg viewBox="0 0 24 24" width={14} height={14} fill="none" stroke="currentColor" strokeWidth={2}><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.6 1.27h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9a16 16 0 0 0 6.1 6.1l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z" /></svg>
-              +91 84588 45826
+              {contact.phone}
             </a>
             <a href="mailto:contact@dutylaunch.com" style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 13.5, color: '#dde8f4', textDecoration: 'none', marginBottom: 16, transition: 'color .15s' }}
               onMouseEnter={e => e.currentTarget.style.color = '#fff'} onMouseLeave={e => e.currentTarget.style.color = '#dde8f4'}>
@@ -143,7 +144,7 @@ export function Footer() {
               contact@dutylaunch.com
             </a>
             <div style={{ display: 'flex', gap: 8 }}>
-              <a href="https://wa.me/918458845826?text=Hi%20DutyLaunch%2C%20I%20need%20assistance." target="_blank" rel="noopener noreferrer"
+              <a href={`https://wa.me/${contact.whatsapp}?text=Hi%20DutyLaunch%2C%20I%20need%20assistance.`} target="_blank" rel="noopener noreferrer"
                 style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '8px 14px', background: '#25D366', color: '#fff', borderRadius: 8, fontWeight: 700, fontSize: 12.5, textDecoration: 'none', transition: 'opacity .15s' }}>
                 <svg viewBox="0 0 32 32" width={14} height={14} fill="currentColor"><path d={WA_PATH} /></svg>
                 WhatsApp
@@ -164,16 +165,18 @@ export function Footer() {
             <div style={{ display: 'flex', gap: 10, alignItems: 'flex-start', marginBottom: 10 }}>
               <svg viewBox="0 0 24 24" width={14} height={14} fill="none" stroke="#6da8e0" strokeWidth={2} style={{ flexShrink: 0, marginTop: 2 }}><path d="M21 10c0 7-9 12-9 12s-9-5-9-12a9 9 0 0 1 18 0z" /><circle cx="12" cy="10" r="3" /></svg>
               <span style={{ fontSize: 13, color: '#c8d8e8', lineHeight: 1.7 }}>
-                #63, Office No. 224 & 225, 2nd Floor<br />
-                The Plazzo Mall, Ibrahim Sahib St<br />
-                Off Commercial Street, Bangalore – 560001
+                {contact.addressLines.map((line, i) => (
+                  <span key={i}>{line}{i < contact.addressLines.length - 1 && <br />}</span>
+                ))}
               </span>
             </div>
-            <a href="https://maps.app.goo.gl/BCNfdV7j5PEBkYrM6" target="_blank" rel="noopener noreferrer"
+            {contact.addressMapUrl && (
+            <a href={contact.addressMapUrl} target="_blank" rel="noopener noreferrer"
               style={{ display: 'inline-flex', alignItems: 'center', gap: 5, fontSize: 12.5, fontWeight: 600, color: '#7ecef4', textDecoration: 'none' }}>
               <svg viewBox="0 0 24 24" width={12} height={12} fill="none" stroke="currentColor" strokeWidth={2}><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6M15 3h6v6M10 14 21 3" /></svg>
               Open on Google Maps →
             </a>
+            )}
           </div>
         </div>
 

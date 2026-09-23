@@ -80,6 +80,7 @@ export default {
         display: ['clamp(2.85rem, 1.3rem + 5.8vw, 5.5rem)', { lineHeight: '0.98', letterSpacing: '-0.04em' }],
       },
       spacing: {
+        4.5: '1.125rem', // 18px — used by h-4.5 / w-4.5 icon sizing across the app
         section: 'clamp(4rem, 2rem + 6vw, 7.5rem)',
         gutter: 'clamp(1.25rem, 0.5rem + 2vw, 2.5rem)',
       },

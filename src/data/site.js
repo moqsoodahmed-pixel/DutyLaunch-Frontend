@@ -3,19 +3,24 @@
  * Anything a non-developer should be able to change (pricing, FAQs, articles,
  * courses, programmes) lives in MongoDB and is edited in the admin instead.
  *
- * TO CONFIRM WITH DUTYLAUNCH — see README "Content still required":
- * phone number, support email, registered address and office hours are
- * placeholders and are the only invented values on the site.
+ * Contact details (phone, WhatsApp, registered address) are confirmed.
+ * Keep DutyLaunch-Backend/data/companyProfile.js in sync when they change —
+ * the AI Career Assistant reads its copy from there.
  */
 export const contact = {
   email: 'hello@dutylaunch.com',
   supportEmail: 'support@dutylaunch.com',
-  phone: '+91 00000 00000',
-  phoneHref: 'tel:+910000000000',
-  whatsapp: null,
-  addressLines: ['Address to be confirmed', 'India'],
+  phone: '+91 84588 45826',
+  phoneHref: 'tel:+918458845826',
+  whatsapp: '918458845826',
+  addressLines: [
+    '#63, Office No. 224 & 225, 2nd Floor',
+    'The Plazzo Mall, Ibrahim Sahib St',
+    'Off Commercial Street, Bangalore – 560001',
+  ],
+  addressMapUrl: 'https://maps.app.goo.gl/BCNfdV7j5PEBkYrM6',
   hours: 'Monday to Saturday, 10:00 – 19:00 IST',
-  needsConfirmation: true,
+  needsConfirmation: false,
 };
 
 export const socials = [
