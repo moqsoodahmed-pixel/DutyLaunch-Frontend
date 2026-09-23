@@ -56,7 +56,10 @@ export function Hero() {
             className="mt-5 max-w-[19ch] text-h1 font-extrabold xl:max-w-none"
           >
             Build a profile that{' '}
-            <span className="block bg-gradient-to-r from-azure-600 via-azure to-violet bg-clip-text text-transparent">
+            {/* bg-clip-text only paints inside the element box; the extra bottom
+                padding (cancelled by the negative margin) extends that box so
+                descenders like the "g" in "gets" are not cut off. */}
+            <span className="-mb-[0.14em] block bg-gradient-to-r from-azure-600 via-azure to-violet bg-clip-text pb-[0.14em] text-transparent">
               gets you noticed.
             </span>
           </motion.h1>
