@@ -3,8 +3,11 @@ import { Link } from 'react-router-dom';
 import { Loader2 } from 'lucide-react';
 import { cn } from '../../utils/cn.js';
 
+/* whitespace-nowrap: every size has a fixed height, so a label that wraps
+   spills out of the button instead of growing it. Labels stay on one line;
+   layouts give buttons room (or stack them full-width on mobile) instead. */
 const base =
-  'inline-flex items-center justify-center gap-2 rounded font-semibold transition-all duration-150 disabled:cursor-not-allowed disabled:opacity-55 active:translate-y-px';
+  'inline-flex shrink-0 items-center justify-center gap-2 whitespace-nowrap text-center rounded font-semibold transition-all duration-150 disabled:cursor-not-allowed disabled:opacity-55 active:translate-y-px';
 
 const variants = {
   // Glossy gradient fill, matching the LauncherDesk primary button exactly.
