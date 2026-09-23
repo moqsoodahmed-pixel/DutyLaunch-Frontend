@@ -8,11 +8,13 @@ const SOCIALS = [
   { href: 'https://www.linkedin.com/', label: 'LinkedIn', path: 'M6.94 8.5H3.56V20h3.38V8.5zM5.25 3a1.94 1.94 0 1 0 0 3.88A1.94 1.94 0 0 0 5.25 3zM20.45 20h-3.37v-5.6c0-1.34-.03-3.06-1.87-3.06-1.87 0-2.16 1.46-2.16 2.96V20H9.68V8.5h3.24v1.57h.05c.45-.86 1.56-1.77 3.2-1.77 3.43 0 4.06 2.26 4.06 5.2V20z' },
 ]
 
+// Services mirrors the navbar. Pages that are no longer in the navbar
+// (templates, ATS checker, employer) stay reachable from here.
 const NAV_COLS = [
-  { title: 'Career', links: [['Career services', '/career-services'], ['CV pricing', '/pricing'], ['Interview preparation', '/career-services#interview'], ['Career counselling', '/career-services#counselling']] },
-  { title: 'Learn', links: [['Higher education', '/higher-education'], ['Professional courses', '/professional-courses'], ['Upskilling', '/upskills'], ['All courses', '/courses']] },
-  { title: 'Global', links: [['UAE job seeker package', '/dubai-job-seeker-package'], ['Documentation', '/documentation'], ['Jobs', '/jobs'], ['For employers', '/employer']] },
-  { title: 'Company', links: [['About us', '/about'], ['Blog', '/blog'], ['FAQ', '/faq'], ['Contact', '/contact']] },
+  { title: 'Services', links: [['Get Your CV', '/pricing'], ['Upskills', '/upskills'], ['Dubai Launch', '/dubai-job-seeker-package'], ['Appostle Services', '/documentation']] },
+  { title: 'Career', links: [['Career services', '/career-services'], ['CV templates', '/cv-templates'], ['ATS resume checker', '/ats-resume-checker'], ['Interview preparation', '/career-services#interview'], ['Career counselling', '/career-services#counselling']] },
+  { title: 'Learn', links: [['Higher education', '/higher-education'], ['Professional courses', '/professional-courses'], ['All courses', '/courses']] },
+  { title: 'Company', links: [['About us', '/about'], ['Jobs', '/jobs'], ['For employers', '/employer'], ['Blog', '/blog'], ['FAQ', '/faq'], ['Contact', '/contact']] },
 ]
 
 function IndiaFlag({ width = 24, height = 16, style = {} }) {

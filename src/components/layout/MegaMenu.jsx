@@ -1,14 +1,14 @@
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import * as Icons from 'lucide-react';
-import { pillars } from '../../data/site.js';
+import { menuGroups } from '../../data/site.js';
 
 /**
  * Desktop dropdown. Each panel shows one or two pillars: a short positioning
  * line on the left, and the links that sit under it on the right.
  */
 export function MegaMenu({ menuIds, onNavigate }) {
-  const groups = pillars.filter((p) => menuIds.includes(p.id));
+  const groups = menuGroups.filter((p) => menuIds.includes(p.id));
 
   return (
     <motion.div

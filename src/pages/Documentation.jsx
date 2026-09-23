@@ -4,10 +4,34 @@ import { Container, Section } from '../components/ui/Container.jsx';
 import { SectionHeader } from '../components/ui/SectionHeader.jsx';
 import { PageHero, HeroActions } from '../components/marketing/PageHero.jsx';
 import { CTASection } from '../components/marketing/CTASection.jsx';
+import { ItemGroups, CheckList } from '../components/marketing/ItemGroups.jsx';
+import { Button } from '../components/ui/Button.jsx';
+import { Reveal } from '../components/ui/Reveal.jsx';
 import { CardSkeleton, EmptyState, ErrorState } from '../components/ui/States.jsx';
 import { Badge } from '../components/ui/Badge.jsx';
 import { useApi } from '../hooks/useApi.js';
 import { documentationService } from '../services/contentService.js';
+
+/* Content from dutylaunch.com's Appostle services page, in the live site's order. */
+const DOCUMENT_SERVICES = [
+  { title: 'Educational Certificate Attestation', icon: 'GraduationCap' },
+  { title: 'Degree & Diploma Apostille', icon: 'Stamp' },
+  { title: 'PCC (Police Clearance Certificate)', icon: 'ShieldCheck' },
+  { title: 'Birth & Marriage Certificate Attestation', icon: 'FileHeart' },
+  { title: 'Employment & Experience Certificates', icon: 'Briefcase' },
+  { title: 'MEA Attestation', icon: 'Landmark' },
+  { title: 'Embassy Attestation', icon: 'Building2' },
+  { title: 'Commercial Document Attestation', icon: 'FileText' },
+  { title: 'Translation Assistance', icon: 'Languages' },
+];
+
+const WHY_CHOOSE = [
+  '100% Genuine Documentation Process',
+  'Expert Verification Team',
+  'Fast Turnaround Time',
+  'Doorstep Pickup & Delivery',
+  'Secure Document Handling',
+];
 
 export default function Documentation() {
   const { data, loading, error, refetch } = useApi(() => documentationService.list(), []);
@@ -16,17 +40,33 @@ export default function Documentation() {
   return (
     <>
       <Seo
-        title="Documentation & attestation"
-        description="Apostille, embassy attestation, certificate translation and other document services for study or work abroad."
+        title="Apostille & Attestation"
+        description="Planning to study, work, or relocate abroad? DutyLaunch provides reliable Apostille and Attestation services to ensure your documents are legally recognized across countries."
       />
       <PageHero
-        eyebrow="Global & documents"
+        eyebrow="Appostle Services"
         tone="sand"
-        title="The paperwork that moving abroad runs on."
-        lead="Apostille, attestation, translation and verification — handled in the order authorities actually expect them, not the order that seems obvious."
-        breadcrumb={[{ label: 'Documentation' }]}
-        actions={<HeroActions primary={{ label: 'Ask about your documents', to: '/contact#consultation' }} />}
+        title="Apostille & Attestation"
+        lead="Planning to study, work, or relocate abroad? DutyLaunch provides reliable Apostille and Attestation services to ensure your documents are legally recognized across countries."
+        breadcrumb={[{ label: 'Appostle Services' }]}
+        actions={<HeroActions primary={{ label: 'Check Your Document Requirements', to: '/contact#consultation' }} />}
       />
+
+      <Section tone="paper">
+        <Container>
+          <Reveal>
+            <SectionHeader
+              label="Documentation & Attestation Services"
+              title="Fast, Secure & Government-Compliant Document Services"
+              lead="Our experienced team manages the complete verification process while keeping you informed at every step, making documentation simple, secure, and hassle-free."
+            />
+          </Reveal>
+          <ItemGroups groups={DOCUMENT_SERVICES} className="mt-10" />
+          <Button to="/contact#consultation" className="mt-8">
+            Check Your Document Requirements
+          </Button>
+        </Container>
+      </Section>
 
       <Section tone="white">
         <Container>
@@ -84,10 +124,24 @@ export default function Documentation() {
         </Container>
       </Section>
 
+      <Section tone="paper">
+        <Container>
+          <div className="grid gap-10 lg:grid-cols-12">
+            <Reveal className="lg:col-span-5">
+              <h2 className="max-w-[16ch] text-h2 font-bold">Why Choose DutyLaunch?</h2>
+            </Reveal>
+            <div className="lg:col-span-6 lg:col-start-7">
+              <CheckList items={WHY_CHOOSE} className="tile p-6" />
+            </div>
+          </div>
+        </Container>
+      </Section>
+
       <CTASection
-        tone="sand"
-        title="Not sure which document process you need?"
-        body="Tell us the country and purpose and we will map out the exact sequence of steps before you pay for anything."
+        title="Ready to Take the Next Step in Your Career?"
+        body="Your dream career starts with the right guidance. Whether you’re looking for a better job, planning higher education, relocating abroad, or improving your professional profile, DutyLaunch is here to support you at every stage of your journey."
+        primary={{ label: 'Book Free Consultation', to: '/contact#consultation' }}
+        secondary={{ label: 'Dubai Launch', to: '/dubai-job-seeker-package' }}
       />
     </>
   );

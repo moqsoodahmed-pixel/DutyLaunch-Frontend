@@ -109,13 +109,40 @@ export const pillars = [
   },
 ];
 
+/**
+ * Dropdown groups that exist only in the navigation. Kept separate from
+ * `pillars` because pillars also drive the homepage service matrix and the
+ * About page — adding Upskills there would add a new card to both.
+ */
+export const navGroups = [
+  {
+    id: 'upskills',
+    label: 'Upskills',
+    path: '/upskills',
+    icon: 'GraduationCap',
+    summary: 'Recognised programmes and industry courses to move your career forward.',
+    items: [
+      { label: 'Higher Education', path: '/higher-education', description: 'From X / SSLC to postgraduate degrees' },
+      { label: 'Professional Courses', path: '/professional-courses', description: 'Industry-recognised certifications' },
+    ],
+  },
+];
+
+/** Every group a dropdown can open: the pillars plus nav-only groups. */
+export const menuGroups = [...pillars, ...navGroups];
+
+/**
+ * Top-level navigation, matching dutylaunch.com:
+ * About Us | Get Your CV | Upskills ▾ | Dubai Launch | Appostle Services | Jobs
+ * Desktop navbar and mobile menu both read from this one array.
+ */
 export const primaryNav = [
-  { label: 'Services', menu: ['career', 'education'] },
-  { label: 'Global & documents', menu: ['global', 'documentation'] },
-  { label: 'Jobs', menu: ['jobs'] },
-  { label: 'Career Tools', menu: ['career-tools'] },
-  { label: 'Pricing', path: '/pricing' },
-  { label: 'Templates', path: '/cv-templates' },
+  { label: 'About Us', path: '/about' },
+  { label: 'Get Your CV', path: '/pricing' },
+  { label: 'Upskills', menu: ['upskills'] },
+  { label: 'Dubai Launch', path: '/dubai-job-seeker-package' },
+  { label: 'Appostle Services', path: '/documentation' },
+  { label: 'Jobs', path: '/jobs' },
 ];
 
 /** The signature five-stage section on the homepage. */

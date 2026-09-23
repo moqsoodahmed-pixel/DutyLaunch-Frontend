@@ -10,10 +10,50 @@ import { Button } from '../components/ui/Button.jsx';
 import { CardSkeleton, EmptyState, ErrorState } from '../components/ui/States.jsx';
 import { PageHero, HeroActions } from '../components/marketing/PageHero.jsx';
 import { CTASection } from '../components/marketing/CTASection.jsx';
+import { ItemGroups } from '../components/marketing/ItemGroups.jsx';
 import { useApi } from '../hooks/useApi.js';
 import { educationService } from '../services/contentService.js';
 import { educationJourney } from '../data/site.js';
 import { serviceSchema } from '../utils/seo.js';
+
+/* Content from dutylaunch.com/higher-education, in the live site's order. */
+const SCHOOL = [
+  { title: 'X / SSLC', icon: 'School' },
+  { title: 'XII / PUC', icon: 'BookOpen' },
+];
+
+const DEGREES = [
+  {
+    title: 'Diploma Programmes',
+    icon: 'ScrollText',
+    items: [
+      'Polytechnic Diploma',
+      'ITI Courses',
+      'Diploma in Engineering',
+      'Diploma in Management',
+      'Diploma in Computer Applications',
+      'Other Diploma Programmes',
+    ],
+  },
+  {
+    title: "Bachelor's Degrees",
+    icon: 'GraduationCap',
+    description: 'Choose from a wide range of undergraduate programs approved by leading universities.',
+    items: [
+      'B.Com', 'BBA', 'B.Des', 'BCA', 'B.Sc', 'BA', 'BSW', 'B.Pharm', 'BE', 'B.Tech',
+      'LLB', 'BHM', 'B.Ed', 'B.Arch', 'B.Lib', 'Other UG Programmes',
+    ],
+  },
+  {
+    title: "Master's Degrees",
+    icon: 'Award',
+    description: 'Advance your career with postgraduate programs that enhance your expertise and leadership skills.',
+    items: [
+      'MBA', 'M.Com', 'MCA', 'M.Sc', 'MA', 'M.Tech', 'M.Ed', 'MSW', 'M.Lib', 'M.Pharm',
+      'LLM', 'PGDM', 'Other PG Programmes',
+    ],
+  },
+];
 
 export default function HigherEducation() {
   const [level, setLevel] = useState('');
@@ -41,10 +81,10 @@ export default function HigherEducation() {
       />
 
       <PageHero
-        eyebrow="Education"
-        title="Pick the degree for the job, not the brochure."
-        lead="A qualification is a large purchase with a slow refund. We work backwards from the career outcome you want, and we say plainly when a degree will not change your options."
-        breadcrumb={[{ label: 'Higher education' }]}
+        eyebrow="Upskills"
+        title="Higher Education"
+        lead="Complete your academic journey with recognized programs designed to help you achieve your career goals. Explore flexible learning options from school education to postgraduate degrees."
+        breadcrumb={[{ label: 'Upskills', to: '/upskills' }, { label: 'Higher Education' }]}
         actions={
           <HeroActions
             primary={{ label: 'Book a free consultation', to: '/contact#consultation' }}
@@ -52,6 +92,13 @@ export default function HigherEducation() {
           />
         }
       />
+
+      <Section tone="white">
+        <Container>
+          <ItemGroups groups={SCHOOL} columns="sm:grid-cols-2" />
+          <ItemGroups groups={DEGREES} className="mt-4" />
+        </Container>
+      </Section>
 
       {/* Education journey — a horizontal rail, deliberately unlike the homepage's vertical one. */}
       <Section tone="ink">
@@ -180,9 +227,9 @@ export default function HigherEducation() {
       </Section>
 
       <CTASection
-        title="Bring the shortlist you already have."
-        body="Even a rough one. Most conversations start by cutting it in half and explaining why."
-        primary={{ label: 'Book a free consultation', to: '/contact#consultation' }}
+        title="Ready to Take the Next Step in Your Career?"
+        body="Your dream career starts with the right guidance. Whether you’re looking for a better job, planning higher education, relocating abroad, or improving your professional profile, DutyLaunch is here to support you at every stage of your journey."
+        primary={{ label: 'Book Free Consultation', to: '/contact#consultation' }}
         secondary={{ label: 'Documentation and attestation', to: '/documentation' }}
       />
     </>

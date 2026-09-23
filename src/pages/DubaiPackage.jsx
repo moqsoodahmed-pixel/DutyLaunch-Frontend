@@ -7,6 +7,21 @@ import { PageHero, HeroActions } from '../components/marketing/PageHero.jsx';
 import { ConsultationForm } from '../components/marketing/ConsultationForm.jsx';
 import { CTASection } from '../components/marketing/CTASection.jsx';
 import { globalMobility } from '../data/site.js';
+
+/* Content from dutylaunch.com/dubai-job-seekers-package — the "What's
+   Included" list, in the live site's order. */
+const INCLUDED = [
+  { title: 'UAE Visit Visa Assistance', icon: 'BadgeCheck' },
+  { title: 'Flight Ticket Assistance', icon: 'Plane' },
+  { title: 'Bedspace / Accommodation Assistance', icon: 'Home' },
+  { title: 'Airport Pickup', icon: 'Car' },
+  { title: 'SIM Card Assistance', icon: 'Smartphone' },
+  { title: 'NOL Card Assistance', note: 'Dubai public transport card', icon: 'CreditCard' },
+  { title: 'CV Distribution to Employers', icon: 'Send' },
+  { title: 'Interview Guidance', icon: 'MessagesSquare' },
+  { title: 'Job Search Support', icon: 'Search' },
+  { title: 'Relocation Guidance', icon: 'Map' },
+];
 import { serviceSchema } from '../utils/seo.js';
 
 /**
@@ -57,26 +72,26 @@ export default function DubaiPackage() {
   return (
     <>
       <Seo
-        title="UAE job seeker package"
-        description="Gulf job search, CV distribution, interview support, visa guidance, accommodation, airport pickup and relocation planning for candidates moving to Dubai and the wider UAE."
+        title="Dubai Launch"
+        description="Take the stress out of finding a job in Dubai. DutyLaunch provides complete guidance — from profile preparation and job applications to interview support and relocation assistance."
         schema={serviceSchema({
-          name: 'UAE job seeker package',
+          name: 'Dubai Launch',
           description:
-            'Job search, CV distribution, interview support, visa guidance and relocation assistance for the UAE.',
+            'Complete guidance for finding a job in Dubai — profile preparation, job applications, interview support and relocation assistance.',
           path: '/dubai-job-seeker-package',
         })}
       />
 
       <PageHero
         tone="ink"
-        eyebrow="Global mobility"
-        title="Take your career global."
-        lead="Moving to the Gulf for work is four problems at once: being found by employers who hire from abroad, being interviewed across time zones, getting the paperwork right in the right order, and surviving your first week. This package covers all four."
+        eyebrow="Dubai Launch"
+        title="Take the stress out of finding a job in Dubai."
+        lead="DutyLaunch provides complete guidance—from profile preparation and job applications to interview support and relocation assistance—helping you move confidently toward your international career."
         actions={
           <HeroActions
             dark
-            primary={{ label: 'Book a free consultation', to: '/contact#consultation' }}
-            secondary={{ label: 'Documentation & attestation', to: '/documentation' }}
+            primary={{ label: 'Talk to Our Experts', to: '/contact#consultation' }}
+            secondary={{ label: 'Appostle Services', to: '/documentation' }}
           />
         }
         aside={
@@ -89,22 +104,35 @@ export default function DubaiPackage() {
       <Section tone="sand">
         <Container>
           <SectionHeader
-            label="What is included"
-            title="Eight services, one coordinator."
-            lead="You deal with one person across the whole move rather than a search consultant, a visa agent and a relocation broker who never speak."
+            label="What's Included"
+            title="Your Career in the UAE Starts Here"
+            lead="Whether you’re a fresher or an experienced professional, our experts ensure you’re ready for the UAE job market with personalized support at every stage."
           />
-          <div className="mt-10 grid gap-px overflow-hidden rounded-lg bg-sand-400 sm:grid-cols-2 lg:grid-cols-4">
-            {globalMobility.services.map((service) => {
+          <div className="mt-10 grid gap-px overflow-hidden rounded-lg bg-sand-400 sm:grid-cols-2 lg:grid-cols-5">
+            {INCLUDED.map((service) => {
               const Icon = Icons[service.icon] || Icons.Circle;
               return (
                 <article key={service.title} className="bg-sand-200 p-5">
                   <Icon className="h-5 w-5 text-ink-700" aria-hidden />
                   <h3 className="mt-3 text-body font-bold text-ink">{service.title}</h3>
-                  <p className="mt-1.5 text-small text-slate-700">{service.body}</p>
+                  {service.note && <p className="mt-1.5 text-small text-slate-700">{service.note}</p>}
                 </article>
               );
             })}
           </div>
+          <div className="mt-8">
+            <Button to="/contact#consultation">Talk to Our Experts</Button>
+          </div>
+        </Container>
+      </Section>
+
+      <Section tone="white">
+        <Container size="narrow">
+          <SectionHeader
+            align="stack"
+            title="Who This Is For"
+            lead="Job seekers relocating to Dubai or the wider UAE who want a structured, supported transition — with a team that has done this before — rather than piecing the process together alone."
+          />
         </Container>
       </Section>
 
@@ -170,10 +198,10 @@ export default function DubaiPackage() {
       </Section>
 
       <CTASection
-        title="Already have an offer in hand?"
-        body="Then the priority shifts to documents and the visa sequence. Bring the offer letter and we will map out what your employer will ask for and by when."
-        primary={{ label: 'Book a free consultation', to: '/contact#consultation' }}
-        secondary={{ label: 'Attestation and apostille', to: '/documentation' }}
+        title="Ready to Take the Next Step in Your Career?"
+        body="Your dream career starts with the right guidance. Whether you’re looking for a better job, planning higher education, relocating abroad, or improving your professional profile, DutyLaunch is here to support you at every stage of your journey."
+        primary={{ label: 'Book Free Consultation', to: '/contact#consultation' }}
+        secondary={{ label: 'Appostle Services', to: '/documentation' }}
       />
     </>
   );

@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
 import { ChevronDown, X } from 'lucide-react';
-import { pillars, contact } from '../../data/site.js';
+import { primaryNav, menuGroups, contact } from '../../data/site.js';
 import { Button } from '../ui/Button.jsx';
 import { Logo } from './Logo.jsx';
 import { useLockBodyScroll } from '../../hooks/useLockBodyScroll.js';
@@ -35,18 +35,31 @@ export function MobileMenu({ open, onClose }) {
           </div>
 
           <nav className="flex-1 overflow-y-auto px-gutter py-4">
+            {/* Same order as the desktop navbar — both read primaryNav. */}
             <ul className="divide-y divide-line">
-              {pillars.map((pillar) => {
-                const isOpen = expanded === pillar.id;
+              {primaryNav.map((navItem) => {
+                if (!navItem.menu) {
+                  return (
+                    <li key={navItem.path}>
+                      <Link to={navItem.path} onClick={onClose} className="block py-4 text-body font-semibold text-ink">
+                        {navItem.label}
+                      </Link>
+                    </li>
+                  );
+                }
+                const isOpen = expanded === navItem.label;
+                const items = menuGroups
+                  .filter((g) => navItem.menu.includes(g.id))
+                  .flatMap((g) => g.items);
                 return (
-                  <li key={pillar.id}>
+                  <li key={navItem.label}>
                     <button
                       type="button"
-                      onClick={() => setExpanded(isOpen ? null : pillar.id)}
+                      onClick={() => setExpanded(isOpen ? null : navItem.label)}
                       aria-expanded={isOpen}
                       className="flex w-full items-center justify-between py-4 text-left"
                     >
-                      <span className="text-body font-semibold text-ink">{pillar.label}</span>
+                      <span className="text-body font-semibold text-ink">{navItem.label}</span>
                       <ChevronDown className={cn('h-4.5 w-4.5 text-slate-400 transition-transform', isOpen && 'rotate-180')} aria-hidden />
                     </button>
                     <AnimatePresence initial={false}>
@@ -58,7 +71,7 @@ export function MobileMenu({ open, onClose }) {
                           transition={{ duration: 0.2 }}
                           className="overflow-hidden pb-2"
                         >
-                          {pillar.items.map((item) => (
+                          {items.map((item) => (
                             <li key={item.path}>
                               <Link to={item.path} onClick={onClose} className="block py-2.5 pl-3 text-small text-slate-600">
                                 {item.label}
@@ -71,19 +84,6 @@ export function MobileMenu({ open, onClose }) {
                   </li>
                 );
               })}
-              {[
-                { label: 'Pricing', path: '/pricing' },
-                { label: 'Templates', path: '/cv-templates' },
-
-                { label: 'FAQ', path: '/faq' },
-                { label: 'Contact', path: '/contact' },
-              ].map((link) => (
-                <li key={link.path}>
-                  <Link to={link.path} onClick={onClose} className="block py-4 text-body font-semibold text-ink">
-                    {link.label}
-                  </Link>
-                </li>
-              ))}
             </ul>
           </nav>
 
