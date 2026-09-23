@@ -60,8 +60,13 @@ export function Navbar() {
         Skip to content
       </a>
 
+      {/* Close the dropdown when the cursor leaves the whole header — the bar
+          and the panel together. Listening only on the panel missed every
+          exit that never passed through it (moving up, sideways or straight
+          back onto the page from the menu button). */}
       <header
         ref={navRef}
+        onMouseLeave={() => setOpenMenu(null)}
         className={cn(
           'sticky top-0 z-[70] transition-all duration-300',
           scrolled ? 'py-2' : 'py-3'
@@ -145,7 +150,7 @@ export function Navbar() {
 
         <AnimatePresence>
           {openMenu && (
-            <div onMouseLeave={() => setOpenMenu(null)}>
+            <div>
               <MegaMenu
                 menuIds={primaryNav.find((i) => i.label === openMenu)?.menu || []}
                 onNavigate={() => setOpenMenu(null)}

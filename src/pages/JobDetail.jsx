@@ -1,12 +1,12 @@
 import { useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { Bookmark, BriefcaseBusiness, Building2, Check, CircleAlert, IndianRupee, MapPin, Share2, Sparkles } from 'lucide-react';
+import { Bookmark, BriefcaseBusiness, Building2, Check, CircleAlert, FlaskConical, IndianRupee, MapPin, SearchX, Share2, Sparkles } from 'lucide-react';
 import { Seo } from '../components/ui/Seo.jsx';
 import { Container, Section } from '../components/ui/Container.jsx';
 import { Badge } from '../components/ui/Badge.jsx';
 import { Button } from '../components/ui/Button.jsx';
 import { Breadcrumb } from '../components/ui/Breadcrumb.jsx';
-import { LoadingBlock, ErrorState } from '../components/ui/States.jsx';
+import { LoadingBlock, EmptyState } from '../components/ui/States.jsx';
 import { ApplyModal } from '../components/jobs/ApplyModal.jsx';
 import { Progress } from '../components/ui/Progress.jsx';
 import { useApi } from '../hooks/useApi.js';
@@ -16,6 +16,7 @@ import { useToast } from '../context/ToastContext.jsx';
 import { formatExperience, formatSalary, relativeTime } from '../utils/format.js';
 import { jobPostingSchema } from '../utils/seo.js';
 import { analyzeJobMatch } from '../services/aiService.js';
+import { findDemoJob } from '../data/demoJobs.js';
 
 /**
  * "Your Match" block — clearly separates what came from the job description
@@ -99,14 +100,23 @@ export default function JobDetail() {
   const { isAuthenticated, user } = useAuth();
   const toast = useToast();
   const [applyOpen, setApplyOpen] = useState(false);
-  const { data: job, loading, error, refetch } = useApi(() => jobService.get(id), [id]);
+  const { data: apiJob, loading } = useApi(() => jobService.get(id), [id]);
+  // If the API has no record (the live DB is seeded without demo jobs), fall
+  // back to the bundled demo copy for [DEMO] slugs so those links still show
+  // a complete page. Real jobs always come from the API.
+  const job = apiJob || (!loading ? findDemoJob(id) : null);
+  const isDemo = Boolean(job?.isDemo);
   const { data: saved, refetch: refetchSaved } = useApi(
     () => (isAuthenticated ? jobService.savedJobs() : Promise.resolve({ data: [] })),
     [isAuthenticated]
   );
   const isSaved = (saved || []).some((j) => j._id === job?._id);
 
+  const demoNotice = () => toast.error('This is a demo listing — applying and saving are disabled.');
+  const openApply = () => (isDemo ? demoNotice() : setApplyOpen(true));
+
   const toggleSave = async () => {
+    if (isDemo) return demoNotice();
     if (!isAuthenticated) return toast.error('Sign in to save jobs.');
     try {
       await jobService.toggleSaved(job._id);
@@ -117,14 +127,24 @@ export default function JobDetail() {
   };
 
   if (loading) return <LoadingBlock label="Loading role…" className="py-24" />;
-  if (error || !job)
+  // Not found: a retry can never succeed for a job that does not exist, so
+  // point people back to the listings instead of offering "Try again".
+  if (!job)
     return (
       <Container>
-        <ErrorState error={error} onRetry={refetch} className="my-16" />
+        <EmptyState
+          icon={SearchX}
+          className="my-16"
+          title="This role is no longer listed"
+          description="It may have been filled or taken down by the employer. There are other open roles on the job board."
+          action={<Button to="/jobs">Browse all jobs</Button>}
+        />
       </Container>
     );
 
-  const schema = jobPostingSchema(job);
+  // No JobPosting structured data for demo records — search engines should
+  // never index a listing that is not a real vacancy.
+  const schema = isDemo ? undefined : jobPostingSchema(job);
 
   const ApplyCard = ({ className }) => (
     <div className={`rounded-xl border border-line bg-white p-6 shadow-lift ${className || ''}`}>
@@ -134,7 +154,7 @@ export default function JobDetail() {
       <p className="tabular mt-4 text-h3 font-extrabold text-ink">{formatSalary(job.salary)}</p>
       <p className="text-caption text-slate-500">Posted {relativeTime(job.publishedAt || job.createdAt)}</p>
 
-      <Button className="mt-5" fullWidth onClick={() => setApplyOpen(true)}>
+      <Button className="mt-5" fullWidth onClick={openApply}>
         Apply now
       </Button>
       <div className="mt-2 flex gap-2">
@@ -181,7 +201,24 @@ export default function JobDetail() {
 
   return (
     <>
-      <Seo title={`${job.title} at ${job.company}`} description={job.summary || job.description?.slice(0, 155)} schema={schema} />
+      <Seo
+        title={`${job.title} at ${job.company}`}
+        description={job.summary || job.description?.slice(0, 155)}
+        schema={schema}
+        noIndex={isDemo}
+      />
+
+      {isDemo && (
+        <div className="border-b border-amber-500/30 bg-amber-500/10">
+          <Container className="flex items-center gap-2 py-2.5 text-small text-ink">
+            <FlaskConical className="h-4 w-4 shrink-0 text-amber-600" aria-hidden />
+            <span>
+              <span className="font-semibold">Demo listing.</span> This role is sample data for previewing the job page —
+              applications are disabled.
+            </span>
+          </Container>
+        </div>
+      )}
 
       <section className="surface-hero">
         <Container className="py-10 lg:py-14">
@@ -231,7 +268,7 @@ export default function JobDetail() {
           {/* Mobile apply bar — the sticky card only shows at lg, so small
               screens get the primary action right under the header. */}
           <div className="mt-6 flex gap-2 lg:hidden">
-            <Button onClick={() => setApplyOpen(true)}>Apply now</Button>
+            <Button onClick={openApply}>Apply now</Button>
             <Button variant="outline" onClick={toggleSave} aria-pressed={isSaved}>
               <Bookmark className={isSaved ? 'h-4 w-4 fill-amber-500 text-amber-500' : 'h-4 w-4'} aria-hidden />
             </Button>
@@ -296,7 +333,7 @@ export default function JobDetail() {
               <div className="mt-10 rounded-xl border border-line bg-paper p-6 text-center lg:hidden">
                 <p className="text-body font-semibold text-ink">Ready to apply?</p>
                 <p className="mt-1 text-small text-slate-600">Upload your CV and add a short note for the recruiter.</p>
-                <Button className="mt-4" onClick={() => setApplyOpen(true)}>
+                <Button className="mt-4" onClick={openApply}>
                   Apply now
                 </Button>
               </div>
@@ -317,7 +354,7 @@ export default function JobDetail() {
         </Container>
       </Section>
 
-      <ApplyModal job={job} open={applyOpen} onClose={() => setApplyOpen(false)} />
+      {!isDemo && <ApplyModal job={job} open={applyOpen} onClose={() => setApplyOpen(false)} />}
     </>
   );
 }
