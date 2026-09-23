@@ -73,6 +73,7 @@ export function MobileMenu({ open, onClose }) {
               })}
               {[
                 { label: 'Pricing', path: '/pricing' },
+                { label: 'Templates', path: '/cv-templates' },
 
                 { label: 'FAQ', path: '/faq' },
                 { label: 'Contact', path: '/contact' },
