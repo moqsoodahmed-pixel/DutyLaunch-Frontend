@@ -66,7 +66,11 @@ export function Footer() {
       <div aria-hidden="true" style={{ position: 'absolute', inset: 0, pointerEvents: 'none', zIndex: 0, background: 'radial-gradient(600px 300px at 15% 0%, rgba(43,114,212,.16), transparent 65%)' }} />
 
       {/* ── MAIN BODY ── */}
-      <div className="wrap" style={{ padding: '56px 24px 0', position: 'relative', zIndex: 1 }}>
+      {/* Constrained to the same shell width the rest of the site uses
+          (max-w-shell = 82.5rem, px-gutter). The old `wrap` class was never
+          defined in any stylesheet, so the footer ran full-bleed while every
+          section above it stayed centred. */}
+      <div className="mx-auto w-full max-w-shell px-gutter" style={{ paddingTop: 56, position: 'relative', zIndex: 1 }}>
         <div style={{ display: 'grid', gridTemplateColumns: '1.6fr 1fr 1fr 1fr 1fr', gap: '40px 32px' }}>
 
           {/* Col 1 — Brand */}
@@ -196,12 +200,14 @@ export function Footer() {
               artwork, so it is filtered to flat white to sit on the dark
               footer; the DPIIT/StartupIndia mark already ships with white
               DPIIT text and keeps its saffron/green brand colours. */}
-          <div className="dl-badges" style={{ display: 'flex', alignItems: 'center', gap: 28, flexWrap: 'wrap', marginBottom: 20 }}>
+          <div className="dl-badges" style={{ display: 'flex', alignItems: 'center', gap: 18, flexWrap: 'wrap', marginBottom: 20 }}>
             <img
               src="/badges/msme.png"
-              alt="MSME registered — Ministry of Micro, Small &amp; Medium Enterprises, Government of India"
+              alt="MSME registered"
+              width={91}
+              height={36}
               style={{
-                height: 42,
+                height: 36,
                 width: 'auto',
                 filter: 'brightness(0) invert(1)',
                 opacity: 0.82,
@@ -212,9 +218,11 @@ export function Footer() {
             />
             <img
               src="/badges/startup-india.png"
-              alt="DPIIT recognised — Startup India"
+              alt="DPIIT recognised, Startup India"
+              width={90}
+              height={36}
               style={{
-                height: 42,
+                height: 36,
                 width: 'auto',
                 opacity: 0.92,
                 transition: 'opacity .15s',
@@ -263,7 +271,7 @@ export function Footer() {
           footer > div > div:first-child > div:first-child {
             grid-column: 1 / -1 !important;
           }
-          .dl-badges img { height: 34px !important; }
+          .dl-badges img { height: 30px !important; }
         }
       `}</style>
     </footer>
