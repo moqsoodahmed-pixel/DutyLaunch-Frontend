@@ -73,8 +73,7 @@ export function MobileMenu({ open, onClose }) {
               })}
               {[
                 { label: 'Pricing', path: '/pricing' },
-                { label: 'Blog', path: '/blog' },
-                { label: 'About', path: '/about' },
+
                 { label: 'FAQ', path: '/faq' },
                 { label: 'Contact', path: '/contact' },
               ].map((link) => (

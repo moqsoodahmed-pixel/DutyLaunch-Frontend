@@ -110,8 +110,6 @@ export const primaryNav = [
   { label: 'Jobs', menu: ['jobs'] },
   { label: 'Career Tools', menu: ['career-tools'] },
   { label: 'Pricing', path: '/pricing' },
-  { label: 'Blog', path: '/blog' },
-  { label: 'About', path: '/about' },
 ];
 
 /** The signature five-stage section on the homepage. */
