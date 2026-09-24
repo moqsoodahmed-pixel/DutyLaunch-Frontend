@@ -100,16 +100,19 @@ export function Footer() {
                 </a>
               ))}
             </div>
-            {/* Made in India */}
-            <div style={{ display: 'inline-flex', alignItems: 'center', gap: 10, padding: '8px 14px', background: 'rgba(255,255,255,.04)', border: '1px solid rgba(255,255,255,.08)', borderRadius: 10 }}>
+            {/* Made in India — sized to match the LauncherDesk footer badge.
+                lineHeight is set explicitly: otherwise both lines inherit the
+                body's fixed 27.2px line height (meant for 16px text), which
+                made this badge ~73px tall instead of ~54px. */}
+            <div style={{ display: 'inline-flex', alignItems: 'center', gap: 10, padding: '8px 14px', background: 'rgba(255,255,255,.04)', border: '1px solid rgba(255,255,255,.08)', borderRadius: 10, lineHeight: 1.6 }}>
               <IndiaFlag width={24} height={16} />
               <div>
-                <div style={{ fontSize: 11.5, fontWeight: 700, letterSpacing: '.04em' }}>
+                <div style={{ fontSize: 11.5, fontWeight: 700, letterSpacing: '.04em', lineHeight: 1.6 }}>
                   <span style={{ color: '#FF9933' }}>Proudly </span>
                   <span style={{ color: '#fff' }}>Made in </span>
                   <span style={{ color: '#138808' }}>India</span>
                 </div>
-                <div style={{ fontSize: 11, color: '#c8d8e8' }}>Built for Indian talent</div>
+                <div style={{ fontSize: 11, color: '#c8d8e8', lineHeight: 1.6 }}>Built for Indian talent</div>
               </div>
             </div>
           </div>
