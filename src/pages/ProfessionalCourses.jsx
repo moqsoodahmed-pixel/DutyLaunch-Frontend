@@ -11,6 +11,8 @@ import { ItemGroups, CheckList } from '../components/marketing/ItemGroups.jsx';
 import { useApi } from '../hooks/useApi.js';
 import { courseService } from '../services/contentService.js';
 import { serviceSchema } from '../utils/seo.js';
+import { images } from '../data/images.js';
+import { SiteImage } from '../components/ui/SiteImage.jsx';
 
 /* Content from dutylaunch.com/online-distance-education, in the live site's order. */
 const COURSE_GROUPS = [
@@ -105,6 +107,7 @@ export default function ProfessionalCourses() {
             secondary={{ label: 'Ask which course fits', to: '/contact#consultation' }}
           />
         }
+        aside={<SiteImage image={images.training} priority className="mx-auto lg:ml-auto lg:mr-0" />}
       />
 
       <Section tone="paper">

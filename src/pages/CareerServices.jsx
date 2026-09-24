@@ -9,6 +9,8 @@ import { PageHero, HeroActions } from '../components/marketing/PageHero.jsx';
 import { CTASection } from '../components/marketing/CTASection.jsx';
 import { careerServices } from '../data/site.js';
 import { serviceSchema } from '../utils/seo.js';
+import { images } from '../data/images.js';
+import { SiteImage } from '../components/ui/SiteImage.jsx';
 
 const TRUST_POINTS = [
   { icon: UserCheck, label: 'Written by career writers, not templates' },
@@ -42,6 +44,7 @@ export default function CareerServices() {
             secondary={{ label: 'Book a free consultation', to: '/contact#consultation' }}
           />
         }
+        aside={<SiteImage image={images.consultation} priority className="mx-auto lg:ml-auto lg:mr-0" />}
       />
 
       <div className="border-b border-line bg-white">

@@ -15,6 +15,8 @@ import { useApi } from '../hooks/useApi.js';
 import { educationService } from '../services/contentService.js';
 import { educationJourney } from '../data/site.js';
 import { serviceSchema } from '../utils/seo.js';
+import { images } from '../data/images.js';
+import { SiteImage } from '../components/ui/SiteImage.jsx';
 
 /* Content from dutylaunch.com/higher-education, in the live site's order. */
 const SCHOOL = [
@@ -91,6 +93,7 @@ export default function HigherEducation() {
             secondary={{ label: 'See programmes', to: '#programmes' }}
           />
         }
+        aside={<SiteImage image={images.campus} priority className="mx-auto lg:ml-auto lg:mr-0" />}
       />
 
       <Section tone="white">

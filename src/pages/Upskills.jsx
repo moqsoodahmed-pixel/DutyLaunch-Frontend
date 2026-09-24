@@ -9,6 +9,8 @@ import { CTASection } from '../components/marketing/CTASection.jsx';
 import { CourseCard } from '../components/courses/CourseCard.jsx';
 import { useApi } from '../hooks/useApi.js';
 import { courseService } from '../services/contentService.js';
+import { images } from '../data/images.js';
+import { SiteImage } from '../components/ui/SiteImage.jsx';
 
 const gaps = [
   {
@@ -54,6 +56,7 @@ export default function Upskills() {
             secondary={{ label: 'Work out the gap first', to: '/contact#consultation' }}
           />
         }
+        aside={<SiteImage image={images.upskills} priority className="mx-auto lg:ml-auto lg:mr-0" />}
       />
 
       <Section tone="white">

@@ -5,6 +5,8 @@ import { Reveal, RevealGroup, RevealItem } from '../components/ui/Reveal.jsx';
 import { PageHero, HeroActions } from '../components/marketing/PageHero.jsx';
 import { CTASection } from '../components/marketing/CTASection.jsx';
 import { pillars } from '../data/site.js';
+import { images } from '../data/images.js';
+import { SiteImage } from '../components/ui/SiteImage.jsx';
 
 const principles = [
   {
@@ -39,6 +41,7 @@ export default function About() {
         lead="Most people moving forward in their careers end up managing four or five separate providers — a CV writer, a course counsellor, a recruitment consultant, a visa agent, a documentation broker. None of them see the whole picture. DutyLaunch exists to be the one that does."
         breadcrumb={[{ label: 'About' }]}
         actions={<HeroActions primary={{ label: 'Book a free consultation', to: '/contact#consultation' }} secondary={{ label: 'Browse services', to: '/career-services' }} />}
+        aside={<SiteImage image={images.careerGrowth} priority className="mx-auto lg:ml-auto lg:mr-0" />}
       />
 
       <Section tone="white">

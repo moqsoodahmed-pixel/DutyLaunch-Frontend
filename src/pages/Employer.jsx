@@ -16,6 +16,8 @@ import { employerService } from '../services/jobService.js';
 import { useAuth } from '../context/AuthContext.jsx';
 import { useToast } from '../context/ToastContext.jsx';
 import { relativeTime } from '../utils/format.js';
+import { images } from '../data/images.js';
+import { SiteImage } from '../components/ui/SiteImage.jsx';
 
 const benefits = [
   { icon: Briefcase, title: 'Post roles directly', body: 'No approval delay for routine listings once your account is verified.' },
@@ -40,6 +42,7 @@ function EmployerInfo({ isAuthenticated }) {
             secondary={isAuthenticated ? undefined : { label: 'Already registered? Sign in', to: '/login' }}
           />
         }
+        aside={<SiteImage image={images.hiring} priority className="mx-auto lg:ml-auto lg:mr-0" />}
       />
       <Section tone="white">
         <Container>

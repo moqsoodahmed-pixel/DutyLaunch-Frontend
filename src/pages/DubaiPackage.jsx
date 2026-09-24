@@ -7,6 +7,8 @@ import { PageHero, HeroActions } from '../components/marketing/PageHero.jsx';
 import { ConsultationForm } from '../components/marketing/ConsultationForm.jsx';
 import { CTASection } from '../components/marketing/CTASection.jsx';
 import { globalMobility } from '../data/site.js';
+import { images } from '../data/images.js';
+import { SiteImage } from '../components/ui/SiteImage.jsx';
 
 /* Content from dutylaunch.com/dubai-job-seekers-package — the "What's
    Included" list, in the live site's order. */
@@ -24,49 +26,6 @@ const INCLUDED = [
 ];
 import { serviceSchema } from '../utils/seo.js';
 
-/**
- * A hand-built skyline rather than a stock photograph of Dubai. It is drawn
- * from the brand palette, weighs under 2kB, and does not misrepresent a place
- * we have no licensed photography of.
- */
-function GulfSkyline() {
-  const towers = [
-    [0, 46, 22], [26, 62, 18], [48, 30, 14], [66, 74, 16], [86, 54, 20],
-    [110, 20, 12], [126, 66, 22], [152, 40, 16], [172, 70, 18], [194, 52, 14],
-  ];
-  return (
-    <svg viewBox="0 0 212 100" className="h-auto w-full" role="img" aria-label="Stylised Gulf city skyline at dusk">
-      <defs>
-        <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor="#0B1B33" />
-          <stop offset="100%" stopColor="#1B3558" />
-        </linearGradient>
-      </defs>
-      <rect width="212" height="100" fill="url(#sky)" rx="6" />
-      <circle cx="176" cy="24" r="9" fill="#D98A15" opacity="0.85" />
-      {towers.map(([x, h, w]) => (
-        <g key={x}>
-          <rect x={x + 4} y={96 - h} width={w} height={h} fill="#07142A" opacity="0.92" rx="1.5" />
-          {Array.from({ length: Math.floor(h / 10) }).map((_, row) => (
-            <rect
-              key={row}
-              x={x + 7}
-              y={100 - h + row * 10}
-              width={w - 6}
-              height="2.5"
-              fill="#4A78F5"
-              opacity={row % 3 === 0 ? 0.55 : 0.28}
-              rx="1"
-            />
-          ))}
-        </g>
-      ))}
-      {/* A spire, to keep the silhouette from reading as a generic bar chart. */}
-      <path d="M100 96 L104 26 L106 20 L108 26 L112 96 Z" fill="#07142A" />
-      <line x1="0" y1="96" x2="212" y2="96" stroke="#D98A15" strokeWidth="1" opacity="0.5" />
-    </svg>
-  );
-}
 
 export default function DubaiPackage() {
   return (
@@ -95,9 +54,12 @@ export default function DubaiPackage() {
           />
         }
         aside={
-          <div className="overflow-hidden rounded-lg border border-white/10">
-            <GulfSkyline />
-          </div>
+          <SiteImage
+            image={images.dubaiHero}
+            priority
+            className="mx-auto border border-white/10 lg:mx-0"
+            rounded="rounded-lg"
+          />
         }
       />
 
@@ -127,12 +89,15 @@ export default function DubaiPackage() {
       </Section>
 
       <Section tone="white">
-        <Container size="narrow">
-          <SectionHeader
-            align="stack"
-            title="Who This Is For"
-            lead="Job seekers relocating to Dubai or the wider UAE who want a structured, supported transition — with a team that has done this before — rather than piecing the process together alone."
-          />
+        <Container>
+          <div className="grid grid-cols-1 items-center gap-8 md:grid-cols-[minmax(0,1fr)_auto] md:gap-12">
+            <SectionHeader
+              align="stack"
+              title="Who This Is For"
+              lead="Job seekers relocating to Dubai or the wider UAE who want a structured, supported transition — with a team that has done this before — rather than piecing the process together alone."
+            />
+            <SiteImage image={images.dubaiRelocation} className="mx-auto md:mx-0" />
+          </div>
         </Container>
       </Section>
 
