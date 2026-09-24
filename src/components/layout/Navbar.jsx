@@ -1,6 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
 import { Link, NavLink, useLocation } from 'react-router-dom';
-import { AnimatePresence } from 'framer-motion';
 import { ChevronDown, Menu, UserRound } from 'lucide-react';
 import { primaryNav } from '../../data/site.js';
 import { Button } from '../ui/Button.jsx';
@@ -17,6 +16,8 @@ export function Navbar() {
   const { isAuthenticated, isAdmin, user } = useAuth();
   const location = useLocation();
   const navRef = useRef(null);
+  // True when the open dropdown was opened by mouse hover (not a click/tap).
+  const hoverOpened = useRef(false);
 
   // Depending on `pathname` alone missed navigations that only change the
   // query string or hash (e.g. /documentation?category=Apostille or
@@ -48,6 +49,24 @@ export function Navbar() {
       document.removeEventListener('mousedown', onClickAway);
     };
   }, []);
+
+  // Safety net for hover-opened menus: while a dropdown is open, close it as
+  // soon as the mouse is over anything outside the header (which contains
+  // both the bar and the dropdown panel). This does not depend on a
+  // mouseleave event firing — fast moves, trackpads and moving the cursor
+  // straight off the panel onto the page all close it.
+  useEffect(() => {
+    if (!openMenu) return undefined;
+    const onMove = (e) => {
+      if (e.pointerType && e.pointerType !== 'mouse') return;
+      if (navRef.current && !navRef.current.contains(e.target)) {
+        hoverOpened.current = false;
+        setOpenMenu(null);
+      }
+    };
+    document.addEventListener('pointermove', onMove, { passive: true });
+    return () => document.removeEventListener('pointermove', onMove);
+  }, [openMenu]);
 
   const dashboardPath = isAdmin ? '/admin' : '/dashboard';
 
@@ -88,8 +107,21 @@ export function Navbar() {
                 <button
                   key={item.label}
                   type="button"
-                  onClick={() => setOpenMenu(openMenu === item.label ? null : item.label)}
-                  onMouseEnter={() => setOpenMenu(item.label)}
+                  // Mouse: hovering opens it, and a click after hovering keeps it
+                  // open (previously the click toggled it straight back shut).
+                  // Touch / keyboard: there is no hover, so a tap toggles it.
+                  onClick={() => {
+                    if (hoverOpened.current && openMenu === item.label) {
+                      hoverOpened.current = false;
+                      return;
+                    }
+                    setOpenMenu(openMenu === item.label ? null : item.label);
+                  }}
+                  onPointerEnter={(e) => {
+                    if (e.pointerType !== 'mouse') return;
+                    hoverOpened.current = true;
+                    setOpenMenu(item.label);
+                  }}
                   aria-expanded={openMenu === item.label}
                   aria-haspopup="true"
                   className={cn(
@@ -152,16 +184,23 @@ export function Navbar() {
           </div>
         </div>
 
-        <AnimatePresence>
-          {openMenu && (
-            <div>
-              <MegaMenu
-                menuIds={primaryNav.find((i) => i.label === openMenu)?.menu || []}
-                onNavigate={() => setOpenMenu(null)}
-              />
-            </div>
-          )}
-        </AnimatePresence>
+        {/* Rendered without AnimatePresence on purpose. With an exit
+            animation, a navigation that happened while the panel was open
+            (clicking one of its links) could interrupt the fade-out, and the
+            panel then stayed on screen at full opacity even though the menu
+            state was closed — the "dropdown won't close" bug. It still fades
+            in on open; on close it is removed immediately, so it cannot get
+            stuck. */}
+        {openMenu && (
+          <MegaMenu
+            key={openMenu}
+            menuIds={primaryNav.find((i) => i.label === openMenu)?.menu || []}
+            onNavigate={() => {
+              hoverOpened.current = false;
+              setOpenMenu(null);
+            }}
+          />
+        )}
       </header>
 
       <MobileMenu open={mobileOpen} onClose={() => setMobileOpen(false)} />
