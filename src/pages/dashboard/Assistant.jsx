@@ -21,6 +21,51 @@ const MAX_TEXT_CHARS = 2000;
 
 const DATA_SOURCES = ['Pricing', 'Courses', 'Higher education', 'Documentation', 'Jobs', 'FAQs'];
 
+/* ------------------------------------------------------------------ *
+ * Conversation persistence — without this, navigating to any action
+ * link (Check my resume, Browse courses, etc.) unmounts this page and
+ * React throws its local state away, so the chat looked "reset" the
+ * moment someone clicked a suggestion. sessionStorage survives route
+ * changes AND a full page refresh within the same browser tab, and is
+ * cleared automatically when the tab/window is closed — matching
+ * "until the conversation ends or the user closes the chat". Keyed by
+ * user id so two different accounts on the same browser never share
+ * or leak each other's history.
+ * ------------------------------------------------------------------ */
+const CONVERSATION_STORAGE_PREFIX = 'dutylaunch:assistant:';
+
+function loadConversation(userId) {
+  if (!userId) return null;
+  try {
+    const raw = sessionStorage.getItem(CONVERSATION_STORAGE_PREFIX + userId);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw);
+    if (!Array.isArray(parsed?.messages) || parsed.messages.length === 0) return null;
+    return parsed;
+  } catch {
+    return null; // storage disabled (private browsing) or corrupted — fall back to a fresh chat
+  }
+}
+
+function saveConversation(userId, state) {
+  if (!userId) return;
+  try {
+    sessionStorage.setItem(CONVERSATION_STORAGE_PREFIX + userId, JSON.stringify(state));
+  } catch {
+    // Storage full/unavailable — the chat still works, it just won't
+    // survive navigating away this time.
+  }
+}
+
+function clearConversation(userId) {
+  if (!userId) return;
+  try {
+    sessionStorage.removeItem(CONVERSATION_STORAGE_PREFIX + userId);
+  } catch {
+    /* ignore */
+  }
+}
+
 const VIEW_TABS = [
   { id: 'chat', label: 'Chat', icon: MessageCircle },
   { id: 'snapshot', label: 'Career snapshot', icon: Compass },
@@ -332,16 +377,25 @@ function CareerSnapshot({ user, onAsk }) {
 
 export default function Assistant() {
   const { user } = useAuth();
-  const [activeTab, setActiveTab] = useState('chat');
-  const [messages, setMessages] = useState([
+  const defaultGreeting = () => [
     {
       role: 'assistant',
       text: `Hi ${user?.name?.split(' ')[0] || ''}. Tell me a role you're aiming for, or ask what's missing from your profile, and I'll compare it with what's on file.`,
     },
-  ]);
+  ];
+
+  const [activeTab, setActiveTab] = useState(() => loadConversation(user?.id)?.activeTab || 'chat');
+  const [messages, setMessages] = useState(() => loadConversation(user?.id)?.messages || defaultGreeting());
   const [input, setInput] = useState('');
   const [thinking, setThinking] = useState(false);
   const scrollRef = useRef(null);
+
+  // Persist on every change (not `thinking`/`input`, which are transient)
+  // so leaving this page — via an action link, the sidebar, or a refresh —
+  // and coming back restores exactly where the conversation left off.
+  useEffect(() => {
+    saveConversation(user?.id, { messages, activeTab });
+  }, [messages, activeTab, user?.id]);
 
   useEffect(() => {
     // Scroll only the chat panel. scrollIntoView() also scrolls the window,
@@ -389,6 +443,15 @@ export default function Assistant() {
     send(question);
   };
 
+  /** Explicit, intentional end to the conversation — the "or the user
+   * closes the chat" half of the persistence requirement. Navigating
+   * away never triggers this; only clicking this button does. */
+  const resetConversation = () => {
+    clearConversation(user?.id);
+    setMessages(defaultGreeting());
+    setActiveTab('chat');
+  };
+
   return (
     <>
       {/* Hero — the one deliberate bold moment on this page */}
@@ -416,33 +479,45 @@ export default function Assistant() {
       </div>
 
       {/* Segmented view switcher */}
-      <div role="tablist" aria-label="Assistant view" className="mb-5 inline-flex rounded-full border border-line bg-white p-1">
-        {VIEW_TABS.map((t) => {
-          const active = activeTab === t.id;
-          const Icon = t.icon;
-          return (
-            <button
-              key={t.id}
-              type="button"
-              role="tab"
-              aria-selected={active}
-              onClick={() => setActiveTab(t.id)}
-              className="relative flex items-center gap-1.5 rounded-full px-4 py-2 text-caption font-semibold"
-            >
-              {active && (
-                <motion.span
-                  layoutId="assistant-tab-pill"
-                  className="absolute inset-0 rounded-full bg-ink-800"
-                  transition={{ type: 'spring', stiffness: 380, damping: 32 }}
-                />
-              )}
-              <span className={cn('relative flex items-center gap-1.5', active ? 'text-white' : 'text-slate-600')}>
-                <Icon className="h-3.5 w-3.5" aria-hidden />
-                {t.label}
-              </span>
-            </button>
-          );
-        })}
+      <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
+        <div role="tablist" aria-label="Assistant view" className="inline-flex rounded-full border border-line bg-white p-1">
+          {VIEW_TABS.map((t) => {
+            const active = activeTab === t.id;
+            const Icon = t.icon;
+            return (
+              <button
+                key={t.id}
+                type="button"
+                role="tab"
+                aria-selected={active}
+                onClick={() => setActiveTab(t.id)}
+                className="relative flex items-center gap-1.5 rounded-full px-4 py-2 text-caption font-semibold"
+              >
+                {active && (
+                  <motion.span
+                    layoutId="assistant-tab-pill"
+                    className="absolute inset-0 rounded-full bg-ink-800"
+                    transition={{ type: 'spring', stiffness: 380, damping: 32 }}
+                  />
+                )}
+                <span className={cn('relative flex items-center gap-1.5', active ? 'text-white' : 'text-slate-600')}>
+                  <Icon className="h-3.5 w-3.5" aria-hidden />
+                  {t.label}
+                </span>
+              </button>
+            );
+          })}
+        </div>
+
+        {messages.length > 1 && (
+          <button
+            type="button"
+            onClick={resetConversation}
+            className="text-caption font-semibold text-slate-400 hover:text-violet-600"
+          >
+            New conversation
+          </button>
+        )}
       </div>
 
       {activeTab === 'snapshot' ? (
