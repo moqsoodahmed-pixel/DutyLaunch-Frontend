@@ -10,6 +10,8 @@ import { BlogCard } from '../components/blog/BlogCard.jsx';
 import { useApi } from '../hooks/useApi.js';
 import { useDebounce } from '../hooks/useDebounce.js';
 import { blogService } from '../services/contentService.js';
+import { images } from '../data/images.js';
+import { SiteImage } from '../components/ui/SiteImage.jsx';
 
 export default function Blog() {
   const [params, setParams] = useSearchParams();
@@ -33,6 +35,7 @@ export default function Blog() {
         title="Notes on careers, education and moving abroad."
         lead="Practical articles, not filler — written from the questions people actually bring to consultations."
         breadcrumb={[{ label: 'Blog' }]}
+        aside={<SiteImage image={images.blogHero} priority className="mx-auto lg:ml-auto lg:mr-0" />}
       />
 
       <Section tone="white">

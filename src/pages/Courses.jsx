@@ -12,6 +12,8 @@ import { CourseCard } from '../components/courses/CourseCard.jsx';
 import { useApi } from '../hooks/useApi.js';
 import { useDebounce } from '../hooks/useDebounce.js';
 import { courseService } from '../services/contentService.js';
+import { images } from '../data/images.js';
+import { SiteImage } from '../components/ui/SiteImage.jsx';
 
 const TRACKS = [
   { value: '', label: 'All tracks' },
@@ -67,6 +69,7 @@ export default function Courses() {
         title="The full catalogue."
         lead="Professional programmes, short upskilling courses and certification preparation. If you already know the gap you are closing, search for it."
         breadcrumb={[{ label: 'Courses' }]}
+        aside={<SiteImage image={images.coursesHero} priority className="mx-auto lg:ml-auto lg:mr-0" />}
       />
 
       <Section tone="paper">

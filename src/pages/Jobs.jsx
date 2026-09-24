@@ -14,8 +14,12 @@ import { useDebounce } from '../hooks/useDebounce.js';
 import { jobService } from '../services/jobService.js';
 import { useAuth } from '../context/AuthContext.jsx';
 import { useToast } from '../context/ToastContext.jsx';
+import { images } from '../data/images.js';
+import { SiteImage } from '../components/ui/SiteImage.jsx';
+import { useMediaQuery } from '../hooks/useMediaQuery.js';
 
 export default function Jobs() {
+  const isDesktop = useMediaQuery('(min-width: 1024px)');
   const { isAuthenticated } = useAuth();
   const toast = useToast();
   const [params, setParams] = useSearchParams();
@@ -77,7 +81,8 @@ export default function Jobs() {
           action on this page, the same way Naukri, Indeed and Apna lead
           with a search bar rather than marketing copy. */}
       <section className="surface-hero">
-        <Container className="py-14 lg:py-20">
+        <Container className="grid grid-cols-1 items-center gap-10 py-14 lg:grid-cols-12 lg:py-20">
+          <div className="min-w-0 lg:col-span-8">
           <p className="eyebrow">Jobs</p>
           <h1 className="mt-4 text-h1 font-extrabold">Roles that are actually open right now.</h1>
           <p className="mt-3 max-w-2xl text-lead text-slate-600">
@@ -112,6 +117,15 @@ export default function Jobs() {
               Free for candidates
             </li>
           </ul>
+          </div>
+          {/* Desktop only: on phones the search bar should be the first thing
+              on screen, not pushed down by a photo — and not rendering it
+              below lg means phones don't download it either. */}
+          {isDesktop && (
+            <div className="lg:col-span-4">
+              <SiteImage image={images.jobsHeader} priority className="ml-auto" />
+            </div>
+          )}
         </Container>
       </section>
 

@@ -1,6 +1,8 @@
 import { Link, Outlet } from 'react-router-dom';
 import { ArrowLeft, BadgeCheck, Compass, ShieldCheck, Sparkles } from 'lucide-react';
 import { Logo } from '../components/layout/Logo.jsx';
+import { images } from '../data/images.js';
+import { useMediaQuery } from '../hooks/useMediaQuery.js';
 
 const VALUE_POINTS = [
   { icon: Sparkles, text: 'Build a stronger professional profile' },
@@ -15,6 +17,10 @@ const VALUE_POINTS = [
  * signal still matters on a phone, it just costs less vertical space there.
  */
 export default function AuthLayout() {
+  // The photo panel only exists from lg up; not rendering the <img> below
+  // that means phones never download it (display:none alone does not stop
+  // the request, even with loading="lazy").
+  const isDesktop = useMediaQuery('(min-width: 1024px)');
   return (
     <div className="grid min-h-screen lg:grid-cols-2">
       <div className="flex flex-col px-gutter py-6 sm:py-10">
@@ -45,6 +51,27 @@ export default function AuthLayout() {
       </div>
 
       <aside className="relative hidden overflow-hidden bg-ink-900 px-12 py-16 text-white lg:flex lg:flex-col">
+        {/* Blurred city-lights photo as a faint base layer, under the grid and
+            glow. The navy gradient on top keeps the white copy at full
+            contrast. loading="lazy" matters here: this panel is display:none
+            below lg — the <img> is only rendered on desktop so phones never
+            download it (a lazy image inside display:none is still fetched). */}
+        {isDesktop && (
+        <img
+          src={images.authBackground.src}
+          width={images.authBackground.width}
+          height={images.authBackground.height}
+          alt=""
+          aria-hidden
+          loading="lazy"
+          decoding="async"
+          className="pointer-events-none absolute inset-0 h-full w-full object-cover opacity-45"
+        />
+        )}
+        <div
+          className="pointer-events-none absolute inset-0 bg-gradient-to-b from-ink-900/70 via-ink-900/55 to-ink-900/90"
+          aria-hidden
+        />
         {/* Faint grid + radial mask, same treatment used on the dark marketing
             surfaces — kept subtle deliberately, per brief: no heavy parallax
             or oversized illustration, just enough texture to not read flat. */}

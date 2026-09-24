@@ -17,6 +17,8 @@ import { useApi } from '../hooks/useApi.js';
 import { pricingService } from '../services/contentService.js';
 import { formatCurrency } from '../utils/format.js';
 import { cn } from '../utils/cn.js';
+import { images } from '../data/images.js';
+import { SiteImage } from '../components/ui/SiteImage.jsx';
 
 const EASE = [0.16, 0.84, 0.44, 1];
 
@@ -198,6 +200,7 @@ export default function CvBuilder() {
             : 'Two ways in. Both end with an ATS-checked CV, a matching cover letter and LinkedIn copy, and a month of unlimited revisions.'
         }
         breadcrumb={[{ label: 'Pricing', to: '/pricing' }, { label: 'Build my CV' }]}
+        aside={<SiteImage image={images.cvBuilder} priority className="mx-auto lg:ml-auto lg:mr-0" />}
       />
 
       <div className="border-b border-line bg-white">

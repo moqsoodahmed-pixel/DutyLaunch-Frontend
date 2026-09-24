@@ -8,6 +8,8 @@ import { Accordion } from '../components/ui/Accordion.jsx';
 import { CTASection } from '../components/marketing/CTASection.jsx';
 import { AtsUploader } from '../components/marketing/AtsUploader.jsx';
 import { AtsScoreReport } from '../components/marketing/AtsScoreReport.jsx';
+import { images } from '../data/images.js';
+import { SiteImage } from '../components/ui/SiteImage.jsx';
 
 const HOW_IT_WORKS = [
   { icon: FileSearch, title: 'We read your resume', body: 'Your PDF or Word file is parsed the same way an ATS would — extracting the raw text, not just the design.' },
@@ -57,6 +59,7 @@ export default function AtsResumeChecker() {
         eyebrow="Free tool"
         title="Check Your Resume ATS Score"
         lead="Upload your CV and discover how well it performs against ATS systems — plus get actionable recommendations to improve it."
+        aside={<SiteImage image={images.atsChecker} priority className="mx-auto lg:ml-auto lg:mr-0" />}
       />
 
       <Section tone="white">

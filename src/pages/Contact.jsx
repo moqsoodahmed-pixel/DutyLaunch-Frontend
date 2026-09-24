@@ -7,6 +7,8 @@ import { ConsultationForm } from '../components/marketing/ConsultationForm.jsx';
 import { Tabs } from '../components/ui/Tabs.jsx';
 import { useState } from 'react';
 import { contact, socials } from '../data/site.js';
+import { images } from '../data/images.js';
+import { SiteImage } from '../components/ui/SiteImage.jsx';
 
 const TABS = [
   { value: 'consultation', label: 'Book a free consultation' },
@@ -24,6 +26,7 @@ export default function Contact() {
         title="Talk to us before you commit to anything."
         lead="The first conversation is free and unscripted. Tell us where you are, and we will tell you honestly whether we can help."
         breadcrumb={[{ label: 'Contact' }]}
+        aside={<SiteImage image={images.contactOffice} priority className="mx-auto lg:ml-auto lg:mr-0" />}
       />
 
       <Section tone="white">
