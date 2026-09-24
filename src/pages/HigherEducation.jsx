@@ -17,6 +17,8 @@ import { educationJourney } from '../data/site.js';
 import { serviceSchema } from '../utils/seo.js';
 import { images } from '../data/images.js';
 import { SiteImage } from '../components/ui/SiteImage.jsx';
+import { MousePointerClick } from 'lucide-react';
+import { PartnerModal } from '../components/marketing/PartnerModal.jsx';
 
 /* Content from dutylaunch.com/higher-education, in the live site's order. */
 const SCHOOL = [
@@ -58,6 +60,8 @@ const DEGREES = [
 ];
 
 export default function HigherEducation() {
+  const [partnerSel, setPartnerSel] = useState(null);
+  const openPartners = (item, group) => setPartnerSel({ item, group });
   const [level, setLevel] = useState('');
   const { data: filters } = useApi(() => educationService.filters(), []);
   const { data, loading, error, refetch } = useApi(
@@ -98,8 +102,12 @@ export default function HigherEducation() {
 
       <Section tone="white">
         <Container>
-          <ItemGroups groups={SCHOOL} columns="sm:grid-cols-2" />
-          <ItemGroups groups={DEGREES} className="mt-4" />
+          <ItemGroups groups={SCHOOL} columns="sm:grid-cols-2" onItemClick={openPartners} />
+          <ItemGroups groups={DEGREES} className="mt-4" onItemClick={openPartners} />
+          <p className="mt-6 inline-flex items-center gap-2 text-small text-slate-500">
+            <MousePointerClick className="h-4 w-4 text-azure" aria-hidden />
+            Select any programme to see partner institutes.
+          </p>
         </Container>
       </Section>
 
@@ -235,6 +243,7 @@ export default function HigherEducation() {
         primary={{ label: 'Book Free Consultation', to: '/contact#consultation' }}
         secondary={{ label: 'Documentation and attestation', to: '/documentation' }}
       />
+      <PartnerModal selection={partnerSel} onClose={() => setPartnerSel(null)} service="Higher education" />
     </>
   );
 }

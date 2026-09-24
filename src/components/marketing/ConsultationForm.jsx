@@ -18,7 +18,7 @@ const SERVICES = [
 
 const EXPERIENCE = ['Student', '0-3 years', '4-7 years', '8-14 years', '15+ years'];
 
-export function ConsultationForm({ defaultService, compact = false }) {
+export function ConsultationForm({ defaultService, defaultMessage, compact = false }) {
   const toast = useToast();
   const [done, setDone] = useState(false);
   const {
@@ -27,7 +27,7 @@ export function ConsultationForm({ defaultService, compact = false }) {
     setError,
     formState: { errors, isSubmitting },
   } = useForm({
-    defaultValues: { service: defaultService || '', experience: '' },
+    defaultValues: { service: defaultService || '', experience: '', message: defaultMessage || '' },
   });
 
   const onSubmit = async (values) => {

@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import * as Icons from 'lucide-react';
 import { Seo } from '../components/ui/Seo.jsx';
 import { Container, Section } from '../components/ui/Container.jsx';
@@ -13,6 +14,8 @@ import { courseService } from '../services/contentService.js';
 import { serviceSchema } from '../utils/seo.js';
 import { images } from '../data/images.js';
 import { SiteImage } from '../components/ui/SiteImage.jsx';
+import { MousePointerClick } from 'lucide-react';
+import { PartnerModal } from '../components/marketing/PartnerModal.jsx';
 
 /* Content from dutylaunch.com/online-distance-education, in the live site's order. */
 const COURSE_GROUPS = [
@@ -81,6 +84,8 @@ const PROGRAMS_WE_SUPPORT = [
 ];
 
 export default function ProfessionalCourses() {
+  const [partnerSel, setPartnerSel] = useState(null);
+  const openPartners = (item, group) => setPartnerSel({ item, group });
   const { data: courses, loading } = useApi(() => courseService.list({ track: 'professional', limit: 6 }), []);
   const { data: categories } = useApi(() => courseService.categories(), []);
 
@@ -116,7 +121,11 @@ export default function ProfessionalCourses() {
             Gain industry-recognized certifications, practical knowledge, and hands-on learning to unlock better career
             opportunities.
           </p>
-          <ItemGroups groups={COURSE_GROUPS} columns="md:grid-cols-2" className="mt-8" />
+          <ItemGroups groups={COURSE_GROUPS} columns="md:grid-cols-2" className="mt-8" onItemClick={openPartners} />
+          <p className="mt-6 inline-flex items-center gap-2 text-small text-slate-500">
+            <MousePointerClick className="h-4 w-4 text-azure" aria-hidden />
+            Select any course to see partner institutes.
+          </p>
         </Container>
       </Section>
 
@@ -257,6 +266,7 @@ export default function ProfessionalCourses() {
         primary={{ label: 'Book Free Consultation', to: '/contact#consultation' }}
         secondary={{ label: 'Higher Education', to: '/higher-education' }}
       />
+      <PartnerModal selection={partnerSel} onClose={() => setPartnerSel(null)} service="Professional courses" />
     </>
   );
 }
