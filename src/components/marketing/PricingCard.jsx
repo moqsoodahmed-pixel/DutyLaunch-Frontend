@@ -16,7 +16,9 @@ export function PricingCard({ pkg, highlighted, onSelect }) {
   return (
     <article
       className={cn(
-        'relative flex flex-col rounded-xl p-6 transition-transform sm:p-7',
+        // h-full: fill the grid row so every card in the row is the same height;
+        // the feature list is flex-1, which pins the button to the bottom.
+        'relative flex h-full flex-col rounded-xl p-6 transition-transform sm:p-7',
         featured
           ? 'bg-btn-grad text-white shadow-blue-lg ring-1 ring-azure-700/40 sm:-translate-y-2'
           : 'tile border border-line bg-white'
@@ -34,13 +36,17 @@ export function PricingCard({ pkg, highlighted, onSelect }) {
         <p className={cn('mt-1 text-small', featured ? 'text-azure-100' : 'text-slate-500')}>{pkg.experienceBand}</p>
       </div>
 
-      <p className={cn('mt-4 text-small', featured ? 'text-azure-100' : 'text-slate-600')}>{pkg.tagline}</p>
+      {/* Reserves two lines so the price row lines up across all cards,
+          whether the tagline wraps or not. */}
+      <p className={cn('mt-4 min-h-[3.2em] text-small', featured ? 'text-azure-100' : 'text-slate-600')}>{pkg.tagline}</p>
 
-      <p className="mt-6 flex items-baseline gap-1.5">
-        <span className={cn('tabular text-h1 font-extrabold', featured ? 'text-white' : 'text-ink')}>
+      <p className="mt-6 flex flex-wrap items-baseline gap-x-1.5">
+        {/* Fixed size rather than text-h1: at 4 columns the h1 size pushed
+            "one-off" onto two lines under ₹1,199 and ₹1,799. */}
+        <span className={cn('tabular text-[2.5rem] font-extrabold leading-none sm:text-[2.75rem]', featured ? 'text-white' : 'text-ink')}>
           {formatCurrency(pkg.price, pkg.currency || 'INR')}
         </span>
-        <span className={cn('text-small', featured ? 'text-azure-200' : 'text-slate-500')}>one-off</span>
+        <span className={cn('whitespace-nowrap text-small', featured ? 'text-azure-200' : 'text-slate-500')}>one-off</span>
       </p>
 
       <ul className="mt-6 flex-1 space-y-2.5">
@@ -48,7 +54,7 @@ export function PricingCard({ pkg, highlighted, onSelect }) {
           <li key={feature.label} className="flex items-start gap-2.5">
             <span
               className={cn(
-                'mt-0.5 grid h-4.5 w-4.5 shrink-0 place-items-center rounded-full',
+                'mt-0.5 grid h-[18px] w-[18px] shrink-0 place-items-center rounded-full',
                 featured ? 'bg-white/20' : 'bg-azure-50'
               )}
             >

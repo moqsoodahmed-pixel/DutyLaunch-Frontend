@@ -131,12 +131,12 @@ export default function Pricing() {
               <RevealGroup
                 className={cn(
                   'grid gap-4',
-                  visible.length === 1 ? 'max-w-md' : 'md:grid-cols-2 xl:grid-cols-4'
+                  visible.length === 1 ? 'max-w-md' : 'md:auto-rows-fr md:grid-cols-2 xl:grid-cols-4'
                 )}
                 staggerDelay={0.07}
               >
                 {visible.map((pkg) => (
-                  <RevealItem key={pkg._id}>
+                  <RevealItem key={pkg._id} className="h-full">
                     <PricingCard pkg={pkg} onSelect={setSelected} />
                   </RevealItem>
                 ))}

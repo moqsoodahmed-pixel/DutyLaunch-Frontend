@@ -100,7 +100,7 @@ export default function Home() {
                 </div>
               }
             />
-            <div className="mt-10 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+            <div className="mt-10 grid gap-4 md:auto-rows-fr md:grid-cols-2 lg:grid-cols-3">
               {preview.map((pkg) => (
                 <PricingCard key={pkg._id} pkg={pkg} />
               ))}
