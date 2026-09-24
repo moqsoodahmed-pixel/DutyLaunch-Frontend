@@ -9,6 +9,8 @@ import { CTASection } from '../components/marketing/CTASection.jsx';
 import { globalMobility } from '../data/site.js';
 import { images } from '../data/images.js';
 import { SiteImage } from '../components/ui/SiteImage.jsx';
+import { ConsultationVisual } from '../components/marketing/ConsultationVisual.jsx';
+import { useMediaQuery } from '../hooks/useMediaQuery.js';
 
 /* Content from dutylaunch.com/dubai-job-seekers-package — the "What's
    Included" list, in the live site's order. */
@@ -28,6 +30,7 @@ import { serviceSchema } from '../utils/seo.js';
 
 
 export default function DubaiPackage() {
+  const isDesktop = useMediaQuery('(min-width: 1024px)');
   return (
     <>
       <Seo
@@ -125,26 +128,15 @@ export default function DubaiPackage() {
       <Section tone="paper" id="relocation">
         <Container>
           <div className="grid gap-10 lg:grid-cols-12">
-            <div className="lg:col-span-6">
-              <h2 className="text-h2 font-bold">What we will not promise</h2>
-              <div className="mt-5 space-y-4 text-body text-slate-600">
-                <p>
-                  We do not guarantee a job offer, and we do not guarantee a visa. Both decisions belong to employers
-                  and to the UAE authorities, and any agency that promises otherwise is either misinformed or lying.
-                </p>
-                <p>
-                  What we control is the quality of your application, how widely and how well it is distributed, how
-                  prepared you are for the interview, and whether your documents are ready when an offer arrives. That
-                  last one decides how many offers survive to a start date.
-                </p>
-                <p>
-                  Employment visas in the UAE are normally sponsored by the employer. If someone asks you to pay them
-                  for a work visa directly, stop and call us first.
-                </p>
-              </div>
-              <Button to="/faq" variant="outline" className="mt-7">
-                Read the Gulf-specific questions
-              </Button>
+            {/* Animated visual beside the form (desktop only — on phones the
+                form stands alone, and not rendering the visual means its photo
+                isn't downloaded). Sticky so it stays alongside the tall form. */}
+            <div className="hidden lg:col-span-6 lg:block">
+              {isDesktop && (
+                <div className="sticky top-28 pb-12 pl-6 pr-8 pt-10">
+                  <ConsultationVisual />
+                </div>
+              )}
             </div>
 
             <div className="lg:col-span-5 lg:col-start-8">
