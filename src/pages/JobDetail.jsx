@@ -100,7 +100,10 @@ export default function JobDetail() {
   const { isAuthenticated, user } = useAuth();
   const toast = useToast();
   const [applyOpen, setApplyOpen] = useState(false);
-  const { data: apiJob, loading } = useApi(() => jobService.get(id), [id]);
+  // GET /jobs/:idOrSlug responds with { job, related, hasApplied } — read the
+  // job out of that envelope (tolerating a bare job object too).
+  const { data: jobData, loading } = useApi(() => jobService.get(id), [id]);
+  const apiJob = jobData?.job ?? (jobData?.title ? jobData : null);
   // If the API has no record (the live DB is seeded without demo jobs), fall
   // back to the bundled demo copy for [DEMO] slugs so those links still show
   // a complete page. Real jobs always come from the API.

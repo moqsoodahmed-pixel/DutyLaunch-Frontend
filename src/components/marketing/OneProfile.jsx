@@ -23,8 +23,8 @@ export function OneProfile() {
   return (
     <Section tone="white">
       <Container>
-        <div className="grid gap-12 lg:grid-cols-12 lg:items-center">
-          <div className="lg:col-span-6">
+        <div className="grid grid-cols-1 gap-12 lg:grid-cols-12 lg:items-center">
+          <div className="min-w-0 lg:col-span-6">
             <SectionHeader
               align="stack"
               label="One profile. Multiple opportunities."
@@ -32,7 +32,7 @@ export function OneProfile() {
                 <span className="block max-w-[24ch]">Fill it in once. It works everywhere.</span>
               }
             />
-            <ul className="mt-8 grid grid-cols-2 gap-x-6 gap-y-3">
+            <ul className="mt-8 grid gap-x-6 gap-y-3 min-[400px]:grid-cols-2">
               {POWERS.map((label) => (
                 <li key={label} className="flex items-start gap-2 text-small text-slate-700">
                   <Check className="mt-0.5 h-4 w-4 shrink-0 text-success" aria-hidden />
@@ -42,8 +42,8 @@ export function OneProfile() {
             </ul>
           </div>
 
-          <div className="lg:col-span-6">
-            <div className="tile mx-auto max-w-md p-6">
+          <div className="min-w-0 lg:col-span-6">
+            <div className="tile mx-auto max-w-md p-5 sm:p-6">
               <div className="flex items-center gap-4">
                 <span className="grid h-14 w-14 shrink-0 place-items-center rounded-full bg-gradient-to-br from-azure-500 to-azure-700 text-lead font-extrabold text-white shadow-blue">
                   AS

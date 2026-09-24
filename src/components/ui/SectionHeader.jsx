@@ -26,7 +26,7 @@ export function SectionHeader({ label, title, lead, aside, align = 'rail', class
      wrapping into three or four cramped lines. */
   if (align === 'stack') {
     return (
-      <div className={cn('max-w-2xl', className)}>
+      <div className={cn('min-w-0 max-w-2xl', className)}>
         {label && <p className={cn('mb-4 inline-flex', labelClass)}>{label}</p>}
         <h2 className={cn('text-h2 font-extrabold', tone === 'dark' && 'text-white')}>{title}</h2>
         {lead && <p className={cn('mt-4 text-lead', muted)}>{lead}</p>}
@@ -37,11 +37,13 @@ export function SectionHeader({ label, title, lead, aside, align = 'rail', class
 
   return (
     <div className={cn('grid gap-6 lg:grid-cols-12 lg:gap-10', className)}>
-      <div className="lg:col-span-5">
+      {/* min-w-0: grid items default to min-width:auto, which lets a
+          scrolling tab row in `aside` widen the column past the screen. */}
+      <div className="min-w-0 lg:col-span-5">
         {label && <p className={cn('mb-4 inline-flex', labelClass)}>{label}</p>}
         <h2 className={cn('text-h2 font-extrabold', tone === 'dark' && 'text-white')}>{title}</h2>
       </div>
-      <div className="lg:col-span-6 lg:col-start-7">
+      <div className="min-w-0 lg:col-span-6 lg:col-start-7">
         {lead && <p className={cn('text-lead', muted)}>{lead}</p>}
         {aside}
       </div>

@@ -16,11 +16,18 @@ export function ItemGroups({ groups, columns = 'md:grid-cols-2 lg:grid-cols-3', 
     <RevealGroup className={cn('grid gap-4', columns, className)} staggerDelay={0.06}>
       {groups.map((group) => {
         const Icon = (group.icon && Icons[group.icon]) || null;
+        // Title-only cards (no list, no description) are set compact so a
+        // long run of them — e.g. nine document services — stays scannable
+        // on a phone instead of each card filling the screen.
+        const compact = !group.items?.length && !group.description;
         return (
           <RevealItem
             as="article"
             key={group.title}
-            className="tile flex flex-col p-6 transition-transform duration-200 hover:-translate-y-0.5"
+            className={cn(
+              'tile flex flex-col transition-transform duration-200 hover:-translate-y-0.5',
+              compact ? 'p-4 sm:p-5' : 'p-5 sm:p-6'
+            )}
           >
             <div className="flex items-center gap-3">
               {Icon && (
@@ -28,7 +35,7 @@ export function ItemGroups({ groups, columns = 'md:grid-cols-2 lg:grid-cols-3', 
                   <Icon className="h-5 w-5 text-azure" aria-hidden />
                 </span>
               )}
-              <h3 className="text-h3 font-bold text-ink">{group.title}</h3>
+              <h3 className={cn('font-bold text-ink', compact ? 'text-body' : 'text-h3')}>{group.title}</h3>
             </div>
             {group.description && <p className="mt-2 text-small text-slate-600">{group.description}</p>}
             {group.items?.length > 0 && (

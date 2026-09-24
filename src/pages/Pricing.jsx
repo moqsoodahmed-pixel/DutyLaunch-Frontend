@@ -97,10 +97,10 @@ export default function Pricing() {
           they see a single price. */}
       <div className="border-b border-line bg-white">
         <Container>
-          <ul className="flex flex-wrap items-center justify-center gap-x-8 gap-y-3 py-5 text-small font-semibold text-slate-600">
+          <ul className="grid gap-x-8 gap-y-3 py-5 text-small font-semibold text-slate-600 sm:flex sm:flex-wrap sm:items-center sm:justify-center">
             {TRUST_POINTS.map(({ icon: Icon, label }) => (
-              <li key={label} className="inline-flex items-center gap-2">
-                <Icon className="h-4.5 w-4.5 text-azure" aria-hidden />
+              <li key={label} className="flex items-center gap-2">
+                <Icon className="h-4 w-4 shrink-0 text-azure" aria-hidden />
                 {label}
               </li>
             ))}

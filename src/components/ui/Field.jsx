@@ -1,8 +1,10 @@
 import { forwardRef, useId } from 'react';
 import { cn } from '../../utils/cn.js';
 
+/* min-w-0: a <select>'s intrinsic width is its longest option, which would
+   otherwise stop a grid/flex column shrinking on small screens. */
 const control =
-  'w-full rounded border bg-white px-3.5 text-body text-ink placeholder:text-slate-400 transition-colors focus:border-azure-400 disabled:bg-slate-100';
+  'w-full min-w-0 rounded border bg-white px-3.5 text-body text-ink placeholder:text-slate-400 transition-colors focus:border-azure-400 disabled:bg-slate-100';
 
 export function FormField({ label, hint, error, required, htmlFor, children, className }) {
   return (

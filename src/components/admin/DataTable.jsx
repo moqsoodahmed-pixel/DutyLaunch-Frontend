@@ -71,8 +71,11 @@ export function DataTable({
               <dl className="mt-3 space-y-2">
                 {rest.map((col) => (
                   <div key={col.key} className="flex items-start justify-between gap-4">
-                    <dt className="text-caption font-semibold uppercase tracking-wide text-slate-500">{col.header}</dt>
-                    <dd className="text-right text-small text-slate-700">
+                    <dt className="shrink-0 text-caption font-semibold uppercase tracking-wide text-slate-500">{col.header}</dt>
+                    {/* min-w-0 + flex-1: the value takes the remaining width and
+                        wraps/truncates inside it instead of pushing the card
+                        wider than the screen. */}
+                    <dd className="flex min-w-0 flex-1 flex-wrap justify-end break-words text-right text-small text-slate-700">
                       {col.render ? col.render(row) : row[col.key] ?? '—'}
                     </dd>
                   </div>

@@ -212,7 +212,7 @@ function CandidateOverview() {
               {applications.map((app) => (
                 <li key={app._id} className="flex items-center justify-between gap-4 px-4 py-3.5">
                   <div className="min-w-0">
-                    <Link to={`/jobs/${app.job?.slug || app.job?._id}`} className="truncate text-small font-semibold text-ink hover:underline">
+                    <Link to={`/jobs/${app.job?.slug || app.job?._id}`} className="block truncate text-small font-semibold text-ink hover:underline">
                       {app.job?.title}
                     </Link>
                     <p className="truncate text-caption text-slate-500">{app.job?.company} · {relativeTime(app.appliedAt)}</p>
@@ -267,7 +267,7 @@ function EmployerOverview() {
               {jobs.map((job) => (
                 <li key={job._id} className="flex items-center justify-between gap-4 px-4 py-3.5">
                   <div className="min-w-0">
-                    <Link to={`/employer/jobs`} className="truncate text-small font-semibold text-ink hover:underline">
+                    <Link to={`/employer/jobs`} className="block truncate text-small font-semibold text-ink hover:underline">
                       {job.title}
                     </Link>
                     <p className="truncate text-caption text-slate-500">{job.location} · {relativeTime(job.createdAt)}</p>

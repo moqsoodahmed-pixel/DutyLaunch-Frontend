@@ -1,4 +1,6 @@
-import { SlidersHorizontal, X } from 'lucide-react';
+import { useState } from 'react';
+import { ChevronDown, SlidersHorizontal, X } from 'lucide-react';
+import { cn } from '../../utils/cn.js';
 import { Select } from '../ui/Field.jsx';
 import { Button } from '../ui/Button.jsx';
 
@@ -12,18 +14,38 @@ const SORTS = [
 
 export function JobFilters({ filters, facets, onChange, onReset, resultCount }) {
   const active = Object.entries(filters).filter(([key, value]) => value && !['page', 'sort', 'q'].includes(key));
+  // Below lg the filter panel sits above the results, so it starts collapsed —
+  // otherwise five dropdowns push every job below the fold on a phone.
+  const [open, setOpen] = useState(false);
 
   return (
     <aside
       className="rounded-lg border border-line bg-white p-5 shadow-xs lg:sticky lg:top-24"
       aria-label="Job filters"
     >
-      <div className="flex items-center justify-between">
-        <h2 className="inline-flex items-center gap-2 text-small font-bold text-ink">
-          <span className="grid h-8 w-8 place-items-center rounded-lg bg-azure-50 text-azure">
-            <SlidersHorizontal className="h-4 w-4" aria-hidden />
-          </span>
-          Filters
+      <div className="flex items-center justify-between gap-3">
+        <h2 className="min-w-0 text-small font-bold text-ink">
+          <button
+            type="button"
+            onClick={() => setOpen((v) => !v)}
+            aria-expanded={open}
+            aria-controls="job-filter-fields"
+            className="inline-flex items-center gap-2 lg:pointer-events-none"
+          >
+            <span className="grid h-8 w-8 place-items-center rounded-lg bg-azure-50 text-azure">
+              <SlidersHorizontal className="h-4 w-4" aria-hidden />
+            </span>
+            Filters
+            {active.length > 0 && (
+              <span className="rounded-full bg-azure px-1.5 py-0.5 text-[11px] font-bold leading-none text-white lg:hidden">
+                {active.length}
+              </span>
+            )}
+            <ChevronDown
+              className={cn('h-4 w-4 text-slate-400 transition-transform lg:hidden', open && 'rotate-180')}
+              aria-hidden
+            />
+          </button>
         </h2>
         {active.length > 0 && (
           <button type="button" onClick={onReset} className="text-caption font-bold text-azure-600 hover:underline">
@@ -49,6 +71,7 @@ export function JobFilters({ filters, facets, onChange, onReset, resultCount }) 
         </ul>
       )}
 
+      <div id="job-filter-fields" className={cn(open ? 'block' : 'hidden', 'lg:block')}>
       <div className="mt-5 space-y-4 border-t border-line pt-5">
         <Select
           label="Category"
@@ -107,6 +130,7 @@ export function JobFilters({ filters, facets, onChange, onReset, resultCount }) 
       <Button variant="ghost" size="sm" className="mt-2 lg:hidden" onClick={onReset} fullWidth>
         Reset filters
       </Button>
+      </div>
     </aside>
   );
 }

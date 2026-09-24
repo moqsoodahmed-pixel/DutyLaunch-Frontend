@@ -74,7 +74,7 @@ export function Navbar() {
       >
         <div
           className={cn(
-            'mx-auto flex h-14 max-w-shell items-center gap-6 rounded-2xl px-gutter transition-all duration-300 lg:h-[4rem]',
+            'mx-auto flex h-14 max-w-shell items-center gap-4 rounded-2xl px-gutter transition-all duration-300 lg:h-[4rem] xl:gap-6',
             scrolled
               ? 'max-w-[76rem] border border-line/80 bg-white/85 shadow-lift backdrop-blur-lg'
               : 'border border-transparent bg-white/70 backdrop-blur-md'
@@ -93,7 +93,7 @@ export function Navbar() {
                   aria-expanded={openMenu === item.label}
                   aria-haspopup="true"
                   className={cn(
-                    'inline-flex items-center gap-1 rounded-full px-3.5 py-2 text-small font-medium transition-colors',
+                    'inline-flex items-center gap-1 whitespace-nowrap rounded-full px-2.5 py-2 text-small font-medium transition-colors xl:px-3.5',
                     openMenu === item.label
                       ? 'bg-azure-50 text-azure-600 shadow-xs'
                       : 'text-slate-700 hover:bg-slate-100 hover:text-ink'
@@ -109,7 +109,7 @@ export function Navbar() {
                   onMouseEnter={() => setOpenMenu(null)}
                   className={({ isActive }) =>
                     cn(
-                      'rounded-full px-3.5 py-2 text-small font-medium transition-colors',
+                      'whitespace-nowrap rounded-full px-2.5 py-2 text-small font-medium transition-colors xl:px-3.5',
                       isActive ? 'bg-azure-50 text-azure-600 shadow-xs' : 'text-slate-700 hover:bg-slate-100 hover:text-ink'
                     )
                   }
@@ -124,17 +124,21 @@ export function Navbar() {
             {isAuthenticated ? (
               <Link
                 to={dashboardPath}
-                className="hidden items-center gap-2 rounded px-3 py-2 text-small font-medium text-slate-700 hover:text-ink lg:inline-flex"
+                className="hidden items-center gap-2 whitespace-nowrap rounded px-3 py-2 text-small font-medium text-slate-700 hover:text-ink lg:inline-flex"
               >
                 <UserRound className="h-4 w-4" aria-hidden />
-                {user?.name?.split(' ')[0]}
+                <span className="max-w-[8rem] truncate">{user?.name?.split(' ')[0]}</span>
               </Link>
             ) : (
-              <Link to="/login" className="hidden rounded px-3 py-2 text-small font-medium text-slate-700 hover:text-ink lg:inline-block">
+              <Link to="/login" className="hidden whitespace-nowrap rounded px-3 py-2 text-small font-medium text-slate-700 hover:text-ink lg:inline-block">
                 Sign in
               </Link>
             )}
-            <Button to="/contact#consultation" size="sm" className="hidden sm:inline-flex">
+            {/* Hidden only between 1024 and 1279px, where the six desktop
+                links plus Sign in fill the bar; every page hero carries its
+                own consultation CTA. Visible on tablets (next to the menu
+                button) and on wide desktops. */}
+            <Button to="/contact#consultation" size="sm" className="hidden sm:inline-flex lg:hidden xl:inline-flex">
               Book a free consultation
             </Button>
             <button

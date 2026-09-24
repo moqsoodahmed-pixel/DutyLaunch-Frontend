@@ -117,18 +117,20 @@ export function HeroComposite() {
       ref={ref}
       onMouseMove={onMove}
       onMouseLeave={onLeave}
-      className="relative mx-auto w-full max-w-[34rem] lg:max-w-none"
+      className="relative mx-auto flex w-full max-w-[34rem] flex-col sm:block lg:max-w-none"
       aria-hidden
     >
-      {/* Base panel */}
+      {/* Base panel. Below 640px the opportunity and documents cards sit in
+         normal flow above/below it (overlapping slightly) instead of floating
+         over it, so nothing covers the panel's text on a phone. */}
       <motion.div style={reduced ? undefined : { x: baseX, y: baseY }}>
-        <motion.div {...enter(0.1)} className="relative rounded-xl bg-ink-800 p-5 shadow-panel sm:p-7">
+        <motion.div {...enter(0.1)} className="relative rounded-xl bg-ink-800 p-5 pt-12 shadow-panel sm:p-7">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-caption font-semibold text-azure-200">Profile readiness</p>
               <p className="mt-1 text-h3 font-bold text-white">Senior Operations Manager</p>
             </div>
-            <span className="tabular rounded bg-white/10 px-2.5 py-1 text-caption font-semibold text-white">
+            <span className="tabular shrink-0 whitespace-nowrap rounded bg-white/10 px-2.5 py-1 text-caption font-semibold text-white">
               8 years
             </span>
           </div>
@@ -232,7 +234,7 @@ export function HeroComposite() {
       {/* Opportunity card — overlaps top right */}
       <motion.div
         style={reduced ? undefined : { x: nearX, y: nearY }}
-        className="absolute -right-2 -top-12 w-[14.5rem] sm:-right-6 sm:-top-14 sm:w-[16rem]"
+        className="relative z-10 order-first -mb-8 ml-auto w-[15.5rem] sm:absolute sm:-right-6 sm:-top-14 sm:order-none sm:mb-0 sm:w-[16rem]"
       >
         <motion.div {...enter(0.85)}>
           <Float reduced={reduced} amplitude={7} duration={5.5} delay={1.6}>
@@ -273,7 +275,7 @@ export function HeroComposite() {
           overlapping cards, and links straight to the free checker. */}
       <motion.div
         style={reduced ? undefined : { x: nearX, y: nearY }}
-        className="pointer-events-auto absolute -left-3 top-16 sm:-left-9 sm:top-20"
+        className="pointer-events-auto absolute -left-9 top-20 z-10 hidden sm:block"
       >
         <motion.div {...enter(1.1)}>
           <Float reduced={reduced} amplitude={5} duration={4.6} delay={2.2}>
@@ -306,7 +308,7 @@ export function HeroComposite() {
       {/* Documents — overlaps bottom left */}
       <motion.div
         style={reduced ? undefined : { x: nearX, y: nearY }}
-        className="absolute -bottom-7 -left-2 w-[15rem] sm:-left-6 sm:w-[17rem]"
+        className="relative z-10 -mt-6 ml-3 w-[15rem] sm:absolute sm:-bottom-7 sm:-left-6 sm:ml-0 sm:mt-0 sm:w-[17rem]"
       >
         <motion.div {...enter(1)}>
           <Float reduced={reduced} amplitude={6} duration={6} delay={1.9}>

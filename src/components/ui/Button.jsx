@@ -3,11 +3,13 @@ import { Link } from 'react-router-dom';
 import { Loader2 } from 'lucide-react';
 import { cn } from '../../utils/cn.js';
 
-/* whitespace-nowrap: every size has a fixed height, so a label that wraps
-   spills out of the button instead of growing it. Labels stay on one line;
-   layouts give buttons room (or stack them full-width on mobile) instead. */
+/* Buttons use a minimum height rather than a fixed one, so a label can never
+   spill outside its button. From 640px up labels stay on one line; on small
+   phones a long label ("Check Your Document Requirements") wraps onto a second
+   line and the button grows, instead of pushing the page wider than the
+   screen. max-w-full keeps any button inside its container. */
 const base =
-  'inline-flex shrink-0 items-center justify-center gap-2 whitespace-nowrap text-center rounded font-semibold transition-all duration-150 disabled:cursor-not-allowed disabled:opacity-55 active:translate-y-px';
+  'inline-flex max-w-full items-center justify-center gap-2 text-center leading-tight sm:whitespace-nowrap rounded font-semibold transition-all duration-150 disabled:cursor-not-allowed disabled:opacity-55 active:translate-y-px';
 
 const variants = {
   // Glossy gradient fill, matching the LauncherDesk primary button exactly.
@@ -24,9 +26,9 @@ const variants = {
 };
 
 const sizes = {
-  sm: 'h-[38px] px-4 text-[13.5px] rounded-xs',
-  md: 'h-12 px-[22px] text-[14.5px]',
-  lg: 'h-[54px] px-[30px] text-[15.5px] rounded-lg',
+  sm: 'min-h-[38px] py-2 px-4 text-[13.5px] rounded-xs',
+  md: 'min-h-12 py-2.5 px-[22px] text-[14.5px]',
+  lg: 'min-h-[54px] py-3 px-6 sm:px-[30px] text-[15.5px] rounded-lg',
 };
 
 export const Button = forwardRef(function Button(

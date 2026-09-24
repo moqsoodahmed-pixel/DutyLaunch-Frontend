@@ -281,6 +281,7 @@ export function ResumeTemplatePreview({ template, className, crop = true }) {
       style={{
         position: 'relative',
         width: '100%',
+        minWidth: 0,
         height: crop ? undefined : PAGE_H * scale,
         aspectRatio: crop ? '794 / 700' : undefined,
         overflow: 'hidden',
@@ -292,6 +293,12 @@ export function ResumeTemplatePreview({ template, className, crop = true }) {
       <div
         aria-hidden
         style={{
+          /* Absolutely positioned so the full-size A4 page never contributes
+             to layout width — otherwise every card is 794px wide on phones
+             and the whole page scrolls sideways. */
+          position: 'absolute',
+          top: 0,
+          left: 0,
           width: PAGE_W,
           height: PAGE_H,
           transform: `scale(${scale})`,

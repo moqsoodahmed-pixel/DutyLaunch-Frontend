@@ -118,7 +118,7 @@ export default function Jobs() {
       <Section tone="white">
         <Container>
           <div className="grid gap-8 lg:grid-cols-12">
-            <div className="lg:col-span-3">
+            <div className="min-w-0 lg:col-span-3">
               <JobFilters
                 filters={filters}
                 facets={facets}
@@ -128,7 +128,7 @@ export default function Jobs() {
               />
             </div>
 
-            <div className="lg:col-span-9">
+            <div className="min-w-0 lg:col-span-9">
               {loading && (
                 <div className="space-y-4">
                   {Array.from({ length: 4 }).map((_, i) => (

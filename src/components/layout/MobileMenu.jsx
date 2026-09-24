@@ -17,12 +17,24 @@ export function MobileMenu({ open, onClose }) {
   return (
     <AnimatePresence>
       {open && (
+        /* Full-screen on phones; from 640px a right-hand drawer over a dimmed
+           backdrop (tap the backdrop to close), so tablets don't get six
+           links stretched across the whole screen. */
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           transition={{ duration: 0.18 }}
-          className="fixed inset-0 z-[80] flex flex-col bg-white lg:hidden"
+          className="fixed inset-0 z-[80] lg:hidden sm:bg-ink-900/40"
+          onClick={onClose}
+        >
+        <motion.div
+          initial={{ x: 24 }}
+          animate={{ x: 0 }}
+          exit={{ x: 24 }}
+          transition={{ duration: 0.22, ease: [0.16, 0.84, 0.44, 1] }}
+          className="ml-auto flex h-full w-full flex-col bg-white sm:max-w-sm sm:shadow-panel"
+          onClick={(e) => e.stopPropagation()}
           role="dialog"
           aria-modal="true"
           aria-label="Menu"
@@ -102,6 +114,7 @@ export function MobileMenu({ open, onClose }) {
             )}
             <p className="pt-1 text-center text-caption text-slate-500">{contact.email}</p>
           </div>
+        </motion.div>
         </motion.div>
       )}
     </AnimatePresence>
