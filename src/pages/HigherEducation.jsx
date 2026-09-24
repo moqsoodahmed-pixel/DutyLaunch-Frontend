@@ -18,50 +18,11 @@ import { serviceSchema } from '../utils/seo.js';
 import { images } from '../data/images.js';
 import { SiteImage } from '../components/ui/SiteImage.jsx';
 import { MousePointerClick } from 'lucide-react';
-import { PartnerModal } from '../components/marketing/PartnerModal.jsx';
+import { SCHOOL, DEGREES, programmeHref } from '../data/programmes.js';
 
-/* Content from dutylaunch.com/higher-education, in the live site's order. */
-const SCHOOL = [
-  { title: 'X / SSLC', icon: 'School' },
-  { title: 'XII / PUC', icon: 'BookOpen' },
-];
 
-const DEGREES = [
-  {
-    title: 'Diploma Programmes',
-    icon: 'ScrollText',
-    items: [
-      'Polytechnic Diploma',
-      'ITI Courses',
-      'Diploma in Engineering',
-      'Diploma in Management',
-      'Diploma in Computer Applications',
-      'Other Diploma Programmes',
-    ],
-  },
-  {
-    title: "Bachelor's Degrees",
-    icon: 'GraduationCap',
-    description: 'Choose from a wide range of undergraduate programs approved by leading universities.',
-    items: [
-      'B.Com', 'BBA', 'B.Des', 'BCA', 'B.Sc', 'BA', 'BSW', 'B.Pharm', 'BE', 'B.Tech',
-      'LLB', 'BHM', 'B.Ed', 'B.Arch', 'B.Lib', 'Other UG Programmes',
-    ],
-  },
-  {
-    title: "Master's Degrees",
-    icon: 'Award',
-    description: 'Advance your career with postgraduate programs that enhance your expertise and leadership skills.',
-    items: [
-      'MBA', 'M.Com', 'MCA', 'M.Sc', 'MA', 'M.Tech', 'M.Ed', 'MSW', 'M.Lib', 'M.Pharm',
-      'LLM', 'PGDM', 'Other PG Programmes',
-    ],
-  },
-];
 
 export default function HigherEducation() {
-  const [partnerSel, setPartnerSel] = useState(null);
-  const openPartners = (item, group) => setPartnerSel({ item, group });
   const [level, setLevel] = useState('');
   const { data: filters } = useApi(() => educationService.filters(), []);
   const { data, loading, error, refetch } = useApi(
@@ -102,8 +63,8 @@ export default function HigherEducation() {
 
       <Section tone="white">
         <Container>
-          <ItemGroups groups={SCHOOL} columns="sm:grid-cols-2" onItemClick={openPartners} />
-          <ItemGroups groups={DEGREES} className="mt-4" onItemClick={openPartners} />
+          <ItemGroups groups={SCHOOL} columns="sm:grid-cols-2" itemHref={(item) => programmeHref('education', item)} />
+          <ItemGroups groups={DEGREES} className="mt-4" itemHref={(item) => programmeHref('education', item)} />
           <p className="mt-6 inline-flex items-center gap-2 text-small text-slate-500">
             <MousePointerClick className="h-4 w-4 text-azure" aria-hidden />
             Select any programme to see partner institutes.
@@ -243,7 +204,6 @@ export default function HigherEducation() {
         primary={{ label: 'Book Free Consultation', to: '/contact#consultation' }}
         secondary={{ label: 'Documentation and attestation', to: '/documentation' }}
       />
-      <PartnerModal selection={partnerSel} onClose={() => setPartnerSel(null)} service="Higher education" />
     </>
   );
 }

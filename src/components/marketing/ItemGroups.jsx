@@ -1,6 +1,7 @@
 import * as Icons from 'lucide-react';
 import { Check, ChevronRight } from 'lucide-react';
 import { RevealGroup, RevealItem } from '../ui/Reveal.jsx';
+import { Link } from 'react-router-dom';
 import { cn } from '../../utils/cn.js';
 
 /**
@@ -11,8 +12,12 @@ import { cn } from '../../utils/cn.js';
  *
  * groups: [{ title, description?, icon?, items?: string[] }]
  */
-export function ItemGroups({ groups, columns = 'md:grid-cols-2 lg:grid-cols-3', className, onItemClick }) {
-  const clickable = typeof onItemClick === 'function';
+export function ItemGroups({ groups, columns = 'md:grid-cols-2 lg:grid-cols-3', className, onItemClick, itemHref }) {
+  // itemHref(item) → URL renders chips as links to a detail page (preferred:
+  // real URLs work with new-tab, sharing and search engines). onItemClick is
+  // kept for callers that need a click handler instead.
+  const linked = typeof itemHref === 'function';
+  const clickable = linked || typeof onItemClick === 'function';
   return (
     <RevealGroup className={cn('grid gap-4', columns, className)} staggerDelay={0.06}>
       {groups.map((group) => {
@@ -49,7 +54,15 @@ export function ItemGroups({ groups, columns = 'md:grid-cols-2 lg:grid-cols-3', 
               cardClickable && 'p-0 sm:p-0'
             )}
           >
-            {cardClickable ? (
+            {cardClickable && linked ? (
+              <Link
+                to={itemHref(group.title, group.title)}
+                className="group block w-full rounded-[inherit] p-4 text-left focus-visible:outline focus-visible:outline-[3px] focus-visible:outline-azure-300 sm:p-5"
+                aria-label={`${group.title} — view partner institutes`}
+              >
+                {header}
+              </Link>
+            ) : cardClickable ? (
               <button
                 type="button"
                 onClick={() => onItemClick(group.title, group.title)}
@@ -65,7 +78,16 @@ export function ItemGroups({ groups, columns = 'md:grid-cols-2 lg:grid-cols-3', 
             {group.items?.length > 0 && (
             <ul className="mt-4 flex flex-wrap gap-2">
               {group.items.map((item) =>
-                clickable ? (
+                linked ? (
+                  <li key={item}>
+                    <Link
+                      to={itemHref(item, group.title)}
+                      className="inline-block rounded-full border border-line bg-paper px-3 py-1.5 text-small font-medium text-slate-700 transition-colors duration-150 hover:border-azure-300 hover:bg-azure-50 hover:text-azure-700 focus-visible:outline focus-visible:outline-[3px] focus-visible:outline-azure-300 active:scale-[0.98]"
+                    >
+                      {item}
+                    </Link>
+                  </li>
+                ) : clickable ? (
                   <li key={item}>
                     <button
                       type="button"

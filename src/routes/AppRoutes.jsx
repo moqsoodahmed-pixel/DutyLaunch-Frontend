@@ -21,6 +21,7 @@ const HigherEducation = lazy(() => import('../pages/HigherEducation.jsx'));
 const Courses = lazy(() => import('../pages/Courses.jsx'));
 const CourseDetail = lazy(() => import('../pages/CourseDetail.jsx'));
 const ProfessionalCourses = lazy(() => import('../pages/ProfessionalCourses.jsx'));
+const ProgrammeDetail = lazy(() => import('../pages/ProgrammeDetail.jsx'));
 const DubaiPackage = lazy(() => import('../pages/DubaiPackage.jsx'));
 const Documentation = lazy(() => import('../pages/Documentation.jsx'));
 const AtsResumeChecker = lazy(() => import('../pages/AtsResumeChecker.jsx'));
@@ -88,9 +89,11 @@ export function AppRoutes() {
             <Route path="cv-templates" element={<CvTemplates />} />
             <Route path="upskills" element={<Upskills />} />
             <Route path="higher-education" element={<HigherEducation />} />
+            <Route path="higher-education/:slug" element={<ProgrammeDetail track="education" />} />
             <Route path="courses" element={<Courses />} />
             <Route path="courses/:slug" element={<CourseDetail />} />
             <Route path="professional-courses" element={<ProfessionalCourses />} />
+            <Route path="professional-courses/:slug" element={<ProgrammeDetail track="courses" />} />
             <Route path="dubai-job-seeker-package" element={<DubaiPackage />} />
             <Route path="documentation" element={<Documentation />} />
             <Route path="ats-resume-checker" element={<AtsResumeChecker />} />
