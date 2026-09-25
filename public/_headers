@@ -1,0 +1,28 @@
+# Cloudflare Pages response headers.
+#
+# Why this file exists: every deploy renames the JS/CSS bundles
+# (Login-D0l55H_A.js → Login-Xy7…js) and removes the old ones. If a browser
+# keeps a cached index.html from an older deploy, it asks for bundle names
+# that no longer exist, Pages answers with index.html (text/html), the
+# browser refuses to run it, and the page goes white.
+#
+# 1) The HTML shell must always be re-checked, so it always points at the
+#    current bundle names.
+/*
+  Cache-Control: no-cache
+
+# 2) Bundles are content-hashed — a given filename never changes — so they
+#    can be cached for a year. "! Cache-Control" drops the no-cache rule
+#    above for these paths instead of merging the two values.
+/assets/*
+  ! Cache-Control
+  Cache-Control: public, max-age=31536000, immutable
+
+# Images, favicons and badges: cache for a day, then re-check.
+/images/*
+  ! Cache-Control
+  Cache-Control: public, max-age=86400
+
+/badges/*
+  ! Cache-Control
+  Cache-Control: public, max-age=86400

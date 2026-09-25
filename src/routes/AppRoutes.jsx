@@ -1,4 +1,4 @@
-import { lazy, Suspense } from 'react';
+import { Suspense } from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { LoadingBlock } from '../components/ui/States.jsx';
 import { ProtectedRoute, GuestRoute } from './ProtectedRoute.jsx';
@@ -8,67 +8,68 @@ import PublicLayout from '../layouts/PublicLayout.jsx';
 import AuthLayout from '../layouts/AuthLayout.jsx';
 import DashboardLayout from '../layouts/DashboardLayout.jsx';
 import AdminLayout from '../layouts/AdminLayout.jsx';
+import { lazyWithReload } from '../utils/lazyWithReload.js';
 
 /* Public pages */
-const Home = lazy(() => import('../pages/Home.jsx'));
-const About = lazy(() => import('../pages/About.jsx'));
-const CareerServices = lazy(() => import('../pages/CareerServices.jsx'));
-const Pricing = lazy(() => import('../pages/Pricing.jsx'));
-const CvBuilder = lazy(() => import('../pages/CvBuilder.jsx'));
-const CvTemplates = lazy(() => import('../pages/CvTemplates.jsx'));
-const Upskills = lazy(() => import('../pages/Upskills.jsx'));
-const HigherEducation = lazy(() => import('../pages/HigherEducation.jsx'));
-const Courses = lazy(() => import('../pages/Courses.jsx'));
-const CourseDetail = lazy(() => import('../pages/CourseDetail.jsx'));
-const ProfessionalCourses = lazy(() => import('../pages/ProfessionalCourses.jsx'));
-const ProgrammeDetail = lazy(() => import('../pages/ProgrammeDetail.jsx'));
-const DubaiPackage = lazy(() => import('../pages/DubaiPackage.jsx'));
-const Documentation = lazy(() => import('../pages/Documentation.jsx'));
-const AtsResumeChecker = lazy(() => import('../pages/AtsResumeChecker.jsx'));
-const LinkedInOptimizer = lazy(() => import('../pages/career-tools/LinkedInOptimizer.jsx'));
-const CoverLetter = lazy(() => import('../pages/career-tools/CoverLetter.jsx'));
-const InterviewCoach = lazy(() => import('../pages/career-tools/InterviewCoach.jsx'));
-const Jobs = lazy(() => import('../pages/Jobs.jsx'));
-const JobDetail = lazy(() => import('../pages/JobDetail.jsx'));
-const Employer = lazy(() => import('../pages/Employer.jsx'));
-const Blog = lazy(() => import('../pages/Blog.jsx'));
-const BlogPost = lazy(() => import('../pages/BlogPost.jsx'));
-const Faq = lazy(() => import('../pages/Faq.jsx'));
-const Contact = lazy(() => import('../pages/Contact.jsx'));
-const NotFound = lazy(() => import('../pages/NotFound.jsx'));
+const Home = lazyWithReload(() => import('../pages/Home.jsx'));
+const About = lazyWithReload(() => import('../pages/About.jsx'));
+const CareerServices = lazyWithReload(() => import('../pages/CareerServices.jsx'));
+const Pricing = lazyWithReload(() => import('../pages/Pricing.jsx'));
+const CvBuilder = lazyWithReload(() => import('../pages/CvBuilder.jsx'));
+const CvTemplates = lazyWithReload(() => import('../pages/CvTemplates.jsx'));
+const Upskills = lazyWithReload(() => import('../pages/Upskills.jsx'));
+const HigherEducation = lazyWithReload(() => import('../pages/HigherEducation.jsx'));
+const Courses = lazyWithReload(() => import('../pages/Courses.jsx'));
+const CourseDetail = lazyWithReload(() => import('../pages/CourseDetail.jsx'));
+const ProfessionalCourses = lazyWithReload(() => import('../pages/ProfessionalCourses.jsx'));
+const ProgrammeDetail = lazyWithReload(() => import('../pages/ProgrammeDetail.jsx'));
+const DubaiPackage = lazyWithReload(() => import('../pages/DubaiPackage.jsx'));
+const Documentation = lazyWithReload(() => import('../pages/Documentation.jsx'));
+const AtsResumeChecker = lazyWithReload(() => import('../pages/AtsResumeChecker.jsx'));
+const LinkedInOptimizer = lazyWithReload(() => import('../pages/career-tools/LinkedInOptimizer.jsx'));
+const CoverLetter = lazyWithReload(() => import('../pages/career-tools/CoverLetter.jsx'));
+const InterviewCoach = lazyWithReload(() => import('../pages/career-tools/InterviewCoach.jsx'));
+const Jobs = lazyWithReload(() => import('../pages/Jobs.jsx'));
+const JobDetail = lazyWithReload(() => import('../pages/JobDetail.jsx'));
+const Employer = lazyWithReload(() => import('../pages/Employer.jsx'));
+const Blog = lazyWithReload(() => import('../pages/Blog.jsx'));
+const BlogPost = lazyWithReload(() => import('../pages/BlogPost.jsx'));
+const Faq = lazyWithReload(() => import('../pages/Faq.jsx'));
+const Contact = lazyWithReload(() => import('../pages/Contact.jsx'));
+const NotFound = lazyWithReload(() => import('../pages/NotFound.jsx'));
 
 /* Legal */
-const Privacy = lazy(() => import('../pages/legal/Privacy.jsx'));
-const Terms = lazy(() => import('../pages/legal/Terms.jsx'));
-const Cancellation = lazy(() => import('../pages/legal/Cancellation.jsx'));
-const Refund = lazy(() => import('../pages/legal/Refund.jsx'));
+const Privacy = lazyWithReload(() => import('../pages/legal/Privacy.jsx'));
+const Terms = lazyWithReload(() => import('../pages/legal/Terms.jsx'));
+const Cancellation = lazyWithReload(() => import('../pages/legal/Cancellation.jsx'));
+const Refund = lazyWithReload(() => import('../pages/legal/Refund.jsx'));
 
 /* Auth */
-const Login = lazy(() => import('../pages/auth/Login.jsx'));
-const Register = lazy(() => import('../pages/auth/Register.jsx'));
-const ForgotPassword = lazy(() => import('../pages/auth/ForgotPassword.jsx'));
+const Login = lazyWithReload(() => import('../pages/auth/Login.jsx'));
+const Register = lazyWithReload(() => import('../pages/auth/Register.jsx'));
+const ForgotPassword = lazyWithReload(() => import('../pages/auth/ForgotPassword.jsx'));
 
 /* Dashboard (candidate + employer) */
-const Dashboard = lazy(() => import('../pages/dashboard/Dashboard.jsx'));
-const Assistant = lazy(() => import('../pages/dashboard/Assistant.jsx'));
-const Profile = lazy(() => import('../pages/dashboard/Profile.jsx'));
-const Applications = lazy(() => import('../pages/dashboard/Applications.jsx'));
-const SavedJobs = lazy(() => import('../pages/dashboard/SavedJobs.jsx'));
-const EmployerJobs = lazy(() => import('../pages/dashboard/EmployerJobs.jsx'));
-const EmployerJobForm = lazy(() => import('../pages/dashboard/EmployerJobForm.jsx'));
-const EmployerApplications = lazy(() => import('../pages/dashboard/EmployerApplications.jsx'));
+const Dashboard = lazyWithReload(() => import('../pages/dashboard/Dashboard.jsx'));
+const Assistant = lazyWithReload(() => import('../pages/dashboard/Assistant.jsx'));
+const Profile = lazyWithReload(() => import('../pages/dashboard/Profile.jsx'));
+const Applications = lazyWithReload(() => import('../pages/dashboard/Applications.jsx'));
+const SavedJobs = lazyWithReload(() => import('../pages/dashboard/SavedJobs.jsx'));
+const EmployerJobs = lazyWithReload(() => import('../pages/dashboard/EmployerJobs.jsx'));
+const EmployerJobForm = lazyWithReload(() => import('../pages/dashboard/EmployerJobForm.jsx'));
+const EmployerApplications = lazyWithReload(() => import('../pages/dashboard/EmployerApplications.jsx'));
 
 /* Admin */
-const AdminDashboard = lazy(() => import('../pages/admin/AdminDashboard.jsx'));
-const AdminUsers = lazy(() => import('../pages/admin/AdminUsers.jsx'));
-const AdminJobs = lazy(() => import('../pages/admin/AdminJobs.jsx'));
-const AdminApplications = lazy(() => import('../pages/admin/AdminApplications.jsx'));
-const AdminCourses = lazy(() => import('../pages/admin/AdminCourses.jsx'));
-const AdminBlogs = lazy(() => import('../pages/admin/AdminBlogs.jsx'));
-const AdminFaqs = lazy(() => import('../pages/admin/AdminFaqs.jsx'));
-const AdminConsultations = lazy(() => import('../pages/admin/AdminConsultations.jsx'));
-const AdminMessages = lazy(() => import('../pages/admin/AdminMessages.jsx'));
-const AdminTestimonials = lazy(() => import('../pages/admin/AdminTestimonials.jsx'));
+const AdminDashboard = lazyWithReload(() => import('../pages/admin/AdminDashboard.jsx'));
+const AdminUsers = lazyWithReload(() => import('../pages/admin/AdminUsers.jsx'));
+const AdminJobs = lazyWithReload(() => import('../pages/admin/AdminJobs.jsx'));
+const AdminApplications = lazyWithReload(() => import('../pages/admin/AdminApplications.jsx'));
+const AdminCourses = lazyWithReload(() => import('../pages/admin/AdminCourses.jsx'));
+const AdminBlogs = lazyWithReload(() => import('../pages/admin/AdminBlogs.jsx'));
+const AdminFaqs = lazyWithReload(() => import('../pages/admin/AdminFaqs.jsx'));
+const AdminConsultations = lazyWithReload(() => import('../pages/admin/AdminConsultations.jsx'));
+const AdminMessages = lazyWithReload(() => import('../pages/admin/AdminMessages.jsx'));
+const AdminTestimonials = lazyWithReload(() => import('../pages/admin/AdminTestimonials.jsx'));
 
 function PageFallback() {
   return <LoadingBlock label="Loading" className="min-h-[50vh]" />;
