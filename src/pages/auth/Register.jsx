@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
-import { Building2, Handshake, UserRound } from 'lucide-react';
+import { Briefcase, Building2, UserRound } from 'lucide-react';
 import { Input, Checkbox } from '../../components/ui/Field.jsx';
 import { Button } from '../../components/ui/Button.jsx';
 import { Badge } from '../../components/ui/Badge.jsx';
@@ -15,20 +15,15 @@ import { friendlyAuthError } from '../../utils/authErrors.js';
 import { cn } from '../../utils/cn.js';
 import { homePathFor } from '../../utils/homePath.js';
 
-// "user" is the existing, fully-supported candidate role — unchanged.
-// "customer" is a NEW segment the product wants to offer, but the API has
-// no such role today (only 'user', 'employer', 'admin' exist — see
-// AuthContext.isEmployer, ProtectedRoute's `roles` gate, and the employer-only
-// routes in AppRoutes.jsx). Rather than silently sending an unsupported role
-// string to /auth/register, or repurposing 'employer' under a new label
-// (which would drop the person into the employer job-posting dashboard),
-// the card is shown as a first-class option but flagged as not yet enabled.
-// Flip this to `true` once the backend adds a real 'customer' role.
-const CUSTOMER_ROLE_SUPPORTED = false;
-
+// Three self-service account types. Admin accounts are never self-registered.
+//   user      — candidates: job seekers and anyone buying a career service.
+//   employer  — companies and recruitment consultants who post jobs. Every
+//               job they publish waits for an admin before it goes live.
+//   institute — colleges and training companies; their partner profile goes
+//               live on the programme pages once an admin approves it.
 const ACCOUNT_TYPES = [
   { value: 'user', label: 'Candidate', hint: "I'm looking for work", icon: UserRound, supported: true },
-  { value: 'customer', label: 'Customer', hint: "I'm looking for services", icon: Handshake, supported: CUSTOMER_ROLE_SUPPORTED },
+  { value: 'employer', label: 'Employer', hint: 'Company or recruitment consultant', icon: Briefcase, supported: true },
   // Colleges, universities and training companies. After signing up they
   // complete a partner profile at /partner; it goes live once approved.
   { value: 'institute', label: 'Institute', hint: 'College or training partner', icon: Building2, supported: true },
@@ -41,7 +36,9 @@ export default function Register() {
   const [searchParams] = useSearchParams();
   // /register?type=institute preselects the Institute card (linked from the
   // "Partner with DutyLaunch" calls to action).
-  const [role, setRole] = useState(searchParams.get('type') === 'institute' ? 'institute' : 'user');
+  // /register?type=institute or ?type=employer preselects that card (linked
+  // from "Become a partner" and the Employer page).
+  const [role, setRole] = useState(['institute', 'employer'].includes(searchParams.get('type')) ? searchParams.get('type') : 'user');
   const {
     register,
     handleSubmit,
@@ -65,13 +62,6 @@ export default function Register() {
       setError('confirmPassword', { message: 'Passwords do not match.' });
       return;
     }
-    if (role === 'customer') {
-      // No backend contract for this role yet — fail loudly here instead of
-      // sending a role value the API has never seen.
-      toast.error('Customer accounts are launching soon. Please continue with a Candidate account for now.');
-      return;
-    }
-
     try {
       const payload = { ...values, role };
       delete payload.acceptTerms;
@@ -147,17 +137,17 @@ export default function Register() {
             Your listing goes live on DutyLaunch once our team has reviewed it.
           </p>
         )}
-        {role === 'customer' && (
-          <p className="mt-2 text-caption font-medium text-amber-600">
-            Customer accounts are launching soon — this option needs backend support and isn&rsquo;t open for
-            registration yet.
+        {role === 'employer' && (
+          <p className="mt-2 text-caption text-slate-600">
+            You&rsquo;ll post jobs and review applicants from your dashboard. Each job goes live on DutyLaunch once our
+            team has reviewed it.
           </p>
         )}
       </fieldset>
 
       <form onSubmit={handleSubmit(onSubmit)} className="mt-6 space-y-5" noValidate>
         <Input
-          label={role === 'institute' ? 'Your name (contact person)' : 'Full name'}
+          label={role === 'user' ? 'Full name' : 'Your name (contact person)'}
           autoComplete="name"
           error={errors.name?.message}
           {...register('name', { required: 'Enter your name' })}
@@ -224,7 +214,7 @@ export default function Register() {
         />
         {errors.acceptTerms && <p className="text-caption font-medium text-danger">{errors.acceptTerms.message}</p>}
 
-        <Button type="submit" fullWidth loading={isSubmitting} disabled={isSubmitting || role === 'customer'}>
+        <Button type="submit" fullWidth loading={isSubmitting} disabled={isSubmitting}>
           {isSubmitting ? 'Creating Account…' : 'Create Account'}
         </Button>
       </form>

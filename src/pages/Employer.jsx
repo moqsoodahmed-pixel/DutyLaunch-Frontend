@@ -35,7 +35,7 @@ function EmployerInfo({ isAuthenticated }) {
         breadcrumb={[{ label: 'Employer' }]}
         actions={
           <HeroActions
-            primary={{ label: 'Create an employer account', to: '/register' }}
+            primary={{ label: 'Create an employer account', to: '/register?type=employer' }}
             // A signed-in visitor is already authenticated, so "Already
             // registered? Sign in" would be redundant — HeroActions already
             // skips rendering a falsy `secondary` cleanly, no empty gap.
@@ -61,7 +61,7 @@ function EmployerInfo({ isAuthenticated }) {
       <CTASection
         title="Have a role open right now?"
         body="Register an employer account and post your first listing in a few minutes."
-        primary={{ label: 'Create an employer account', to: '/register' }}
+        primary={{ label: 'Create an employer account', to: '/register?type=employer' }}
         secondary={{ label: 'Contact us instead', to: '/contact' }}
       />
     </>

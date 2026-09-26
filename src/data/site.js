@@ -252,22 +252,29 @@ export const careerServices = [
   },
 ];
 
+/* Dubai Launch. Every line here maps to an item in the package's "What's
+   Included" list on /dubai-job-seeker-package — visit visa, flight ticket,
+   bedspace, airport pickup, SIM, NOL card, CV distribution, interview
+   guidance, job search support, relocation guidance. Nothing the package
+   does not deliver (banking, contract review, etc.) is claimed.
+   `services` is not currently rendered; `timeline` is the "order things
+   have to happen in" section. */
 export const globalMobility = {
   services: [
-    { title: 'Gulf-market job search', icon: 'Search', body: 'Target lists, recruiter networks and a search strategy built for hiring from outside the country.' },
-    { title: 'CV distribution', icon: 'Send', body: 'Your CV placed with recruitment consultancies and employers active in your sector.' },
-    { title: 'Interview support', icon: 'MessagesSquare', body: 'Preparation for remote first rounds and for in-person interviews during a search trip.' },
-    { title: 'Visa guidance', icon: 'BadgeCheck', body: 'What your employer sponsors, what you must provide, and the order to do it in.' },
-    { title: 'Accommodation guidance', icon: 'Home', body: 'Areas, typical costs and how the rental cycle works before you commit to a lease.' },
-    { title: 'Airport pickup', icon: 'Plane', body: 'Arranged arrival transfer so your first hours are not spent negotiating one.' },
-    { title: 'SIM and essentials', icon: 'Smartphone', body: 'Connectivity, banking basics and the accounts you need in your first week.' },
-    { title: 'Relocation guidance', icon: 'Map', body: 'A written plan covering the sequence, the costs and the documents.' },
+    { title: 'Job search support', icon: 'Search', body: 'A target list of employers and roles, and a plan for your time in Dubai.' },
+    { title: 'CV distribution', icon: 'Send', body: 'Your CV sent to employers and recruitment consultancies hiring in your field.' },
+    { title: 'Interview guidance', icon: 'MessagesSquare', body: 'Preparation for UAE interviews, in person or remote.' },
+    { title: 'Visit visa and flights', icon: 'BadgeCheck', body: 'Help applying for your UAE visit visa and booking your flight.' },
+    { title: 'Accommodation', icon: 'Home', body: 'Bedspace or shared accommodation arranged for your stay.' },
+    { title: 'Airport pickup', icon: 'Plane', body: 'Met on arrival and taken to your accommodation.' },
+    { title: 'SIM and NOL cards', icon: 'Smartphone', body: 'A UAE SIM card and a NOL card for Dubai\'s metro and buses.' },
+    { title: 'Relocation guidance', icon: 'Map', body: 'What to expect once you have an offer, and the order to do it in.' },
   ],
   timeline: [
-    { when: 'Before you apply', what: 'Certificates attested, CV repositioned for the Gulf market, visa status stated plainly.' },
-    { when: 'While applying', what: 'Distribution, recruiter outreach and remote interview preparation.' },
-    { when: 'On offer', what: 'Contract review points, visa sequence and the documents your employer will ask for.' },
-    { when: 'On arrival', what: 'Airport pickup, SIM, banking, accommodation search and orientation.' },
+    { when: 'Before you travel', what: 'CV prepared for the UAE market, visit visa and flight ticket assistance, and your bedspace arranged.' },
+    { when: 'On arrival', what: 'Airport pickup, a UAE SIM card and a NOL card for the metro and buses, then settling into your accommodation.' },
+    { when: 'While you search', what: 'CV distribution to employers, job search support and interview guidance.' },
+    { when: 'Once you have an offer', what: 'Relocation guidance: what your employer arranges, and the documents they will ask for.' },
   ],
 };
 

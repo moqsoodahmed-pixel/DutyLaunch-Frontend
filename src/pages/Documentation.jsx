@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import * as Icons from 'lucide-react';
 import { Seo } from '../components/ui/Seo.jsx';
 import { Container, Section } from '../components/ui/Container.jsx';
@@ -12,6 +13,8 @@ import { Badge } from '../components/ui/Badge.jsx';
 import { useApi } from '../hooks/useApi.js';
 import { documentationService } from '../services/contentService.js';
 import { Check } from 'lucide-react';
+import { Modal } from '../components/ui/Modal.jsx';
+import { ConsultationForm } from '../components/marketing/ConsultationForm.jsx';
 
 /* Content from dutylaunch.com's Appostle services page, in the live site's order. */
 const DOCUMENT_SERVICES = [
@@ -35,6 +38,8 @@ const WHY_CHOOSE = [
 ];
 
 export default function Documentation() {
+  // Clicking a document-service card opens an enquiry for that service.
+  const [serviceChoice, setServiceChoice] = useState(null);
   const { data, loading, error, refetch } = useApi(() => documentationService.list(), []);
   const services = data || [];
 
@@ -62,7 +67,7 @@ export default function Documentation() {
               lead="Our experienced team manages the complete verification process while keeping you informed at every step, making documentation simple, secure, and hassle-free."
             />
           </Reveal>
-          <ItemGroups groups={DOCUMENT_SERVICES} className="mt-10" />
+          <ItemGroups groups={DOCUMENT_SERVICES} className="mt-10" onItemClick={(item) => setServiceChoice(item)} />
           <Button to="/contact#consultation" className="mt-8">
             Check Your Document Requirements
           </Button>
@@ -149,6 +154,23 @@ export default function Documentation() {
         primary={{ label: 'Book Free Consultation', to: '/contact#consultation' }}
         secondary={{ label: 'Dubai Launch', to: '/dubai-job-seeker-package' }}
       />
+      <Modal
+        open={Boolean(serviceChoice)}
+        onClose={() => setServiceChoice(null)}
+        title={serviceChoice || ''}
+        description="Tell us what the document is for and where it is going. A counsellor will call you within one working day with the exact steps, time and cost."
+        size="lg"
+      >
+        {serviceChoice && (
+          <ConsultationForm
+            key={serviceChoice}
+            defaultService="Documentation & attestation"
+            defaultMessage={`I need help with ${serviceChoice}.`}
+            successNote={`A counsellor will call you within one working day about ${serviceChoice}.`}
+            compact
+          />
+        )}
+      </Modal>
     </>
   );
 }

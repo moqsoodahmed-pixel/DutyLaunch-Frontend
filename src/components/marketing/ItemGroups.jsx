@@ -67,7 +67,7 @@ export function ItemGroups({ groups, columns = 'md:grid-cols-2 lg:grid-cols-3', 
                 type="button"
                 onClick={() => onItemClick(group.title, group.title)}
                 className="group w-full rounded-[inherit] p-4 text-left focus-visible:outline focus-visible:outline-[3px] focus-visible:outline-azure-300 sm:p-5"
-                aria-label={`View partner institutes for ${group.title}`}
+                aria-label={`Enquire about ${group.title}`}
               >
                 {header}
               </button>
@@ -92,7 +92,7 @@ export function ItemGroups({ groups, columns = 'md:grid-cols-2 lg:grid-cols-3', 
                     <button
                       type="button"
                       onClick={() => onItemClick(item, group.title)}
-                      aria-label={`View partner institutes for ${item}`}
+                      aria-label={`Enquire about ${item}`}
                       className="rounded-full border border-line bg-paper px-3 py-1.5 text-small font-medium text-slate-700 transition-colors duration-150 hover:border-azure-300 hover:bg-azure-50 hover:text-azure-700 focus-visible:outline focus-visible:outline-[3px] focus-visible:outline-azure-300 active:scale-[0.98]"
                     >
                       {item}

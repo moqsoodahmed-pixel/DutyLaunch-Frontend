@@ -196,11 +196,18 @@ export default function Pricing() {
       <Modal
         open={Boolean(selected)}
         onClose={() => setSelected(null)}
-        title={selected ? `Start the ${selected.name} bundle` : ''}
-        description="Send your details and a counsellor will confirm the brief and payment link within one working day."
+        title={selected ? `Get your ${selected.name} CV` : ''}
+        description={selected ? `A counsellor will call you within one working day to confirm your brief. You pay only after that, through a secure payment link.` : ''}
         size="lg"
       >
-        {selected && <ConsultationForm defaultService="CV & LinkedIn" compact />}
+        {selected && (
+          <ConsultationForm
+            defaultService="CV & LinkedIn"
+            defaultMessage={`I'd like the ${selected.name} bundle (${selected.experienceBand || ''}).`.replace(' ()', '')}
+            successNote={`A counsellor will call you within one working day to confirm your ${selected.name} brief and share the payment link.`}
+            compact
+          />
+        )}
       </Modal>
 
       <TemplateGallery

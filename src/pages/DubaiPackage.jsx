@@ -109,7 +109,7 @@ export default function DubaiPackage() {
           <SectionHeader
             label="Sequence"
             title="The order things have to happen in."
-            lead="Getting this wrong is the single most common cause of a delayed move — attestation started after the offer, for instance, rather than before the search."
+            lead="Most delays come from doing things out of order — travelling before your CV is ready, or arriving with nowhere to stay. This is the sequence the package follows."
           />
           <ol className="mt-12 grid gap-8 lg:grid-cols-4">
             {globalMobility.timeline.map((phase, i) => (

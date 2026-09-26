@@ -69,6 +69,30 @@ function ResumeCard() {
   );
 }
 
+/**
+ * People type "moqsood", "linkedin.com/in/moqsood" or a full URL. The API
+ * needs a full URL, so turn the first two into
+ * https://www.linkedin.com/in/<handle> instead of rejecting the save.
+ */
+function normaliseLinkedIn(value) {
+  const v = (value || '').trim();
+  if (!v) return '';
+  if (/^https?:\/\//i.test(v)) return v;
+  if (/linkedin\.com/i.test(v)) return `https://${v.replace(/^\/+/, '')}`;
+  const handle = v.replace(/^@/, '').replace(/[^A-Za-z0-9-_]/g, '');
+  return handle ? `https://www.linkedin.com/in/${handle}` : '';
+}
+
+/* The API reports nested paths ("profile.linkedinUrl", "company.website");
+   the form's fields are flat. Without this, errors never showed next to a
+   field and the save button looked like it did nothing. */
+const FIELD_ALIASES = {
+  'company.name': 'companyName',
+  'company.website': 'companyWebsite',
+  'company.about': 'companyAbout',
+};
+const formField = (path) => FIELD_ALIASES[path] || path.replace(/^(profile|company)\./, '');
+
 export default function Profile() {
   const { user, setUser, isEmployer } = useAuth();
   const toast = useToast();
@@ -77,6 +101,7 @@ export default function Profile() {
     handleSubmit,
     reset,
     setError,
+    setValue,
     formState: { errors, isSubmitting },
   } = useForm();
 
@@ -112,14 +137,16 @@ export default function Profile() {
           experienceYears: values.experienceYears,
           currentRole: values.currentRole,
           skills: values.skills ? values.skills.split(',').map((s) => s.trim()).filter(Boolean) : [],
-          linkedinUrl: values.linkedinUrl,
+          linkedinUrl: normaliseLinkedIn(values.linkedinUrl),
         };
       }
       const res = await profileService.update(payload);
       setUser(res.data.user);
+      // Show the saved (normalised) LinkedIn URL in the field.
+      if (!isEmployer) setValue('linkedinUrl', res.data.user?.profile?.linkedinUrl || '');
       toast.success('Profile updated');
     } catch (error) {
-      error.fieldErrors?.forEach((f) => setError(f.field, { message: f.message }));
+      error.fieldErrors?.forEach((f) => setError(formField(f.field), { message: f.message }));
       toast.error(error.message);
     }
   };
@@ -142,20 +169,26 @@ export default function Profile() {
             <>
               <Input label="Company name" error={errors.companyName?.message} {...register('companyName')} />
               <Input label="Company website" error={errors.companyWebsite?.message} {...register('companyWebsite')} />
-              <Textarea label="About the company" rows={4} {...register('companyAbout')} />
+              <Textarea label="About the company" rows={4} error={errors.companyAbout?.message} {...register('companyAbout')} />
             </>
           ) : (
             <>
               <div className="grid gap-5 sm:grid-cols-2">
-                <Input label="Headline" hint="e.g. Business analyst, 4 years" {...register('headline')} />
-                <Input label="Current location" {...register('location')} />
+                <Input label="Headline" hint="e.g. Business analyst, 4 years" error={errors.headline?.message} {...register('headline')} />
+                <Input label="Current location" error={errors.location?.message} {...register('location')} />
               </div>
               <div className="grid gap-5 sm:grid-cols-2">
-                <Input label="Current role" {...register('currentRole')} />
-                <Input label="Years of experience" type="number" min="0" max="60" {...register('experienceYears')} />
+                <Input label="Current role" error={errors.currentRole?.message} {...register('currentRole')} />
+                <Input label="Years of experience" type="number" min="0" max="60" error={errors.experienceYears?.message} {...register('experienceYears')} />
               </div>
-              <Input label="Skills" hint="Comma separated" {...register('skills')} />
-              <Input label="LinkedIn URL" {...register('linkedinUrl')} />
+              <Input label="Skills" hint="Comma separated" error={errors.skills?.message} {...register('skills')} />
+              <Input
+                label="LinkedIn"
+                hint="Your profile URL, or just your LinkedIn username"
+                placeholder="linkedin.com/in/your-name"
+                error={errors.linkedinUrl?.message}
+                {...register('linkedinUrl')}
+              />
             </>
           )}
 

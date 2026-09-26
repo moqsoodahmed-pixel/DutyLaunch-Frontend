@@ -423,11 +423,18 @@ export default function CvBuilder() {
       <Modal
         open={Boolean(checkout)}
         onClose={() => setCheckout(null)}
-        title={checkout ? `Start the ${checkout.name} bundle` : ''}
-        description="Send your details and a counsellor will confirm the brief and payment link within one working day."
+        title={checkout ? `Get your ${checkout.name} CV` : ''}
+        description={checkout ? `A counsellor will call you within one working day to confirm your brief. You pay only after that, through a secure payment link.` : ''}
         size="lg"
       >
-        {checkout && <ConsultationForm defaultService="CV & LinkedIn" compact />}
+        {checkout && (
+          <ConsultationForm
+            defaultService="CV & LinkedIn"
+            defaultMessage={`I'd like the ${checkout.name} bundle (${checkout.experienceBand || ''}).`.replace(' ()', '')}
+            successNote={`A counsellor will call you within one working day to confirm your ${checkout.name} brief and share the payment link.`}
+            compact
+          />
+        )}
       </Modal>
     </>
   );
