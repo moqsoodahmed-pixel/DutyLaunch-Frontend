@@ -4,13 +4,14 @@ import { Container, Section } from '../components/ui/Container.jsx';
 import { SectionHeader } from '../components/ui/SectionHeader.jsx';
 import { PageHero, HeroActions } from '../components/marketing/PageHero.jsx';
 import { CTASection } from '../components/marketing/CTASection.jsx';
-import { ItemGroups, CheckList } from '../components/marketing/ItemGroups.jsx';
+import { ItemGroups } from '../components/marketing/ItemGroups.jsx';
 import { Button } from '../components/ui/Button.jsx';
 import { Reveal } from '../components/ui/Reveal.jsx';
 import { CardSkeleton, EmptyState, ErrorState } from '../components/ui/States.jsx';
 import { Badge } from '../components/ui/Badge.jsx';
 import { useApi } from '../hooks/useApi.js';
 import { documentationService } from '../services/contentService.js';
+import { Check } from 'lucide-react';
 
 /* Content from dutylaunch.com's Appostle services page, in the live site's order. */
 const DOCUMENT_SERVICES = [
@@ -126,14 +127,19 @@ export default function Documentation() {
 
       <Section tone="paper">
         <Container>
-          <div className="grid gap-10 lg:grid-cols-12">
-            <Reveal className="lg:col-span-5">
-              <h2 className="max-w-[16ch] text-h2 font-bold">Why Choose DutyLaunch?</h2>
-            </Reveal>
-            <div className="lg:col-span-6 lg:col-start-7">
-              <CheckList items={WHY_CHOOSE} className="tile p-6" />
-            </div>
-          </div>
+          <Reveal>
+            <h2 className="text-h2 font-bold">Why Choose DutyLaunch?</h2>
+          </Reveal>
+          <ul className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {WHY_CHOOSE.map((point) => (
+              <li key={point} className="tile flex items-start gap-3 p-5">
+                <span className="mt-0.5 grid h-6 w-6 shrink-0 place-items-center rounded-full bg-success/10">
+                  <Check className="h-3.5 w-3.5 text-success" strokeWidth={3} aria-hidden />
+                </span>
+                <span className="text-body font-semibold text-ink">{point}</span>
+              </li>
+            ))}
+          </ul>
         </Container>
       </Section>
 

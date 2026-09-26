@@ -167,18 +167,18 @@ export default function HigherEducation() {
 
       <Section tone="paper">
         <Container>
-          <div className="grid gap-10 lg:grid-cols-12">
-            <Reveal className="lg:col-span-5">
-              <h2 className="max-w-[16ch] text-h2 font-bold">What the guidance covers</h2>
-              <p className="mt-4 max-w-md text-lead text-slate-600">
+          <div>
+            <Reveal className="max-w-3xl">
+              <h2 className="text-h2 font-bold">What the guidance covers</h2>
+              <p className="mt-3 max-w-2xl text-lead text-slate-600">
                 The application itself is a small part of it. Most of the work is upstream and downstream.
               </p>
-              <Button to="/contact#consultation" className="mt-7">
+              <Button to="/contact#consultation" className="mt-6">
                 Book a free consultation
               </Button>
             </Reveal>
-            <RevealGroup className="lg:col-span-6 lg:col-start-7" staggerDelay={0.05}>
-              <dl className="divide-y divide-line border-y border-line">
+            <RevealGroup className="mt-10" staggerDelay={0.05}>
+              <dl className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                 {[
                   ['Shortlisting', 'Against budget, entry requirements, intake dates and post-study work rules in each destination.'],
                   ['Statement of purpose', 'Structured and edited, written by you with our editing rather than ghostwritten — admissions teams can tell.'],
@@ -187,7 +187,7 @@ export default function HigherEducation() {
                   ['Visa paperwork', 'Document checklists, attestation where required, and the sequence to do it in.'],
                   ['Arrival planning', 'Accommodation, part-time work rules and the graduate job search before you land.'],
                 ].map(([term, detail]) => (
-                  <RevealItem key={term} className="py-4">
+                  <RevealItem key={term} className="tile p-5">
                     <dt className="text-body font-bold text-ink">{term}</dt>
                     <dd className="mt-1 text-body text-slate-600">{detail}</dd>
                   </RevealItem>

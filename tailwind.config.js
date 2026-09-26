@@ -81,7 +81,9 @@ export default {
       },
       spacing: {
         4.5: '1.125rem', // 18px — used by h-4.5 / w-4.5 icon sizing across the app
-        section: 'clamp(4rem, 2rem + 6vw, 7.5rem)',
+        // Vertical padding of every <Section>. Was clamp(4rem, 2rem + 6vw, 7.5rem) —
+        // up to 120px top AND bottom, which left large empty bands between sections.
+        section: 'clamp(3.25rem, 1.75rem + 4vw, 5.5rem)',
         gutter: 'clamp(1.25rem, 0.5rem + 2vw, 2.5rem)',
       },
       maxWidth: {

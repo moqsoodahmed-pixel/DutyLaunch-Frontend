@@ -13,7 +13,7 @@ import { courseService } from '../services/contentService.js';
 import { serviceSchema } from '../utils/seo.js';
 import { images } from '../data/images.js';
 import { SiteImage } from '../components/ui/SiteImage.jsx';
-import { MousePointerClick } from 'lucide-react';
+import { Check, MousePointerClick } from 'lucide-react';
 import { COURSE_GROUPS, programmeHref } from '../data/programmes.js';
 
 
@@ -137,21 +137,21 @@ export default function ProfessionalCourses() {
 
       <Section tone="white">
         <Container>
-          <div className="grid gap-10 lg:grid-cols-12">
-            <div className="lg:col-span-5">
+          <div>
+            <div className="max-w-3xl">
               <h2 className="text-h2 font-bold">How a programme is chosen</h2>
-              <p className="mt-4 text-lead text-slate-600">
+              <p className="mt-3 max-w-2xl text-lead text-slate-600">
                 The order matters. Picking the course first is how people end up with certificates that change nothing.
               </p>
             </div>
-            <ol className="lg:col-span-6 lg:col-start-7">
+            <ol className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
               {[
                 ['Name the role, not the subject', 'We start from the job description you want to be credible for.'],
                 ['Find the actual gap', 'Often it is one skill or one credential, not a whole discipline.'],
                 ['Check the market reads it', 'A qualification only helps if recruiters in your sector recognise it.'],
                 ['Then pick the programme', 'Format, cost and time commitment, against what you can realistically sustain.'],
               ].map(([title, body], i) => (
-                <li key={title} className="flex gap-5 border-b border-line py-5 first:border-t">
+                <li key={title} className="tile flex flex-col gap-3 p-5">
                   <span className="tabular text-caption font-bold text-azure">{String(i + 1).padStart(2, '0')}</span>
                   <div>
                     <h3 className="text-body font-bold text-ink">{title}</h3>
@@ -166,18 +166,25 @@ export default function ProfessionalCourses() {
 
       <Section tone="paper">
         <Container>
-          <div className="grid gap-10 lg:grid-cols-12">
-            <div className="lg:col-span-5">
-              <h2 className="max-w-[18ch] text-h2 font-bold">Built for Working Professionals</h2>
-              <p className="mt-4 text-lead text-slate-600">
+          <div>
+            <div className="max-w-3xl">
+              <h2 className="text-h2 font-bold">Built for Working Professionals</h2>
+              <p className="mt-3 max-w-2xl text-lead text-slate-600">
                 Most of our education clients are already working. We help you fit higher studies around your job, not
                 the other way around, and guide you specifically toward qualifications that support your next move —
                 whether that&apos;s a promotion, a career change, or a salary hike.
               </p>
             </div>
-            <div className="lg:col-span-6 lg:col-start-7">
-              <CheckList items={WORKING_PROFESSIONALS} className="tile p-6" />
-            </div>
+            <ul className="mt-10 grid gap-4 md:grid-cols-2">
+              {WORKING_PROFESSIONALS.map((point) => (
+                <li key={point} className="tile flex items-start gap-3 p-5">
+                  <span className="mt-0.5 grid h-6 w-6 shrink-0 place-items-center rounded-full bg-success/10">
+                    <Check className="h-3.5 w-3.5 text-success" strokeWidth={3} aria-hidden />
+                  </span>
+                  <span className="text-body text-slate-700">{point}</span>
+                </li>
+              ))}
+            </ul>
           </div>
         </Container>
       </Section>

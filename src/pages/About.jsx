@@ -46,17 +46,17 @@ export default function About() {
 
       <Section tone="white">
         <Container>
-          <div className="grid gap-10 lg:grid-cols-12">
-            <Reveal className="lg:col-span-5">
-              <h2 className="max-w-[16ch] text-h2 font-bold">What we do</h2>
-              <p className="mt-4 max-w-md text-lead text-slate-600">
+          <div>
+            <Reveal className="max-w-3xl">
+              <h2 className="text-h2 font-bold">What we do</h2>
+              <p className="mt-3 max-w-2xl text-lead text-slate-600">
                 Five connected practices. Most clients use two or three of them over a year rather than all five at once.
               </p>
             </Reveal>
-            <RevealGroup className="lg:col-span-6 lg:col-start-7" staggerDelay={0.05}>
-              <dl className="divide-y divide-line border-y border-line">
+            <RevealGroup className="mt-10" staggerDelay={0.05}>
+              <dl className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                 {pillars.map((pillar) => (
-                  <RevealItem key={pillar.id} className="py-5">
+                  <RevealItem key={pillar.id} className="tile p-5">
                     <dt className="text-body font-bold text-ink">{pillar.label}</dt>
                     <dd className="mt-1 text-body text-slate-600">{pillar.summary}</dd>
                   </RevealItem>

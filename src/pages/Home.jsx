@@ -112,21 +112,21 @@ export default function Home() {
       {/* An honesty block — this is the section that replaces invented social proof. */}
       <Section tone="white">
         <Container>
-          <div className="grid gap-10 lg:grid-cols-12">
-            <div className="lg:col-span-5">
+          <div>
+            <div className="max-w-3xl">
               <h2 className="text-h2 font-bold">How we work</h2>
-              <p className="mt-4 text-lead text-slate-600">
+              <p className="mt-3 max-w-2xl text-lead text-slate-600">
                 Four commitments that decide what we will and will not sell you.
               </p>
             </div>
-            <ul className="space-y-6 lg:col-span-6 lg:col-start-7">
+            <ul className="mt-10 grid gap-x-10 gap-y-8 md:grid-cols-2">
               {[
                 ['We tell you when a service will not help.', 'If a course or a rewrite will not change your options, we say so in the consultation. That conversation is free.'],
                 ['Prices are published, not quoted on the call.', 'CV bundles are listed openly. Where a price genuinely depends on the case — attestation, for instance — we confirm it in writing before any payment.'],
                 ['Your documents stay yours.', 'Resumes and certificates are stored privately, served only to you and the employer you applied to, and never listed publicly.'],
                 ['One month of revisions, no argument.', 'Every CV bundle includes a month of unlimited revisions. You do not have to justify the request.'],
               ].map(([title, body]) => (
-                <li key={title} className="flex gap-4">
+                <li key={title} className="flex gap-4 rounded-xl border border-line bg-paper/60 p-5">
                   <span className="mt-1 grid h-5 w-5 shrink-0 place-items-center rounded-xs bg-azure-50">
                     <Check className="h-3.5 w-3.5 text-azure" aria-hidden />
                   </span>
