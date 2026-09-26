@@ -200,7 +200,7 @@ export default function CvBuilder() {
             : 'Two ways in. Both end with an ATS-checked CV, a matching cover letter and LinkedIn copy, and a month of unlimited revisions.'
         }
         breadcrumb={[{ label: 'Pricing', to: '/pricing' }, { label: 'Build my CV' }]}
-        aside={<SiteImage image={images.cvBuilder} priority className="mx-auto lg:ml-auto lg:mr-0" />}
+        aside={<SiteImage image={images.cvBuilder} priority ratio="5 / 4" className="mx-auto w-full lg:ml-auto lg:mr-0" />}
       />
 
       <div className="border-b border-line bg-white">

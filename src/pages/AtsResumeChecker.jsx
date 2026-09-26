@@ -59,7 +59,7 @@ export default function AtsResumeChecker() {
         eyebrow="Free tool"
         title="Check Your Resume ATS Score"
         lead="Upload your CV and discover how well it performs against ATS systems — plus get actionable recommendations to improve it."
-        aside={<SiteImage image={images.atsChecker} priority className="mx-auto lg:ml-auto lg:mr-0" />}
+        aside={<SiteImage image={images.atsChecker} priority ratio="5 / 4" className="mx-auto w-full lg:ml-auto lg:mr-0" />}
       />
 
       <Section tone="white">

@@ -26,7 +26,7 @@ export default function Contact() {
         title="Talk to us before you commit to anything."
         lead="The first conversation is free and unscripted. Tell us where you are, and we will tell you honestly whether we can help."
         breadcrumb={[{ label: 'Contact' }]}
-        aside={<SiteImage image={images.contactOffice} priority className="mx-auto lg:ml-auto lg:mr-0" />}
+        aside={<SiteImage image={images.contactOffice} priority ratio="5 / 4" className="mx-auto w-full lg:ml-auto lg:mr-0" />}
       />
 
       <Section tone="white">

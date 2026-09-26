@@ -58,7 +58,7 @@ export default function HigherEducation() {
             secondary={{ label: 'See programmes', to: '#programmes' }}
           />
         }
-        aside={<SiteImage image={images.campus} priority className="mx-auto lg:ml-auto lg:mr-0" />}
+        aside={<SiteImage image={images.campus} priority ratio="5 / 4" className="mx-auto w-full lg:ml-auto lg:mr-0" />}
       />
 
       <Section tone="white">

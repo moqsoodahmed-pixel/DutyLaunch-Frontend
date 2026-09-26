@@ -56,7 +56,7 @@ export default function Upskills() {
             secondary={{ label: 'Work out the gap first', to: '/contact#consultation' }}
           />
         }
-        aside={<SiteImage image={images.upskills} priority className="mx-auto lg:ml-auto lg:mr-0" />}
+        aside={<SiteImage image={images.upskills} priority ratio="5 / 4" className="mx-auto w-full lg:ml-auto lg:mr-0" />}
       />
 
       <Section tone="white">

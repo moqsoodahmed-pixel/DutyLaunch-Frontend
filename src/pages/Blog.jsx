@@ -35,7 +35,7 @@ export default function Blog() {
         title="Notes on careers, education and moving abroad."
         lead="Practical articles, not filler — written from the questions people actually bring to consultations."
         breadcrumb={[{ label: 'Blog' }]}
-        aside={<SiteImage image={images.blogHero} priority className="mx-auto lg:ml-auto lg:mr-0" />}
+        aside={<SiteImage image={images.blogHero} priority ratio="5 / 4" className="mx-auto w-full lg:ml-auto lg:mr-0" />}
       />
 
       <Section tone="white">

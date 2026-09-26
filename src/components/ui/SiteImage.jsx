@@ -9,14 +9,17 @@ import { cn } from '../../utils/cn.js';
  *   - decorative={true} renders an empty alt so screen readers skip it
  *
  * image: an entry from src/data/images.js
+ * ratio: optional fixed frame, e.g. '5 / 4'
  */
-export function SiteImage({ image, priority = false, decorative = false, className, imgClassName, rounded = 'rounded-xl' }) {
+export function SiteImage({ image, priority = false, decorative = false, className, imgClassName, rounded = 'rounded-xl', ratio }) {
   if (!image) return null;
   const { src, srcSet, sizes, width, height, alt, position } = image;
   return (
     <div
       className={cn('relative w-full overflow-hidden bg-slate-100 shadow-lift', rounded, className)}
-      style={{ maxWidth: width, aspectRatio: `${width} / ${height}` }}
+      // `ratio` (e.g. '5 / 4') gives several images one consistent frame; the
+      // photo then fills it with object-cover. Default: the file's own shape.
+      style={{ maxWidth: width, aspectRatio: ratio || `${width} / ${height}` }}
     >
       <img
         src={src}

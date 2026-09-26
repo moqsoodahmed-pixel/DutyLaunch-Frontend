@@ -61,7 +61,7 @@ export default function ProfessionalCourses() {
             secondary={{ label: 'Ask which course fits', to: '/contact#consultation' }}
           />
         }
-        aside={<SiteImage image={images.training} priority className="mx-auto lg:ml-auto lg:mr-0" />}
+        aside={<SiteImage image={images.training} priority ratio="5 / 4" className="mx-auto w-full lg:ml-auto lg:mr-0" />}
       />
 
       <Section tone="paper">

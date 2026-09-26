@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { Check, FileCheck2, Minus, ShieldCheck, Star, UserCheck, Zap } from 'lucide-react';
+import { FileCheck2, ShieldCheck, Star, UserCheck, Zap } from 'lucide-react';
 import { Seo } from '../components/ui/Seo.jsx';
 import { Container, Section } from '../components/ui/Container.jsx';
 import { SectionHeader } from '../components/ui/SectionHeader.jsx';
@@ -15,7 +15,6 @@ import { CTASection } from '../components/marketing/CTASection.jsx';
 import { TemplateGallery } from '../components/cv/TemplateGallery.jsx';
 import { useApi } from '../hooks/useApi.js';
 import { pricingService } from '../services/contentService.js';
-import { formatCurrency } from '../utils/format.js';
 import { cn } from '../utils/cn.js';
 
 const TRUST_POINTS = [
@@ -143,113 +142,19 @@ export default function Pricing() {
               </RevealGroup>
             )}
           </div>
+          {/* Moved here from the removed comparison table, which repeated
+              every price already shown on the cards above. */}
+          <p className="mt-8 max-w-prose text-small text-slate-600">
+                Prices are one-off and inclusive of the revision window. Payment terms, accepted methods and refund
+                conditions are set out in the{' '}
+                <a href="/refund-policy" className="font-medium text-azure underline-offset-4 hover:underline">
+                  refund policy
+                </a>
+                .
+              </p>
         </Container>
       </Section>
 
-      {/* Comparison — desktop table, stacked lists on small screens. */}
-      {packages.length > 0 && (
-        <Section tone="white">
-          <Container>
-            <Reveal>
-              <SectionHeader
-                label="Side by side"
-                title="What differs between the bands."
-                lead="The deliverables are identical. What changes is the depth of the rewrite and the price."
-              />
-            </Reveal>
-
-            <div className="mt-10 hidden overflow-x-auto md:block">
-              <table className="w-full border-collapse text-left">
-                <caption className="sr-only">CV bundle comparison by experience band</caption>
-                <thead>
-                  <tr>
-                    <th scope="col" className="w-1/3 border-b border-line py-4 pr-4 text-small font-bold text-ink">
-                      Included
-                    </th>
-                    {packages.map((pkg) => (
-                      <th key={pkg._id} scope="col" className="border-b border-line px-4 py-4 align-bottom">
-                        <span className="block text-small font-bold text-ink">{pkg.name}</span>
-                        <span className="block text-caption text-slate-500">{pkg.experienceBand}</span>
-                        <span className="tabular mt-1.5 block text-h3 font-extrabold text-ink">
-                          {formatCurrency(pkg.price, pkg.currency)}
-                        </span>
-                      </th>
-                    ))}
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-line">
-                  {featureRows.map((label) => (
-                    <tr key={label}>
-                      <th scope="row" className="py-3.5 pr-4 text-small font-medium text-slate-700">
-                        {label}
-                      </th>
-                      {packages.map((pkg) => {
-                        const feature = pkg.features?.find((f) => f.label === label);
-                        const included = Boolean(feature?.included);
-                        return (
-                          <td key={pkg._id} className="px-4 py-3.5">
-                            {included ? (
-                              <Check className="h-4.5 w-4.5 text-success" aria-label="Included" />
-                            ) : (
-                              <Minus className="h-4.5 w-4.5 text-slate-300" aria-label="Not included" />
-                            )}
-                          </td>
-                        );
-                      })}
-                    </tr>
-                  ))}
-                  <tr>
-                    <th scope="row" className="py-3.5 pr-4 text-small font-medium text-slate-700">
-                      Best for
-                    </th>
-                    {packages.map((pkg) => (
-                      <td key={pkg._id} className="px-4 py-3.5 text-small text-slate-600">
-                        {pkg.bestFor}
-                      </td>
-                    ))}
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-
-            <div className="mt-8 space-y-4 md:hidden">
-              {packages.map((pkg) => (
-                <details key={pkg._id} className="rounded-lg border border-line bg-white p-5">
-                  <summary className="flex cursor-pointer items-center justify-between gap-3">
-                    <span className="text-body font-bold text-ink">{pkg.name}</span>
-                    <span className="tabular text-body font-extrabold text-ink">
-                      {formatCurrency(pkg.price, pkg.currency)}
-                    </span>
-                  </summary>
-                  <p className="mt-2 text-caption text-slate-500">{pkg.experienceBand}</p>
-                  <ul className="mt-4 space-y-2">
-                    {pkg.features?.map((f) => (
-                      <li key={f.label} className="flex items-start gap-2 text-small">
-                        {f.included ? (
-                          <Check className="mt-0.5 h-4 w-4 shrink-0 text-success" aria-hidden />
-                        ) : (
-                          <Minus className="mt-0.5 h-4 w-4 shrink-0 text-slate-300" aria-hidden />
-                        )}
-                        <span className={f.included ? 'text-slate-700' : 'text-slate-400'}>{f.label}</span>
-                      </li>
-                    ))}
-                  </ul>
-                  <p className="mt-4 text-small text-slate-600">{pkg.bestFor}</p>
-                </details>
-              ))}
-            </div>
-
-            <p className="mt-8 max-w-prose text-small text-slate-600">
-              Prices are one-off and inclusive of the revision window. Payment terms, accepted methods and refund
-              conditions are set out in the{' '}
-              <a href="/refund-policy" className="font-medium text-azure underline-offset-4 hover:underline">
-                refund policy
-              </a>
-              .
-            </p>
-          </Container>
-        </Section>
-      )}
 
       {/* How it works — the process steps proresumes.in-style CV sites use to
           make a one-off, no-account purchase feel low-risk. */}

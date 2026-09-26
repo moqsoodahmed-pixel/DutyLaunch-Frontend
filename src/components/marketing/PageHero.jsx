@@ -26,7 +26,7 @@ export function PageHero({ eyebrow, title, lead, breadcrumb, actions, aside, ton
           variants={stagger(0.08)}
           initial="hidden"
           animate="show"
-          className="grid gap-8 lg:grid-cols-12 lg:gap-12"
+          className="grid items-center gap-8 lg:grid-cols-12 lg:gap-12"
         >
           <div className="lg:col-span-7">
             {eyebrow && (
@@ -55,7 +55,7 @@ export function PageHero({ eyebrow, title, lead, breadcrumb, actions, aside, ton
             )}
           </div>
           {aside && (
-            <motion.div variants={fadeUp} className="lg:col-span-4 lg:col-start-9">
+            <motion.div variants={fadeUp} className="lg:col-span-5 lg:col-start-8">
               {aside}
             </motion.div>
           )}

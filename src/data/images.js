@@ -9,8 +9,9 @@
  *
  * Source: all images are crops of the two supplied DutyLaunch visual assets
  * (the Dubai Launch hero and the website concept board), with every piece of
- * baked-in text, logo and UI removed. The concept-board crops are small —
- * roughly 240–300px wide — so they are used as supporting images only.
+ * baked-in text, logo and UI removed. The concept-board crops were only
+ * ~240–300px wide, so they were upscaled 4x with an EDSR super-resolution
+ * model and exported at 960px (plus a 560px copy for phones).
  * To upgrade one, drop a higher-resolution file at the same path and update
  * its width/height here; no component changes are needed.
  *
@@ -29,44 +30,58 @@ export const images = {
   },
   dubaiRelocation: {
     src: '/images/careers/dubai-relocation.webp',
-    width: 248,
-    height: 276,
+    srcSet: '/images/careers/dubai-relocation-560.webp 560w, /images/careers/dubai-relocation.webp 960w',
+    sizes: '(min-width: 1024px) 480px, 100vw',
+    width: 960,
+    height: 1068,
     alt: 'A traveller with a backpack looking out over the Dubai skyline',
   },
   campus: {
     src: '/images/education/university-campus.webp',
-    width: 236,
-    height: 222,
+    srcSet: '/images/education/university-campus-560.webp 560w, /images/education/university-campus.webp 960w',
+    sizes: '(min-width: 1024px) 500px, 100vw',
+    width: 960,
+    height: 903,
     alt: 'Students walking towards a university building on a green campus',
   },
   training: {
     src: '/images/education/professional-training.webp',
-    width: 294,
-    height: 222,
+    srcSet: '/images/education/professional-training-560.webp 560w, /images/education/professional-training.webp 960w',
+    sizes: '(min-width: 1024px) 500px, 100vw',
+    width: 960,
+    height: 725,
     alt: 'A learner taking notes during a professional training class',
   },
   upskills: {
     src: '/images/careers/upskills.webp',
-    width: 270,
-    height: 237,
+    srcSet: '/images/careers/upskills-560.webp 560w, /images/careers/upskills.webp 960w',
+    sizes: '(min-width: 1024px) 500px, 100vw',
+    width: 960,
+    height: 843,
     alt: 'A learner with headphones studying on a laptop, with data and code icons',
   },
   consultation: {
     src: '/images/branding/consultation.webp',
-    width: 266,
-    height: 276,
+    srcSet: '/images/branding/consultation-560.webp 560w, /images/branding/consultation.webp 960w',
+    sizes: '(min-width: 1024px) 500px, 100vw',
+    width: 960,
+    height: 996,
     alt: 'A small group reviewing a profile together on a laptop',
   },
   hiring: {
     src: '/images/careers/hiring.webp',
-    width: 286,
-    height: 222,
+    srcSet: '/images/careers/hiring-560.webp 560w, /images/careers/hiring.webp 960w',
+    sizes: '(min-width: 1024px) 500px, 100vw',
+    width: 960,
+    height: 745,
     alt: 'A candidate shaking hands with an interviewer',
   },
   careerGrowth: {
     src: '/images/careers/career-growth.webp',
-    width: 284,
-    height: 237,
+    srcSet: '/images/careers/career-growth-560.webp 560w, /images/careers/career-growth.webp 960w',
+    sizes: '(min-width: 1024px) 500px, 100vw',
+    width: 960,
+    height: 801,
     alt: 'A professional looking out at a city skyline at sunrise',
   },
   /* ---- Second batch: generated per page, upscaled/cleaned to 1600px. ---- */
@@ -81,7 +96,7 @@ export const images = {
   contactOffice: {
     src: '/images/branding/contact-office.webp',
     srcSet: '/images/branding/contact-office-800.webp 800w, /images/branding/contact-office.webp 1600w',
-    sizes: '(min-width: 1024px) 400px, 100vw',
+    sizes: '(min-width: 1024px) 500px, 100vw',
     width: 1600,
     height: 1068,
     alt: 'A tidy desk with a laptop, an open notebook, a coffee cup and a small plant',
@@ -89,7 +104,7 @@ export const images = {
   cvBuilder: {
     src: '/images/careers/cv-builder.webp',
     srcSet: '/images/careers/cv-builder-800.webp 800w, /images/careers/cv-builder.webp 1536w',
-    sizes: '(min-width: 1024px) 400px, 100vw',
+    sizes: '(min-width: 1024px) 500px, 100vw',
     width: 1536,
     height: 1024,
     alt: 'Hands marking up a printed CV with a pen',
@@ -97,7 +112,7 @@ export const images = {
   atsChecker: {
     src: '/images/careers/ats-resume-checker.webp',
     srcSet: '/images/careers/ats-resume-checker-800.webp 800w, /images/careers/ats-resume-checker.webp 1600w',
-    sizes: '(min-width: 1024px) 400px, 100vw',
+    sizes: '(min-width: 1024px) 500px, 100vw',
     width: 1600,
     height: 1067,
     alt: 'Résumé documents being scanned and compared on a laptop',
@@ -105,7 +120,7 @@ export const images = {
   coursesHero: {
     src: '/images/education/courses-hero.webp',
     srcSet: '/images/education/courses-hero-800.webp 800w, /images/education/courses-hero.webp 1600w',
-    sizes: '(min-width: 1024px) 400px, 100vw',
+    sizes: '(min-width: 1024px) 500px, 100vw',
     width: 1600,
     height: 1090,
     alt: 'An instructor leading a workshop for a group of learners with laptops',
@@ -113,7 +128,7 @@ export const images = {
   blogHero: {
     src: '/images/branding/blog-hero.webp',
     srcSet: '/images/branding/blog-hero-800.webp 800w, /images/branding/blog-hero.webp 1200w',
-    sizes: '(min-width: 1024px) 400px, 100vw',
+    sizes: '(min-width: 1024px) 500px, 100vw',
     width: 1200,
     height: 1011,
     alt: 'A woman writing in a notebook at a desk by a window',

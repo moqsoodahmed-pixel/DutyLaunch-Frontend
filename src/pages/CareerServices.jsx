@@ -44,7 +44,7 @@ export default function CareerServices() {
             secondary={{ label: 'Book a free consultation', to: '/contact#consultation' }}
           />
         }
-        aside={<SiteImage image={images.consultation} priority className="mx-auto lg:ml-auto lg:mr-0" />}
+        aside={<SiteImage image={images.consultation} priority ratio="5 / 4" className="mx-auto w-full lg:ml-auto lg:mr-0" />}
       />
 
       <div className="border-b border-line bg-white">

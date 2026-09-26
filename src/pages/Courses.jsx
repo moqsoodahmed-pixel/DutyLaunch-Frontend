@@ -69,7 +69,7 @@ export default function Courses() {
         title="The full catalogue."
         lead="Professional programmes, short upskilling courses and certification preparation. If you already know the gap you are closing, search for it."
         breadcrumb={[{ label: 'Courses' }]}
-        aside={<SiteImage image={images.coursesHero} priority className="mx-auto lg:ml-auto lg:mr-0" />}
+        aside={<SiteImage image={images.coursesHero} priority ratio="5 / 4" className="mx-auto w-full lg:ml-auto lg:mr-0" />}
       />
 
       <Section tone="paper">

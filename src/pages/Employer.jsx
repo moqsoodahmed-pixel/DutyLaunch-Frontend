@@ -42,7 +42,7 @@ function EmployerInfo({ isAuthenticated }) {
             secondary={isAuthenticated ? undefined : { label: 'Already registered? Sign in', to: '/login' }}
           />
         }
-        aside={<SiteImage image={images.hiring} priority className="mx-auto lg:ml-auto lg:mr-0" />}
+        aside={<SiteImage image={images.hiring} priority ratio="5 / 4" className="mx-auto w-full lg:ml-auto lg:mr-0" />}
       />
       <Section tone="white">
         <Container>
