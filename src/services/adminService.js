@@ -12,6 +12,9 @@ export const adminService = {
 
   applications: (params) => api.get('/admin/applications', { params }),
 
+  partners: (params) => api.get('/admin/partners', { params }),
+  setPartnerStatus: (id, payload) => api.patch(`/admin/partners/${id}/status`, payload),
+
   blogs: (params) => api.get('/blogs/admin/all', { params }),
   createBlog: (payload) => api.post('/blogs', payload),
   updateBlog: (id, payload) => api.put(`/blogs/${id}`, payload),

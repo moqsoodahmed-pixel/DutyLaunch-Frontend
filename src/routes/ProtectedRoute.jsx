@@ -1,6 +1,7 @@
 import { Navigate, Outlet, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext.jsx';
 import { LoadingBlock } from '../components/ui/States.jsx';
+import { homePathFor } from '../utils/homePath.js';
 
 /**
  * Guards the private sections. The session is resolved server-side on first
@@ -18,7 +19,7 @@ export function ProtectedRoute({ roles }) {
   }
 
   if (roles && !roles.includes(user.role)) {
-    return <Navigate to={user.role === 'admin' ? '/admin' : '/dashboard'} replace />;
+    return <Navigate to={homePathFor(user.role)} replace />;
   }
 
   return <Outlet />;
@@ -28,6 +29,6 @@ export function ProtectedRoute({ roles }) {
 export function GuestRoute() {
   const { isAuthenticated, user, initialising } = useAuth();
   if (initialising) return <LoadingBlock label="Loading" className="min-h-screen" />;
-  if (isAuthenticated) return <Navigate to={user.role === 'admin' ? '/admin' : '/dashboard'} replace />;
+  if (isAuthenticated) return <Navigate to={homePathFor(user.role)} replace />;
   return <Outlet />;
 }

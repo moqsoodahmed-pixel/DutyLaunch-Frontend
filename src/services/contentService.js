@@ -54,3 +54,10 @@ export const profileService = {
   update: (payload) => api.patch('/users/profile', payload),
   uploadResume: (formData) => postForm('/users/profile/resume', formData),
 };
+
+/* Partner institutes: public list of APPROVED partners, and an institute's own profile. */
+export const partnerService = {
+  list: (params) => api.get('/partners', { params }),
+  mine: () => api.get('/partners/me'),
+  saveMine: (payload) => api.put('/partners/me', payload),
+};

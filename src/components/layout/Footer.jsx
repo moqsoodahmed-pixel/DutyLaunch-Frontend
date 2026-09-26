@@ -14,7 +14,7 @@ const NAV_COLS = [
   { title: 'Services', links: [['Get Your CV', '/pricing'], ['Upskills', '/upskills'], ['Dubai Launch', '/dubai-job-seeker-package'], ['Appostle Services', '/documentation']] },
   { title: 'Career', links: [['Career services', '/career-services'], ['CV templates', '/cv-templates'], ['ATS resume checker', '/ats-resume-checker'], ['Interview preparation', '/career-services#interview'], ['Career counselling', '/career-services#counselling']] },
   { title: 'Learn', links: [['Higher education', '/higher-education'], ['Professional courses', '/professional-courses'], ['All courses', '/courses']] },
-  { title: 'Company', links: [['About us', '/about'], ['Jobs', '/jobs'], ['For employers', '/employer'], ['Blog', '/blog'], ['FAQ', '/faq'], ['Contact', '/contact']] },
+  { title: 'Company', links: [['About us', '/about'], ['Jobs', '/jobs'], ['For employers', '/employer'], ['Blog', '/blog'], ['FAQ', '/faq'], ['Partner with us', '/register?type=institute'], ['Contact', '/contact']] },
 ]
 
 function IndiaFlag({ width = 24, height = 16, style = {} }) {

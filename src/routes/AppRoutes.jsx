@@ -23,6 +23,8 @@ const Courses = lazyWithReload(() => import('../pages/Courses.jsx'));
 const CourseDetail = lazyWithReload(() => import('../pages/CourseDetail.jsx'));
 const ProfessionalCourses = lazyWithReload(() => import('../pages/ProfessionalCourses.jsx'));
 const ProgrammeDetail = lazyWithReload(() => import('../pages/ProgrammeDetail.jsx'));
+const PartnerProfile = lazyWithReload(() => import('../pages/dashboard/PartnerProfile.jsx'));
+const AdminPartners = lazyWithReload(() => import('../pages/admin/AdminPartners.jsx'));
 const DubaiPackage = lazyWithReload(() => import('../pages/DubaiPackage.jsx'));
 const Documentation = lazyWithReload(() => import('../pages/Documentation.jsx'));
 const AtsResumeChecker = lazyWithReload(() => import('../pages/AtsResumeChecker.jsx'));
@@ -125,12 +127,18 @@ export function AppRoutes() {
             </Route>
           </Route>
 
-          {/* Signed-in app shell: candidates and employers share it, admins
-              are redirected to their own shell below. */}
-          <Route element={<ProtectedRoute roles={['user', 'employer']} />}>
+          {/* Signed-in app shell: candidates, employers and partner institutes
+              share it (each sees its own sidebar); admins have their own shell
+              below. */}
+          <Route element={<ProtectedRoute roles={['user', 'employer', 'institute']} />}>
             <Route element={<DashboardLayout />}>
-              <Route path="dashboard" element={<Dashboard />} />
-              <Route path="profile" element={<Profile />} />
+              <Route element={<ProtectedRoute roles={['user', 'employer']} />}>
+                <Route path="dashboard" element={<Dashboard />} />
+                <Route path="profile" element={<Profile />} />
+              </Route>
+              <Route element={<ProtectedRoute roles={['institute']} />}>
+                <Route path="partner" element={<PartnerProfile />} />
+              </Route>
               <Route element={<ProtectedRoute roles={['user']} />}>
                 <Route path="applications" element={<Applications />} />
                 <Route path="saved-jobs" element={<SavedJobs />} />
@@ -157,6 +165,7 @@ export function AppRoutes() {
               <Route path="admin/consultations" element={<AdminConsultations />} />
               <Route path="admin/messages" element={<AdminMessages />} />
               <Route path="admin/testimonials" element={<AdminTestimonials />} />
+              <Route path="admin/partners" element={<AdminPartners />} />
             </Route>
           </Route>
 

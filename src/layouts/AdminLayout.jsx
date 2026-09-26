@@ -18,6 +18,7 @@ const groups = [
       { to: '/admin/jobs', label: 'Jobs', icon: 'Briefcase' },
       { to: '/admin/applications', label: 'Applications', icon: 'FileStack' },
       { to: '/admin/users', label: 'Users', icon: 'Users' },
+      { to: '/admin/partners', label: 'Partner institutes', icon: 'Building2' },
     ],
   },
   {

@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { Link, useNavigate } from 'react-router-dom';
-import { Handshake, UserRound } from 'lucide-react';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
+import { Building2, Handshake, UserRound } from 'lucide-react';
 import { Input, Checkbox } from '../../components/ui/Field.jsx';
 import { Button } from '../../components/ui/Button.jsx';
 import { Badge } from '../../components/ui/Badge.jsx';
@@ -13,6 +13,7 @@ import { useAuth } from '../../context/AuthContext.jsx';
 import { useToast } from '../../context/ToastContext.jsx';
 import { friendlyAuthError } from '../../utils/authErrors.js';
 import { cn } from '../../utils/cn.js';
+import { homePathFor } from '../../utils/homePath.js';
 
 // "user" is the existing, fully-supported candidate role — unchanged.
 // "customer" is a NEW segment the product wants to offer, but the API has
@@ -28,13 +29,19 @@ const CUSTOMER_ROLE_SUPPORTED = false;
 const ACCOUNT_TYPES = [
   { value: 'user', label: 'Candidate', hint: "I'm looking for work", icon: UserRound, supported: true },
   { value: 'customer', label: 'Customer', hint: "I'm looking for services", icon: Handshake, supported: CUSTOMER_ROLE_SUPPORTED },
+  // Colleges, universities and training companies. After signing up they
+  // complete a partner profile at /partner; it goes live once approved.
+  { value: 'institute', label: 'Institute', hint: 'College or training partner', icon: Building2, supported: true },
 ];
 
 export default function Register() {
   const { register: doRegister } = useAuth();
   const toast = useToast();
   const navigate = useNavigate();
-  const [role, setRole] = useState('user');
+  const [searchParams] = useSearchParams();
+  // /register?type=institute preselects the Institute card (linked from the
+  // "Partner with DutyLaunch" calls to action).
+  const [role, setRole] = useState(searchParams.get('type') === 'institute' ? 'institute' : 'user');
   const {
     register,
     handleSubmit,
@@ -69,10 +76,12 @@ export default function Register() {
       const payload = { ...values, role };
       delete payload.acceptTerms;
       delete payload.confirmPassword;
+      // Phone is optional — don't send an empty string.
+      if (!payload.phone?.trim()) delete payload.phone;
 
       const user = await doRegister(payload);
       toast.success(`Welcome to DutyLaunch, ${user.name.split(' ')[0]}`);
-      navigate(user.role === 'admin' ? '/admin' : '/dashboard', { replace: true });
+      navigate(homePathFor(user.role), { replace: true });
     } catch (error) {
       error.fieldErrors?.forEach((f) => setError(f.field, { message: f.message }));
       toast.error(
@@ -97,7 +106,7 @@ export default function Register() {
 
       <fieldset className="mt-6">
         <legend className="mb-2 text-small font-semibold text-ink">I am signing up as</legend>
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
           {ACCOUNT_TYPES.map(({ value, label, hint, icon: Icon, supported }) => {
             const active = role === value;
             return (
@@ -132,6 +141,12 @@ export default function Register() {
             );
           })}
         </div>
+        {role === 'institute' && (
+          <p className="mt-2 text-caption text-slate-600">
+            After creating your account you&rsquo;ll add your institute&rsquo;s details and the programmes you offer.
+            Your listing goes live on DutyLaunch once our team has reviewed it.
+          </p>
+        )}
         {role === 'customer' && (
           <p className="mt-2 text-caption font-medium text-amber-600">
             Customer accounts are launching soon — this option needs backend support and isn&rsquo;t open for
@@ -142,7 +157,7 @@ export default function Register() {
 
       <form onSubmit={handleSubmit(onSubmit)} className="mt-6 space-y-5" noValidate>
         <Input
-          label="Full name"
+          label={role === 'institute' ? 'Your name (contact person)' : 'Full name'}
           autoComplete="name"
           error={errors.name?.message}
           {...register('name', { required: 'Enter your name' })}

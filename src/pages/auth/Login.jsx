@@ -8,6 +8,7 @@ import { AuthDivider } from '../../components/auth/AuthDivider.jsx';
 import { useAuth } from '../../context/AuthContext.jsx';
 import { useToast } from '../../context/ToastContext.jsx';
 import { friendlyAuthError } from '../../utils/authErrors.js';
+import { homePathFor } from '../../utils/homePath.js';
 
 export default function Login() {
   const { login } = useAuth();
@@ -29,7 +30,7 @@ export default function Login() {
       const user = await login(values);
       toast.success(`Welcome back, ${user.name.split(' ')[0]}`);
       const from = location.state?.from;
-      navigate(from || (user.role === 'admin' ? '/admin' : '/dashboard'), { replace: true });
+      navigate(from || homePathFor(user.role), { replace: true });
     } catch (error) {
       if (error.status === 401) {
         setError('password', { message: 'Incorrect email or password' });

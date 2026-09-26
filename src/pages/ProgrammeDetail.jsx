@@ -1,6 +1,6 @@
 import { useRef, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
-import { ArrowRight, Building2, Info, MapPin } from 'lucide-react';
+import { ArrowRight, Building2, ExternalLink, Handshake, MapPin } from 'lucide-react';
 import { Seo } from '../components/ui/Seo.jsx';
 import { Container, Section } from '../components/ui/Container.jsx';
 import { Button } from '../components/ui/Button.jsx';
@@ -8,7 +8,8 @@ import { Reveal, RevealGroup, RevealItem } from '../components/ui/Reveal.jsx';
 import { PageHero } from '../components/marketing/PageHero.jsx';
 import { ConsultationForm } from '../components/marketing/ConsultationForm.jsx';
 import { TRACKS, findProgramme, programmesIn, programmeHref } from '../data/programmes.js';
-import { partnersFor, SHOW_SAMPLE_NOTICE } from '../data/partners.js';
+import { useApi } from '../hooks/useApi.js';
+import { partnerService } from '../services/contentService.js';
 import NotFound from './NotFound.jsx';
 
 const MODE_STYLE = {
@@ -23,7 +24,9 @@ const MODE_STYLE = {
  * /higher-education/:slug and /professional-courses/:slug — one page per
  * programme or course, reached by clicking its chip on the listing page.
  *
- * Shows the partner institutes for the programme (from src/data/partners.js)
+ * Shows the APPROVED partner institutes for the programme (from /api/partners —
+ * institutes register, complete a profile at /partner, and appear here once an
+ * admin approves them)
  * and an enquiry form lower on the page. "Enquire" on an institute scrolls to
  * the form and prefills it with the programme and institute, so the
  * counsellor knows exactly what the enquiry is about.
@@ -35,12 +38,17 @@ export default function ProgrammeDetail({ track }) {
   const programme = findProgramme(track, slug);
   const [partner, setPartner] = useState(null);
   const formRef = useRef(null);
+  // Called before the not-found check so hooks always run in the same order.
+  const { data: partnerData, loading: partnersLoading } = useApi(
+    () => (programme ? partnerService.list({ track, programme: slug }) : Promise.resolve([])),
+    [track, slug]
+  );
 
   if (!programme) return <NotFound />;
 
   const t = TRACKS[track];
   const { item, group, groupDescription } = programme;
-  const partners = partnersFor(item, group);
+  const partners = partnerData || [];
   const related = programmesIn(track).filter((p) => p.group === group && p.slug !== slug);
 
   const enquire = (p) => {
@@ -82,9 +90,11 @@ export default function ProgrammeDetail({ track }) {
           <Reveal>
             <h2 className="text-h2 font-bold text-ink">Partner institutes</h2>
             <p className="mt-2 max-w-prose text-body text-slate-600">
-              {partners.length
+              {partnersLoading
+                ? 'Loading partner institutes…'
+                : partners.length
                 ? `${partners.length} institute${partners.length > 1 ? 's' : ''} offering ${item}.`
-                : `Partner institutes for ${item} are shared during your consultation.`}
+                : `We're onboarding partner institutes for ${item}. Enquire below and a counsellor will walk you through your options.`}
             </p>
           </Reveal>
 
@@ -92,7 +102,7 @@ export default function ProgrammeDetail({ track }) {
             {partners.map((p) => (
               <RevealItem
                 as="article"
-                key={p.name}
+                key={p._id || p.name}
                 className={`tile flex flex-col p-5 transition-all duration-200 hover:-translate-y-0.5 sm:p-6 ${
                   partner?.name === p.name ? 'ring-2 ring-azure-300' : ''
                 }`}
@@ -110,7 +120,18 @@ export default function ProgrammeDetail({ track }) {
                     {p.mode}
                   </span>
                 </p>
-                {p.note && <p className="mt-3 flex-1 text-small text-slate-600">{p.note}</p>}
+                <p className="mt-3 flex-1 text-small text-slate-600">{p.about}</p>
+                {p.website && (
+                  <a
+                    href={p.website}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="mt-3 inline-flex items-center gap-1 text-caption font-medium text-azure hover:underline"
+                  >
+                    {p.website.replace(/^https?:\/\//, '').replace(/\/$/, '')}
+                    <ExternalLink className="h-3 w-3" aria-hidden />
+                  </a>
+                )}
                 <Button onClick={() => enquire(p)} className="mt-5" fullWidth>
                   Enquire
                 </Button>
@@ -118,13 +139,25 @@ export default function ProgrammeDetail({ track }) {
             ))}
           </RevealGroup>
 
-          {SHOW_SAMPLE_NOTICE && (
-            <p className="mt-6 flex max-w-prose items-start gap-2 rounded-lg bg-paper px-3 py-2.5 text-caption text-slate-500">
-              <Info className="mt-0.5 h-3.5 w-3.5 shrink-0" aria-hidden />
-              Sample listings for demonstration. Confirmed partner institutes, eligibility and fees are shared during
-              your free consultation.
-            </p>
-          )}
+          {/* Institutes can list themselves: register as an Institute, complete
+              the partner profile, and appear here once approved. */}
+          <div className="mt-8 flex flex-col gap-4 rounded-xl border border-dashed border-azure-200 bg-azure-50/40 p-5 sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex items-start gap-3">
+              <span className="grid h-10 w-10 shrink-0 place-items-center rounded-lg bg-white">
+                <Handshake className="h-5 w-5 text-azure" aria-hidden />
+              </span>
+              <div>
+                <p className="text-body font-bold text-ink">Offer {item}? Partner with DutyLaunch.</p>
+                <p className="mt-0.5 text-small text-slate-600">
+                  Create an institute account, add the {t.noun}s you offer, and get listed on their pages once our team
+                  has reviewed your profile.
+                </p>
+              </div>
+            </div>
+            <Button to="/register?type=institute" variant="outline" className="shrink-0">
+              Become a partner
+            </Button>
+          </div>
         </Container>
       </Section>
 

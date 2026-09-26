@@ -60,6 +60,7 @@ export function AuthProvider({ children }) {
       isAuthenticated: Boolean(user),
       isAdmin: user?.role === 'admin',
       isEmployer: user?.role === 'employer',
+      isInstitute: user?.role === 'institute',
       login,
       register,
       logout,

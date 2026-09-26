@@ -8,12 +8,13 @@ import { MegaMenu } from './MegaMenu.jsx';
 import { MobileMenu } from './MobileMenu.jsx';
 import { useAuth } from '../../context/AuthContext.jsx';
 import { cn } from '../../utils/cn.js';
+import { homePathFor } from '../../utils/homePath.js';
 
 export function Navbar() {
   const [openMenu, setOpenMenu] = useState(null);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
-  const { isAuthenticated, isAdmin, user } = useAuth();
+  const { isAuthenticated, user } = useAuth();
   const location = useLocation();
   const navRef = useRef(null);
   // True when the open dropdown was opened by mouse hover (not a click/tap).
@@ -68,7 +69,7 @@ export function Navbar() {
     return () => document.removeEventListener('pointermove', onMove);
   }, [openMenu]);
 
-  const dashboardPath = isAdmin ? '/admin' : '/dashboard';
+  const dashboardPath = homePathFor(user?.role);
 
   return (
     <>

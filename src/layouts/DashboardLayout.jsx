@@ -2,7 +2,22 @@ import AppShell from './AppShell.jsx';
 import { useAuth } from '../context/AuthContext.jsx';
 
 export default function DashboardLayout() {
-  const { isEmployer } = useAuth();
+  const { isEmployer, isInstitute } = useAuth();
+
+  // Partner institutes only manage their listing — no job-search or hiring menus.
+  if (isInstitute) {
+    return (
+      <AppShell
+        title="Partner"
+        groups={[
+          {
+            title: 'Partner account',
+            items: [{ to: '/partner', label: 'Partner profile', icon: 'Building2', end: true }],
+          },
+        ]}
+      />
+    );
+  }
 
   const groups = [
     {
