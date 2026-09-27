@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import * as Icons from 'lucide-react';
+import { Icons } from '../../utils/iconMap.js';
 import { ArrowUpRight } from 'lucide-react';
 import { Container, Section } from '../ui/Container.jsx';
 import { SectionHeader } from '../ui/SectionHeader.jsx';

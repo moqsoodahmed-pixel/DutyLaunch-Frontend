@@ -33,7 +33,13 @@ function withResume({ resume, versionId, jobDescription, jobHints } = {}, extra 
   return body;
 }
 
-const unwrap = (res) => res.data?.data;
+/*
+ * The api.js interceptor already returns the response body
+ * ({ success, message, data }), so the payload is `res.data`. The
+ * `res.data.data` branch only applies if a raw axios response ever
+ * reaches here.
+ */
+const unwrap = (res) => (res && typeof res === 'object' && 'success' in res ? res.data : res?.data?.data);
 
 export const careerService = {
   /* ---------- upload and parse ---------- */
@@ -67,7 +73,7 @@ export const careerService = {
    * categories are omitted and `health.scoredAgainstJd` is false.
    */
   async analyze(opts = {}) {
-    const res = await api.post('/career/analyze', withResume(opts));
+    const res = await api.post('/career/analyze', withResume(opts, opts.record === false ? { record: false } : {}));
     return unwrap(res);
   },
 

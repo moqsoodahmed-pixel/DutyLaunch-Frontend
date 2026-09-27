@@ -39,6 +39,7 @@ export default function DashboardLayout() {
       : {
           title: 'Job search',
           items: [
+            { to: '/my-resumes', label: 'My resumes', icon: 'FileText' },
             { to: '/applications', label: 'Applications', icon: 'FileStack' },
             { to: '/saved-jobs', label: 'Saved jobs', icon: 'Bookmark' },
             { to: '/jobs', label: 'Browse jobs', icon: 'Search' },

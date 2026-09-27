@@ -12,6 +12,13 @@ export const adminService = {
 
   applications: (params) => api.get('/admin/applications', { params }),
 
+  scoring: () => api.get('/admin/scoring'),
+  createScoring: (payload) => api.post('/admin/scoring', payload),
+  updateScoring: (id, payload) => api.put(`/admin/scoring/${id}`, payload),
+  activateScoring: (id) => api.post(`/admin/scoring/${id}/activate`),
+  useDefaultScoring: () => api.post('/admin/scoring/use-defaults'),
+  deleteScoring: (id) => api.delete(`/admin/scoring/${id}`),
+
   partners: (params) => api.get('/admin/partners', { params }),
   setPartnerStatus: (id, payload) => api.patch(`/admin/partners/${id}/status`, payload),
 

@@ -1,4 +1,4 @@
-import * as Icons from 'lucide-react';
+import { Icons } from '../utils/iconMap.js';
 import { Seo } from '../components/ui/Seo.jsx';
 import { seoFor } from '../data/seoPages.js';
 import { Container, Section } from '../components/ui/Container.jsx';

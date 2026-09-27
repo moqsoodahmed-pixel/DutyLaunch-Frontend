@@ -1,4 +1,4 @@
-import * as Icons from 'lucide-react';
+import { Icons } from '../../utils/iconMap.js';
 import { Check, ChevronRight } from 'lucide-react';
 import { RevealGroup, RevealItem } from '../ui/Reveal.jsx';
 import { Link } from 'react-router-dom';

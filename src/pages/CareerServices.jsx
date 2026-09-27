@@ -1,4 +1,4 @@
-import * as Icons from 'lucide-react';
+import { Icons } from '../utils/iconMap.js';
 import { Check, FileCheck2, ShieldCheck, UserCheck, Zap } from 'lucide-react';
 import { Seo } from '../components/ui/Seo.jsx';
 import { Container, Section } from '../components/ui/Container.jsx';

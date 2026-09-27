@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link, NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
-import * as Icons from 'lucide-react';
+import { Icons } from '../utils/iconMap.js';
 import { LogOut, Menu, X, ArrowLeft } from 'lucide-react';
 import { Logo } from '../components/layout/Logo.jsx';
 import { useAuth } from '../context/AuthContext.jsx';

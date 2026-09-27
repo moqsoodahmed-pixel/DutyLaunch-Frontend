@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { Bookmark, BriefcaseBusiness, Building2, Check, CircleAlert, FlaskConical, IndianRupee, MapPin, SearchX, Share2, Sparkles } from 'lucide-react';
 import { Seo } from '../components/ui/Seo.jsx';
@@ -17,6 +17,7 @@ import { formatExperience, formatSalary, relativeTime } from '../utils/format.js
 import { jobPostingSchema } from '../utils/seo.js';
 import { analyzeJobMatch } from '../services/aiService.js';
 import { findDemoJob } from '../data/demoJobs.js';
+import { careerService } from '../services/careerService.js';
 
 /**
  * "Your Match" block — clearly separates what came from the job description
@@ -87,6 +88,139 @@ function MatchSection({ user, job }) {
           View Recommended Courses
         </Button>
       </div>
+    </div>
+  );
+}
+
+/** Everything the job page knows about the role, as one JD for the engine. */
+function jobAsDescription(job) {
+  return [
+    job.title,
+    job.description,
+    job.responsibilities?.length ? `Responsibilities:\n${job.responsibilities.map((r) => `- ${r}`).join('\n')}` : '',
+    job.requirements?.length ? `Requirements:\n${job.requirements.map((r) => `- ${r}`).join('\n')}` : '',
+    job.skills?.length ? `Skills: ${job.skills.join(', ')}` : '',
+  ]
+    .filter(Boolean)
+    .join('\n\n');
+}
+
+/**
+ * Profile Match from the Career Intelligence engine (spec 2 §20).
+ *
+ * Used when the candidate has a saved CV: it scores the real resume
+ * against this job, not just a list of profile skills. With no saved CV
+ * (or if the call fails) the page falls back to the lightweight
+ * profile-skills check in `MatchSection`.
+ */
+function ProfileMatch({ user, job, isDemo }) {
+  const toast = useToast();
+  const [state, setState] = useState({ status: 'loading', analysis: null });
+  const [creating, setCreating] = useState(false);
+  const [created, setCreated] = useState(false);
+
+  const jobDescription = jobAsDescription(job);
+  const jobHints = { jobTitle: job.title, company: job.company, location: job.location };
+
+  useEffect(() => {
+    let cancelled = false;
+    careerService
+      .analyze({ jobDescription, jobHints, record: false })
+      .then((analysis) => !cancelled && setState({ status: analysis?.match ? 'ready' : 'fallback', analysis }))
+      .catch(() => !cancelled && setState({ status: 'fallback', analysis: null }));
+    return () => {
+      cancelled = true;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [job._id, job.slug]);
+
+  if (state.status === 'loading') return <LoadingBlock label="Checking your profile match" className="tile mt-8" />;
+  if (state.status === 'fallback') return <MatchSection user={user} job={job} />;
+
+  const { match, skillGap } = state.analysis;
+  const gaps = (skillGap?.gaps || []).slice(0, 6);
+
+  async function optimize() {
+    setCreating(true);
+    try {
+      await careerService.createVersion({
+        jobDescription,
+        jobHints,
+        kind: 'targeted',
+        label: `${job.title} — ${job.company}`,
+        jobId: isDemo ? undefined : job._id,
+      });
+      setCreated(true);
+      toast.success('Targeted resume created. Your master profile is unchanged.');
+    } catch (err) {
+      toast.error(err?.message || 'Could not create a targeted resume.');
+    } finally {
+      setCreating(false);
+    }
+  }
+
+  return (
+    <div className="tile mt-8 p-6">
+      <div className="flex items-center justify-between gap-4">
+        <h2 className="inline-flex items-center gap-2 text-h3 font-bold text-ink">
+          <Sparkles className="h-4.5 w-4.5 text-azure" aria-hidden />
+          Profile Match
+        </h2>
+        <span className="tabular rounded-full bg-azure-50 px-3 py-1 text-body font-extrabold text-azure-700">{match.overall}%</span>
+      </div>
+      <Progress value={match.overall} className="mt-3" />
+      <p className="mt-2 text-caption text-slate-500">Based on your saved CV. {match.confidenceNote || ''}</p>
+
+      {match.strongMatch?.length > 0 && (
+        <div className="mt-5">
+          <p className="text-small font-semibold text-ink">Strong areas</p>
+          <ul className="mt-2 flex flex-wrap gap-2">
+            {match.strongMatch.map((m) => (
+              <li key={m} className="inline-flex items-center gap-1.5 rounded-full bg-success/10 px-3 py-1 text-caption font-semibold text-success">
+                <Check className="h-3 w-3" aria-hidden />
+                {m}
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+
+      {gaps.length > 0 && (
+        <div className="mt-5">
+          <p className="text-small font-semibold text-ink">Not yet shown on your CV</p>
+          <ul className="mt-2 space-y-1.5">
+            {gaps.map((g) => (
+              <li key={g.skill} className="flex items-start gap-2 text-small">
+                <CircleAlert className={`mt-0.5 h-4 w-4 shrink-0 ${g.necessity === 'required' ? 'text-danger' : 'text-amber-500'}`} aria-hidden />
+                <span>
+                  <span className="font-semibold text-ink">{g.skill}</span>{' '}
+                  <span className="text-slate-500">— {g.necessity === 'required' ? 'required by this job' : 'preferred by this job'}</span>
+                </span>
+              </li>
+            ))}
+          </ul>
+          <p className="mt-2 text-caption text-slate-500">
+            If you have this experience but it is not on your CV, add it — a targeted version will only use what your CV shows.
+          </p>
+        </div>
+      )}
+
+      <div className="mt-5 flex flex-wrap gap-2">
+        {created ? (
+          <Button to="/my-resumes" size="sm">
+            View my targeted resume
+          </Button>
+        ) : (
+          <Button size="sm" loading={creating} onClick={optimize}>
+            Optimize Resume for This Job
+          </Button>
+        )}
+        <Button to="/upskills" variant="outline" size="sm">
+          View Recommended Courses
+        </Button>
+      </div>
+
+      <p className="mt-4 text-caption text-slate-500">{match.disclaimer}</p>
     </div>
   );
 }
@@ -314,7 +448,9 @@ export default function JobDetail() {
                 </>
               )}
 
-              {isAuthenticated ? (
+              {isAuthenticated && user?.role === 'user' ? (
+                <ProfileMatch user={user} job={job} isDemo={isDemo} />
+              ) : isAuthenticated ? (
                 <MatchSection user={user} job={job} />
               ) : (
                 <div className="tile mt-8 flex flex-col items-start gap-3 p-6 sm:flex-row sm:items-center sm:justify-between">

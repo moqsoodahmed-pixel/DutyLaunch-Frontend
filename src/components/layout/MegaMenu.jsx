@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import * as Icons from 'lucide-react';
+import { Icons } from '../../utils/iconMap.js';
 import { menuGroups } from '../../data/site.js';
 
 /**

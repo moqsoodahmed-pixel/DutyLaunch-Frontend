@@ -11,6 +11,8 @@ import { ErrorState } from '../components/ui/States.jsx';
 import { seoFor } from '../data/seoPages.js';
 import { careerService, printResumeHtml } from '../services/careerService.js';
 import { useToast } from '../context/ToastContext.jsx';
+import { useAuth } from '../context/AuthContext.jsx';
+import { Input } from '../components/ui/Field.jsx';
 import {
   AtsChecklist,
   EvidenceQuestions,
@@ -57,6 +59,7 @@ const seo = seoFor('aiResumeBuilder');
 
 export default function AiResumeBuilder() {
   const { success, error: toastError } = useToast();
+  const { isAuthenticated } = useAuth();
 
   const [step, setStep] = useState('upload');
   const [busy, setBusy] = useState('');
@@ -99,7 +102,28 @@ export default function AiResumeBuilder() {
       setResume(result.resume);
       setStep('review');
     } catch (err) {
-      setError(err?.response?.data?.message || 'We could not read that file. If it is a scan, try a text-based PDF or a Word file.');
+      setError(err?.message || 'We could not read that file. If it is a scan, try a text-based PDF or a Word file.');
+    } finally {
+      setBusy('');
+    }
+  }
+
+  /* ---------- review corrections (spec §5, §48) ---------- */
+
+  async function saveCorrections(corrected) {
+    setResume(corrected);
+    // Anything scored before the correction is now stale.
+    if (analysis) setAnalysis(null);
+    if (!isAuthenticated) {
+      success('Corrections applied. Run the analysis again to use them.');
+      return;
+    }
+    setBusy('save');
+    try {
+      await careerService.updateProfile({ resume: corrected });
+      success('Corrections saved to your career profile.');
+    } catch (err) {
+      toastError(err?.message || 'Corrections applied here, but could not be saved to your profile.');
     } finally {
       setBusy('');
     }
@@ -118,7 +142,7 @@ export default function AiResumeBuilder() {
       setStep('analyze');
       scrollToReport();
     } catch (err) {
-      setError(err?.response?.data?.message || 'Something went wrong running the analysis.');
+      setError(err?.message || 'Something went wrong running the analysis.');
     } finally {
       setBusy('');
     }
@@ -134,7 +158,7 @@ export default function AiResumeBuilder() {
       const result = await careerService.submitEvidenceAnswer({ question, answers });
       success(result.suggestedBullet ? `Suggested line: ${result.suggestedBullet.bullet}` : result.note);
     } catch (err) {
-      toastError(err?.response?.data?.message || 'Could not save that answer.');
+      toastError(err?.message || 'Could not save that answer.');
     } finally {
       setAnswerBusy('');
     }
@@ -152,7 +176,7 @@ export default function AiResumeBuilder() {
       setDecisions({});
       setStep('optimize');
     } catch (err) {
-      setError(err?.response?.data?.message || 'Could not generate suggestions right now.');
+      setError(err?.message || 'Could not generate suggestions right now.');
     } finally {
       setBusy('');
     }
@@ -181,7 +205,7 @@ export default function AiResumeBuilder() {
       success('Your changes are in. Nothing you rejected was applied.');
       scrollToReport();
     } catch (err) {
-      setError(err?.response?.data?.message || 'Could not apply those changes.');
+      setError(err?.message || 'Could not apply those changes.');
     } finally {
       setBusy('');
     }
@@ -205,7 +229,7 @@ export default function AiResumeBuilder() {
         toastError('Allow pop-ups for this site to download your resume.');
       }
     } catch (err) {
-      const message = err?.response?.data?.message || 'Could not prepare the download.';
+      const message = err?.message || 'Could not prepare the download.';
       setError(message);
       // Export refusal is a feature, not a bug: it means an unverified
       // claim is still in the document.
@@ -349,11 +373,11 @@ export default function AiResumeBuilder() {
             <SectionHeader
               label="Step 2"
               title="Check what we read"
-              lead="We write nothing we are unsure of. Where a field was unreadable we left it empty rather than guessing — correct anything below before you rely on the analysis."
+              lead="We write nothing we are unsure of. Where a field was unreadable we left it empty rather than guessing. Click Edit to correct anything before you rely on the analysis."
             />
             <div className="mt-6 space-y-5">
               <ParseReviewNotice needsReview={parsed.needsReview} note={parsed.reviewNote} />
-              <ExtractedSummary resume={resume} />
+              <ExtractedSummary resume={resume} onSave={saveCorrections} saving={busy === 'save'} />
             </div>
           </Container>
         </Section>
@@ -499,55 +523,125 @@ export default function AiResumeBuilder() {
  * Extracted-data summary
  * ------------------------------------------------------------------ */
 
-function ExtractedSummary({ resume }) {
+const CONTACT_FIELDS = [
+  ['name', 'Name'],
+  ['email', 'Email'],
+  ['phone', 'Phone'],
+  ['location', 'Location'],
+  ['linkedin', 'LinkedIn'],
+];
+
+function ExtractedSummary({ resume, onSave, saving }) {
+  const [editing, setEditing] = useState(false);
+  const [draft, setDraft] = useState(resume);
+
+  useEffect(() => {
+    if (!editing) setDraft(resume);
+  }, [resume, editing]);
+
   if (!resume) return null;
 
-  const rows = [
-    ['Name', resume.personal?.name],
-    ['Email', resume.personal?.email],
-    ['Phone', resume.personal?.phone],
-    ['Location', resume.personal?.location],
-    ['LinkedIn', resume.personal?.linkedin],
-  ];
+  const setPersonal = (key, value) => setDraft((d) => ({ ...d, personal: { ...(d.personal || {}), [key]: value } }));
+  const setRole = (index, key, value) =>
+    setDraft((d) => ({
+      ...d,
+      experience: (d.experience || []).map((r, i) => (i === index ? { ...r, [key]: value } : r)),
+    }));
+
+  const view = editing ? draft : resume;
 
   return (
-    <div className="grid gap-5 lg:grid-cols-2">
-      <div className="rounded-lg border border-line bg-white p-6">
-        <h3 className="mb-4 font-semibold">Contact details</h3>
-        <dl className="space-y-2.5">
-          {rows.map(([label, value]) => (
-            <div key={label} className="flex gap-4 text-small">
-              <dt className="w-24 shrink-0 text-slate-500">{label}</dt>
-              <dd className={value ? '' : 'text-danger'}>{value || 'Not found — please add'}</dd>
-            </div>
-          ))}
-        </dl>
+    <div className="space-y-4">
+      <div className="flex flex-wrap items-center justify-end gap-3">
+        {editing ? (
+          <>
+            <Button variant="quiet" size="sm" onClick={() => { setDraft(resume); setEditing(false); }}>
+              Cancel
+            </Button>
+            <Button size="sm" loading={saving} onClick={async () => { await onSave?.(draft); setEditing(false); }}>
+              Save corrections
+            </Button>
+          </>
+        ) : (
+          <Button variant="outline" size="sm" onClick={() => setEditing(true)}>
+            Edit what we read
+          </Button>
+        )}
       </div>
 
-      <div className="rounded-lg border border-line bg-white p-6">
-        <h3 className="mb-4 font-semibold">Experience we read</h3>
-        {resume.experience?.length ? (
-          <ul className="space-y-3.5">
-            {resume.experience.map((role) => (
-              <li key={role.id} className="text-small">
-                <p className="font-medium">
-                  {role.title || <span className="text-danger">Title not found</span>}
-                  {role.company ? ` · ${role.company}` : ''}
-                </p>
-                <p className="text-slate-600">
-                  {role.startDate || '?'} – {role.current ? 'Present' : role.endDate || '?'}
-                  {' · '}
-                  {(role.responsibilities?.length || 0) + (role.achievements?.length || 0)} bullets
-                </p>
-              </li>
-            ))}
-          </ul>
-        ) : (
-          <p className="text-small text-slate-600">
-            No work history was found. If you are a student or a fresher that is expected — your projects, internships
-            and coursework are what we will score instead.
-          </p>
-        )}
+      <div className="grid gap-5 lg:grid-cols-2">
+        <div className="rounded-lg border border-line bg-white p-6">
+          <h3 className="mb-4 font-semibold">Contact details</h3>
+          {editing ? (
+            <div className="space-y-3">
+              {CONTACT_FIELDS.map(([key, label]) => (
+                <Input key={key} label={label} value={view.personal?.[key] || ''} onChange={(e) => setPersonal(key, e.target.value)} />
+              ))}
+            </div>
+          ) : (
+            <dl className="space-y-2.5">
+              {CONTACT_FIELDS.map(([key, label]) => {
+                const value = view.personal?.[key];
+                return (
+                  <div key={key} className="flex gap-4 text-small">
+                    <dt className="w-24 shrink-0 text-slate-500">{label}</dt>
+                    <dd className={value ? '' : 'text-danger'}>{value || 'Not found — please add'}</dd>
+                  </div>
+                );
+              })}
+            </dl>
+          )}
+        </div>
+
+        <div className="rounded-lg border border-line bg-white p-6">
+          <h3 className="mb-4 font-semibold">Experience we read</h3>
+          {view.experience?.length ? (
+            <ul className="space-y-4">
+              {view.experience.map((role, i) => (
+                <li key={role.id || i} className="text-small">
+                  {editing ? (
+                    <div className="grid gap-3 rounded-md border border-line p-3 sm:grid-cols-2">
+                      <Input label="Job title" value={role.title || ''} onChange={(e) => setRole(i, 'title', e.target.value)} />
+                      <Input label="Company" value={role.company || ''} onChange={(e) => setRole(i, 'company', e.target.value)} />
+                      <Input label="Start" placeholder="e.g. 2021-04" value={role.startDate || ''} onChange={(e) => setRole(i, 'startDate', e.target.value)} />
+                      <Input
+                        label="End"
+                        placeholder="e.g. 2024-02"
+                        hint={role.current ? 'Marked as your current role' : undefined}
+                        value={role.current ? 'Present' : role.endDate || ''}
+                        onChange={(e) => {
+                          const v = e.target.value;
+                          const current = /^present$/i.test(v.trim());
+                          setDraft((d) => ({
+                            ...d,
+                            experience: d.experience.map((r, j) => (j === i ? { ...r, current, endDate: current ? '' : v } : r)),
+                          }));
+                        }}
+                      />
+                    </div>
+                  ) : (
+                    <>
+                      <p className="font-medium">
+                        {role.title || <span className="text-danger">Title not found</span>}
+                        {role.company ? ` · ${role.company}` : ''}
+                      </p>
+                      <p className="text-slate-600">
+                        {role.startDate || '?'} – {role.current ? 'Present' : role.endDate || '?'}
+                        {' · '}
+                        {(role.responsibilities?.length || 0) + (role.achievements?.length || 0)} bullets
+                      </p>
+                    </>
+                  )}
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p className="text-small text-slate-600">
+              No work history was found. If you are a student or a fresher that is expected — your projects, internships
+              and coursework are what we will score instead.
+            </p>
+          )}
+        </div>
       </div>
     </div>
   );

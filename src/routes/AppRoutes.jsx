@@ -25,6 +25,7 @@ const ProfessionalCourses = lazyWithReload(() => import('../pages/ProfessionalCo
 const ProgrammeDetail = lazyWithReload(() => import('../pages/ProgrammeDetail.jsx'));
 const PartnerProfile = lazyWithReload(() => import('../pages/dashboard/PartnerProfile.jsx'));
 const AdminPartners = lazyWithReload(() => import('../pages/admin/AdminPartners.jsx'));
+const AdminScoring = lazyWithReload(() => import('../pages/admin/AdminScoring.jsx'));
 const DubaiPackage = lazyWithReload(() => import('../pages/DubaiPackage.jsx'));
 const Documentation = lazyWithReload(() => import('../pages/Documentation.jsx'));
 const AtsResumeChecker = lazyWithReload(() => import('../pages/AtsResumeChecker.jsx'));
@@ -59,6 +60,7 @@ const Assistant = lazyWithReload(() => import('../pages/dashboard/Assistant.jsx'
 const Profile = lazyWithReload(() => import('../pages/dashboard/Profile.jsx'));
 const Applications = lazyWithReload(() => import('../pages/dashboard/Applications.jsx'));
 const SavedJobs = lazyWithReload(() => import('../pages/dashboard/SavedJobs.jsx'));
+const MyResumes = lazyWithReload(() => import('../pages/dashboard/MyResumes.jsx'));
 const EmployerJobs = lazyWithReload(() => import('../pages/dashboard/EmployerJobs.jsx'));
 const EmployerJobForm = lazyWithReload(() => import('../pages/dashboard/EmployerJobForm.jsx'));
 const EmployerApplications = lazyWithReload(() => import('../pages/dashboard/EmployerApplications.jsx'));
@@ -163,6 +165,7 @@ export function AppRoutes() {
               <Route element={<ProtectedRoute roles={['user']} />}>
                 <Route path="applications" element={<Applications />} />
                 <Route path="saved-jobs" element={<SavedJobs />} />
+                <Route path="my-resumes" element={<MyResumes />} />
                 <Route path="assistant" element={<Assistant />} />
               </Route>
               <Route element={<ProtectedRoute roles={['employer']} />}>
@@ -187,6 +190,7 @@ export function AppRoutes() {
               <Route path="admin/messages" element={<AdminMessages />} />
               <Route path="admin/testimonials" element={<AdminTestimonials />} />
               <Route path="admin/partners" element={<AdminPartners />} />
+              <Route path="admin/scoring" element={<AdminScoring />} />
             </Route>
           </Route>
 
