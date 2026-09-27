@@ -1,10 +1,11 @@
 import { useState } from 'react';
-import { Copy } from 'lucide-react';
+import { Copy, PenLine } from 'lucide-react';
 import { Seo } from '../../components/ui/Seo.jsx';
 import { Container, Section } from '../../components/ui/Container.jsx';
 import { PageHero } from '../../components/marketing/PageHero.jsx';
 import { Input } from '../../components/ui/Field.jsx';
 import { Button } from '../../components/ui/Button.jsx';
+import { EmptyState } from '../../components/ui/States.jsx';
 import { useAuth } from '../../context/AuthContext.jsx';
 import { useToast } from '../../context/ToastContext.jsx';
 
@@ -77,12 +78,15 @@ export default function CoverLetter() {
 
             <div className="lg:col-span-7">
               {!draft && (
-                <div className="tile p-6 text-small text-slate-600">
-                  Fill in the form and your draft cover letter will appear here.
-                </div>
+                <EmptyState
+                  className="flex h-full min-h-[24rem] flex-col justify-center"
+                  icon={PenLine}
+                  title="Your draft will appear here"
+                  description="Fill in the form and click Generate draft — you'll get a starting point you can copy and adjust before you send it."
+                />
               )}
               {draft && (
-                <div className="tile p-6">
+                <div className="tile h-full p-6">
                   <div className="flex items-center justify-between">
                     <p className="eyebrow">Draft</p>
                     <button
