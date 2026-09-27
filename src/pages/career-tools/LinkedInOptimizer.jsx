@@ -1,11 +1,12 @@
 import { useState } from 'react';
-import { Check, TriangleAlert } from 'lucide-react';
+import { Check, ClipboardCheck, TriangleAlert } from 'lucide-react';
 import { Seo } from '../../components/ui/Seo.jsx';
 import { Container, Section } from '../../components/ui/Container.jsx';
 import { PageHero } from '../../components/marketing/PageHero.jsx';
 import { Textarea } from '../../components/ui/Field.jsx';
 import { Button } from '../../components/ui/Button.jsx';
 import { Progress } from '../../components/ui/Progress.jsx';
+import { EmptyState } from '../../components/ui/States.jsx';
 import { useAuth } from '../../context/AuthContext.jsx';
 
 /**
@@ -71,12 +72,15 @@ export default function LinkedInOptimizer() {
 
             <div className="lg:col-span-5">
               {!result && (
-                <div className="tile p-6 text-small text-slate-600">
-                  Your review will appear here — a score out of 100 and specific lines to fix.
-                </div>
+                <EmptyState
+                  className="flex h-full min-h-[24rem] flex-col justify-center"
+                  icon={ClipboardCheck}
+                  title="Your review will appear here"
+                  description="A score out of 100, plus specific lines to fix in your headline and About section."
+                />
               )}
               {result && (
-                <div className="tile p-6">
+                <div className="tile h-full p-6">
                   <p className="eyebrow">LinkedIn Profile Score</p>
                   <p className="tabular mt-2 text-h1 font-extrabold text-ink">{result.score}/100</p>
                   <Progress value={result.score} className="mt-3" />
