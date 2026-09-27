@@ -10,9 +10,9 @@
 export const contact = {
   email: 'hello@dutylaunch.com',
   supportEmail: 'support@dutylaunch.com',
-  phone: '+91 84588 45826',
-  phoneHref: 'tel:+918458845826',
-  whatsapp: '918458845826',
+  phone: '+91 85488 45826',
+  phoneHref: 'tel:+918548845826',
+  whatsapp: '918548845826',
   addressLines: [
     '#63, Office No. 224 & 225, 2nd Floor',
     'The Plazzo Mall, Ibrahim Sahib St',
