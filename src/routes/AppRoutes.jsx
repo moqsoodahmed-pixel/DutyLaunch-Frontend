@@ -1,6 +1,6 @@
 import { Suspense } from 'react';
+import { PageFallback } from '../components/ui/PageFallback.jsx';
 import { Routes, Route, Navigate } from 'react-router-dom';
-import { LoadingBlock } from '../components/ui/States.jsx';
 import { ProtectedRoute, GuestRoute } from './ProtectedRoute.jsx';
 import { ScrollToTop } from './ScrollToTop.jsx';
 
@@ -77,14 +77,13 @@ const AdminConsultations = lazyWithReload(() => import('../pages/admin/AdminCons
 const AdminMessages = lazyWithReload(() => import('../pages/admin/AdminMessages.jsx'));
 const AdminTestimonials = lazyWithReload(() => import('../pages/admin/AdminTestimonials.jsx'));
 
-function PageFallback() {
-  return <LoadingBlock label="Loading" className="min-h-[50vh]" />;
-}
 
 export function AppRoutes() {
   return (
     <>
       <ScrollToTop />
+      {/* Outer safety net only. Pages load inside each layout's own
+          Suspense, so the header never unmounts during navigation. */}
       <Suspense fallback={<PageFallback />}>
         <Routes>
           <Route element={<PublicLayout />}>

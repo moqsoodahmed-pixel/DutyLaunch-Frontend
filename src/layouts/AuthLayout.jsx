@@ -1,4 +1,6 @@
+import { Suspense } from 'react';
 import { Link, Outlet } from 'react-router-dom';
+import { PageFallback } from '../components/ui/PageFallback.jsx';
 import { ArrowLeft, BadgeCheck, Compass, ShieldCheck, Sparkles } from 'lucide-react';
 import { Logo } from '../components/layout/Logo.jsx';
 import { images } from '../data/images.js';
@@ -36,7 +38,9 @@ export default function AuthLayout() {
         </div>
 
         <main id="main" className="mx-auto flex w-full max-w-md flex-1 flex-col justify-center py-8 sm:py-10">
-          <Outlet />
+          <Suspense fallback={<PageFallback />}>
+            <Outlet />
+          </Suspense>
         </main>
 
         <p className="mx-auto w-full max-w-md text-caption text-slate-500">

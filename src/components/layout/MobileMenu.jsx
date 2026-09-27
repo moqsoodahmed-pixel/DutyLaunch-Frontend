@@ -14,16 +14,22 @@ export function MobileMenu({ open, onClose }) {
   const { isAuthenticated, user } = useAuth();
   useLockBodyScroll(open);
 
+  /* Rendered without an outer AnimatePresence on purpose — the same fix
+     the desktop dropdown in Navbar.jsx already uses. With an exit
+     animation, tapping a link started the fade-out, the navigation then
+     interrupted it (lazy pages suspend while their code loads), and the
+     menu stayed on screen at full opacity even though `open` was false.
+     The X then did nothing, because the menu was already "closed". The
+     menu still animates in; it simply closes instantly. */
+  if (!open) return null;
+
   return (
-    <AnimatePresence>
-      {open && (
         /* Full-screen on phones; from 640px a right-hand drawer over a dimmed
            backdrop (tap the backdrop to close), so tablets don't get six
            links stretched across the whole screen. */
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
           transition={{ duration: 0.18 }}
           className="fixed inset-0 z-[80] lg:hidden sm:bg-ink-900/40"
           onClick={onClose}
@@ -31,7 +37,6 @@ export function MobileMenu({ open, onClose }) {
         <motion.div
           initial={{ x: 24 }}
           animate={{ x: 0 }}
-          exit={{ x: 24 }}
           transition={{ duration: 0.22, ease: [0.16, 0.84, 0.44, 1] }}
           className="ml-auto flex h-full w-full flex-col bg-white sm:max-w-sm sm:shadow-panel"
           onClick={(e) => e.stopPropagation()}
@@ -119,7 +124,5 @@ export function MobileMenu({ open, onClose }) {
           </div>
         </motion.div>
         </motion.div>
-      )}
-    </AnimatePresence>
   );
 }

@@ -1,6 +1,7 @@
-import { useEffect, useState } from 'react';
+import { Suspense, useEffect, useState } from 'react';
 import { Link, NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
-import { AnimatePresence, motion } from 'framer-motion';
+import { motion } from 'framer-motion';
+import { PageFallback } from '../components/ui/PageFallback.jsx';
 import { Icons } from '../utils/iconMap.js';
 import { LogOut, Menu, X, ArrowLeft } from 'lucide-react';
 import { Logo } from '../components/layout/Logo.jsx';
@@ -125,14 +126,15 @@ export default function AppShell({ groups, title }) {
         <span className="text-small font-bold text-ink">{title}</span>
       </div>
 
-      <AnimatePresence>
-        {open && (
+      {/* No exit animation, for the same reason as MobileMenu.jsx: a
+          navigation from inside the drawer could interrupt the slide-out
+          and leave the drawer stuck open with its state already closed. */}
+      {open && (
           <div className="fixed inset-0 z-[95] lg:hidden">
             <motion.div
               className="absolute inset-0 bg-ink-900/55"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
               transition={{ duration: 0.18 }}
               onClick={() => setOpen(false)}
             />
@@ -140,7 +142,6 @@ export default function AppShell({ groups, title }) {
               className="relative flex h-full w-[17rem] max-w-[85vw] flex-col bg-white px-3"
               initial={{ x: '-100%' }}
               animate={{ x: 0 }}
-              exit={{ x: '-100%' }}
               transition={{ duration: 0.25, ease: [0.16, 0.84, 0.44, 1] }}
             >
               <div className="flex h-14 items-center justify-between px-1">
@@ -158,11 +159,14 @@ export default function AppShell({ groups, title }) {
               {account}
             </motion.div>
           </div>
-        )}
-      </AnimatePresence>
+      )}
 
       <main id="main" className="min-w-0 px-gutter py-8 lg:py-10">
-        <Outlet />
+        {/* Page-level loading boundary: the sidebar and header stay mounted
+            while a page's code loads, instead of the whole shell vanishing. */}
+        <Suspense fallback={<PageFallback />}>
+          <Outlet />
+        </Suspense>
       </main>
     </div>
   );
