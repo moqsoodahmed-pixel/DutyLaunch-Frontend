@@ -37,8 +37,8 @@ export const images = {
     alt: 'A traveller with a backpack looking out over the Dubai skyline',
   },
   campus: {
-    src: '/images/education/university-campus.webp',
-    srcSet: '/images/education/university-campus-560.webp 560w, /images/education/university-campus.webp 960w',
+    // PNG supplied to replace the WebP. Single file, so no srcSet.
+    src: '/images/education/university-campus.png',
     sizes: '(min-width: 1024px) 500px, 100vw',
     width: 960,
     height: 903,
@@ -61,24 +61,24 @@ export const images = {
     alt: 'A learner with headphones studying on a laptop, with data and code icons',
   },
   consultation: {
-    src: '/images/branding/consultation.webp',
-    srcSet: '/images/branding/consultation-560.webp 560w, /images/branding/consultation.webp 960w',
+    // PNG supplied to replace the WebP. Single file, so no srcSet.
+    src: '/images/branding/consultation.png',
     sizes: '(min-width: 1024px) 500px, 100vw',
     width: 960,
     height: 996,
     alt: 'A small group reviewing a profile together on a laptop',
   },
   hiring: {
-    src: '/images/careers/hiring.webp',
-    srcSet: '/images/careers/hiring-560.webp 560w, /images/careers/hiring.webp 960w',
+    // PNG supplied to replace the WebP. Single file, so no srcSet.
+    src: '/images/careers/hiring.png',
     sizes: '(min-width: 1024px) 500px, 100vw',
     width: 960,
     height: 745,
     alt: 'A candidate shaking hands with an interviewer',
   },
   careerGrowth: {
-    src: '/images/careers/career-growth.webp',
-    srcSet: '/images/careers/career-growth-560.webp 560w, /images/careers/career-growth.webp 960w',
+    // PNG supplied to replace the WebP. Single file, so no srcSet.
+    src: '/images/careers/career-growth.png',
     sizes: '(min-width: 1024px) 500px, 100vw',
     width: 960,
     height: 801,
@@ -118,8 +118,8 @@ export const images = {
     alt: 'Résumé documents being scanned and compared on a laptop',
   },
   coursesHero: {
-    src: '/images/education/courses-hero.webp',
-    srcSet: '/images/education/courses-hero-800.webp 800w, /images/education/courses-hero.webp 1600w',
+    // PNG supplied to replace the WebP. Single file, so no srcSet.
+    src: '/images/education/courses-hero.png',
     sizes: '(min-width: 1024px) 500px, 100vw',
     width: 1600,
     height: 1090,
