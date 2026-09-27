@@ -1,6 +1,7 @@
 import { Suspense } from 'react';
 import { Link, Outlet } from 'react-router-dom';
 import { PageFallback } from '../components/ui/PageFallback.jsx';
+import { company, legalLinks } from '../data/legal.js';
 import { ArrowLeft, BadgeCheck, Compass, ShieldCheck, Sparkles } from 'lucide-react';
 import { Logo } from '../components/layout/Logo.jsx';
 import { images } from '../data/images.js';
@@ -43,15 +44,20 @@ export default function AuthLayout() {
           </Suspense>
         </main>
 
-        <p className="mx-auto w-full max-w-md text-caption text-slate-500">
-          <Link to="/privacy-policy" className="hover:text-ink">
-            Privacy policy
-          </Link>
-          <span className="px-2 text-slate-300">·</span>
-          <Link to="/terms" className="hover:text-ink">
-            Terms
-          </Link>
-        </p>
+        {/* Sign-in pages have no main footer, so the compliance links and
+            the operating entity are repeated here. */}
+        <div className="mx-auto w-full max-w-md text-caption text-slate-500">
+          <p className="flex flex-wrap gap-x-3 gap-y-1">
+            {legalLinks.map((l) => (
+              <Link key={l.path} to={l.path} className="hover:text-ink">
+                {l.label}
+              </Link>
+            ))}
+          </p>
+          <p className="mt-2 leading-relaxed text-slate-400">
+            Operated by {company.legalName} (CIN: {company.cin}).
+          </p>
+        </div>
       </div>
 
       <aside className="relative hidden overflow-hidden bg-ink-900 px-12 py-16 text-white lg:flex lg:flex-col">
@@ -104,7 +110,7 @@ export default function AuthLayout() {
         <div className="relative mt-[8vh] max-w-md xl:mt-[10vh]">
           <span className="inline-flex items-center gap-1.5 rounded-full border border-white/15 bg-white/10 px-3 py-1 text-caption font-semibold text-azure-200">
             <ShieldCheck className="h-3.5 w-3.5" aria-hidden />
-            Trusted by job seekers across India &amp; the Gulf
+            Empowering professionals across India &amp; UAE
           </span>
 
           <h2 className="mt-6 text-h1 font-extrabold leading-[1.08] text-white">

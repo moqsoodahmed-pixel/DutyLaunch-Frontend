@@ -6,6 +6,8 @@ import { Textarea } from '../ui/Field.jsx';
 import { Spinner } from '../ui/States.jsx';
 import { useAuth } from '../../context/AuthContext.jsx';
 import { careerService } from '../../services/careerService.js';
+import { ConsentCheckbox } from '../ui/ConsentCheckbox.jsx';
+import { CONSENT_REQUIRED_MESSAGE } from '../../data/legal.js';
 
 /**
  * Where a career tool gets the candidate's resume from.
@@ -44,10 +46,12 @@ export function useResumeSource() {
   }, [isAuthenticated, initialising]);
 
   const parse = useCallback(
-    async ({ file, text }) => {
+    async ({ file, text, consent }) => {
       setState((s) => ({ ...s, status: 'parsing', error: '' }));
       try {
-        const result = file ? await careerService.parseFile(file) : await careerService.parseText(text);
+        const result = file
+          ? await careerService.parseFile(file, undefined, { consent })
+          : await careerService.parseText(text, { consent });
         // Signed in: the parse endpoint has just saved this as the master.
         setState({ status: 'ready', resume: result.resume, mode: isAuthenticated ? 'saved' : 'inline', error: '' });
       } catch (err) {
@@ -76,6 +80,13 @@ export function ResumeSourceCard({ source, className = '' }) {
   const fileInput = useRef(null);
   const [pasting, setPasting] = useState(false);
   const [text, setText] = useState('');
+  const [consent, setConsent] = useState(false);
+  const [consentError, setConsentError] = useState('');
+  /** Runs `fn` only once the DPDP consent box is ticked. */
+  const withConsent = (fn) => () => {
+    if (!consent) return setConsentError(CONSENT_REQUIRED_MESSAGE);
+    return fn();
+  };
 
   if (source.status === 'loading') {
     return (
@@ -127,18 +138,28 @@ export function ResumeSourceCard({ source, className = '' }) {
         className="hidden"
         onChange={(e) => {
           const file = e.target.files?.[0];
-          if (file) source.parse({ file });
+          if (file) source.parse({ file, consent });
           e.target.value = '';
         }}
       />
 
+      <ConsentCheckbox
+        className="mt-4"
+        checked={consent}
+        onChange={(e) => {
+          setConsent(e.target.checked);
+          if (e.target.checked) setConsentError('');
+        }}
+        error={consentError}
+      />
+
       {!pasting ? (
         <div className="mt-4 flex flex-wrap gap-3">
-          <Button type="button" loading={busy} onClick={() => fileInput.current?.click()}>
+          <Button type="button" loading={busy} onClick={withConsent(() => fileInput.current?.click())}>
             <FileUp className="h-4 w-4" aria-hidden />
             Upload CV
           </Button>
-          <Button type="button" variant="outline" disabled={busy} onClick={() => setPasting(true)}>
+          <Button type="button" variant="outline" disabled={busy} onClick={withConsent(() => setPasting(true))}>
             Paste text instead
           </Button>
         </div>
@@ -146,7 +167,7 @@ export function ResumeSourceCard({ source, className = '' }) {
         <div className="mt-4 space-y-3">
           <Textarea rows={6} value={text} onChange={(e) => setText(e.target.value)} placeholder="Paste your full CV text…" />
           <div className="flex flex-wrap gap-3">
-            <Button type="button" loading={busy} disabled={text.trim().length < 80} onClick={() => source.parse({ text })}>
+            <Button type="button" loading={busy} disabled={text.trim().length < 80} onClick={withConsent(() => source.parse({ text, consent }))}>
               Use this text
             </Button>
             <Button type="button" variant="quiet" onClick={() => setPasting(false)}>

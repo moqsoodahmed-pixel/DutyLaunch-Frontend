@@ -1,9 +1,10 @@
 import { api, postForm } from './api.js';
 
 export const resumeService = {
-  analyze: (file, onProgress) => {
+  analyze: (file, onProgress, { consent } = {}) => {
     const formData = new FormData();
     formData.append('resume', file);
+    formData.append('consent', consent ? 'true' : 'false');
     return postForm('/resume/analyze', formData, onProgress);
   },
   history: (params) => api.get('/resume/history', { params }),

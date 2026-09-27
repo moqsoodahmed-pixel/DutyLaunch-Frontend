@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom'
 import { contact } from '../../data/site.js'
+import { company, legalLinks } from '../../data/legal.js'
 
 const WA_PATH = 'M16 2C8.268 2 2 8.268 2 16c0 2.434.658 4.714 1.806 6.68L2 30l7.52-1.774A13.93 13.93 0 0 0 16 30c7.732 0 14-6.268 14-14S23.732 2 16 2zm0 25.5a11.43 11.43 0 0 1-5.834-1.598l-.418-.248-4.333 1.022 1.044-4.224-.272-.434A11.46 11.46 0 0 1 4.5 16C4.5 9.648 9.648 4.5 16 4.5S27.5 9.648 27.5 16 22.352 27.5 16 27.5zm6.29-8.574c-.345-.172-2.04-1.006-2.355-1.12-.316-.115-.546-.172-.776.172-.23.345-.89 1.12-1.09 1.35-.2.23-.4.258-.746.086-.345-.172-1.458-.537-2.776-1.712-1.026-.916-1.719-2.047-1.92-2.392-.2-.345-.02-.532.15-.703.155-.155.345-.4.518-.603.172-.2.23-.345.345-.574.115-.23.058-.432-.029-.603-.086-.172-.776-1.87-1.063-2.56-.28-.673-.563-.581-.776-.592l-.66-.012c-.23 0-.603.086-.918.432s-1.205 1.178-1.205 2.873 1.233 3.333 1.405 3.563c.172.23 2.427 3.706 5.878 5.196.822.355 1.463.567 1.963.726.824.263 1.574.226 2.167.137.661-.099 2.04-.834 2.327-1.638.287-.805.287-1.494.2-1.638-.086-.144-.316-.23-.66-.4z'
 
@@ -15,6 +16,8 @@ const NAV_COLS = [
   { title: 'Career', links: [['Career services', '/career-services'], ['CV templates', '/cv-templates'], ['ATS resume checker', '/resume-checker'], ['Interview preparation', '/career-services#interview'], ['Career counselling', '/career-services#counselling']] },
   { title: 'Learn', links: [['Higher education', '/higher-education'], ['Professional courses', '/professional-courses'], ['All courses', '/courses']] },
   { title: 'Company', links: [['About us', '/about'], ['Jobs', '/jobs'], ['For employers', '/employers'], ['Blog', '/blog'], ['FAQ', '/faq'], ['Partner with us', '/register?type=institute'], ['Contact', '/contact']] },
+  // Mandatory compliance links, shown on every public page.
+  { title: 'Legal & Policies', links: legalLinks.map((l) => [l.label, l.path]) },
 ]
 
 function IndiaFlag({ width = 24, height = 16, style = {} }) {
@@ -74,7 +77,7 @@ export function Footer() {
           defined in any stylesheet, so the footer ran full-bleed while every
           section above it stayed centred. */}
       <div className="mx-auto w-full max-w-shell px-gutter" style={{ paddingTop: 56, position: 'relative', zIndex: 1 }}>
-        <div style={{ display: 'grid', gridTemplateColumns: '1.6fr 1fr 1fr 1fr 1fr', gap: '40px 32px' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: '1.6fr 1fr 1fr 1fr 1fr 1.15fr', gap: '40px 28px' }}>
 
           {/* Col 1 — Brand */}
           <div>
@@ -222,12 +225,20 @@ export function Footer() {
               onMouseLeave={e => (e.currentTarget.style.opacity = '0.92')}
             />
           </div>
+          {/* Corporate entity block — required above the copyright line. */}
+          <p style={{ fontSize: 12.5, color: '#c8d8e8', lineHeight: 1.7, maxWidth: 900, margin: '0 0 10px' }}>
+            {company.brand} is operated by {company.legalName} (CIN: {company.cin}). Registered Office:{' '}
+            {company.registeredOffice}. Support:{' '}
+            <a href={`mailto:${company.supportEmail}`} style={{ color: '#93C5FD', textDecoration: 'underline', textUnderlineOffset: 2 }}>
+              {company.supportEmail}
+            </a>
+          </p>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 12 }}>
             <p style={{ fontSize: 12, color: '#8aadd0', lineHeight: 1.6, maxWidth: 700, margin: 0 }}>
-              DutyLaunch is operated by DutyLaunch Solutions Pvt. Ltd. Career, education and mobility outcomes depend on individual eligibility and third-party decisions (employers, institutions, embassies). DutyLaunch does not guarantee job offers, admissions or visa approvals.
+              Career, education and mobility outcomes depend on individual eligibility and third-party decisions (employers, institutions, embassies). DutyLaunch does not guarantee job offers, admissions or visa approvals.
             </p>
             <span style={{ fontSize: 12, color: '#8aadd0', whiteSpace: 'nowrap' }}>
-              © {year} DutyLaunch Solutions Pvt. Ltd.
+              © {year} {company.legalName}
             </span>
           </div>
         </div>

@@ -3,6 +3,8 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { FileText, Loader2, UploadCloud, X } from 'lucide-react';
 import { cn } from '../../utils/cn.js';
 import { careerService } from '../../services/careerService.js';
+import { ConsentCheckbox } from '../ui/ConsentCheckbox.jsx';
+import { CONSENT_REQUIRED_MESSAGE } from '../../data/legal.js';
 
 const ACCEPTED_EXT = ['.pdf', '.doc', '.docx'];
 const ACCEPTED_MIME = [
@@ -43,6 +45,8 @@ function formatSize(bytes) {
  */
 export function AtsUploader({ onResult }) {
   const [file, setFile] = useState(null);
+  const [consent, setConsent] = useState(false);
+  const [consentError, setConsentError] = useState('');
   const [dragging, setDragging] = useState(false);
   const [progress, setProgress] = useState(0);
   const [status, setStatus] = useState('idle'); // idle | uploading | analyzing | error
@@ -88,6 +92,10 @@ export function AtsUploader({ onResult }) {
 
   const submit = useCallback(async () => {
     if (!file) return;
+    if (!consent) {
+      setConsentError(CONSENT_REQUIRED_MESSAGE);
+      return;
+    }
     setStatus('uploading');
     setProgress(0);
     setError(null);
@@ -98,10 +106,14 @@ export function AtsUploader({ onResult }) {
          the Resume JSON and tells us which fields could not be read
          confidently, and analysis scores it. Merging them would hide
          the review step the whole product depends on. */
-      const parsed = await careerService.parseFile(file, (pct) => {
-        setProgress(pct);
-        if (pct >= 100) setStatus('analyzing');
-      });
+      const parsed = await careerService.parseFile(
+        file,
+        (pct) => {
+          setProgress(pct);
+          if (pct >= 100) setStatus('analyzing');
+        },
+        { consent }
+      );
 
       setStatus('analyzing');
       stepTimer.current = setInterval(() => {
@@ -122,7 +134,7 @@ export function AtsUploader({ onResult }) {
           "We couldn't read this resume. If it is a scan, try a text-based PDF or a Word file."
       );
     }
-  }, [file, onResult]);
+  }, [file, onResult, consent]);
 
   const busy = status === 'uploading' || status === 'analyzing';
 
@@ -247,6 +259,18 @@ export function AtsUploader({ onResult }) {
                   ))}
                 </ul>
               </div>
+            )}
+
+            {!busy && status !== 'error' && (
+              <ConsentCheckbox
+                className="mt-5"
+                checked={consent}
+                onChange={(e) => {
+                  setConsent(e.target.checked);
+                  if (e.target.checked) setConsentError('');
+                }}
+                error={consentError}
+              />
             )}
 
             {!busy && status !== 'error' && (

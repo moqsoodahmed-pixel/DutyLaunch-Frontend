@@ -2,6 +2,8 @@ import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { Input, Textarea } from '../ui/Field.jsx';
 import { Button } from '../ui/Button.jsx';
+import { ConsentCheckbox } from '../ui/ConsentCheckbox.jsx';
+import { CONSENT_REQUIRED_MESSAGE } from '../../data/legal.js';
 import { enquiryService } from '../../services/contentService.js';
 import { useToast } from '../../context/ToastContext.jsx';
 
@@ -78,6 +80,10 @@ export function ContactForm() {
         rows={6}
         error={errors.message?.message}
         {...register('message', { required: 'Write your message', minLength: { value: 10, message: 'Tell us a little more' } })}
+      />
+      <ConsentCheckbox
+        error={errors.consent?.message}
+        {...register('consent', { required: CONSENT_REQUIRED_MESSAGE })}
       />
       <Button type="submit" size="lg" loading={isSubmitting}>
         Send message

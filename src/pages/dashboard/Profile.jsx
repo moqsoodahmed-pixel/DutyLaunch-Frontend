@@ -8,6 +8,8 @@ import { LoadingBlock } from '../../components/ui/States.jsx';
 import { useAuth } from '../../context/AuthContext.jsx';
 import { useToast } from '../../context/ToastContext.jsx';
 import { profileService } from '../../services/contentService.js';
+import { ConsentCheckbox } from '../../components/ui/ConsentCheckbox.jsx';
+import { CONSENT_REQUIRED_MESSAGE } from '../../data/legal.js';
 import { formatDate } from '../../utils/format.js';
 
 const MAX_MB = 5;
@@ -18,6 +20,8 @@ function ResumeCard() {
   const inputRef = useRef(null);
   const [uploading, setUploading] = useState(false);
   const resume = user?.profile?.resumeName;
+  const [consent, setConsent] = useState(false);
+  const [consentError, setConsentError] = useState('');
 
   const handleFile = async (e) => {
     const file = e.target.files?.[0];
@@ -29,6 +33,7 @@ function ResumeCard() {
     }
     const formData = new FormData();
     formData.append('resume', file);
+    formData.append('consent', consent ? 'true' : 'false');
     setUploading(true);
     try {
       const res = await profileService.uploadResume(formData);
@@ -61,7 +66,22 @@ function ResumeCard() {
       )}
 
       <input ref={inputRef} type="file" accept=".pdf,.doc,.docx" className="hidden" onChange={handleFile} />
-      <Button variant="outline" size="sm" className="mt-4" loading={uploading} onClick={() => inputRef.current?.click()}>
+      <ConsentCheckbox
+        className="mt-4"
+        checked={consent}
+        onChange={(e) => {
+          setConsent(e.target.checked);
+          if (e.target.checked) setConsentError('');
+        }}
+        error={consentError}
+      />
+      <Button
+        variant="outline"
+        size="sm"
+        className="mt-4"
+        loading={uploading}
+        onClick={() => (consent ? inputRef.current?.click() : setConsentError(CONSENT_REQUIRED_MESSAGE))}
+      >
         <UploadCloud className="h-4 w-4" aria-hidden />
         {resume ? 'Replace resume' : 'Upload resume'}
       </Button>

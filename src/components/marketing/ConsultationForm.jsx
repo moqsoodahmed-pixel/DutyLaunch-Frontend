@@ -1,5 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
+import { ConsentCheckbox } from '../ui/ConsentCheckbox.jsx';
+import { CONSENT_REQUIRED_MESSAGE } from '../../data/legal.js';
 import { Input, Select, Textarea } from '../ui/Field.jsx';
 import { Button } from '../ui/Button.jsx';
 import { enquiryService } from '../../services/contentService.js';
@@ -222,6 +224,10 @@ export function ConsultationForm({ defaultService, defaultMessage, successNote, 
         {...register('message', { maxLength: { value: 2000, message: 'Keep this under 2000 characters' } })}
       />
 
+      <ConsentCheckbox
+        error={errors.consent?.message}
+        {...register('consent', { required: CONSENT_REQUIRED_MESSAGE })}
+      />
       <Button type="submit" size="lg" fullWidth loading={isSubmitting}>
         Request a free consultation
       </Button>

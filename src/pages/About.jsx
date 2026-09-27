@@ -7,6 +7,7 @@ import { PageHero, HeroActions } from '../components/marketing/PageHero.jsx';
 import { CTASection } from '../components/marketing/CTASection.jsx';
 import { pillars } from '../data/site.js';
 import { images } from '../data/images.js';
+import { company } from '../data/legal.js';
 import { SiteImage } from '../components/ui/SiteImage.jsx';
 
 const principles = [
@@ -104,11 +105,10 @@ export default function About() {
               inflate and impossible for you to verify. What we will tell you plainly, in your first conversation, is
               whether we have worked on cases like yours before and what happened.
             </p>
-            <p className="rounded-lg border border-dashed border-line bg-paper p-5 text-small">
-              <strong className="font-semibold text-ink">A note for the DutyLaunch team:</strong> founding story,
-              registered entity name, year established, team profiles and any verifiable credentials should be added
-              here. They are deliberately left out rather than invented — see the README for the full list of content
-              still required.
+            <p className="rounded-lg border border-line bg-paper p-5 text-small">
+              {company.brand} is operated by{' '}
+              <strong className="font-semibold text-ink">{company.legalName}</strong> (CIN: {company.cin}), registered
+              office {company.registeredOffice}.
             </p>
           </div>
           </Reveal>

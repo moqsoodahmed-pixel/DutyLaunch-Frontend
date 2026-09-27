@@ -18,6 +18,7 @@ import { pricingService } from '../services/contentService.js';
 import { formatCurrency } from '../utils/format.js';
 import { cn } from '../utils/cn.js';
 import { images } from '../data/images.js';
+import { PRICE_TAX_NOTE } from '../data/legal.js';
 import { SiteImage } from '../components/ui/SiteImage.jsx';
 
 const EASE = [0.16, 0.84, 0.44, 1];
@@ -354,6 +355,7 @@ export default function CvBuilder() {
                             {formatCurrency(selectedPackage.price, selectedPackage.currency)}
                           </p>
                           <p className="mt-1 text-caption text-slate-500">one-off, inclusive of revisions</p>
+                          <p className="text-caption font-medium text-slate-500">{PRICE_TAX_NOTE}</p>
                         </div>
                       </div>
 

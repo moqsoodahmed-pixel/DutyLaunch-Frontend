@@ -7,6 +7,8 @@ import { FormField, Textarea } from '../ui/Field.jsx';
 import { jobService } from '../../services/jobService.js';
 import { useToast } from '../../context/ToastContext.jsx';
 import { useAuth } from '../../context/AuthContext.jsx';
+import { ConsentCheckbox } from '../ui/ConsentCheckbox.jsx';
+import { CONSENT_REQUIRED_MESSAGE } from '../../data/legal.js';
 
 const MAX_MB = 5;
 
@@ -15,12 +17,16 @@ export function ApplyModal({ job, open, onClose, onApplied }) {
   const toast = useToast();
   const [file, setFile] = useState(null);
   const [coverLetter, setCoverLetter] = useState('');
+  const [consent, setConsent] = useState(false);
+  const [consentError, setConsentError] = useState('');
   const [error, setError] = useState(null);
   const [submitting, setSubmitting] = useState(false);
 
   const reset = () => {
     setFile(null);
     setCoverLetter('');
+    setConsent(false);
+    setConsentError('');
     setError(null);
   };
 
@@ -38,11 +44,13 @@ export function ApplyModal({ job, open, onClose, onApplied }) {
   const submit = async (e) => {
     e.preventDefault();
     if (!file) return setError('Attach your resume as a PDF or Word file');
+    if (!consent) return setConsentError(CONSENT_REQUIRED_MESSAGE);
 
     setSubmitting(true);
     const form = new FormData();
     form.append('resume', file);
     if (coverLetter.trim()) form.append('coverLetter', coverLetter.trim());
+    form.append('consent', 'true');
 
     try {
       await jobService.apply(job._id, form);
@@ -131,12 +139,16 @@ export function ApplyModal({ job, open, onClose, onApplied }) {
           hint="Optional, but applications with one are read more carefully."
         />
 
+        <ConsentCheckbox
+          checked={consent}
+          onChange={(e) => {
+            setConsent(e.target.checked);
+            if (e.target.checked) setConsentError('');
+          }}
+          error={consentError}
+        />
         <p className="text-caption text-slate-500">
-          By applying you agree to share your resume and profile with this employer. See our{' '}
-          <Link to="/privacy-policy" className="underline underline-offset-2">
-            privacy policy
-          </Link>
-          .
+          Your resume and profile are shared with this employer when you apply.
         </p>
       </form>
     </Modal>

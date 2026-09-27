@@ -13,6 +13,8 @@ import { careerService, printResumeHtml } from '../services/careerService.js';
 import { useToast } from '../context/ToastContext.jsx';
 import { useAuth } from '../context/AuthContext.jsx';
 import { Input } from '../components/ui/Field.jsx';
+import { ConsentCheckbox } from '../components/ui/ConsentCheckbox.jsx';
+import { CONSENT_REQUIRED_MESSAGE } from '../data/legal.js';
 import {
   AtsChecklist,
   EvidenceQuestions,
@@ -60,6 +62,8 @@ const seo = seoFor('aiResumeBuilder');
 export default function AiResumeBuilder() {
   const { success, error: toastError } = useToast();
   const { isAuthenticated } = useAuth();
+  const [consent, setConsent] = useState(false);
+  const [consentError, setConsentError] = useState('');
 
   const [step, setStep] = useState('upload');
   const [busy, setBusy] = useState('');
@@ -97,7 +101,7 @@ export default function AiResumeBuilder() {
     setError(null);
     setBusy('upload');
     try {
-      const result = await careerService.parseFile(file);
+      const result = await careerService.parseFile(file, undefined, { consent });
       setParsed(result);
       setResume(result.resume);
       setStep('review');
@@ -310,7 +314,10 @@ export default function AiResumeBuilder() {
               />
               <button
                 type="button"
-                onClick={() => fileInput.current?.click()}
+                onClick={() => {
+                  if (!consent) return setConsentError(CONSENT_REQUIRED_MESSAGE);
+                  return fileInput.current?.click();
+                }}
                 className="flex w-full flex-col items-center gap-3 rounded border-2 border-dashed border-line px-6 py-12 text-center transition hover:border-azure hover:bg-azure-50/40"
               >
                 {busy === 'upload' ? (
@@ -321,6 +328,16 @@ export default function AiResumeBuilder() {
                 <span className="font-semibold">{busy === 'upload' ? 'Reading your CV…' : 'Choose your CV'}</span>
                 <span className="text-small text-slate-600">PDF, DOC or DOCX</span>
               </button>
+
+              <ConsentCheckbox
+                className="mt-4"
+                checked={consent}
+                onChange={(e) => {
+                  setConsent(e.target.checked);
+                  if (e.target.checked) setConsentError('');
+                }}
+                error={consentError}
+              />
 
               {parsed && (
                 <p className="mt-4 text-small text-slate-600">

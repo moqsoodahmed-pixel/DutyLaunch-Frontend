@@ -1,17 +1,26 @@
 import { LegalPage } from './LegalPage.jsx';
+import { Link } from 'react-router-dom';
 import { contact } from '../../data/site.js';
+import { company } from '../../data/legal.js';
 
 export default function Terms() {
   return (
     <LegalPage
-      title="Terms of service"
+      title="Terms & Conditions"
       description="The terms governing use of the DutyLaunch website and services."
-      updated="20 September 2026"
+      updated="28 September 2026"
     >
       <p>
         These terms govern your use of the DutyLaunch website and the services offered through it, including CV and
         career services, courses, documentation and attestation services, the job marketplace, and consultations. By
-        creating an account or purchasing a service you agree to these terms.
+        creating an account, submitting a form or purchasing a service you agree to these terms.
+      </p>
+
+      <h2>Who we are</h2>
+      <p>
+        {company.brand} is operated by {company.legalName} (CIN: {company.cin}), with its registered office at{' '}
+        {company.registeredOffice}. In these terms, &ldquo;DutyLaunch&rdquo;, &ldquo;we&rdquo; and &ldquo;us&rdquo;
+        mean that company.
       </p>
 
       <h2>Accounts</h2>
@@ -44,10 +53,9 @@ export default function Terms() {
 
       <h2>Payments</h2>
       <p>
-        Prices are shown in the currency stated on the relevant page. Cancellation and refund terms are set out
-        separately in our{' '}
-        <a href="/cancellation-policy">cancellation policy</a> and <a href="/refund-policy">refund policy</a>, which
-        form part of these terms.
+        Prices are shown in the currency stated on the relevant page, together with whether GST is included. Our{' '}
+        <Link to="/refund-policy">Refund &amp; Cancellation Policy</Link> and{' '}
+        <Link to="/disclaimers">Disclaimers &amp; Licensing Disclosure</Link> form part of these terms.
       </p>
 
       <h2>Acceptable use</h2>
@@ -74,12 +82,8 @@ export default function Terms() {
       <p>
         Questions about these terms can be sent to <a href={`mailto:${contact.supportEmail}`}>{contact.supportEmail}</a>.
       </p>
-
-      <p className="rounded-lg border border-dashed border-line bg-paper p-4 text-small not-prose">
-        <strong className="font-semibold text-ink">Note for the DutyLaunch team:</strong> these terms should be
-        reviewed by counsel, and should name the registered legal entity, its jurisdiction and the governing law and
-        dispute-resolution forum before publication.
-      </p>
+      {/* TODO (counsel): add governing law and the dispute-resolution forum.
+          Not stated here because it is a legal choice, not a fact we have. */}
     </LegalPage>
   );
 }

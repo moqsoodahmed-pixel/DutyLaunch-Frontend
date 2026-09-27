@@ -2,6 +2,7 @@ import { Check, Sparkles } from 'lucide-react';
 import { Button } from '../ui/Button.jsx';
 import { Badge } from '../ui/Badge.jsx';
 import { formatCurrency } from '../../utils/format.js';
+import { PRICE_TAX_NOTE } from '../../data/legal.js';
 import { cn } from '../../utils/cn.js';
 
 /**
@@ -48,6 +49,8 @@ export function PricingCard({ pkg, highlighted, onSelect }) {
         </span>
         <span className={cn('whitespace-nowrap text-small', featured ? 'text-azure-200' : 'text-slate-500')}>one-off</span>
       </p>
+      {/* Tax disclosure, directly below the price (consumer protection). */}
+      <p className={cn('mt-1.5 text-caption font-medium', featured ? 'text-azure-100' : 'text-slate-500')}>{PRICE_TAX_NOTE}</p>
 
       <ul className="mt-6 flex-1 space-y-2.5">
         {pkg.features?.map((feature) => (

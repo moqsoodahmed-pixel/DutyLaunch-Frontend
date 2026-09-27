@@ -46,8 +46,8 @@ const NotFound = lazyWithReload(() => import('../pages/NotFound.jsx'));
 /* Legal */
 const Privacy = lazyWithReload(() => import('../pages/legal/Privacy.jsx'));
 const Terms = lazyWithReload(() => import('../pages/legal/Terms.jsx'));
-const Cancellation = lazyWithReload(() => import('../pages/legal/Cancellation.jsx'));
-const Refund = lazyWithReload(() => import('../pages/legal/Refund.jsx'));
+const RefundCancellation = lazyWithReload(() => import('../pages/legal/RefundCancellation.jsx'));
+const Disclaimers = lazyWithReload(() => import('../pages/legal/Disclaimers.jsx'));
 
 /* Auth */
 const Login = lazyWithReload(() => import('../pages/auth/Login.jsx'));
@@ -134,9 +134,12 @@ export function AppRoutes() {
             <Route path="contact" element={<Contact />} />
 
             <Route path="privacy-policy" element={<Privacy />} />
-            <Route path="terms" element={<Terms />} />
-            <Route path="cancellation-policy" element={<Cancellation />} />
-            <Route path="refund-policy" element={<Refund />} />
+            <Route path="terms-and-conditions" element={<Terms />} />
+            <Route path="refund-policy" element={<RefundCancellation />} />
+            <Route path="disclaimers" element={<Disclaimers />} />
+            {/* Old legal URLs: keep bookmarks and search results working. */}
+            <Route path="terms" element={<Navigate to="/terms-and-conditions" replace />} />
+            <Route path="cancellation-policy" element={<Navigate to="/refund-policy" replace />} />
 
             <Route path="*" element={<NotFound />} />
           </Route>

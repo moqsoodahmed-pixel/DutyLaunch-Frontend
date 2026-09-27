@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { Briefcase, Building2, UserRound } from 'lucide-react';
-import { Input, Checkbox } from '../../components/ui/Field.jsx';
+import { Input } from '../../components/ui/Field.jsx';
 import { Button } from '../../components/ui/Button.jsx';
 import { Badge } from '../../components/ui/Badge.jsx';
 import { Seo } from '../../components/ui/Seo.jsx';
@@ -13,6 +13,8 @@ import { useAuth } from '../../context/AuthContext.jsx';
 import { useToast } from '../../context/ToastContext.jsx';
 import { friendlyAuthError } from '../../utils/authErrors.js';
 import { cn } from '../../utils/cn.js';
+import { ConsentCheckbox } from '../../components/ui/ConsentCheckbox.jsx';
+import { CONSENT_REQUIRED_MESSAGE } from '../../data/legal.js';
 import { homePathFor } from '../../utils/homePath.js';
 
 // Three self-service account types. Admin accounts are never self-registered.
@@ -52,7 +54,7 @@ export default function Register() {
 
   const onSubmit = async (values) => {
     if (!values.acceptTerms) {
-      setError('acceptTerms', { message: 'You need to accept the terms to continue' });
+      setError('acceptTerms', { message: CONSENT_REQUIRED_MESSAGE });
       return;
     }
     // Confirm Password is a frontend-only guard — the API has never accepted
@@ -196,23 +198,7 @@ export default function Register() {
           })}
         />
 
-        <Checkbox
-          label={
-            <>
-              I agree to the{' '}
-              <Link to="/terms" className="font-medium text-azure hover:underline">
-                terms of service
-              </Link>{' '}
-              and{' '}
-              <Link to="/privacy-policy" className="font-medium text-azure hover:underline">
-                privacy policy
-              </Link>
-              .
-            </>
-          }
-          {...register('acceptTerms')}
-        />
-        {errors.acceptTerms && <p className="text-caption font-medium text-danger">{errors.acceptTerms.message}</p>}
+        <ConsentCheckbox error={errors.acceptTerms?.message} {...register('acceptTerms')} />
 
         <Button type="submit" fullWidth loading={isSubmitting} disabled={isSubmitting}>
           {isSubmitting ? 'Creating Account…' : 'Create Account'}

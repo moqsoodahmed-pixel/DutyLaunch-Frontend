@@ -52,15 +52,18 @@ export const careerService = {
    * empty string rather than guessing, and the review step is where that
    * gets corrected.
    */
-  async parseFile(file, onProgress) {
+  /* `consent` must come from the user ticking the DPDP checkbox; the
+     server rejects the upload without it. */
+  async parseFile(file, onProgress, { consent } = {}) {
     const form = new FormData();
     form.append('resume', file);
+    form.append('consent', consent ? 'true' : 'false');
     const res = await postForm('/career/resume/parse', form, onProgress);
     return unwrap(res);
   },
 
-  async parseText(text) {
-    const res = await api.post('/career/resume/parse', { text });
+  async parseText(text, { consent } = {}) {
+    const res = await api.post('/career/resume/parse', { text, consent: Boolean(consent) });
     return unwrap(res);
   },
 

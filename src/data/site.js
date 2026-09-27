@@ -9,7 +9,8 @@
  */
 export const contact = {
   email: 'hello@dutylaunch.com',
-  supportEmail: 'support@dutylaunch.com',
+  // Support address as stated in the corporate entity notice.
+  supportEmail: 'support@dutylaunch.in',
   phone: '+91 85488 45826',
   phoneHref: 'tel:+918548845826',
   whatsapp: '918548845826',
@@ -322,12 +323,8 @@ export const educationJourney = [
   { stage: 'Grow', detail: 'Arrival planning, part-time work rules and the graduate job search.' },
 ];
 
-export const legalPages = [
-  { label: 'Privacy policy', path: '/privacy-policy' },
-  { label: 'Terms of service', path: '/terms' },
-  { label: 'Cancellation policy', path: '/cancellation-policy' },
-  { label: 'Refund policy', path: '/refund-policy' },
-];
+/* Kept for existing imports; the source of truth is data/legal.js. */
+export { legalLinks as legalPages } from './legal.js';
 
 export const footerColumns = [
   {
