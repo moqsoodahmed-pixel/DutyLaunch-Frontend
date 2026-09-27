@@ -1,0 +1,554 @@
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { Link } from 'react-router-dom';
+import { Download, FileUp, Loader2, Sparkles } from 'lucide-react';
+import { Seo } from '../components/ui/Seo.jsx';
+import { Container, Section } from '../components/ui/Container.jsx';
+import { SectionHeader } from '../components/ui/SectionHeader.jsx';
+import { PageHero, HeroActions } from '../components/marketing/PageHero.jsx';
+import { Button } from '../components/ui/Button.jsx';
+import { Badge } from '../components/ui/Badge.jsx';
+import { ErrorState } from '../components/ui/States.jsx';
+import { seoFor } from '../data/seoPages.js';
+import { careerService, printResumeHtml } from '../services/careerService.js';
+import { useToast } from '../context/ToastContext.jsx';
+import {
+  AtsChecklist,
+  EvidenceQuestions,
+  JobMatchPanel,
+  KeywordTable,
+  ParseReviewNotice,
+  ProposalReview,
+  RecommendationList,
+  ResumeHealthReport,
+  SkillGapPanel,
+  TemplateGallery,
+} from '../components/career/CareerReport.jsx';
+import { canonical, organizationSchema } from '../utils/seo.js';
+import { contact } from '../data/site.js';
+
+/**
+ * The AI Resume Builder.
+ *
+ * This is the whole product journey on one page, in the order the
+ * specification defines it:
+ *
+ *   upload → review what we read → add a target job → see the analysis
+ *          → answer evidence questions → review rewrites → export
+ *
+ * Two rules are enforced in the UI rather than left to the backend:
+ *
+ *  1. The review step is not skippable in spirit. Whatever the parser
+ *     could not read confidently is shown before anything else, because
+ *     an analysis of a misread CV is worse than no analysis.
+ *  2. No rewrite is applied until the candidate has accepted it. The
+ *     "Apply" button is disabled until at least one decision is made,
+ *     and rejected proposals leave the original text untouched.
+ */
+
+const STEPS = [
+  { id: 'upload', label: 'Upload' },
+  { id: 'review', label: 'Review' },
+  { id: 'analyze', label: 'Analyze' },
+  { id: 'optimize', label: 'Optimize' },
+  { id: 'export', label: 'Export' },
+];
+
+const seo = seoFor('aiResumeBuilder');
+
+export default function AiResumeBuilder() {
+  const { success, error: toastError } = useToast();
+
+  const [step, setStep] = useState('upload');
+  const [busy, setBusy] = useState('');
+  const [error, setError] = useState(null);
+
+  const [parsed, setParsed] = useState(null); // { resume, needsReview, reviewNote }
+  const [resume, setResume] = useState(null);
+  const [jobDescription, setJobDescription] = useState('');
+  const [analysis, setAnalysis] = useState(null);
+
+  const [proposals, setProposals] = useState([]);
+  const [engineNote, setEngineNote] = useState('');
+  const [decisions, setDecisions] = useState({});
+
+  const [templates, setTemplates] = useState([]);
+  const [templateId, setTemplateId] = useState('');
+  const [blockingIssues, setBlockingIssues] = useState([]);
+
+  const fileInput = useRef(null);
+  const reportRef = useRef(null);
+
+  useEffect(() => {
+    careerService.getTemplates().then(setTemplates).catch(() => setTemplates([]));
+  }, []);
+
+  const scrollToReport = useCallback(() => {
+    // A result that appears below the fold reads as nothing having happened.
+    window.requestAnimationFrame(() => reportRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }));
+  }, []);
+
+  /* ---------- upload ---------- */
+
+  async function handleFile(file) {
+    if (!file) return;
+    setError(null);
+    setBusy('upload');
+    try {
+      const result = await careerService.parseFile(file);
+      setParsed(result);
+      setResume(result.resume);
+      setStep('review');
+    } catch (err) {
+      setError(err?.response?.data?.message || 'We could not read that file. If it is a scan, try a text-based PDF or a Word file.');
+    } finally {
+      setBusy('');
+    }
+  }
+
+  /* ---------- analysis ---------- */
+
+  async function runAnalysis() {
+    if (!resume) return;
+    setError(null);
+    setBusy('analyze');
+    try {
+      const result = await careerService.analyze({ resume, jobDescription: jobDescription.trim() || undefined });
+      setAnalysis(result);
+      setTemplateId((current) => current || result.suggestedTemplate);
+      setStep('analyze');
+      scrollToReport();
+    } catch (err) {
+      setError(err?.response?.data?.message || 'Something went wrong running the analysis.');
+    } finally {
+      setBusy('');
+    }
+  }
+
+  /* ---------- evidence ---------- */
+
+  const [answerBusy, setAnswerBusy] = useState('');
+
+  async function handleAnswer(question, answers) {
+    setAnswerBusy(question.id);
+    try {
+      const result = await careerService.submitEvidenceAnswer({ question, answers });
+      success(result.suggestedBullet ? `Suggested line: ${result.suggestedBullet.bullet}` : result.note);
+    } catch (err) {
+      toastError(err?.response?.data?.message || 'Could not save that answer.');
+    } finally {
+      setAnswerBusy('');
+    }
+  }
+
+  /* ---------- optimisation ---------- */
+
+  async function runOptimize() {
+    setError(null);
+    setBusy('optimize');
+    try {
+      const result = await careerService.optimize({ resume, jobDescription: jobDescription.trim() || undefined });
+      setProposals(result.proposals || []);
+      setEngineNote(result.engineNote || '');
+      setDecisions({});
+      setStep('optimize');
+    } catch (err) {
+      setError(err?.response?.data?.message || 'Could not generate suggestions right now.');
+    } finally {
+      setBusy('');
+    }
+  }
+
+  const decisionList = useMemo(
+    () => Object.entries(decisions).map(([id, decision]) => ({ id, ...decision })),
+    [decisions]
+  );
+
+  async function applyDecisions() {
+    setBusy('apply');
+    try {
+      const result = await careerService.applyOptimization({
+        resume,
+        jobDescription: jobDescription.trim() || undefined,
+        proposals,
+        decisions: decisionList,
+      });
+      setResume(result.resume);
+      setAnalysis((prev) => ({ ...prev, health: result.health, match: result.match }));
+      setBlockingIssues(result.qualityControl?.blockingIssues || []);
+      setProposals([]);
+      setDecisions({});
+      setStep('export');
+      success('Your changes are in. Nothing you rejected was applied.');
+      scrollToReport();
+    } catch (err) {
+      setError(err?.response?.data?.message || 'Could not apply those changes.');
+    } finally {
+      setBusy('');
+    }
+  }
+
+  /* ---------- export ---------- */
+
+  async function handleExport(acknowledge = false) {
+    setBusy('export');
+    setError(null);
+    try {
+      const result = await careerService.exportResume({
+        resume,
+        jobDescription: jobDescription.trim() || undefined,
+        templateId,
+        acknowledgeIssues: acknowledge,
+      });
+      setBlockingIssues([]);
+      const opened = printResumeHtml(result.html, result.fileName);
+      if (!opened) {
+        toastError('Allow pop-ups for this site to download your resume.');
+      }
+    } catch (err) {
+      const message = err?.response?.data?.message || 'Could not prepare the download.';
+      setError(message);
+      // Export refusal is a feature, not a bug: it means an unverified
+      // claim is still in the document.
+      setBlockingIssues((prev) => (prev.length ? prev : [{ id: 'unknown', label: message }]));
+    } finally {
+      setBusy('');
+    }
+  }
+
+  const stepIndex = STEPS.findIndex((s) => s.id === step);
+
+  return (
+    <>
+      <Seo
+        title={seo.title}
+        description={seo.description}
+        schema={[
+          organizationSchema(contact),
+          {
+            '@context': 'https://schema.org',
+            '@type': 'SoftwareApplication',
+            name: 'DutyLaunch AI Resume Builder',
+            applicationCategory: 'BusinessApplication',
+            operatingSystem: 'Web',
+            url: canonical(seo.path),
+            offers: { '@type': 'Offer', price: '0', priceCurrency: 'INR' },
+          },
+        ]}
+      />
+
+      <PageHero
+        eyebrow="AI Resume Builder"
+        title={seo.heading}
+        lead={seo.subheading}
+        breadcrumb={[{ label: 'Career Tools', to: '/ai-resume-builder' }, { label: 'AI Resume Builder' }]}
+        actions={<HeroActions primary={seo.primaryCta} secondary={seo.secondaryCta} />}
+      />
+
+      {/* Progress rail — the spec asks for clear progress indicators, and
+          a five-stage process with no rail feels like a form that never ends. */}
+      <div className="border-b border-line bg-white">
+        <Container className="py-4">
+          <ol className="flex flex-wrap items-center gap-x-2 gap-y-2 text-small">
+            {STEPS.map((s, i) => (
+              <li key={s.id} className="flex items-center gap-2">
+                <span
+                  className={[
+                    'grid h-6 w-6 place-content-center rounded-full text-caption font-bold',
+                    i < stepIndex ? 'bg-success text-white' : i === stepIndex ? 'bg-azure text-white' : 'bg-slate-100 text-slate-500',
+                  ].join(' ')}
+                >
+                  {i + 1}
+                </span>
+                <span className={i === stepIndex ? 'font-semibold' : 'text-slate-500'}>{s.label}</span>
+                {i < STEPS.length - 1 && <span className="mx-1 text-slate-300">›</span>}
+              </li>
+            ))}
+          </ol>
+        </Container>
+      </div>
+
+      <Section id="upload" tone="paper">
+        <Container>
+          <SectionHeader
+            label="Step 1"
+            title="Start with the CV you already have"
+            lead="PDF or Word. We read it the way a parser would, then show you exactly what we extracted before anything else happens."
+          />
+
+          <div className="mt-8 grid gap-6 lg:grid-cols-2">
+            <div className="rounded-lg border border-line bg-white p-6">
+              <input
+                ref={fileInput}
+                type="file"
+                accept=".pdf,.doc,.docx,.txt,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,text/plain"
+                className="sr-only"
+                onChange={(e) => handleFile(e.target.files?.[0])}
+              />
+              <button
+                type="button"
+                onClick={() => fileInput.current?.click()}
+                className="flex w-full flex-col items-center gap-3 rounded border-2 border-dashed border-line px-6 py-12 text-center transition hover:border-azure hover:bg-azure-50/40"
+              >
+                {busy === 'upload' ? (
+                  <Loader2 className="h-7 w-7 animate-spin text-azure" aria-hidden />
+                ) : (
+                  <FileUp className="h-7 w-7 text-azure" aria-hidden />
+                )}
+                <span className="font-semibold">{busy === 'upload' ? 'Reading your CV…' : 'Choose your CV'}</span>
+                <span className="text-small text-slate-600">PDF, DOC or DOCX</span>
+              </button>
+
+              {parsed && (
+                <p className="mt-4 text-small text-slate-600">
+                  Read <span className="font-medium text-ink">{resume?._source?.fileName}</span> —{' '}
+                  {resume?.experience?.length || 0} roles, {resume?.education?.length || 0} qualifications.
+                </p>
+              )}
+            </div>
+
+            <div className="rounded-lg border border-line bg-white p-6">
+              <label className="block">
+                <span className="mb-2 block font-semibold">Target job description</span>
+                <span className="mb-3 block text-small text-slate-600">
+                  Optional, but this is where most of the value is. Without it we can score structure and writing
+                  quality, but not relevance.
+                </span>
+                <textarea
+                  value={jobDescription}
+                  onChange={(e) => setJobDescription(e.target.value)}
+                  rows={9}
+                  placeholder="Paste the full job description here…"
+                  className="w-full rounded-xs border border-line px-3.5 py-3 text-small outline-none focus:border-azure focus:ring-2 focus:ring-azure-100"
+                />
+              </label>
+
+              <Button
+                className="mt-4"
+                fullWidth
+                loading={busy === 'analyze'}
+                disabled={!resume}
+                onClick={runAnalysis}
+              >
+                <Sparkles className="mr-2 h-4 w-4" aria-hidden />
+                Analyze my resume
+              </Button>
+            </div>
+          </div>
+
+          {error && (
+            <div className="mt-6">
+              <ErrorState error={{ message: error }} />
+            </div>
+          )}
+        </Container>
+      </Section>
+
+      {parsed && (
+        <Section id="review">
+          <Container>
+            <SectionHeader
+              label="Step 2"
+              title="Check what we read"
+              lead="We write nothing we are unsure of. Where a field was unreadable we left it empty rather than guessing — correct anything below before you rely on the analysis."
+            />
+            <div className="mt-6 space-y-5">
+              <ParseReviewNotice needsReview={parsed.needsReview} note={parsed.reviewNote} />
+              <ExtractedSummary resume={resume} />
+            </div>
+          </Container>
+        </Section>
+      )}
+
+      <div ref={reportRef} />
+
+      {analysis && (
+        <Section id="report" tone="paper">
+          <Container className="space-y-10">
+            <SectionHeader label="Step 3" title="Your Resume Health" lead="Every number below can be opened up to show how it was reached." />
+
+            <ResumeHealthReport health={analysis.health} />
+
+            {analysis.match && <JobMatchPanel match={analysis.match} disclaimer={analysis.match.disclaimer} />}
+            {analysis.keywords && <KeywordTable keywordResult={analysis.keywords} />}
+            {analysis.skillGap && <SkillGapPanel skillGap={analysis.skillGap} />}
+
+            <AtsChecklist checklist={analysis.health.checklist} />
+
+            <div>
+              <h3 className="mb-4 text-h3 font-bold">What to do next</h3>
+              <RecommendationList recommendations={analysis.recommendations} />
+            </div>
+
+            {analysis.questions?.length > 0 && (
+              <div id="evidence">
+                <SectionHeader
+                  label="Step 4"
+                  title="Questions only you can answer"
+                  lead="These turn work you have already done into claims your resume can actually make."
+                />
+                <div className="mt-6">
+                  <EvidenceQuestions questions={analysis.questions} onAnswer={handleAnswer} busyId={answerBusy} />
+                </div>
+              </div>
+            )}
+
+            <div className="rounded-lg border border-line bg-white p-6">
+              <h3 className="text-h3 font-bold">Ready to improve the wording?</h3>
+              <p className="mt-2 max-w-prose text-small text-slate-600">
+                We will suggest stronger phrasing for your existing bullets. Every suggestion shows the original next
+                to it and explains itself, and nothing changes until you accept it.
+              </p>
+              <Button className="mt-4" loading={busy === 'optimize'} onClick={runOptimize}>
+                Suggest improvements
+              </Button>
+            </div>
+          </Container>
+        </Section>
+      )}
+
+      {proposals.length > 0 && (
+        <Section id="optimize">
+          <Container>
+            <SectionHeader
+              label="Step 4"
+              title="Accept, edit or reject each change"
+              lead="This is your resume. Nothing here is applied until you say so."
+            />
+            <div className="mt-6">
+              <ProposalReview
+                proposals={proposals}
+                decisions={decisions}
+                engineNote={engineNote}
+                onDecide={(id, decision) => setDecisions((prev) => ({ ...prev, [id]: decision }))}
+              />
+            </div>
+
+            <div className="mt-6 flex flex-wrap items-center gap-4">
+              <Button loading={busy === 'apply'} disabled={!decisionList.length} onClick={applyDecisions}>
+                Apply {decisionList.filter((d) => d.action !== 'reject').length} change
+                {decisionList.filter((d) => d.action !== 'reject').length === 1 ? '' : 's'}
+              </Button>
+              <span className="text-small text-slate-600">
+                {decisionList.length} of {proposals.length} reviewed
+              </span>
+            </div>
+          </Container>
+        </Section>
+      )}
+
+      {analysis && (
+        <Section id="export" tone="paper">
+          <Container>
+            <SectionHeader
+              label="Step 5"
+              title="Choose a template and export"
+              lead="Every template is single-column, text-based and free of the graphics that break parsers. They differ in typography and spacing, not in what a parser can read."
+            />
+
+            <div className="mt-8">
+              <TemplateGallery
+                templates={templates}
+                selectedId={templateId}
+                suggestedId={analysis.suggestedTemplate}
+                onSelect={setTemplateId}
+              />
+            </div>
+
+            {blockingIssues.length > 0 && (
+              <div className="mt-8 rounded-lg border border-amber-200 bg-amber-50 p-6">
+                <h3 className="font-semibold">Before you export</h3>
+                <ul className="mt-3 space-y-2">
+                  {blockingIssues.map((issue) => (
+                    <li key={issue.id} className="text-small text-slate-700">• {issue.label}</li>
+                  ))}
+                </ul>
+                <p className="mt-3 text-small text-slate-600">
+                  These are claims we could not trace back to your original CV or to something you confirmed. Fix them,
+                  or confirm that they are accurate and you are happy to stand behind them.
+                </p>
+                <Button className="mt-4" variant="quiet" loading={busy === 'export'} onClick={() => handleExport(true)}>
+                  These are accurate — export anyway
+                </Button>
+              </div>
+            )}
+
+            <div className="mt-8 flex flex-wrap items-center gap-4">
+              <Button size="lg" loading={busy === 'export'} onClick={() => handleExport(false)}>
+                <Download className="mr-2 h-4 w-4" aria-hidden />
+                Download as PDF
+              </Button>
+              <Badge tone="outline">Opens your browser&apos;s print dialogue — choose &ldquo;Save as PDF&rdquo;</Badge>
+            </div>
+
+            <p className="mt-6 max-w-prose text-small text-slate-600">
+              Want a targeted version for a different role?{' '}
+              <Link to="/register" className="text-azure hover:underline">
+                Create an account
+              </Link>{' '}
+              and your master profile is saved, so the next version takes a paste of a job description rather than a
+              rebuild.
+            </p>
+          </Container>
+        </Section>
+      )}
+    </>
+  );
+}
+
+/* ------------------------------------------------------------------ *
+ * Extracted-data summary
+ * ------------------------------------------------------------------ */
+
+function ExtractedSummary({ resume }) {
+  if (!resume) return null;
+
+  const rows = [
+    ['Name', resume.personal?.name],
+    ['Email', resume.personal?.email],
+    ['Phone', resume.personal?.phone],
+    ['Location', resume.personal?.location],
+    ['LinkedIn', resume.personal?.linkedin],
+  ];
+
+  return (
+    <div className="grid gap-5 lg:grid-cols-2">
+      <div className="rounded-lg border border-line bg-white p-6">
+        <h3 className="mb-4 font-semibold">Contact details</h3>
+        <dl className="space-y-2.5">
+          {rows.map(([label, value]) => (
+            <div key={label} className="flex gap-4 text-small">
+              <dt className="w-24 shrink-0 text-slate-500">{label}</dt>
+              <dd className={value ? '' : 'text-danger'}>{value || 'Not found — please add'}</dd>
+            </div>
+          ))}
+        </dl>
+      </div>
+
+      <div className="rounded-lg border border-line bg-white p-6">
+        <h3 className="mb-4 font-semibold">Experience we read</h3>
+        {resume.experience?.length ? (
+          <ul className="space-y-3.5">
+            {resume.experience.map((role) => (
+              <li key={role.id} className="text-small">
+                <p className="font-medium">
+                  {role.title || <span className="text-danger">Title not found</span>}
+                  {role.company ? ` · ${role.company}` : ''}
+                </p>
+                <p className="text-slate-600">
+                  {role.startDate || '?'} – {role.current ? 'Present' : role.endDate || '?'}
+                  {' · '}
+                  {(role.responsibilities?.length || 0) + (role.achievements?.length || 0)} bullets
+                </p>
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <p className="text-small text-slate-600">
+            No work history was found. If you are a student or a fresher that is expected — your projects, internships
+            and coursework are what we will score instead.
+          </p>
+        )}
+      </div>
+    </div>
+  );
+}

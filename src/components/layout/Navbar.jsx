@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { Link, NavLink, useLocation } from 'react-router-dom';
 import { ChevronDown, Menu, UserRound } from 'lucide-react';
-import { primaryNav } from '../../data/site.js';
+import { primaryNav, primaryCta } from '../../data/site.js';
 import { Button } from '../ui/Button.jsx';
 import { Logo } from './Logo.jsx';
 import { MegaMenu } from './MegaMenu.jsx';
@@ -167,12 +167,12 @@ export function Navbar() {
                 Sign in
               </Link>
             )}
-            {/* Hidden only between 1024 and 1279px, where the six desktop
+            {/* Hidden only between 1024 and 1279px, where the desktop
                 links plus Sign in fill the bar; every page hero carries its
-                own consultation CTA. Visible on tablets (next to the menu
-                button) and on wide desktops. */}
-            <Button to="/contact#consultation" size="sm" className="hidden sm:inline-flex lg:hidden xl:inline-flex">
-              Book a free consultation
+                own CTA. Visible on tablets (next to the menu button) and on
+                wide desktops. */}
+            <Button to={primaryCta.to} size="sm" className="hidden sm:inline-flex lg:hidden xl:inline-flex">
+              {primaryCta.label}
             </Button>
             <button
               type="button"

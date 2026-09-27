@@ -96,7 +96,7 @@ export default function CvTemplates() {
       <CTASection
         title="Not sure which template your role needs?"
         body="Send your current CV and target job titles. A counsellor picks the format and the band before you pay anything."
-        primary={{ label: 'Run the free ATS check', to: '/ats-resume-checker' }}
+        primary={{ label: 'Run the free ATS check', to: '/resume-checker' }}
         secondary={{ label: 'See CV pricing', to: '/pricing' }}
       />
     </>

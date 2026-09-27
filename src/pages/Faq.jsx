@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react';
 import { Seo } from '../components/ui/Seo.jsx';
+import { seoFor } from '../data/seoPages.js';
 import { Container, Section } from '../components/ui/Container.jsx';
 import { PageHero } from '../components/marketing/PageHero.jsx';
 import { Tabs } from '../components/ui/Tabs.jsx';
@@ -24,7 +25,7 @@ export default function Faq() {
 
   return (
     <>
-      <Seo title="Frequently asked questions" description="Answers about pricing, delivery, revisions and process." schema={faqSchema(faqs)} />
+      <Seo title={seoFor('faq').title} description={seoFor('faq').description} schema={faqSchema(faqs)} />
       <PageHero
         eyebrow="FAQ"
         title="Common questions, answered plainly."

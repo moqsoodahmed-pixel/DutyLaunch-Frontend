@@ -2,7 +2,7 @@ import { useCallback, useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FileText, Loader2, UploadCloud, X } from 'lucide-react';
 import { cn } from '../../utils/cn.js';
-import { resumeService } from '../../services/contentService.js';
+import { careerService } from '../../services/careerService.js';
 
 const ACCEPTED_EXT = ['.pdf', '.doc', '.docx'];
 const ACCEPTED_MIME = [
@@ -93,26 +93,34 @@ export function AtsUploader({ onResult }) {
     setError(null);
 
     try {
-      const uploadPromise = resumeService.analyze(file, (pct) => {
+      /* Two calls, because they are two genuinely different steps and
+         the candidate needs the result of the first: parsing produces
+         the Resume JSON and tells us which fields could not be read
+         confidently, and analysis scores it. Merging them would hide
+         the review step the whole product depends on. */
+      const parsed = await careerService.parseFile(file, (pct) => {
         setProgress(pct);
         if (pct >= 100) setStatus('analyzing');
       });
 
-      // Cycle through the processing checklist while the server works —
-      // reflects real stages of the pipeline, not a fake completion timer.
       setStatus('analyzing');
       stepTimer.current = setInterval(() => {
         setStepIndex((i) => Math.min(i + 1, ANALYSIS_STEPS.length - 1));
       }, 700);
 
-      const res = await uploadPromise;
+      const analysis = await careerService.analyze({ resume: parsed.resume });
+
       clearInterval(stepTimer.current);
       setStepIndex(ANALYSIS_STEPS.length - 1);
-      onResult?.(res.data);
+      onResult?.({ ...analysis, needsReview: parsed.needsReview, reviewNote: parsed.reviewNote });
     } catch (err) {
       clearInterval(stepTimer.current);
       setStatus('error');
-      setError(err.message || "We couldn't analyze this resume. Please try again.");
+      setError(
+        err?.response?.data?.message ||
+          err.message ||
+          "We couldn't read this resume. If it is a scan, try a text-based PDF or a Word file."
+      );
     }
   }, [file, onResult]);
 

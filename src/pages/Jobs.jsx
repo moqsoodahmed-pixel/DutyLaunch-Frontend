@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { Briefcase, MapPin, TrendingUp } from 'lucide-react';
 import { Seo } from '../components/ui/Seo.jsx';
+import { seoFor } from '../data/seoPages.js';
 import { Container, Section } from '../components/ui/Container.jsx';
 import { SearchBar } from '../components/ui/SearchBar.jsx';
 import { Pagination } from '../components/ui/Pagination.jsx';
@@ -75,7 +76,7 @@ export default function Jobs() {
 
   return (
     <>
-      <Seo title="Jobs" description="Open roles in India and the Gulf, searchable by category, location and experience." />
+      <Seo title={seoFor('jobs').title} description={seoFor('jobs').description} />
 
       {/* Search-first hero — the job title/keyword search is the primary
           action on this page, the same way Naukri, Indeed and Apna lead

@@ -1,4 +1,5 @@
 import { Seo } from '../components/ui/Seo.jsx';
+import { seoFor } from '../data/seoPages.js';
 import { Container, Section } from '../components/ui/Container.jsx';
 import { SectionHeader } from '../components/ui/SectionHeader.jsx';
 import { Reveal, RevealGroup, RevealItem } from '../components/ui/Reveal.jsx';
@@ -41,8 +42,8 @@ export default function Upskills() {
   return (
     <>
       <Seo
-        title="Upskilling"
-        description="Short, targeted courses that close one specific gap — plus an honest read on whether a course is what you actually need."
+        title={seoFor('upskills').title}
+        description={seoFor('upskills').description}
       />
 
       <PageHero

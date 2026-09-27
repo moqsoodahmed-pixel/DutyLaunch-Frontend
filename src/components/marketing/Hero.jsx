@@ -55,12 +55,12 @@ export function Hero() {
             transition={{ duration: 0.6, delay: 0.06, ease }}
             className="mt-5 max-w-[19ch] text-h1 font-extrabold xl:max-w-none"
           >
-            Build a profile that{' '}
+            Your Career. Your Next Opportunity.{' '}
             {/* bg-clip-text only paints inside the element box; the extra bottom
                 padding (cancelled by the negative margin) extends that box so
-                descenders like the "g" in "gets" are not cut off. */}
+                descenders like the "p" in "Launchpad" are not cut off. */}
             <span className="-mb-[0.14em] block bg-gradient-to-r from-azure-600 via-azure to-violet bg-clip-text pb-[0.14em] text-transparent">
-              gets you noticed.
+              One Launchpad.
             </span>
           </motion.h1>
 
@@ -70,9 +70,8 @@ export function Hero() {
             transition={{ duration: 0.6, delay: 0.14, ease }}
             className="mt-5 max-w-xl text-lead text-slate-600"
           >
-            Build your professional profile, discover relevant opportunities, identify your career
-            gaps and get personalised recommendations for education and upskilling — all in one
-            connected platform.
+            Upload your CV and get an honest read on where you stand — what a recruiter will see,
+            what a job description asks for that you have not evidenced, and what to do about it.
           </motion.p>
 
           <motion.div
@@ -81,8 +80,11 @@ export function Hero() {
             transition={{ duration: 0.6, delay: 0.22, ease }}
             className="mt-7 flex flex-col gap-3 sm:flex-row"
           >
-            <Button to="/register" size="lg" className="group">
-              Create My Profile
+            {/* The free analysis leads, deliberately. Asking a stranger to
+                create an account before they have seen anything of value is
+                the slowest possible first step. */}
+            <Button to="/resume-checker" size="lg" className="group">
+              Analyze My Resume Free
             </Button>
             <Button to="/jobs" variant="outline" size="lg">
               Explore Jobs
@@ -95,7 +97,7 @@ export function Hero() {
             transition={{ duration: 0.6, delay: 0.32 }}
             className="mt-5 text-small text-slate-500"
           >
-            Free to create a profile — career services and courses are paid separately, never automatically.
+            The analysis is free and you keep the report. No account needed to see your score.
           </motion.p>
         </div>
 

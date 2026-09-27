@@ -39,7 +39,7 @@ export default function LinkedInOptimizer() {
         eyebrow="Career Tools"
         title="LinkedIn Optimizer"
         lead="Paste your current headline and About section. DutyLaunch checks them against the patterns that make a profile easy for recruiters to find and read — no scraping, nothing posted anywhere."
-        breadcrumb={[{ label: 'Career Tools', to: '/ats-resume-checker' }, { label: 'LinkedIn Optimizer' }]}
+        breadcrumb={[{ label: 'Career Tools', to: '/resume-checker' }, { label: 'LinkedIn Optimizer' }]}
       />
 
       <Section tone="white">

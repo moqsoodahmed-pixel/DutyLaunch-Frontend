@@ -112,7 +112,7 @@ function ResumeAnalysisHistory() {
     <section className="mt-8">
       <div className="flex items-center justify-between">
         <h2 className="text-h3 font-bold text-ink">My Resume Analysis</h2>
-        <Link to="/ats-resume-checker" className="inline-flex items-center gap-1 text-small font-medium text-azure hover:underline">
+        <Link to="/resume-checker" className="inline-flex items-center gap-1 text-small font-medium text-azure hover:underline">
           Check a resume <ArrowUpRight className="h-3.5 w-3.5" aria-hidden />
         </Link>
       </div>
@@ -124,7 +124,7 @@ function ResumeAnalysisHistory() {
             description="Run a free ATS check to see your score, category breakdown and recommendations here."
             icon={ScanLine}
             action={
-              <Link to="/ats-resume-checker" className="text-small font-semibold text-azure hover:underline">
+              <Link to="/resume-checker" className="text-small font-semibold text-azure hover:underline">
                 Check my ATS score
               </Link>
             }

@@ -19,15 +19,16 @@ import { BlogCard } from '../components/blog/BlogCard.jsx';
 import { useApi } from '../hooks/useApi.js';
 import { pricingService, blogService } from '../services/contentService.js';
 import { organizationSchema } from '../utils/seo.js';
+import { seoFor } from '../data/seoPages.js';
 import { contact } from '../data/site.js';
 
 const audiences = [
   { label: 'Students and fresh graduates', to: '/higher-education', note: 'First CV, course choice, study abroad' },
   { label: 'Working professionals', to: '/career-services', note: 'Repositioning, interviews, next role' },
   { label: 'Career changers', to: '/contact#consultation', note: 'Direction first, then the paperwork' },
-  { label: 'UAE and Gulf job seekers', to: '/dubai-job-seeker-package', note: 'Search, visa, arrival' },
-  { label: 'People moving documents abroad', to: '/documentation', note: 'Apostille, attestation, translation' },
-  { label: 'Employers and recruiters', to: '/employer', note: 'Post roles, manage applicants' },
+  { label: 'UAE and Gulf job seekers', to: '/dubai-launch', note: 'Search, visa, arrival' },
+  { label: 'People moving documents abroad', to: '/appostle-services', note: 'Apostille, attestation, translation' },
+  { label: 'Employers and recruiters', to: '/employers', note: 'Post roles, manage applicants' },
 ];
 
 export default function Home() {
@@ -40,8 +41,8 @@ export default function Home() {
   return (
     <>
       <Seo
-        title="Career, education and global opportunities"
-        description="DutyLaunch helps you build a stronger professional profile, choose the right education, find work in India or the Gulf, and handle the documentation that goes with it."
+        title={seoFor('home').title}
+        description={seoFor('home').description}
         schema={organizationSchema(contact)}
       />
 

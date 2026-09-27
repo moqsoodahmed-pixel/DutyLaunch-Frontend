@@ -51,7 +51,7 @@ export default function CoverLetter() {
         eyebrow="Career Tools"
         title="Cover Letter Assistant"
         lead="A first draft built from your own profile details and a role you paste in — adjust it before you send it, this is a starting point, not a finished letter."
-        breadcrumb={[{ label: 'Career Tools', to: '/ats-resume-checker' }, { label: 'Cover Letter' }]}
+        breadcrumb={[{ label: 'Career Tools', to: '/resume-checker' }, { label: 'Cover Letter' }]}
       />
 
       <Section tone="white">

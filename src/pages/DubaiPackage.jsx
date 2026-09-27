@@ -1,5 +1,6 @@
 import * as Icons from 'lucide-react';
 import { Seo } from '../components/ui/Seo.jsx';
+import { seoFor } from '../data/seoPages.js';
 import { Container, Section } from '../components/ui/Container.jsx';
 import { SectionHeader } from '../components/ui/SectionHeader.jsx';
 import { Button } from '../components/ui/Button.jsx';
@@ -34,13 +35,13 @@ export default function DubaiPackage() {
   return (
     <>
       <Seo
-        title="Dubai Launch"
-        description="Take the stress out of finding a job in Dubai. DutyLaunch provides complete guidance — from profile preparation and job applications to interview support and relocation assistance."
+        title={seoFor('dubaiLaunch').title}
+        description={seoFor('dubaiLaunch').description}
         schema={serviceSchema({
           name: 'Dubai Launch',
           description:
             'Complete guidance for finding a job in Dubai — profile preparation, job applications, interview support and relocation assistance.',
-          path: '/dubai-job-seeker-package',
+          path: '/dubai-launch',
         })}
       />
 
@@ -53,7 +54,7 @@ export default function DubaiPackage() {
           <HeroActions
             dark
             primary={{ label: 'Talk to Our Experts', to: '/contact#consultation' }}
-            secondary={{ label: 'Appostle Services', to: '/documentation' }}
+            secondary={{ label: 'Appostle Services', to: '/appostle-services' }}
           />
         }
         aside={
@@ -158,7 +159,7 @@ export default function DubaiPackage() {
         title="Ready to Take the Next Step in Your Career?"
         body="Your dream career starts with the right guidance. Whether you’re looking for a better job, planning higher education, relocating abroad, or improving your professional profile, DutyLaunch is here to support you at every stage of your journey."
         primary={{ label: 'Book Free Consultation', to: '/contact#consultation' }}
-        secondary={{ label: 'Appostle Services', to: '/documentation' }}
+        secondary={{ label: 'Appostle Services', to: '/appostle-services' }}
       />
     </>
   );

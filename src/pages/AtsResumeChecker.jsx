@@ -7,14 +7,21 @@ import { PageHero } from '../components/marketing/PageHero.jsx';
 import { Accordion } from '../components/ui/Accordion.jsx';
 import { CTASection } from '../components/marketing/CTASection.jsx';
 import { AtsUploader } from '../components/marketing/AtsUploader.jsx';
-import { AtsScoreReport } from '../components/marketing/AtsScoreReport.jsx';
+import {
+  AtsChecklist,
+  ParseReviewNotice,
+  RecommendationList,
+  ResumeHealthReport,
+} from '../components/career/CareerReport.jsx';
+import { Button } from '../components/ui/Button.jsx';
 import { images } from '../data/images.js';
 import { SiteImage } from '../components/ui/SiteImage.jsx';
+import { seoFor } from '../data/seoPages.js';
 
 const HOW_IT_WORKS = [
   { icon: FileSearch, title: 'We read your resume', body: 'Your PDF or Word file is parsed the same way an ATS would — extracting the raw text, not just the design.' },
   { icon: ScanLine, title: 'We check the fundamentals', body: 'Contact details, section headings, formatting and length are checked against what parsers handle reliably.' },
-  { icon: Target, title: 'We score relevance', body: 'Keywords, skills, experience and measurable achievements are weighed the way recruiting software prioritizes them.' },
+  { icon: Target, title: 'We score relevance', body: 'Keywords, skills, experience and measurable achievements are weighted using our own published methodology — add a job description and we score against that role specifically.' },
   { icon: Sparkles, title: 'You get a plan', body: 'A category-by-category breakdown plus specific, actionable recommendations — not just a number.' },
 ];
 
@@ -44,28 +51,55 @@ const FAQS = [
   },
 ];
 
+const seo = seoFor('resumeChecker');
+
 export default function AtsResumeChecker() {
   const [result, setResult] = useState(null);
 
   return (
     <>
-      <Seo
-        title="Free ATS Resume Checker"
-        description="Upload your CV and get an instant DutyLaunch ATS Compatibility Score with a category breakdown and actionable recommendations."
-      />
+      <Seo title={seo.title} description={seo.description} />
 
       <PageHero
         tone="ink"
         eyebrow="Free tool"
-        title="Check Your Resume ATS Score"
-        lead="Upload your CV and discover how well it performs against ATS systems — plus get actionable recommendations to improve it."
+        title={seo.heading}
+        lead={seo.subheading}
         aside={<SiteImage image={images.atsChecker} priority ratio="5 / 4" className="mx-auto w-full lg:ml-auto lg:mr-0" />}
       />
 
-      <Section tone="white">
+      <Section tone="white" id="upload">
         <Container className="max-w-4xl">
           {result ? (
-            <AtsScoreReport result={result} onReset={() => setResult(null)} />
+            <div className="space-y-8">
+              <ParseReviewNotice needsReview={result.needsReview} note={result.reviewNote} />
+
+              <ResumeHealthReport health={result.health} />
+
+              <AtsChecklist checklist={result.health?.checklist} />
+
+              <div>
+                <h2 className="mb-4 text-h3 font-bold">What to do next</h2>
+                <RecommendationList recommendations={result.recommendations} />
+              </div>
+
+              {/* The report is free and complete on its own. The next step
+                  is the job-targeted analysis, which is where a job
+                  description turns a generic score into a relevant one. */}
+              <div className="rounded-lg border border-line bg-paper p-6">
+                <h2 className="text-h3 font-bold">Score it against a real job</h2>
+                <p className="mt-2 max-w-prose text-small text-slate-600">
+                  This score covers structure, readability and how well your achievements are written. Add a job
+                  description and we can also show you which of its requirements your resume does not yet evidence.
+                </p>
+                <div className="mt-4 flex flex-wrap gap-3">
+                  <Button to="/ai-resume-builder">Analyze against a job description</Button>
+                  <Button variant="quiet" onClick={() => setResult(null)}>
+                    Check another resume
+                  </Button>
+                </div>
+              </div>
+            </div>
           ) : (
             <AtsUploader onResult={setResult} />
           )}
@@ -97,8 +131,8 @@ export default function AtsResumeChecker() {
       </Section>
 
       <CTASection
-        title="Ready for a resume that's built to pass — and impress?"
-        body="Our career experts write ATS-friendly, achievement-led resumes tailored to your target role."
+        title="Want this done with you rather than by you?"
+        body="Our career writers rework your resume into a clean, parser-friendly, achievement-led document for your target role. We cannot promise any applicant tracking system will accept it — nobody honestly can — but we can make sure nothing in the document is working against you."
         primary={{ label: 'Explore CV Packages', to: '/pricing' }}
         secondary={{ label: 'Book a free consultation', to: '/contact#consultation' }}
       />

@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
 import { ChevronDown, X } from 'lucide-react';
-import { primaryNav, menuGroups, contact } from '../../data/site.js';
+import { primaryNav, menuGroups, contact, primaryCta } from '../../data/site.js';
 import { Button } from '../ui/Button.jsx';
 import { Logo } from './Logo.jsx';
 import { useLockBodyScroll } from '../../hooks/useLockBodyScroll.js';
@@ -100,7 +100,10 @@ export function MobileMenu({ open, onClose }) {
           </nav>
 
           <div className="space-y-3 border-t border-line px-gutter py-5">
-            <Button to="/contact#consultation" fullWidth onClick={onClose}>
+            <Button to={primaryCta.to} fullWidth onClick={onClose}>
+              {primaryCta.label}
+            </Button>
+            <Button to="/contact#consultation" variant="ghost" fullWidth onClick={onClose}>
               Book a free consultation
             </Button>
             {isAuthenticated ? (

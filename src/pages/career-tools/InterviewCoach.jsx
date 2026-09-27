@@ -47,7 +47,7 @@ export default function InterviewCoach() {
         eyebrow="Career Tools"
         title="AI Interview Coach"
         lead="A practice bank of the questions candidates in these roles are actually asked, with structure notes — not scripted answers to memorise."
-        breadcrumb={[{ label: 'Career Tools', to: '/ats-resume-checker' }, { label: 'Interview Coach' }]}
+        breadcrumb={[{ label: 'Career Tools', to: '/resume-checker' }, { label: 'Interview Coach' }]}
       />
 
       <Section tone="white">

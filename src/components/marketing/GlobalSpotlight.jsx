@@ -44,10 +44,10 @@ export function GlobalSpotlight() {
             market.
           </p>
           <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-            <Button to="/dubai-job-seeker-package" size="lg" variant="onInk">
+            <Button to="/dubai-launch" size="lg" variant="onInk">
               Explore the Dubai package
             </Button>
-            <Button to="/documentation" size="lg" variant="outlineInk">
+            <Button to="/appostle-services" size="lg" variant="outlineInk">
               Documentation services
             </Button>
           </div>

@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { GraduationCap, MapPin, CalendarDays } from 'lucide-react';
 import { Seo } from '../components/ui/Seo.jsx';
+import { seoFor } from '../data/seoPages.js';
 import { Container, Section } from '../components/ui/Container.jsx';
 import { SectionHeader } from '../components/ui/SectionHeader.jsx';
 import { Reveal, RevealGroup, RevealItem } from '../components/ui/Reveal.jsx';
@@ -38,8 +39,8 @@ export default function HigherEducation() {
   return (
     <>
       <Seo
-        title="Higher education"
-        description="Study abroad guidance from DutyLaunch: shortlisting programmes against budget and post-study work rules, applications, statements of purpose, funding and visa paperwork."
+        title={seoFor('higherEducation').title}
+        description={seoFor('higherEducation').description}
         schema={serviceSchema({
           name: 'Higher education guidance',
           description: 'Programme shortlisting, applications, statements of purpose, funding and student visa guidance.',
@@ -202,7 +203,7 @@ export default function HigherEducation() {
         title="Ready to Take the Next Step in Your Career?"
         body="Your dream career starts with the right guidance. Whether you’re looking for a better job, planning higher education, relocating abroad, or improving your professional profile, DutyLaunch is here to support you at every stage of your journey."
         primary={{ label: 'Book Free Consultation', to: '/contact#consultation' }}
-        secondary={{ label: 'Documentation and attestation', to: '/documentation' }}
+        secondary={{ label: 'Documentation and attestation', to: '/appostle-services' }}
       />
     </>
   );

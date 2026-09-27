@@ -1,5 +1,6 @@
 import { Mail, MapPin, Phone, Clock } from 'lucide-react';
 import { Seo } from '../components/ui/Seo.jsx';
+import { seoFor } from '../data/seoPages.js';
 import { Container, Section } from '../components/ui/Container.jsx';
 import { PageHero } from '../components/marketing/PageHero.jsx';
 import { ContactForm } from '../components/marketing/ContactForm.jsx';
@@ -20,7 +21,7 @@ export default function Contact() {
 
   return (
     <>
-      <Seo title="Contact" description="Book a free consultation or send DutyLaunch a message." />
+      <Seo title={seoFor('contact').title} description={seoFor('contact').description} />
       <PageHero
         eyebrow="Contact"
         title="Talk to us before you commit to anything."

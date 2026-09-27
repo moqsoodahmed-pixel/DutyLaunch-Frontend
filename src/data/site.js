@@ -59,25 +59,25 @@ export const pillars = [
   {
     id: 'global',
     label: 'Global mobility',
-    path: '/dubai-job-seeker-package',
+    path: '/dubai-launch',
     icon: 'Plane',
     summary: 'Working abroad, from the first application to your first week.',
     items: [
-      { label: 'UAE job seeker package', path: '/dubai-job-seeker-package', description: 'Dubai and the wider Gulf' },
-      { label: 'Visa & relocation guidance', path: '/dubai-job-seeker-package#relocation', description: 'Paperwork, housing, arrival' },
-      { label: 'Documentation', path: '/documentation', description: 'Apostille and attestation' },
+      { label: 'Dubai Launch package', path: '/dubai-launch', description: 'Dubai and the wider Gulf' },
+      { label: 'Visa & relocation guidance', path: '/dubai-launch#relocation', description: 'Paperwork, housing, arrival' },
+      { label: 'Apostille & attestation', path: '/appostle-services', description: 'Document legalisation' },
     ],
   },
   {
     id: 'documentation',
     label: 'Documentation',
-    path: '/documentation',
+    path: '/appostle-services',
     icon: 'FileCheck2',
     summary: 'Apostille, attestation and certified translation, tracked end to end.',
     items: [
-      { label: 'All services', path: '/documentation', description: 'Apostille, attestation, translation' },
-      { label: 'Apostille', path: '/documentation?category=Apostille', description: 'Hague Convention countries' },
-      { label: 'Embassy attestation', path: '/documentation?category=Attestation', description: 'UAE and non-Hague countries' },
+      { label: 'All services', path: '/appostle-services', description: 'Apostille, attestation, translation' },
+      { label: 'Apostille', path: '/appostle-services?category=Apostille', description: 'Hague Convention countries' },
+      { label: 'Embassy attestation', path: '/appostle-services?category=Attestation', description: 'UAE and non-Hague countries' },
     ],
   },
   {
@@ -88,23 +88,23 @@ export const pillars = [
     summary: 'Search, apply and track — free for candidates.',
     items: [
       { label: 'Browse jobs', path: '/jobs', description: 'Search and filter open roles' },
-      { label: 'For employers', path: '/employer', description: 'Post a role and manage applicants' },
+      { label: 'For employers', path: '/employers', description: 'Post a role and manage applicants' },
       { label: 'Your applications', path: '/applications', description: 'Track where each application stands' },
     ],
   },
   {
     id: 'career-tools',
     label: 'Career Tools',
-    path: '/ats-resume-checker',
+    path: '/ai-resume-builder',
     icon: 'Sparkles',
-    summary: 'AI-assisted tools built around your DutyLaunch profile.',
+    summary: 'Everything that turns your experience into a stronger application.',
     items: [
-      { label: 'AI Resume Builder', path: '/ats-resume-checker', description: 'ATS score and fixes for your CV' },
-      { label: 'LinkedIn Optimizer', path: '/career-tools/linkedin', description: 'Headline, About and keyword review' },
-      { label: 'Cover Letter', path: '/career-tools/cover-letter', description: 'A draft built from your profile' },
-      { label: 'AI Interview Coach', path: '/career-tools/interview', description: 'Practice questions by role' },
-      { label: 'Career Profile', path: '/profile', description: 'The foundation every tool reads from' },
-      { label: 'Career Assessment', path: '/assistant', description: 'Ask what to do next' },
+      { label: 'Resume Checker', path: '/resume-checker', description: 'Free Resume Health score and fixes' },
+      { label: 'AI Resume Builder', path: '/ai-resume-builder', description: 'Build a resume matched to a job description' },
+      { label: 'LinkedIn Optimization', path: '/linkedin-optimization', description: 'Headline, About and keyword review' },
+      { label: 'Cover Letter Generator', path: '/cover-letter-generator', description: 'A draft built from your own evidence' },
+      { label: 'Interview Preparation', path: '/interview-preparation', description: 'Questions from the job and your resume' },
+      { label: 'Career Profile', path: '/profile', description: 'The master profile every tool reads from' },
     ],
   },
 ];
@@ -115,6 +115,24 @@ export const pillars = [
  * About page — adding Upskills there would add a new card to both.
  */
 export const navGroups = [
+  {
+    /* "Services" is the paid-services drawer: the things that are
+       delivered by people rather than by the product. Keeping it out of
+       `pillars` stops it appearing as another card on the homepage
+       matrix, where it would compete with the free tools. */
+    id: 'services',
+    label: 'Services',
+    path: '/career-services',
+    icon: 'Compass',
+    summary: 'Done-with-you services when the tools are not enough on their own.',
+    items: [
+      { label: 'Career services', path: '/career-services', description: 'CV writing, counselling, job search support' },
+      { label: 'CV packages & pricing', path: '/pricing', description: 'Bundles by years of experience' },
+      { label: 'Apostille & attestation', path: '/appostle-services', description: 'Document legalisation, tracked' },
+      { label: 'For employers', path: '/employers', description: 'Post roles and reach matched candidates' },
+      { label: 'Partner with us', path: '/partners', description: 'Institutes, EdTech and service partners' },
+    ],
+  },
   {
     id: 'upskills',
     label: 'Upskills',
@@ -132,18 +150,36 @@ export const navGroups = [
 export const menuGroups = [...pillars, ...navGroups];
 
 /**
- * Top-level navigation, matching dutylaunch.com:
- * About Us | Get Your CV | Upskills ▾ | Dubai Launch | Appostle Services | Jobs
- * Desktop navbar and mobile menu both read from this one array.
+ * Top-level navigation:
+ * Home | Career Tools ▾ | Jobs | Upskills ▾ | Dubai Launch | Services | About
+ *
+ * Desktop navbar and mobile menu both read from this one array, so the
+ * information architecture changes here and nowhere else.
+ *
+ * The ordering is the funnel, not the org chart: the free tool a visitor
+ * came for sits second, the things they might buy sit after it, and the
+ * company page sits last.
  */
 export const primaryNav = [
-  { label: 'About Us', path: '/about' },
-  { label: 'Get Your CV', path: '/pricing' },
-  { label: 'Upskills', menu: ['upskills'] },
-  { label: 'Dubai Launch', path: '/dubai-job-seeker-package' },
-  { label: 'Appostle Services', path: '/documentation' },
+  { label: 'Home', path: '/' },
+  { label: 'Career Tools', menu: ['career-tools'] },
   { label: 'Jobs', path: '/jobs' },
+  { label: 'Upskills', menu: ['upskills'] },
+  { label: 'Dubai Launch', path: '/dubai-launch' },
+  { label: 'Services', menu: ['services'] },
+  { label: 'About', path: '/about' },
 ];
+
+/**
+ * The single primary call to action, used by the desktop navbar and the
+ * mobile menu. It is the free analysis, deliberately — asking a stranger
+ * to book a consultation before they have seen anything of value is the
+ * slowest possible first step.
+ */
+export const primaryCta = {
+  label: 'Analyze My Resume Free',
+  to: '/resume-checker',
+};
 
 /** The signature five-stage section on the homepage. */
 export const journey = [
@@ -185,7 +221,7 @@ export const journey = [
     detail:
       'Whether that means a senior role at home or a relocation to the Gulf, the work shifts to positioning, documentation and logistics.',
     support: ['UAE job seeker package', 'Visa & relocation guidance', 'Apostille & attestation'],
-    link: { label: 'Take your career global', to: '/dubai-job-seeker-package' },
+    link: { label: 'Take your career global', to: '/dubai-launch' },
   },
 ];
 
@@ -315,10 +351,10 @@ export const footerColumns = [
   {
     title: 'Global',
     links: [
-      { label: 'UAE job seeker package', path: '/dubai-job-seeker-package' },
-      { label: 'Documentation', path: '/documentation' },
+      { label: 'UAE job seeker package', path: '/dubai-launch' },
+      { label: 'Documentation', path: '/appostle-services' },
       { label: 'Jobs', path: '/jobs' },
-      { label: 'For employers', path: '/employer' },
+      { label: 'For employers', path: '/employers' },
     ],
   },
   {

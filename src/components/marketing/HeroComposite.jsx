@@ -280,7 +280,7 @@ export function HeroComposite() {
         <motion.div {...enter(1.1)}>
           <Float reduced={reduced} amplitude={5} duration={4.6} delay={2.2}>
             <Link
-              to="/ats-resume-checker"
+              to="/resume-checker"
               tabIndex={-1}
               className="flex items-center gap-3 rounded-lg border border-line bg-white p-3.5 shadow-raise transition-transform hover:-translate-y-0.5"
             >

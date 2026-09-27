@@ -1,0 +1,25 @@
+# Cloudflare Pages redirects.
+#
+# The router also handles these paths (see src/routes/AppRoutes.jsx), but a
+# client-side <Navigate> is a 200 with a JavaScript hop — a crawler sees the
+# old URL return successfully and has no signal that the page moved. These
+# rules answer with a real 301 before the SPA ever loads, which is what
+# actually transfers ranking to the new URL.
+#
+# The in-app routes stay as a fallback for anyone already inside the app,
+# and for local development where this file is not served.
+
+/ats-resume-checker            /resume-checker            301
+/career-tools/linkedin         /linkedin-optimization     301
+/career-tools/cover-letter     /cover-letter-generator    301
+/career-tools/interview        /interview-preparation     301
+/dubai-job-seeker-package      /dubai-launch              301
+/documentation                 /appostle-services         301
+/employer                      /employers                 301
+
+# Query strings are preserved by Pages, so /documentation?category=Apostille
+# lands on /appostle-services?category=Apostille without a second rule.
+
+# SPA fallback: every other path is served the shell so the router can
+# resolve it. This must stay last — rules are matched in order.
+/*                             /index.html                200

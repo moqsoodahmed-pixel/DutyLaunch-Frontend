@@ -1,4 +1,5 @@
 import { Seo } from '../components/ui/Seo.jsx';
+import { seoFor } from '../data/seoPages.js';
 import { Container, Section } from '../components/ui/Container.jsx';
 import { SectionHeader } from '../components/ui/SectionHeader.jsx';
 import { Reveal, RevealGroup, RevealItem } from '../components/ui/Reveal.jsx';
@@ -30,10 +31,7 @@ const principles = [
 export default function About() {
   return (
     <>
-      <Seo
-        title="About DutyLaunch"
-        description="DutyLaunch brings career services, education guidance, job search, global mobility and documentation into one process, with published prices and advice that comes before the sale."
-      />
+      <Seo title={seoFor('about').title} description={seoFor('about').description} />
 
       <PageHero
         eyebrow="About us"

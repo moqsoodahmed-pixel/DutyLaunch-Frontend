@@ -1,5 +1,6 @@
 import * as Icons from 'lucide-react';
 import { Seo } from '../components/ui/Seo.jsx';
+import { seoFor } from '../data/seoPages.js';
 import { Container, Section } from '../components/ui/Container.jsx';
 import { SectionHeader } from '../components/ui/SectionHeader.jsx';
 import { Button } from '../components/ui/Button.jsx';
@@ -41,8 +42,8 @@ export default function ProfessionalCourses() {
   return (
     <>
       <Seo
-        title="Professional courses"
-        description="Mentor-led professional programmes in data, project management, digital marketing, finance, HR and cloud — with a counsellor to check the course fits the role you want."
+        title={seoFor('professionalCourses').title}
+        description={seoFor('professionalCourses').description}
         schema={serviceSchema({
           name: 'Professional courses',
           description: 'Structured, mentor-led professional programmes with career-aligned guidance.',

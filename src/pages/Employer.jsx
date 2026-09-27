@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { Briefcase, CheckCircle2, Users, FileText } from 'lucide-react';
 import { Seo } from '../components/ui/Seo.jsx';
+import { seoFor } from '../data/seoPages.js';
 import { Container, Section } from '../components/ui/Container.jsx';
 import { SectionHeader } from '../components/ui/SectionHeader.jsx';
 import { PageHero, HeroActions } from '../components/marketing/PageHero.jsx';
@@ -164,7 +165,7 @@ export default function Employer() {
 
   return (
     <>
-      <Seo title="Employer" description="Post job openings and manage applicants on DutyLaunch." />
+      <Seo title={seoFor('employers').title} description={seoFor('employers').description} />
       {isAuthenticated && isEmployer ? (
         <EmployerDashboard />
       ) : (

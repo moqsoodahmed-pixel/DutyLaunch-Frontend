@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import * as Icons from 'lucide-react';
 import { Seo } from '../components/ui/Seo.jsx';
+import { seoFor } from '../data/seoPages.js';
 import { Container, Section } from '../components/ui/Container.jsx';
 import { SectionHeader } from '../components/ui/SectionHeader.jsx';
 import { PageHero, HeroActions } from '../components/marketing/PageHero.jsx';
@@ -46,8 +47,8 @@ export default function Documentation() {
   return (
     <>
       <Seo
-        title="Apostille & Attestation"
-        description="Planning to study, work, or relocate abroad? DutyLaunch provides reliable Apostille and Attestation services to ensure your documents are legally recognized across countries."
+        title={seoFor('appostleServices').title}
+        description={seoFor('appostleServices').description}
       />
       <PageHero
         eyebrow="Appostle Services"
@@ -152,7 +153,7 @@ export default function Documentation() {
         title="Ready to Take the Next Step in Your Career?"
         body="Your dream career starts with the right guidance. Whether you’re looking for a better job, planning higher education, relocating abroad, or improving your professional profile, DutyLaunch is here to support you at every stage of your journey."
         primary={{ label: 'Book Free Consultation', to: '/contact#consultation' }}
-        secondary={{ label: 'Dubai Launch', to: '/dubai-job-seeker-package' }}
+        secondary={{ label: 'Dubai Launch', to: '/dubai-launch' }}
       />
       <Modal
         open={Boolean(serviceChoice)}

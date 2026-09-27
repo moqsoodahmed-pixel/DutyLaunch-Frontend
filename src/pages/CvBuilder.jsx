@@ -373,7 +373,7 @@ export default function CvBuilder() {
                           {path === 'improve' ? 'Send my CV for rewrite' : 'Start this bundle'}
                         </Button>
                         {path === 'improve' && (
-                          <Button to="/ats-resume-checker" variant="outline" size="lg">
+                          <Button to="/resume-checker" variant="outline" size="lg">
                             Run the free ATS check first
                           </Button>
                         )}
