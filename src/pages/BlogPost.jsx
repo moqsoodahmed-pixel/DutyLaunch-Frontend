@@ -33,7 +33,7 @@ export default function BlogPost() {
     <>
       <Seo title={post.title} description={post.excerpt} schema={articleSchema(post)} />
       <Section tone="paper">
-        <Container className="max-w-3xl py-10 lg:py-14">
+        <Container className="max-w-3xl">
           <Breadcrumb items={[{ label: 'Blog', to: '/blog' }, { label: post.title }]} />
           <Badge tone="azure">{post.category}</Badge>
           <h1 className="mt-4 text-h1 font-extrabold text-ink">{post.title}</h1>
