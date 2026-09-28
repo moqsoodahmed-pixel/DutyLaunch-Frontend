@@ -19,7 +19,6 @@ export default function Privacy() {
         {company.legalName} (CIN: {company.cin}), registered office {company.registeredOffice}, is the Data Fiduciary
         for this personal data under the Digital Personal Data Protection Act, 2023 (&ldquo;DPDP Act&rdquo;).
       </p>
-
       <h2>Your consent</h2>
       <p>
         Every form that collects personal data or a resume asks you to tick a consent box, which is never ticked for
