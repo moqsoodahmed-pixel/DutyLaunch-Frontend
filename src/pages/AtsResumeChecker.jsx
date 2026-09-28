@@ -61,7 +61,7 @@ export default function AtsResumeChecker() {
 
   // Redirect unauthenticated visitors to sign-in, then back here.
   if (!initialising && !user) {
-    return <Navigate to="/sign-in?next=/resume-checker" replace />;
+    return <Navigate to="/login" state={{ from: "/resume-checker" }} replace />;
   }
 
   return (

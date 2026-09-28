@@ -55,7 +55,7 @@ export function AtsTeaser() {
                 </p>
                 <div className="mt-6 flex gap-3">
                   <Link
-                    to="/sign-in?next=/resume-checker"
+                    to="/login" state={{ from: "/resume-checker" }}
                     className="inline-flex h-10 items-center rounded bg-azure px-5 text-small font-semibold text-white hover:bg-azure-700"
                   >
                     Sign in
