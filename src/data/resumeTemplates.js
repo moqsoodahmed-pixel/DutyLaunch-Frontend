@@ -1,79 +1,99 @@
 /**
- * ATS resume templates, one per target role.
+ * ATS resume templates — five distinct visual identities.
  *
- * Every string below is TEMPLATE PLACEHOLDER COPY, not a real candidate and
- * not a claim about anyone DutyLaunch has placed. Employers are written as
- * "Company Name" / "Previous Company", the candidate is "YOUR NAME", and every
- * figure is a bracketed blank ([X]%) the writer fills in from your actual
- * history. That is deliberate: a gallery of realistic-looking resumes would
- * mean inventing people, employers and results, and the sample decks most CV
- * sites use are their vendor's copyrighted content.
- *
- * The bullets are written as achievement PATTERNS for the role — the verb,
- * the object and the measure an ATS and a hiring manager expect to see — so
- * they stay useful as a starting structure without asserting anything false.
+ * Every string is TEMPLATE PLACEHOLDER COPY.  Employers are written as
+ * "Company Name" / "Previous Company", the candidate is "YOUR NAME", and
+ * every figure is a bracketed blank ([X]%) the writer fills in from their
+ * actual history.  A gallery of realistic-looking resumes would require
+ * inventing people, employers and results — these are achievement PATTERNS
+ * (verb + object + measure) the writer uses as a starting structure.
  *
  * `ats`:
- *   'max'  — single column, no tables, no text boxes, no graphics. Parses
- *            cleanly in every major ATS (Taleo, Workday, iCIMS, Greenhouse).
- *   'high' — visually structured but still a single text flow. Safe for most
- *            ATS; prefer 'max' when a posting names Taleo or an older system.
+ *   'max'  — single column, no tables, no text boxes, no graphics.
+ *   'high' — visually structured but still a single text flow.
  */
 
 export const FAMILIES = [
-  { value: 'all', label: 'All roles' },
-  { value: 'software', label: 'Software' },
-  { value: 'data', label: 'Data & AI' },
-  { value: 'infra', label: 'IT & Security' },
-  { value: 'engineering', label: 'Engineering' },
-  { value: 'business', label: 'Business & Finance' },
+  { value: 'all',        label: 'All roles'           },
+  { value: 'software',  label: 'Software'             },
+  { value: 'data',      label: 'Data & AI'            },
+  { value: 'infra',     label: 'IT & Security'        },
+  { value: 'engineering',label: 'Engineering'         },
+  { value: 'business',  label: 'Business & Finance'   },
   { value: 'marketing', label: 'Marketing & Creative' },
-  { value: 'healthcare', label: 'Healthcare' },
-  { value: 'education', label: 'Education' },
-  { value: 'operations', label: 'Operations & Support' },
+  { value: 'healthcare',label: 'Healthcare'           },
+  { value: 'education', label: 'Education'            },
+  { value: 'operations',label: 'Operations & Support' },
 ];
 
 export const LAYOUTS = [
-  { value: 'all', label: 'All layouts' },
-  { value: 'classic', label: 'Classic' },
-  { value: 'compact', label: 'Compact' },
-  { value: 'sidebar', label: 'Sidebar' },
-  { value: 'banner', label: 'Banner' },
-  { value: 'executive', label: 'Executive' },
+  { value: 'all',       label: 'All layouts'  },
+  { value: 'meridian',  label: 'Meridian'     },
+  { value: 'pulse',     label: 'Pulse'        },
+  { value: 'slate',     label: 'Slate'        },
+  { value: 'grove',     label: 'Grove'        },
+  { value: 'arc',       label: 'Arc'          },
 ];
 
 export const LEVELS = [
-  { value: 'all', label: 'All levels' },
-  { value: 'entry', label: '0–3 years' },
-  { value: 'mid', label: '4–14 years' },
-  { value: 'senior', label: '15+ years' },
+  { value: 'all',    label: 'All levels' },
+  { value: 'entry',  label: '0–3 years'  },
+  { value: 'mid',    label: '4–14 years' },
+  { value: 'senior', label: '15+ years'  },
 ];
 
-/* Shared blocks, so 30+ templates do not repeat the same six lines. */
+/* Shared qualification blocks */
 const DEGREE = {
-  cs: 'B.E. Computer Science',
-  it: 'B.Sc. Information Technology',
-  mech: 'B.E. Mechanical Engineering',
-  civil: 'B.E. Civil Engineering',
-  eee: 'B.E. Electrical & Electronics Engineering',
-  com: 'B.Com / M.Com',
-  mba: 'MBA',
-  stats: 'B.Sc. Statistics / Mathematics',
-  nursing: 'B.Sc. Nursing',
-  pharm: 'B.Pharm / PharmD',
-  edu: 'B.Ed / M.A.',
+  cs:     'B.E. Computer Science',
+  it:     'B.Sc. Information Technology',
+  mech:   'B.E. Mechanical Engineering',
+  civil:  'B.E. Civil Engineering',
+  eee:    'B.E. Electrical & Electronics Engineering',
+  com:    'B.Com / M.Com',
+  mba:    'MBA',
+  stats:  'B.Sc. Statistics / Mathematics',
+  nursing:'B.Sc. Nursing',
+  pharm:  'B.Pharm / PharmD',
+  edu:    'B.Ed / M.A.',
   design: 'B.Des / Diploma in Design',
-  mass: 'B.A. Mass Communication',
+  mass:   'B.A. Mass Communication',
 };
 
 export const TEMPLATES = [
-  /* ---------------- Software ---------------- */
+
+  /* ══════════════════════════════════════════════════════════════════
+   * 1 — MERIDIAN  |  classic, any industry, any seniority
+   * Left-border accent rule separates sections; serif name with
+   * tracked sans headings.  The safest template for government,
+   * banking, legal and any role that still expects a Word document.
+   * ══════════════════════════════════════════════════════════════════ */
+  {
+    id: 'product-manager',
+    role: 'Product Manager',
+    family: 'business',
+    level: 'mid',
+    layout: 'meridian',
+    ats: 'max',
+    headline: 'Product Manager | 0→1 Products | Platform Strategy | Growth',
+    summary:
+      'Product manager with [X] years taking products from concept to adoption. Works best at the boundary between engineering, design and commercial teams — translating between them rather than sitting above any of them.',
+    titles: ['Senior Product Manager', 'Product Manager', 'Associate Product Manager'],
+    bullets: [
+      'Defined and shipped [product/feature] from discovery to GA in [X] months, reaching [X]k MAU in the first quarter.',
+      'Reduced time-to-close for [customer segment] by [X]% by re-sequencing the onboarding flow.',
+      'Ran [X] A/B tests per quarter; shipped [X]% of winners, killing [X]% that looked promising in discovery.',
+      'Collaborated with engineering to reduce P1 incident rate by [X]% through better definition-of-done criteria.',
+    ],
+    skills: ['Product Strategy', 'Roadmapping', 'OKRs', 'User Research', 'A/B Testing', 'SQL', 'Figma', 'JIRA', 'Amplitude', 'Stakeholder Management'],
+    certs: ['Product Management Certification — Product School'],
+    degree: DEGREE.mba,
+  },
   {
     id: 'software-engineer',
     role: 'Software Engineer',
     family: 'software',
     level: 'mid',
-    layout: 'classic',
+    layout: 'meridian',
     ats: 'max',
     headline: 'Software Engineer | Backend Systems | Distributed Services',
     summary:
@@ -90,678 +110,105 @@ export const TEMPLATES = [
     degree: DEGREE.cs,
   },
   {
-    id: 'frontend-developer',
-    role: 'Frontend Developer',
-    family: 'software',
+    id: 'finance-analyst',
+    role: 'Finance Analyst',
+    family: 'business',
     level: 'mid',
-    layout: 'compact',
+    layout: 'meridian',
     ats: 'max',
-    headline: 'Frontend Developer | React | Design Systems | Accessibility',
+    headline: 'Finance Analyst | FP&A | Financial Modelling | Management Reporting',
     summary:
-      'Frontend developer with [X] years shipping accessible, performant interfaces. Comfortable owning a feature from design handoff through production monitoring.',
-    titles: ['Frontend Developer', 'Frontend Developer', 'UI Developer'],
+      'Finance professional with [X] years in FP&A and business partnering. Comfortable building three-statement models from scratch, running variance commentary and presenting to non-finance stakeholders.',
+    titles: ['Senior Finance Analyst', 'Finance Analyst', 'Junior Finance Analyst'],
     bullets: [
-      'Rebuilt [surface] in React, improving Lighthouse performance from [X] to [X] and cutting bundle size by [X]%.',
-      'Built and documented a component library of [X] components adopted by [X] product teams.',
-      'Raised accessibility compliance to WCAG 2.1 AA across [X] key journeys, resolving [X] audit findings.',
-      'Cut page load time by [X]% through code splitting, image optimisation and caching strategy.',
+      'Built the annual budget model for a [currency][X]m P&L, reducing prep time by [X] days through automation.',
+      'Identified [X]% cost reduction opportunity in [spend category] through activity-based analysis.',
+      'Produced monthly management pack for [X] business units; reduced commentary cycle from [X] days to [X].',
+      'Improved forecast accuracy from [X]% to [X]% MAE by rebuilding the driver-based model in Power BI.',
     ],
-    skills: ['React', 'TypeScript', 'JavaScript (ES6+)', 'Next.js', 'Tailwind CSS', 'Redux', 'Jest', 'Webpack / Vite', 'HTML5', 'CSS3', 'Figma', 'WCAG'],
-    certs: [],
-    degree: DEGREE.cs,
-  },
-  {
-    id: 'backend-developer',
-    role: 'Backend Developer',
-    family: 'software',
-    level: 'mid',
-    layout: 'classic',
-    ats: 'max',
-    headline: 'Backend Developer | APIs | Databases | Microservices',
-    summary:
-      'Backend developer with [X] years designing APIs and data models behind customer-facing products. Strong on query performance, schema design and service boundaries.',
-    titles: ['Backend Developer', 'Backend Developer', 'Software Trainee'],
-    bullets: [
-      'Designed [X] REST/GraphQL endpoints supporting [X] monthly active users with [X]% uptime.',
-      'Optimised slow queries and indexing strategy, reducing average response time by [X]%.',
-      'Introduced message queues to decouple [process], cutting peak-load failures by [X]%.',
-      'Wrote integration test coverage from [X]% to [X]%, reducing regression escapes per release.',
-    ],
-    skills: ['Node.js', 'Express', 'Python', 'Django', 'PostgreSQL', 'MongoDB', 'RabbitMQ', 'GraphQL', 'Docker', 'Microservices', 'Redis', 'Linux'],
-    certs: [],
-    degree: DEGREE.cs,
-  },
-  {
-    id: 'fullstack-developer',
-    role: 'Full-Stack Developer',
-    family: 'software',
-    level: 'mid',
-    layout: 'sidebar',
-    ats: 'high',
-    headline: 'Full-Stack Developer | MERN | Cloud-Native Applications',
-    summary:
-      'Full-stack developer with [X] years delivering complete features — schema to interface. Used to small teams where owning the whole path from database to deployment is the job.',
-    titles: ['Full-Stack Developer', 'Full-Stack Developer', 'Web Developer'],
-    bullets: [
-      'Delivered [X] end-to-end features from database schema through React interface and deployment.',
-      'Cut deployment time from [X] hours to [X] minutes by containerising the stack and automating CI/CD.',
-      'Integrated [payment/third-party] APIs processing [X] transactions per month.',
-      'Reduced infrastructure spend by [X]% by right-sizing instances and adding caching.',
-    ],
-    skills: ['React', 'Node.js', 'Express', 'MongoDB', 'TypeScript', 'REST APIs', 'AWS', 'Docker', 'Git', 'Tailwind CSS', 'Jest', 'CI/CD'],
-    certs: [],
-    degree: DEGREE.cs,
-  },
-  {
-    id: 'mobile-developer',
-    role: 'Mobile App Developer',
-    family: 'software',
-    level: 'mid',
-    layout: 'compact',
-    ats: 'max',
-    headline: 'Mobile Developer | Android | iOS | React Native',
-    summary:
-      'Mobile developer with [X] years shipping apps to the Play Store and App Store. Focused on crash-free sessions, release hygiene and offline behaviour.',
-    titles: ['Mobile App Developer', 'Android Developer', 'Mobile Developer Intern'],
-    bullets: [
-      'Shipped [X] releases to production, maintaining a crash-free session rate of [X]%.',
-      'Reduced app cold start time by [X]% and APK size by [X]MB.',
-      'Implemented offline-first sync, cutting support tickets about data loss by [X]%.',
-      'Raised store rating from [X] to [X] by resolving the top [X] reported defects.',
-    ],
-    skills: ['Kotlin', 'Swift', 'React Native', 'Flutter', 'Jetpack Compose', 'REST APIs', 'Firebase', 'SQLite', 'Play Console', 'App Store Connect', 'Git'],
-    certs: ['Associate Android Developer'],
-    degree: DEGREE.cs,
-  },
-  {
-    id: 'qa-engineer',
-    role: 'QA / Test Engineer',
-    family: 'software',
-    level: 'mid',
-    layout: 'classic',
-    ats: 'max',
-    headline: 'QA Engineer | Test Automation | Release Quality',
-    summary:
-      'QA engineer with [X] years owning test strategy for web and API products. Builds automation that the team actually keeps running.',
-    titles: ['QA Automation Engineer', 'QA Engineer', 'QA Analyst'],
-    bullets: [
-      'Automated [X] regression cases, cutting the release test cycle from [X] days to [X] hours.',
-      'Reduced defects escaping to production by [X]% through risk-based test planning.',
-      'Built API test suites covering [X] endpoints, integrated into the CI pipeline.',
-      'Triaged and reproduced [X] defects per sprint, maintaining a [X]% reproduction rate.',
-    ],
-    skills: ['Selenium', 'Cypress', 'Playwright', 'Postman', 'JMeter', 'TestNG', 'Jira', 'SQL', 'CI/CD', 'API Testing', 'Regression Testing', 'Agile'],
-    certs: ['ISTQB Foundation Level'],
-    degree: DEGREE.it,
+    skills: ['Financial Modelling', 'FP&A', 'Excel / Power Query', 'Power BI', 'SAP', 'SQL', 'Variance Analysis', 'Management Reporting', 'Budgeting & Forecasting'],
+    certs: ['CFA Level I', 'ICAI / CMA'],
+    degree: DEGREE.com,
   },
 
-  /* ---------------- Data & AI ---------------- */
-  {
-    id: 'data-analyst',
-    role: 'Data Analyst',
-    family: 'data',
-    level: 'entry',
-    layout: 'classic',
-    ats: 'max',
-    headline: 'Data Analyst | SQL | Dashboards | Business Reporting',
-    summary:
-      'Data analyst with [X] years turning operational data into decisions. Comfortable owning a metric end to end — definition, pipeline, dashboard and the conversation about what it means.',
-    titles: ['Data Analyst', 'Data Analyst', 'Analyst Trainee'],
-    bullets: [
-      'Built [X] dashboards used weekly by [X] stakeholders across [function] teams.',
-      'Automated a recurring report that took [X] hours a week, reducing it to [X] minutes.',
-      'Identified [X] in cost leakage through cohort analysis of [dataset].',
-      'Defined and documented [X] core business metrics, ending disputes over conflicting numbers.',
-    ],
-    skills: ['SQL', 'Excel', 'Power BI', 'Tableau', 'Python', 'pandas', 'Data Modelling', 'ETL', 'Google Analytics', 'Statistics', 'A/B Testing'],
-    certs: ['Microsoft Certified: Power BI Data Analyst Associate'],
-    degree: DEGREE.stats,
-  },
+  /* ══════════════════════════════════════════════════════════════════
+   * 2 — PULSE  |  tech, data, product — mid/senior
+   * Teal name, tight dense layout, skills as a chip row.
+   * ══════════════════════════════════════════════════════════════════ */
   {
     id: 'data-scientist',
     role: 'Data Scientist',
     family: 'data',
     level: 'mid',
-    layout: 'executive',
-    ats: 'high',
-    headline: 'Data Scientist | Machine Learning | Predictive Modelling',
+    layout: 'pulse',
+    ats: 'max',
+    headline: 'Data Scientist | Predictive Modelling | NLP | Production ML',
     summary:
-      'Data scientist with [X] years taking models from notebook to production. Focused on problems where a measurable business decision changes as a result.',
-    titles: ['Data Scientist', 'Data Scientist', 'Junior Data Scientist'],
+      'Data scientist with [X] years taking models from notebook to production. Equally comfortable debating loss functions and explaining results to non-technical stakeholders.',
+    titles: ['Senior Data Scientist', 'Data Scientist', 'Data Analyst'],
     bullets: [
-      'Built a [churn/demand/risk] model improving prediction accuracy from [X]% to [X]%.',
-      'Deployed [X] models to production, monitored for drift with automated retraining.',
-      'Reduced [manual process] effort by [X] hours per month through an ML-driven workflow.',
-      'Presented findings to [X] senior stakeholders, translating model output into an operating decision.',
+      'Built [model type] that improved [business metric] by [X]%, deployed to [X]k daily users.',
+      'Reduced model inference time from [X]ms to [X]ms through feature engineering and quantisation.',
+      'Ran end-to-end NLP pipeline for [use case]; F1 score of [X]% on the held-out set.',
+      'Designed A/B testing framework adopted by [X] product teams; accelerated decision cycle by [X] days.',
     ],
-    skills: ['Python', 'scikit-learn', 'TensorFlow', 'PyTorch', 'SQL', 'MLOps', 'Feature Engineering', 'Statistics', 'A/B Testing', 'Airflow', 'AWS SageMaker'],
-    certs: ['AWS Certified Machine Learning – Specialty'],
+    skills: ['Python', 'PyTorch', 'scikit-learn', 'SQL', 'Spark', 'dbt', 'Airflow', 'AWS SageMaker', 'Tableau', 'Statistical Modelling'],
+    certs: ['Google Professional ML Engineer', 'Databricks Certified Associate'],
     degree: DEGREE.stats,
   },
   {
-    id: 'data-engineer',
-    role: 'Data Engineer',
-    family: 'data',
+    id: 'frontend-developer',
+    role: 'Frontend Developer',
+    family: 'software',
     level: 'mid',
-    layout: 'classic',
+    layout: 'pulse',
     ats: 'max',
-    headline: 'Data Engineer | Pipelines | Warehousing | Streaming',
+    headline: 'Frontend Developer | React | Design Systems | Accessibility',
     summary:
-      'Data engineer with [X] years building the pipelines analytics teams depend on. Owns reliability, cost and schema change management.',
-    titles: ['Data Engineer', 'Data Engineer', 'ETL Developer'],
+      'Frontend developer with [X] years building web products that load fast and stay accessible. Equally interested in component architecture and the pixel-level details that make interfaces feel finished.',
+    titles: ['Senior Frontend Developer', 'Frontend Developer', 'UI Developer'],
     bullets: [
-      'Built and maintained [X] production pipelines processing [X]GB per day.',
-      'Cut warehouse compute cost by [X]% through partitioning and query optimisation.',
-      'Reduced pipeline failure rate from [X]% to [X]% by adding retry logic and data quality checks.',
-      'Migrated [X] legacy jobs to [Airflow/dbt] with no reporting downtime.',
+      'Rebuilt [feature/page] in React; reduced bundle size by [X]kB and improved Lighthouse score from [X] to [X].',
+      'Led the design system migration for [X] components; reduced designer-developer handoff time by [X] days per sprint.',
+      'Achieved WCAG 2.1 AA compliance across [X] pages; resolved [X] screen-reader issues identified in audit.',
+      'Mentored [X] junior developers; introduced PR template and code review guide adopted across the frontend team.',
     ],
-    skills: ['Python', 'SQL', 'Spark', 'Airflow', 'dbt', 'Snowflake', 'BigQuery', 'Kafka', 'AWS Glue', 'Data Modelling', 'Terraform'],
-    certs: ['Google Professional Data Engineer'],
+    skills: ['React', 'TypeScript', 'Next.js', 'Tailwind CSS', 'Storybook', 'Playwright', 'Figma', 'Accessibility (WCAG 2.1)', 'Web Performance', 'Git'],
+    certs: ['AWS Certified Cloud Practitioner'],
     degree: DEGREE.cs,
   },
-  {
-    id: 'business-analyst',
-    role: 'Business Analyst',
-    family: 'data',
-    level: 'mid',
-    layout: 'classic',
-    ats: 'max',
-    headline: 'Business Analyst | Requirements | Process Improvement',
-    summary:
-      'Business analyst with [X] years sitting between business stakeholders and delivery teams. Strong on requirement clarity, process mapping and keeping scope honest.',
-    titles: ['Business Analyst', 'Business Analyst', 'Associate Analyst'],
-    bullets: [
-      'Gathered and documented requirements for [X] releases across [X] stakeholder groups.',
-      'Mapped and redesigned [process], reducing cycle time by [X]%.',
-      'Reduced post-release change requests by [X]% through clearer acceptance criteria.',
-      'Ran UAT with [X] business users, tracking [X] defects to closure before go-live.',
-    ],
-    skills: ['Requirements Gathering', 'BRD / FRD', 'SQL', 'Jira', 'Confluence', 'Process Mapping', 'UAT', 'Stakeholder Management', 'Agile', 'Visio', 'Power BI'],
-    certs: ['IIBA ECBA / CCBA'],
-    degree: DEGREE.mba,
-  },
-
-  /* ---------------- IT & Security ---------------- */
   {
     id: 'devops-engineer',
     role: 'DevOps Engineer',
     family: 'infra',
     level: 'mid',
-    layout: 'compact',
+    layout: 'pulse',
     ats: 'max',
-    headline: 'DevOps Engineer | CI/CD | Infrastructure as Code | Kubernetes',
+    headline: 'DevOps Engineer | Kubernetes | CI/CD | SRE Practices',
     summary:
-      'DevOps engineer with [X] years automating build, deploy and recovery. Measures success in deployment frequency and time to restore, not ticket counts.',
-    titles: ['DevOps Engineer', 'DevOps Engineer', 'Systems Engineer'],
+      'DevOps/SRE engineer with [X] years building the platforms that ship, run and recover production software. Comfortable holding pager duty and writing the runbooks that make the next incident shorter.',
+    titles: ['Senior DevOps Engineer', 'DevOps Engineer', 'Systems Engineer'],
     bullets: [
-      'Cut deployment time from [X] hours to [X] minutes by rebuilding CI/CD pipelines.',
-      'Reduced cloud spend by [X]% through autoscaling policy and instance right-sizing.',
-      'Brought infrastructure under Terraform, eliminating [X] manual provisioning steps.',
-      'Improved mean time to recovery from [X] hours to [X] minutes with automated rollback.',
+      'Reduced deployment lead time from [X] hours to [X] minutes by rebuilding the CI/CD pipeline on [platform].',
+      'Improved service availability from [X]% to [X]% by introducing SLO tracking and automated rollback.',
+      'Cut cloud infrastructure cost by [X]% through right-sizing, spot instances and Reserved Instance planning.',
+      'Migrated [X] services from on-prem to Kubernetes; coordinated with [X] teams over [X]-month programme.',
     ],
-    skills: ['Kubernetes', 'Docker', 'Terraform', 'Jenkins', 'GitHub Actions', 'AWS', 'Azure', 'Ansible', 'Prometheus', 'Grafana', 'Linux', 'Bash'],
-    certs: ['Certified Kubernetes Administrator (CKA)'],
+    skills: ['Kubernetes', 'Terraform', 'AWS / GCP', 'GitHub Actions', 'ArgoCD', 'Prometheus / Grafana', 'Docker', 'Bash / Python', 'Linux', 'Incident Management'],
+    certs: ['CKA – Certified Kubernetes Administrator', 'AWS Solutions Architect – Associate'],
     degree: DEGREE.cs,
   },
-  {
-    id: 'cloud-engineer',
-    role: 'Cloud Engineer',
-    family: 'infra',
-    level: 'mid',
-    layout: 'classic',
-    ats: 'max',
-    headline: 'Cloud Engineer | AWS | Azure | Migration & Cost Optimisation',
-    summary:
-      'Cloud engineer with [X] years designing and migrating workloads. Balances availability targets against what the business will actually pay for.',
-    titles: ['Cloud Engineer', 'Cloud Engineer', 'Systems Administrator'],
-    bullets: [
-      'Migrated [X] workloads from on-premise to [AWS/Azure] with [X] hours total downtime.',
-      'Reduced monthly cloud cost by [X]% through reserved capacity and storage tiering.',
-      'Designed multi-AZ architecture meeting an RTO of [X] and RPO of [X].',
-      'Implemented landing zone and guardrails across [X] accounts.',
-    ],
-    skills: ['AWS', 'Azure', 'Terraform', 'CloudFormation', 'VPC / Networking', 'IAM', 'Kubernetes', 'Cost Optimisation', 'Linux', 'Python', 'Monitoring'],
-    certs: ['AWS Certified Solutions Architect – Associate'],
-    degree: DEGREE.it,
-  },
-  {
-    id: 'cybersecurity-analyst',
-    role: 'Cybersecurity Analyst',
-    family: 'infra',
-    level: 'mid',
-    layout: 'classic',
-    ats: 'max',
-    headline: 'Cybersecurity Analyst | SOC | Incident Response | Vulnerability Management',
-    summary:
-      'Security analyst with [X] years in detection and response. Comfortable in the SOC queue and in the room explaining risk to people who do not work in security.',
-    titles: ['Security Analyst', 'SOC Analyst', 'IT Security Associate'],
-    bullets: [
-      'Triaged [X] alerts per month, reducing false positives by [X]% through detection tuning.',
-      'Led response on [X] incidents, cutting mean time to contain from [X] hours to [X] minutes.',
-      'Remediated [X] critical vulnerabilities across [X] assets within SLA.',
-      'Delivered security awareness training to [X] staff, reducing phishing click rate to [X]%.',
-    ],
-    skills: ['SIEM (Splunk/QRadar)', 'Incident Response', 'Vulnerability Management', 'Nessus', 'EDR', 'Firewalls', 'ISO 27001', 'NIST', 'Python', 'Wireshark', 'MITRE ATT&CK'],
-    certs: ['CompTIA Security+', 'CEH'],
-    degree: DEGREE.it,
-  },
-  {
-    id: 'network-engineer',
-    role: 'Network Engineer',
-    family: 'infra',
-    level: 'mid',
-    layout: 'compact',
-    ats: 'max',
-    headline: 'Network Engineer | Routing & Switching | Firewalls | WAN',
-    summary:
-      'Network engineer with [X] years running enterprise networks across [X] sites. Strong on troubleshooting under pressure and documenting what was actually changed.',
-    titles: ['Network Engineer', 'Network Engineer', 'Network Support Engineer'],
-    bullets: [
-      'Maintained [X] network devices across [X] sites at [X]% uptime.',
-      'Redesigned WAN links, reducing latency by [X]ms and monthly circuit cost by [X]%.',
-      'Resolved [X] P1 network incidents with an average restoration time of [X] minutes.',
-      'Segmented the network into [X] VLANs, reducing lateral movement risk.',
-    ],
-    skills: ['Cisco IOS', 'Routing & Switching', 'BGP', 'OSPF', 'Firewalls', 'VPN', 'SD-WAN', 'Wireshark', 'TCP/IP', 'Load Balancers', 'Network Monitoring'],
-    certs: ['CCNA', 'CCNP'],
-    degree: DEGREE.it,
-  },
-  {
-    id: 'it-support',
-    role: 'IT Support Specialist',
-    family: 'infra',
-    level: 'entry',
-    layout: 'compact',
-    ats: 'max',
-    headline: 'IT Support Specialist | Helpdesk | Endpoint Management',
-    summary:
-      'IT support specialist with [X] years on first and second line. Measured on resolution time and on users not having to ask twice.',
-    titles: ['IT Support Specialist', 'Desktop Support Engineer', 'IT Helpdesk Associate'],
-    bullets: [
-      'Resolved [X] tickets per month with a first-contact resolution rate of [X]%.',
-      'Maintained [X] endpoints, reducing recurring incidents by [X]% through root-cause fixes.',
-      'Onboarded [X] new joiners per month with zero day-one access failures.',
-      'Wrote [X] knowledge base articles, deflecting [X]% of repeat tickets.',
-    ],
-    skills: ['Windows 10/11', 'Active Directory', 'Office 365', 'ServiceNow', 'Ticketing Systems', 'Hardware Troubleshooting', 'Networking Basics', 'macOS', 'Remote Support', 'ITIL'],
-    certs: ['CompTIA A+', 'ITIL Foundation'],
-    degree: DEGREE.it,
-  },
 
-  /* ---------------- Engineering ---------------- */
-  {
-    id: 'mechanical-engineer',
-    role: 'Mechanical Engineer',
-    family: 'engineering',
-    level: 'mid',
-    layout: 'classic',
-    ats: 'max',
-    headline: 'Mechanical Engineer | Design | Manufacturing | CAD',
-    summary:
-      'Mechanical engineer with [X] years across design and manufacturing support. Works to tolerance, cost and schedule rather than to the drawing alone.',
-    titles: ['Mechanical Engineer', 'Design Engineer', 'Graduate Engineer Trainee'],
-    bullets: [
-      'Designed [X] components in [SolidWorks/CATIA], reducing material cost by [X]% per unit.',
-      'Cut production cycle time by [X]% by redesigning [process/fixture].',
-      'Reduced field failure rate from [X]% to [X]% through design revision and testing.',
-      'Prepared [X] technical drawings and BOMs to [ISO/ASME] standards.',
-    ],
-    skills: ['SolidWorks', 'AutoCAD', 'CATIA', 'ANSYS', 'GD&T', 'Design for Manufacturing', 'FEA', 'Six Sigma', 'BOM Management', 'ISO 9001', 'Root Cause Analysis'],
-    certs: ['Six Sigma Green Belt'],
-    degree: DEGREE.mech,
-  },
-  {
-    id: 'civil-engineer',
-    role: 'Civil Engineer',
-    family: 'engineering',
-    level: 'mid',
-    layout: 'classic',
-    ats: 'max',
-    headline: 'Civil Engineer | Site Execution | Structural Design | QA/QC',
-    summary:
-      'Civil engineer with [X] years across design and site execution. Used to holding programme and quality when both are under pressure.',
-    titles: ['Civil Engineer', 'Site Engineer', 'Junior Civil Engineer'],
-    bullets: [
-      'Executed [X] projects worth [currency][X] within [X]% of budget.',
-      'Supervised site teams of [X], maintaining zero lost-time incidents over [X] months.',
-      'Reduced material wastage by [X]% through revised procurement and site controls.',
-      'Cleared [X] QA/QC inspections with [X]% first-time approval.',
-    ],
-    skills: ['AutoCAD', 'STAAD Pro', 'Revit', 'Primavera P6', 'Quantity Surveying', 'QA/QC', 'Site Supervision', 'BOQ', 'Structural Analysis', 'HSE', 'MS Project'],
-    certs: ['NEBOSH / IOSH'],
-    degree: DEGREE.civil,
-  },
-  {
-    id: 'electrical-engineer',
-    role: 'Electrical Engineer',
-    family: 'engineering',
-    level: 'mid',
-    layout: 'classic',
-    ats: 'max',
-    headline: 'Electrical Engineer | Power Systems | Controls | Maintenance',
-    summary:
-      'Electrical engineer with [X] years in design, commissioning and maintenance. Focused on uptime, safety compliance and energy cost.',
-    titles: ['Electrical Engineer', 'Electrical Engineer', 'Trainee Engineer'],
-    bullets: [
-      'Commissioned [X] installations totalling [X]MW / [X]kVA capacity.',
-      'Improved plant uptime from [X]% to [X]% through preventive maintenance scheduling.',
-      'Reduced energy consumption by [X]% via load analysis and equipment upgrades.',
-      'Maintained compliance with [IEC/NEC/IS] standards across [X] audits with zero major findings.',
-    ],
-    skills: ['AutoCAD Electrical', 'PLC / SCADA', 'Power Distribution', 'Load Flow Analysis', 'ETAP', 'Preventive Maintenance', 'Panel Design', 'IEC Standards', 'Instrumentation', 'HSE'],
-    certs: [],
-    degree: DEGREE.eee,
-  },
-
-  /* ---------------- Business & Finance ---------------- */
-  {
-    id: 'accountant',
-    role: 'Accountant',
-    family: 'business',
-    level: 'mid',
-    layout: 'classic',
-    ats: 'max',
-    headline: 'Accountant | Financial Reporting | Reconciliation | Compliance',
-    summary:
-      'Accountant with [X] years owning month-end close and statutory compliance. Careful with detail, and able to explain a variance to someone who is not an accountant.',
-    titles: ['Accountant', 'Senior Accounts Executive', 'Accounts Assistant'],
-    bullets: [
-      'Closed monthly books for [X] entities, reducing close time from [X] days to [X] days.',
-      'Reconciled accounts worth [currency][X] with a [X]% first-pass accuracy rate.',
-      'Filed [GST/VAT/TDS] returns for [X] periods with zero penalties.',
-      'Identified [currency][X] in duplicate or recoverable payments through ledger review.',
-    ],
-    skills: ['Tally ERP', 'SAP FICO', 'QuickBooks', 'Advanced Excel', 'GST / VAT', 'TDS', 'Bank Reconciliation', 'Accounts Payable', 'Accounts Receivable', 'IFRS', 'Audit Support'],
-    certs: ['CA Inter / CMA'],
-    degree: DEGREE.com,
-  },
-  {
-    id: 'financial-analyst',
-    role: 'Financial Analyst',
-    family: 'business',
-    level: 'mid',
-    layout: 'executive',
-    ats: 'high',
-    headline: 'Financial Analyst | FP&A | Forecasting | Business Partnering',
-    summary:
-      'Financial analyst with [X] years in planning and analysis. Builds the model, then defends the assumptions in front of the budget holder.',
-    titles: ['Financial Analyst', 'FP&A Analyst', 'Finance Associate'],
-    bullets: [
-      'Owned forecasting for a [currency][X] P&L, improving forecast accuracy to within [X]%.',
-      'Built [X] financial models supporting [investment/pricing] decisions worth [currency][X].',
-      'Reduced reporting turnaround from [X] days to [X] days through Excel and BI automation.',
-      'Identified [currency][X] in cost savings through variance and margin analysis.',
-    ],
-    skills: ['Financial Modelling', 'Advanced Excel', 'Power BI', 'SQL', 'Forecasting', 'Budgeting', 'Variance Analysis', 'SAP', 'Valuation', 'Scenario Planning'],
-    certs: ['CFA Level I / II'],
-    degree: DEGREE.mba,
-  },
-  {
-    id: 'project-manager',
-    role: 'Project Manager',
-    family: 'business',
-    level: 'senior',
-    layout: 'executive',
-    ats: 'high',
-    headline: 'Project Manager | Delivery | Stakeholder Management | Agile',
-    summary:
-      'Project manager with [X] years delivering cross-functional programmes. Holds scope, budget and the difficult conversation that keeps a date honest.',
-    titles: ['Project Manager', 'Project Manager', 'Assistant Project Manager'],
-    bullets: [
-      'Delivered [X] projects worth [currency][X] on time and within [X]% of budget.',
-      'Led cross-functional teams of [X] across [X] locations and [X] time zones.',
-      'Reduced delivery slippage by [X]% through revised planning and dependency tracking.',
-      'Reported to [X] senior stakeholders and an executive steering committee monthly.',
-    ],
-    skills: ['Agile / Scrum', 'Waterfall', 'Jira', 'MS Project', 'Primavera', 'Risk Management', 'Budget Management', 'Stakeholder Management', 'Confluence', 'RAID Logs'],
-    certs: ['PMP', 'CSM'],
-    degree: DEGREE.mba,
-  },
-  {
-    id: 'product-manager',
-    role: 'Product Manager',
-    family: 'business',
-    level: 'mid',
-    layout: 'executive',
-    ats: 'high',
-    headline: 'Product Manager | Roadmap | Discovery | Growth',
-    summary:
-      'Product manager with [X] years owning outcomes rather than feature lists. Comfortable saying no and showing the evidence behind it.',
-    titles: ['Product Manager', 'Associate Product Manager', 'Business Analyst'],
-    bullets: [
-      'Owned a product line generating [currency][X] annual revenue across [X] users.',
-      'Increased [activation/retention] from [X]% to [X]% through [X] shipped experiments.',
-      'Ran discovery with [X] customers, killing [X] planned features before build.',
-      'Cut time-to-market for new features from [X] weeks to [X] weeks.',
-    ],
-    skills: ['Product Roadmapping', 'User Research', 'A/B Testing', 'SQL', 'Jira', 'Figma', 'Analytics (GA/Mixpanel)', 'Prioritisation (RICE)', 'Agile', 'Stakeholder Management'],
-    certs: [],
-    degree: DEGREE.mba,
-  },
-  {
-    id: 'hr-generalist',
-    role: 'HR Generalist',
-    family: 'business',
-    level: 'mid',
-    layout: 'classic',
-    ats: 'max',
-    headline: 'HR Generalist | Recruitment | Employee Relations | Payroll',
-    summary:
-      'HR generalist with [X] years across the employee lifecycle. Handles hiring, relations and compliance without letting any one of them slip.',
-    titles: ['HR Generalist', 'HR Executive', 'HR Assistant'],
-    bullets: [
-      'Hired [X] roles per year, reducing average time-to-fill from [X] days to [X] days.',
-      'Reduced voluntary attrition from [X]% to [X]% through stay interviews and exit analysis.',
-      'Processed payroll for [X] employees with [X]% accuracy across [X] cycles.',
-      'Resolved [X] employee relations cases in line with policy and local labour law.',
-    ],
-    skills: ['Recruitment', 'Onboarding', 'Employee Relations', 'Payroll', 'HRIS (SAP/Workday)', 'Labour Law Compliance', 'Performance Management', 'L&D', 'Excel', 'ATS Tools'],
-    certs: ['SHRM-CP'],
-    degree: DEGREE.mba,
-  },
-  {
-    id: 'sales-executive',
-    role: 'Sales Executive',
-    family: 'business',
-    level: 'mid',
-    layout: 'banner',
-    ats: 'high',
-    headline: 'Sales Executive | B2B | Pipeline Development | Account Growth',
-    summary:
-      'Sales professional with [X] years carrying a quota in [industry]. Builds pipeline methodically rather than relying on a good quarter.',
-    titles: ['Sales Executive', 'Business Development Executive', 'Sales Associate'],
-    bullets: [
-      'Achieved [X]% of an annual quota of [currency][X] across [X] consecutive quarters.',
-      'Grew territory revenue by [X]% year on year through [X] new accounts.',
-      'Built a pipeline of [currency][X], maintaining a win rate of [X]%.',
-      'Reduced sales cycle length from [X] days to [X] days through qualification discipline.',
-    ],
-    skills: ['B2B Sales', 'Lead Generation', 'Salesforce CRM', 'Negotiation', 'Account Management', 'Pipeline Management', 'Cold Outreach', 'Solution Selling', 'Forecasting'],
-    certs: [],
-    degree: DEGREE.mba,
-  },
-
-  /* ---------------- Marketing & Creative ---------------- */
-  {
-    id: 'digital-marketing',
-    role: 'Digital Marketing Specialist',
-    family: 'marketing',
-    level: 'mid',
-    layout: 'banner',
-    ats: 'high',
-    headline: 'Digital Marketing | Performance | SEO | Paid Media',
-    summary:
-      'Digital marketer with [X] years running acquisition across paid and organic. Optimises to cost per qualified lead, not impressions.',
-    titles: ['Digital Marketing Specialist', 'Marketing Executive', 'Marketing Associate'],
-    bullets: [
-      'Managed [currency][X] in monthly ad spend at a blended CAC of [currency][X].',
-      'Grew organic traffic by [X]% in [X] months through technical SEO and content.',
-      'Improved conversion rate from [X]% to [X]% via landing page testing.',
-      'Ran [X] campaigns across [channels], delivering [X] qualified leads per month.',
-    ],
-    skills: ['Google Ads', 'Meta Ads', 'SEO', 'Google Analytics 4', 'HubSpot', 'Email Marketing', 'Conversion Optimisation', 'Content Strategy', 'SEMrush', 'Copywriting'],
-    certs: ['Google Ads Certification', 'HubSpot Inbound'],
-    degree: DEGREE.mass,
-  },
-  {
-    id: 'graphic-designer',
-    role: 'Graphic Designer',
-    family: 'marketing',
-    level: 'mid',
-    layout: 'sidebar',
-    ats: 'high',
-    headline: 'Graphic Designer | Brand | Digital & Print | Design Systems',
-    summary:
-      'Designer with [X] years across brand and campaign work. Note: attach a portfolio link — design roles are shortlisted on the work, and the CV only has to survive the ATS.',
-    titles: ['Graphic Designer', 'Visual Designer', 'Junior Designer'],
-    bullets: [
-      'Designed [X] campaigns across digital and print for [X] brands.',
-      'Built a brand system adopted across [X] channels, cutting design turnaround by [X]%.',
-      'Produced [X] assets per month against a [X]-day average delivery time.',
-      'Improved creative performance, lifting click-through rate by [X]%.',
-    ],
-    skills: ['Adobe Photoshop', 'Illustrator', 'InDesign', 'Figma', 'After Effects', 'Typography', 'Brand Identity', 'Layout Design', 'Print Production', 'Design Systems'],
-    certs: [],
-    degree: DEGREE.design,
-  },
-  {
-    id: 'content-writer',
-    role: 'Content Writer',
-    family: 'marketing',
-    level: 'entry',
-    layout: 'compact',
-    ats: 'max',
-    headline: 'Content Writer | SEO Content | Editorial | Copywriting',
-    summary:
-      'Content writer with [X] years producing search-led and editorial content. Writes to a brief and a keyword target without sounding like it.',
-    titles: ['Content Writer', 'Content Writer', 'Content Intern'],
-    bullets: [
-      'Published [X] articles per month, growing organic sessions by [X]%.',
-      'Ranked [X] pages on page one for target keywords within [X] months.',
-      'Reduced content production time by [X]% through briefs and templates.',
-      'Edited and fact-checked [X] pieces per month from [X] contributors.',
-    ],
-    skills: ['SEO Writing', 'Copywriting', 'Editing', 'WordPress', 'Google Analytics', 'SEMrush', 'Content Strategy', 'CMS', 'Research', 'Style Guides'],
-    certs: [],
-    degree: DEGREE.mass,
-  },
-
-  /* ---------------- Healthcare ---------------- */
-  {
-    id: 'registered-nurse',
-    role: 'Registered Nurse',
-    family: 'healthcare',
-    level: 'mid',
-    layout: 'classic',
-    ats: 'max',
-    headline: 'Registered Nurse | Patient Care | Critical Care | Documentation',
-    summary:
-      'Registered nurse with [X] years in [ward/ICU/emergency] settings. Note: licence number, registration body and validity should appear near the top for clinical roles.',
-    titles: ['Registered Nurse', 'Staff Nurse', 'Nursing Intern'],
-    bullets: [
-      'Cared for [X] patients per shift in a [X]-bed [unit], maintaining documentation compliance at [X]%.',
-      'Reduced medication administration errors to [X] per [X] doses through double-check protocol.',
-      'Trained [X] junior nurses on [protocol/equipment].',
-      'Maintained patient satisfaction scores of [X] across [X] review cycles.',
-    ],
-    skills: ['Patient Assessment', 'IV Therapy', 'Medication Administration', 'Wound Care', 'EMR / EHR', 'BLS / ACLS', 'Infection Control', 'Triage', 'Care Planning', 'Patient Education'],
-    certs: ['BLS', 'ACLS', 'Nursing Council Registration'],
-    degree: DEGREE.nursing,
-  },
-  {
-    id: 'pharmacist',
-    role: 'Pharmacist',
-    family: 'healthcare',
-    level: 'mid',
-    layout: 'classic',
-    ats: 'max',
-    headline: 'Pharmacist | Dispensing | Clinical Review | Regulatory Compliance',
-    summary:
-      'Pharmacist with [X] years in [retail/hospital] practice. Note: include registration number and jurisdiction — most employers screen for it before anything else.',
-    titles: ['Pharmacist', 'Clinical Pharmacist', 'Pharmacy Intern'],
-    bullets: [
-      'Dispensed [X] prescriptions per day with a [X]% accuracy rate.',
-      'Conducted [X] medication reviews, identifying [X] interaction risks.',
-      'Maintained inventory worth [currency][X] with shrinkage below [X]%.',
-      'Counselled [X] patients per week on adherence and side effects.',
-    ],
-    skills: ['Dispensing', 'Clinical Review', 'Drug Interactions', 'Inventory Management', 'Pharmacovigilance', 'Patient Counselling', 'Regulatory Compliance', 'Pharmacy Software'],
-    certs: ['Pharmacy Council Registration'],
-    degree: DEGREE.pharm,
-  },
-
-  /* ---------------- Education ---------------- */
-  {
-    id: 'teacher',
-    role: 'Teacher',
-    family: 'education',
-    level: 'mid',
-    layout: 'classic',
-    ats: 'max',
-    headline: 'Teacher | [Subject] | Curriculum Delivery | Student Assessment',
-    summary:
-      'Teacher with [X] years across [grade levels]. Plans to the curriculum, assesses honestly, and communicates with parents before problems become escalations.',
-    titles: ['Subject Teacher', 'Teacher', 'Assistant Teacher'],
-    bullets: [
-      'Taught [X] students per year across [X] classes in [subject].',
-      'Improved average subject scores from [X]% to [X]% over [X] academic terms.',
-      'Developed [X] lesson plans and assessments aligned to [CBSE/IB/curriculum].',
-      'Mentored [X] students through [board exams/competitions], with [X]% achieving [outcome].',
-    ],
-    skills: ['Lesson Planning', 'Curriculum Development', 'Classroom Management', 'Student Assessment', 'Differentiated Instruction', 'Parent Communication', 'EdTech Tools', 'Google Classroom'],
-    certs: ['B.Ed / Teaching Licence'],
-    degree: DEGREE.edu,
-  },
-
-  /* ---------------- Operations & Support ---------------- */
-  {
-    id: 'supply-chain',
-    role: 'Supply Chain Coordinator',
-    family: 'operations',
-    level: 'mid',
-    layout: 'classic',
-    ats: 'max',
-    headline: 'Supply Chain | Procurement | Inventory | Logistics',
-    summary:
-      'Supply chain professional with [X] years across procurement, inventory and dispatch. Optimises for fill rate and working capital at the same time.',
-    titles: ['Supply Chain Coordinator', 'Logistics Executive', 'Procurement Assistant'],
-    bullets: [
-      'Managed inventory worth [currency][X] across [X] SKUs, holding stock accuracy at [X]%.',
-      'Reduced procurement cost by [X]% through vendor renegotiation across [X] suppliers.',
-      'Improved on-time delivery from [X]% to [X]% by revising dispatch planning.',
-      'Cut excess inventory by [X]% through demand forecasting.',
-    ],
-    skills: ['SAP MM', 'Inventory Management', 'Procurement', 'Vendor Management', 'Demand Planning', 'Logistics', 'Advanced Excel', 'ERP Systems', 'Warehouse Operations', 'Incoterms'],
-    certs: ['CSCP / CPIM'],
-    degree: DEGREE.mba,
-  },
-  {
-    id: 'customer-support',
-    role: 'Customer Support Specialist',
-    family: 'operations',
-    level: 'entry',
-    layout: 'compact',
-    ats: 'max',
-    headline: 'Customer Support | Ticket Resolution | CSAT | Escalation Handling',
-    summary:
-      'Support specialist with [X] years handling customer issues across [channels]. Measured on resolution quality, not just speed.',
-    titles: ['Customer Support Specialist', 'Support Executive', 'Customer Service Associate'],
-    bullets: [
-      'Handled [X] tickets per month across [email/chat/phone] with a CSAT of [X].',
-      'Maintained first-response time under [X] minutes and resolution time under [X] hours.',
-      'Reduced escalations by [X]% through improved troubleshooting documentation.',
-      'Trained [X] new agents on product and tooling.',
-    ],
-    skills: ['Zendesk', 'Freshdesk', 'CRM Tools', 'Ticket Management', 'Escalation Handling', 'Product Troubleshooting', 'SLA Management', 'Communication', 'Live Chat'],
-    certs: [],
-    degree: DEGREE.com,
-  },
+  /* ══════════════════════════════════════════════════════════════════
+   * 3 — SLATE  |  operations, executive, management
+   * Dark header band reverses the name; authoritative and structured.
+   * ══════════════════════════════════════════════════════════════════ */
   {
     id: 'operations-manager',
     role: 'Operations Manager',
     family: 'operations',
-    level: 'senior',
-    layout: 'executive',
+    level: 'mid',
+    layout: 'slate',
     ats: 'high',
     headline: 'Operations Manager | Process Excellence | Team Leadership | P&L',
     summary:
@@ -777,7 +224,185 @@ export const TEMPLATES = [
     certs: ['Six Sigma Black Belt'],
     degree: DEGREE.mba,
   },
+  {
+    id: 'project-manager',
+    role: 'Project Manager',
+    family: 'business',
+    level: 'mid',
+    layout: 'slate',
+    ats: 'high',
+    headline: 'Project Manager | PMO | Agile & Waterfall | Stakeholder Management',
+    summary:
+      'Project manager with [X] years delivering technology and business change programmes. Keeps scope, budget and quality honest without making the team miserable in the process.',
+    titles: ['Senior Project Manager', 'Project Manager', 'Project Coordinator'],
+    bullets: [
+      'Delivered [project] on time and [X]% under budget; [X] stakeholders across [X] departments.',
+      'Managed concurrent portfolio of [X] projects, total budget [currency][X]m.',
+      'Reduced change request cycle from [X] days to [X] days by introducing a lightweight scope-change process.',
+      'Improved sprint velocity by [X]% over [X] quarters through retrospective-driven process improvements.',
+    ],
+    skills: ['Project Planning', 'Risk Management', 'Agile / Scrum', 'MS Project', 'JIRA', 'Stakeholder Management', 'Budget Control', 'Change Management', 'PMP / PRINCE2'],
+    certs: ['PMP – Project Management Professional', 'PRINCE2 Practitioner'],
+    degree: DEGREE.mba,
+  },
+  {
+    id: 'hr-manager',
+    role: 'HR Manager',
+    family: 'operations',
+    level: 'mid',
+    layout: 'slate',
+    ats: 'high',
+    headline: 'HR Manager | Talent Acquisition | L&D | Employee Relations',
+    summary:
+      'HR professional with [X] years building and running people functions in [industry]. Holds the day-to-day compliance together while also working on the longer-term capability agenda.',
+    titles: ['HR Manager', 'HR Business Partner', 'HR Executive'],
+    bullets: [
+      'Reduced time-to-hire from [X] days to [X] days across [X] role families through process redesign.',
+      'Designed and delivered L&D programme for [X] employees; improved engagement score by [X] points.',
+      'Managed [X] employee relations cases to conclusion with zero escalations to tribunal.',
+      'Built the performance management framework adopted across [X] business units.',
+    ],
+    skills: ['Talent Acquisition', 'HR Business Partnering', 'L&D', 'Employee Relations', 'HRMS / SAP SuccessFactors', 'Compensation & Benefits', 'Policy Writing', 'Workforce Planning'],
+    certs: ['SHRM-CP / PHR'],
+    degree: DEGREE.mba,
+  },
+
+  /* ══════════════════════════════════════════════════════════════════
+   * 4 — GROVE  |  healthcare, education, consulting, non-profit
+   * Warm moss accent, generous leading, calm and trustworthy.
+   * ══════════════════════════════════════════════════════════════════ */
+  {
+    id: 'nurse',
+    role: 'Staff Nurse / Clinical Nurse',
+    family: 'healthcare',
+    level: 'mid',
+    layout: 'grove',
+    ats: 'max',
+    headline: 'Registered Nurse | Critical Care | Patient Advocacy | Clinical Leadership',
+    summary:
+      'Registered nurse with [X] years in [specialty]. Brings clinical accuracy and a clear focus on patient outcomes to both bedside care and ward management responsibilities.',
+    titles: ['Senior Staff Nurse', 'Staff Nurse', 'Junior Staff Nurse'],
+    bullets: [
+      'Managed care for [X]–[X] patients per shift in [ward/unit]; maintained [X]% medication administration accuracy.',
+      'Led handover process redesign that reduced missed observations by [X]% across the ward.',
+      'Mentored [X] student nurses through clinical placements; [X]% completed their competency sign-offs on time.',
+      'Contributed to infection control audit; ward maintained zero HCAI incidents for [X] consecutive months.',
+    ],
+    skills: ['Critical Care', 'IV Therapy', 'Patient Assessment', 'Medication Administration', 'Ward Management', 'Clinical Documentation', 'BLS / ALS Certified', 'EMR / EHR', 'Infection Control'],
+    certs: ['BLS / ACLS Certification', 'Postgraduate Certificate – Critical Care Nursing'],
+    degree: DEGREE.nursing,
+  },
+  {
+    id: 'teacher',
+    role: 'Teacher / Academic',
+    family: 'education',
+    level: 'mid',
+    layout: 'grove',
+    ats: 'max',
+    headline: 'Secondary School Teacher | English / Mathematics | Curriculum Development',
+    summary:
+      'Teacher with [X] years in secondary education. Designs lessons that connect subject content to the students in front of me — and measures whether they worked.',
+    titles: ['Senior Teacher', 'Classroom Teacher', 'Trainee Teacher'],
+    bullets: [
+      '[Subject] pass rate improved from [X]% to [X]% over [X] academic years with the cohort I led.',
+      'Designed differentiated schemes of work adopted across [X] year groups.',
+      'Coordinated [X]-student extracurricular programme; [X]% of participants progressed to the national round.',
+      'Mentored [X] NQTs through their first year; all received "Good" or "Outstanding" in final assessments.',
+    ],
+    skills: ['Lesson Planning', 'Curriculum Design', 'Differentiated Instruction', 'Assessment & Feedback', 'Classroom Management', 'Parent Communication', 'SEN Awareness', 'Google Classroom / Microsoft Teams'],
+    certs: ['B.Ed / PGCE', 'CPD – Child Protection Level 3'],
+    degree: DEGREE.edu,
+  },
+  {
+    id: 'management-consultant',
+    role: 'Management Consultant',
+    family: 'business',
+    level: 'mid',
+    layout: 'grove',
+    ats: 'max',
+    headline: 'Management Consultant | Strategy | Operating Model | Change Delivery',
+    summary:
+      'Management consultant with [X] years across [industries]. Builds the analysis, writes the recommendation and stays in the room for the delivery — not just the slide.',
+    titles: ['Senior Consultant', 'Consultant', 'Analyst'],
+    bullets: [
+      'Led [X]-person workstream on [engagement type]; delivered [X]% cost reduction recommendation adopted by the client.',
+      'Built the business case that secured [currency][X]m investment approval for [programme].',
+      'Designed and facilitated [X] workshops with C-suite and senior leadership to align on [objective].',
+      'Reduced client reporting cycle from [X] weeks to [X] days through process redesign and tooling.',
+    ],
+    skills: ['Strategy Development', 'Operating Model Design', 'Financial Modelling', 'Workshop Facilitation', 'Stakeholder Management', 'Change Management', 'PowerPoint / Excel', 'Data Analysis'],
+    certs: ['MBA (if applicable)', 'Six Sigma Green Belt'],
+    degree: DEGREE.mba,
+  },
+
+  /* ══════════════════════════════════════════════════════════════════
+   * 5 — ARC  |  marketing, creative, design — sidebar layout
+   * Deep indigo sidebar; contact, skills, certs in the rail; story
+   * on the right.  DOM order keeps ATS readability (main col first).
+   * ══════════════════════════════════════════════════════════════════ */
+  {
+    id: 'digital-marketing-manager',
+    role: 'Digital Marketing Manager',
+    family: 'marketing',
+    level: 'mid',
+    layout: 'arc',
+    ats: 'high',
+    headline: 'Digital Marketing Manager | Paid & Organic | Growth | Brand',
+    summary:
+      'Digital marketing manager with [X] years growing consumer brands across paid search, social and organic channels. Comfortable with both the creative brief and the ROAS spreadsheet.',
+    titles: ['Digital Marketing Manager', 'Senior Digital Marketing Executive', 'Digital Marketing Executive'],
+    bullets: [
+      'Grew organic traffic by [X]% in [X] months through content strategy and technical SEO fixes.',
+      'Managed [currency][X]m annual paid media budget across Google, Meta and LinkedIn; blended ROAS of [X]x.',
+      'Launched [campaign] that generated [X]k leads at [currency][X] CPL, [X]% below target.',
+      'Built and scaled the email programme from [X]k to [X]k subscribers; open rate [X]%, conversion [X]%.',
+    ],
+    skills: ['SEO / SEM', 'Google Ads', 'Meta Ads', 'Email Marketing', 'HubSpot / Salesforce', 'Google Analytics 4', 'Content Strategy', 'Conversion Optimisation', 'A/B Testing', 'Copywriting'],
+    certs: ['Google Ads Certified', 'HubSpot Content Marketing'],
+    degree: DEGREE.mass,
+  },
+  {
+    id: 'ui-ux-designer',
+    role: 'UI/UX Designer',
+    family: 'marketing',
+    level: 'mid',
+    layout: 'arc',
+    ats: 'high',
+    headline: 'UI/UX Designer | Product Design | Design Systems | User Research',
+    summary:
+      'Product designer with [X] years working across discovery, interaction design and delivery. Builds things that feel simple to use because the hard thinking happened before the first frame.',
+    titles: ['Senior Product Designer', 'UI/UX Designer', 'UI Designer'],
+    bullets: [
+      'Redesigned [product/feature]; SUS score improved from [X] to [X], and task completion rate from [X]% to [X]%.',
+      'Built and documented the design system used by [X] product teams; reduced design-to-dev handoff time by [X]%.',
+      'Ran [X] rounds of usability testing per quarter; findings directly influenced [X] shipped features.',
+      'Designed the onboarding flow that reduced drop-off from [X]% to [X]% in the first [X] days.',
+    ],
+    skills: ['Figma', 'Prototyping', 'User Research', 'Usability Testing', 'Design Systems', 'Interaction Design', 'Information Architecture', 'Zeroheight', 'Accessibility (WCAG 2.1)', 'HTML / CSS basics'],
+    certs: ['Google UX Design Certificate', 'Nielsen Norman Group UX Certification'],
+    degree: DEGREE.design,
+  },
+  {
+    id: 'sales-manager',
+    role: 'Sales Manager',
+    family: 'business',
+    level: 'mid',
+    layout: 'arc',
+    ats: 'high',
+    headline: 'Sales Manager | B2B SaaS | Enterprise | Revenue Growth',
+    summary:
+      'Sales leader with [X] years closing enterprise deals and building the teams that replicate the process. Numbers-first but relationship-led — the two are not in conflict at the right deal size.',
+    titles: ['Sales Manager', 'Senior Account Executive', 'Account Executive'],
+    bullets: [
+      'Exceeded quota by [X]% in [X] of the last [X] quarters; [currency][X]m ARR personally sourced.',
+      'Built and managed a team of [X] AEs; team hit [X]% of collective quota in the first year.',
+      'Reduced average sales cycle from [X] days to [X] days by introducing MEDDIC qualification gates.',
+      'Landed [X] enterprise accounts with ACV above [currency][X]k in [X]-month period.',
+    ],
+    skills: ['Enterprise Sales', 'B2B SaaS', 'MEDDIC', 'Salesforce', 'Outbound Prospecting', 'Negotiation', 'Account Planning', 'Forecasting', 'Sales Enablement', 'CRM Management'],
+    certs: ['Salesforce Certified Administrator'],
+    degree: DEGREE.mba,
+  },
 ];
 
 export const TEMPLATE_COUNT = TEMPLATES.length;
-
