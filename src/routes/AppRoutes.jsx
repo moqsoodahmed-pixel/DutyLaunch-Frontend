@@ -26,6 +26,7 @@ const ProgrammeDetail = lazyWithReload(() => import('../pages/ProgrammeDetail.js
 const PartnerProfile = lazyWithReload(() => import('../pages/dashboard/PartnerProfile.jsx'));
 const AdminPartners = lazyWithReload(() => import('../pages/admin/AdminPartners.jsx'));
 const AdminScoring = lazyWithReload(() => import('../pages/admin/AdminScoring.jsx'));
+const AdminResumeChecks = lazyWithReload(() => import('../pages/admin/AdminResumeChecks.jsx'));
 const DubaiPackage = lazyWithReload(() => import('../pages/DubaiPackage.jsx'));
 const Documentation = lazyWithReload(() => import('../pages/Documentation.jsx'));
 const AtsResumeChecker = lazyWithReload(() => import('../pages/AtsResumeChecker.jsx'));
@@ -193,6 +194,7 @@ export function AppRoutes() {
               <Route path="admin/testimonials" element={<AdminTestimonials />} />
               <Route path="admin/partners" element={<AdminPartners />} />
               <Route path="admin/scoring" element={<AdminScoring />} />
+              <Route path="admin/resume-checks" element={<AdminResumeChecks />} />
             </Route>
           </Route>
 

@@ -43,6 +43,8 @@ export const adminService = {
   messages: (params) => api.get('/contact', { params }),
   updateMessage: (id, payload) => api.patch(`/contact/${id}`, payload),
 
+  resumeChecks: (params) => api.get('/admin/resume-checks', { params }),
+
   testimonials: () => api.get('/testimonials/admin/all'),
   createTestimonial: (payload) => api.post('/testimonials', payload),
   updateTestimonial: (id, payload) => api.put(`/testimonials/${id}`, payload),

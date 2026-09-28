@@ -1,4 +1,6 @@
 import { useState } from 'react';
+import { Navigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext.jsx';
 import { FileSearch, ScanLine, Sparkles, Target } from 'lucide-react';
 import { Seo } from '../components/ui/Seo.jsx';
 import { Container, Section } from '../components/ui/Container.jsx';
@@ -54,7 +56,13 @@ const FAQS = [
 const seo = seoFor('resumeChecker');
 
 export default function AtsResumeChecker() {
+  const { user, initialising } = useAuth();
   const [result, setResult] = useState(null);
+
+  // Redirect unauthenticated visitors to sign-in, then back here.
+  if (!initialising && !user) {
+    return <Navigate to="/sign-in?next=/resume-checker" replace />;
+  }
 
   return (
     <>

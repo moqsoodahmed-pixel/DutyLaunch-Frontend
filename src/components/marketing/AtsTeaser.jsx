@@ -1,5 +1,7 @@
 import { useState } from 'react';
-import { ShieldCheck } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { ShieldCheck, LogIn } from 'lucide-react';
+import { useAuth } from '../../context/AuthContext.jsx';
 import { Container, Section } from '../ui/Container.jsx';
 import { AtsUploader } from './AtsUploader.jsx';
 import { AtsScoreReport } from './AtsScoreReport.jsx';
@@ -9,6 +11,7 @@ import { AtsScoreReport } from './AtsScoreReport.jsx';
  * lives here and on its own dedicated route (/ats-resume-checker).
  */
 export function AtsTeaser() {
+  const { user, initialising } = useAuth();
   const [result, setResult] = useState(null);
 
   return (
@@ -38,8 +41,33 @@ export function AtsTeaser() {
           <div className="lg:col-span-7">
             {result ? (
               <AtsScoreReport result={result} onReset={() => setResult(null)} />
-            ) : (
+            ) : user ? (
               <AtsUploader onResult={setResult} />
+            ) : (
+              /* Guest gate — direct them to sign in */
+              <div className="flex flex-col items-center justify-center rounded-xl border-2 border-dashed border-line bg-white px-8 py-16 text-center">
+                <span className="grid h-14 w-14 place-items-center rounded-full bg-azure-50 text-azure">
+                  <LogIn className="h-6 w-6" aria-hidden />
+                </span>
+                <h3 className="mt-5 text-lead font-bold text-ink">Sign in to check your resume</h3>
+                <p className="mt-2 max-w-xs text-small text-slate-500">
+                  Create a free account or sign in to run your ATS check and save your results.
+                </p>
+                <div className="mt-6 flex gap-3">
+                  <Link
+                    to="/sign-in?next=/resume-checker"
+                    className="inline-flex h-10 items-center rounded bg-azure px-5 text-small font-semibold text-white hover:bg-azure-700"
+                  >
+                    Sign in
+                  </Link>
+                  <Link
+                    to="/register?next=/resume-checker"
+                    className="inline-flex h-10 items-center rounded border border-line bg-white px-5 text-small font-semibold text-ink hover:bg-paper"
+                  >
+                    Create free account
+                  </Link>
+                </div>
+              </div>
             )}
           </div>
         </div>

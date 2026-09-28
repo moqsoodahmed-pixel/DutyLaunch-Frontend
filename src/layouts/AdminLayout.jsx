@@ -20,6 +20,8 @@ const groups = [
       { to: '/admin/users', label: 'Users', icon: 'Users' },
       { to: '/admin/partners', label: 'Partner institutes', icon: 'Building2' },
       { to: '/admin/scoring', label: 'Scoring weights', icon: 'BarChart3' },
+      { to: '/admin/resume-checks', label: 'Resume Checks', icon: 'ScanLine' },
+      { to: '/admin/resume-checks', label: 'Resume Checks', icon: 'ScanLine' },
     ],
   },
   {
