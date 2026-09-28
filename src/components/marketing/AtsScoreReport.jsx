@@ -81,7 +81,7 @@ function CategoryBar({ label, score, delay }) {
 
 export function AtsScoreReport({ result, onReset }) {
   if (!result) return null;
-  const { score, categories, strengths = [], weaknesses = [], recommendations = [] } = result;
+  const { score, categories, strengths = [], weaknesses = [], recommendations = [], suggested } = result;
 
   return (
     <motion.div
@@ -147,6 +147,16 @@ export function AtsScoreReport({ result, onReset }) {
               </li>
             ))}
           </ul>
+        </div>
+      )}
+
+      {suggested && (
+        <div className="mt-8 rounded-lg border border-teal-200 bg-teal-50 p-5">
+          <h3 className="flex items-center gap-2 text-small font-bold text-teal-800">
+            <Sparkles className="h-4 w-4 text-teal-600" aria-hidden /> AI-suggested summary rewrite
+          </h3>
+          <p className="mt-2 text-small leading-relaxed text-teal-900">{suggested}</p>
+          <p className="mt-2 text-caption text-teal-600">Review and personalise before using — this is a starting point, not your final copy.</p>
         </div>
       )}
 
