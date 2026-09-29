@@ -10,7 +10,10 @@ export const company = {
   brand: 'DutyLaunch',
   legalName: 'DutyLaunch Solutions Private Limited',
   cin: 'U62099KA2025PTC211509',
-  registeredOffice: 'Koramangala, Bengaluru, Karnataka 560034',
+  registeredOfficeName: 'Aspire Coworks - Koramangala',
+  registeredOffice: 'Balaji Arcade, 20th L Cross Rd, 4th Block, Koramangala, Bengaluru, Karnataka 560095',
+  registeredOfficeMapUrl:
+    'https://www.google.com/search?sca_esv=a41c0e78e49a8097&sxsrf=APpeQnsbCKq2REQ-V-hm3qsD5Q01HwQfag:1790687115395&q=aspire+coworks+-+koramangala+address&ludocid=6813123489273965872&sa=X&ved=2ahUKEwjd1qqr7ZOXAxVplOEIHYxwPT8Q6BN6BAgkEAI',
   supportEmail: 'support@dutylaunch.in',
 };
 

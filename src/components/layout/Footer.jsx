@@ -208,10 +208,25 @@ export function Footer() {
               as the LauncherDesk footer this was modelled on. */}
           <div>
             <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: '.1em', textTransform: 'uppercase', color: C.heading, marginBottom: 14 }}>Registered Office</div>
-            <div style={{ display: 'flex', gap: 10, alignItems: 'flex-start' }}>
+            <div style={{ display: 'flex', gap: 10, alignItems: 'flex-start', marginBottom: 10 }}>
               <svg viewBox="0 0 24 24" width={14} height={14} fill="none" stroke={C.heading} strokeWidth={2} style={{ flexShrink: 0, marginTop: 2 }}><path d="M21 10c0 7-9 12-9 12s-9-5-9-12a9 9 0 0 1 18 0z" /><circle cx="12" cy="10" r="3" /></svg>
-              <span style={{ fontSize: 13, color: C.body, lineHeight: 1.7 }}>{company.registeredOffice}</span>
+              <span style={{ fontSize: 13, color: C.body, lineHeight: 1.7 }}>
+                {company.registeredOfficeName && (
+                  <>
+                    <span style={{ fontWeight: 700, color: C.ink }}>{company.registeredOfficeName}</span>
+                    <br />
+                  </>
+                )}
+                {company.registeredOffice}
+              </span>
             </div>
+            {company.registeredOfficeMapUrl && (
+              <a href={company.registeredOfficeMapUrl} target="_blank" rel="noopener noreferrer"
+                style={{ display: 'inline-flex', alignItems: 'center', gap: 5, fontSize: 12.5, fontWeight: 600, color: C.link, textDecoration: 'none' }}>
+                <svg viewBox="0 0 24 24" width={12} height={12} fill="none" stroke="currentColor" strokeWidth={2}><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6M15 3h6v6M10 14 21 3" /></svg>
+                Open on Google Maps →
+              </a>
+            )}
           </div>
         </div>
 
