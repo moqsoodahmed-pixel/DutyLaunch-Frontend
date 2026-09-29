@@ -11,9 +11,9 @@ export const contact = {
   email: 'hello@dutylaunch.com',
   // Support address as stated in the corporate entity notice.
   supportEmail: 'support@dutylaunch.in',
-  phone: '+91 85488 45826',
-  phoneHref: 'tel:+918548845826',
-  whatsapp: '918548845826',
+  phone: '+91 85488 54826',
+  phoneHref: 'tel:+918548854826',
+  whatsapp: '918548854826',
   // As shown on DutyLaunch's own Google Business listing.
   addressLines: [
     'Plazzo Retail Mall, Ibrahim Sahib St',
@@ -26,8 +26,11 @@ export const contact = {
 };
 
 export const socials = [
+  { label: 'Instagram', href: 'https://www.instagram.com/dutylaunch_?stkn=ZHVnOXZ3ZW5scGdl', icon: 'Instagram' },
+  { label: 'Facebook', href: 'https://www.facebook.com/share/1Df5RbBE8N/', icon: 'Facebook' },
+  { label: 'X (Twitter)', href: 'https://x.com/Dutylaunch_2025', icon: 'Twitter' },
+  { label: 'YouTube', href: 'https://www.youtube.com/@DutyLaunch_2025', icon: 'Youtube' },
   { label: 'LinkedIn', href: 'https://www.linkedin.com/', icon: 'Linkedin' },
-  { label: 'Instagram', href: 'https://www.instagram.com/', icon: 'Instagram' },
 ];
 
 /** Six pillars. Used by the navigation, the homepage matrix and the footer. */
@@ -163,13 +166,11 @@ export const menuGroups = [...pillars, ...navGroups];
  * company page sits last.
  */
 export const primaryNav = [
-  { label: 'Home', path: '/' },
   { label: 'Career Tools', menu: ['career-tools'] },
   { label: 'Jobs', path: '/jobs' },
   { label: 'Upskills', menu: ['upskills'] },
   { label: 'Dubai Launch', path: '/dubai-launch' },
   { label: 'Services', menu: ['services'] },
-  { label: 'About', path: '/about' },
 ];
 
 /**
