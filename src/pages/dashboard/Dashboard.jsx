@@ -12,6 +12,7 @@ import { jobService, employerService } from '../../services/jobService.js';
 import { resumeService } from '../../services/contentService.js';
 import { relativeTime, formatSalary, formatExperience } from '../../utils/format.js';
 import { calculateProfileStrength, recommendJobs } from '../../services/aiService.js';
+import { studioService } from '../../services/studioService.js';
 
 /**
  * "What is my status → what should I do next" — the profile strength ring
@@ -168,6 +169,8 @@ function CandidateOverview() {
 
   return (
     <>
+      <StudioCard />
+      <div className="mt-6" />
       <ProfileStrengthCard user={user} />
 
       <div className="mt-6 grid gap-4 sm:grid-cols-3">
@@ -280,6 +283,68 @@ function EmployerOverview() {
         </div>
       </section>
     </>
+  );
+}
+
+
+/* AI Career Studio summary — every figure comes from GET /api/studio. */
+const QUICK_ACTIONS = [
+  { step: 'resume', label: 'Build my resume' },
+  { step: 'ats', label: 'Check ATS score' },
+  { step: 'cover-letter', label: 'Generate cover letter' },
+  { step: 'interview', label: 'Prepare for interview' },
+  { step: 'review', label: 'Complete my profile' },
+];
+
+function StudioCard() {
+  const { data: studio, loading, error } = useApi(() => studioService.get(), []);
+  if (loading) return <LoadingBlock label="Loading your career studio" />;
+  if (error || !studio) return null;
+
+  if (!studio.profile) {
+    return (
+      <div className="rounded-xl border border-azure-200 bg-azure-50 p-6">
+        <div className="flex flex-wrap items-center justify-between gap-4">
+          <div className="max-w-prose">
+            <p className="flex items-center gap-2 text-small font-bold text-ink"><Sparkles className="h-4 w-4 text-azure" aria-hidden /> AI Career Studio</p>
+            <p className="mt-1 text-small text-slate-700">Import your LinkedIn PDF or CV once, confirm it, and create your resume, cover letter and interview preparation from the same verified profile.</p>
+          </div>
+          <Button to="/career-studio">Get started</Button>
+        </div>
+      </div>
+    );
+  }
+
+  const next = studio.steps.find((s) => s.state !== 'completed');
+  const d = studio.documents;
+  const mocksDone = d.mockInterviews.filter((m) => m.status === 'completed').length;
+  return (
+    <div className="rounded-xl border border-line bg-white p-6">
+      <div className="flex flex-wrap items-start justify-between gap-4">
+        <div>
+          <p className="flex items-center gap-2 text-small font-bold text-ink"><Sparkles className="h-4 w-4 text-azure" aria-hidden /> AI Career Studio</p>
+          <p className="mt-1 text-caption text-slate-500">Phase 1 · {studio.completed} of {studio.steps.length} steps complete</p>
+          <Progress value={studio.completed} max={studio.steps.length} className="mt-2 w-56" />
+        </div>
+        {next ? <Button to={`/career-studio?step=${next.id}`} size="sm">Next: {next.label}</Button> : <Button to="/mock-interview" size="sm" variant="secondary">Practise a mock interview</Button>}
+      </div>
+      <div className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
+        {[
+          ['Resume Health', studio.latestResume?.health ?? '—'],
+          ['Job Match', studio.latestResume?.match != null ? `${studio.latestResume.match}%` : '—'],
+          ['Resumes', d.resumes.length],
+          ['Cover letters', d.coverLetters.length],
+          ['Question sets', d.interviewSets.length],
+          ['Mock interviews', mocksDone],
+        ].map(([label, value]) => (
+          <div key={label} className="rounded-lg bg-paper p-3"><p className="text-h4 font-extrabold tabular-nums text-ink">{value}</p><p className="text-caption text-slate-500">{label}</p></div>
+        ))}
+      </div>
+      {studio.latestResume && <p className="mt-3 text-caption text-slate-500">Latest resume: {studio.latestResume.label} · updated {relativeTime(studio.latestResume.updatedAt)}. Scores are DutyLaunch estimates, not employer ATS results.</p>}
+      <div className="mt-4 flex flex-wrap gap-2">
+        {QUICK_ACTIONS.map((a) => <Button key={a.step} to={`/career-studio?step=${a.step}`} size="sm" variant="quiet">{a.label}</Button>)}
+      </div>
+    </div>
   );
 }
 

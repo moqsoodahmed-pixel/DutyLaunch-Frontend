@@ -1,0 +1,803 @@
+import { useEffect, useMemo, useState } from 'react';
+import { Link } from 'react-router-dom';
+import { Upload, FileDown, Eye, Copy, RefreshCw, Save, Trash2, ChevronDown, ChevronUp, PlayCircle, Info, CheckCircle2, AlertTriangle, FileText } from 'lucide-react';
+import { Button, Input, Textarea, Select, Badge, Spinner } from '../ui/index.js';
+import { ConsentCheckbox } from '../ui/ConsentCheckbox.jsx';
+import { ProfileEditor } from './ProfileEditor.jsx';
+import { ResumeHealthReport, JobMatchPanel, KeywordTable, RecommendationList, ProposalReview, ScoreDial } from '../career/CareerReport.jsx';
+import { careerService } from '../../services/careerService.js';
+import { studioService, COVER_LETTER_TONES, EXPERIENCE_LEVELS, errMsg } from '../../services/studioService.js';
+import { useToast } from '../../context/ToastContext.jsx';
+import { cn } from '../../utils/cn.js';
+
+/* ------------------------------------------------------------------ *
+ * Shared bits
+ * ------------------------------------------------------------------ */
+
+export function Panel({ title, lead, children, className }) {
+  return (
+    <div className={cn('rounded-xl border border-line bg-white p-5 shadow-xs sm:p-7', className)}>
+      {title && <h2 className="text-h3 font-bold text-ink">{title}</h2>}
+      {lead && <p className="mt-1.5 max-w-prose text-small text-slate-600">{lead}</p>}
+      <div className={cn(title || lead ? 'mt-5' : '')}>{children}</div>
+    </div>
+  );
+}
+
+function Note({ tone = 'info', children }) {
+  const Icon = tone === 'warn' ? AlertTriangle : tone === 'ok' ? CheckCircle2 : Info;
+  return (
+    <div className={cn('flex gap-2.5 rounded-lg p-3.5 text-small', tone === 'warn' ? 'bg-amber-50 text-amber-800' : tone === 'ok' ? 'bg-success/10 text-ink' : 'bg-azure-50 text-ink')}>
+      <Icon className={cn('mt-0.5 h-4 w-4 flex-none', tone === 'warn' ? 'text-amber-600' : tone === 'ok' ? 'text-success' : 'text-azure')} aria-hidden />
+      <div>{children}</div>
+    </div>
+  );
+}
+
+function ErrorLine({ error }) {
+  if (!error) return null;
+  return <p role="alert" className="mt-3 text-small font-medium text-danger">{error}</p>;
+}
+
+/** Download / preview buttons for one document. */
+function DocButtons({ onDownload, onPreview, docx = true, busy }) {
+  return (
+    <div className="flex flex-wrap gap-2">
+      {onPreview && <Button variant="quiet" size="sm" onClick={onPreview} loading={busy === 'preview'}><Eye className="h-4 w-4" aria-hidden /> Preview</Button>}
+      <Button variant="outline" size="sm" onClick={() => onDownload('pdf')} loading={busy === 'pdf'}><FileDown className="h-4 w-4" aria-hidden /> PDF</Button>
+      {docx && <Button variant="quiet" size="sm" onClick={() => onDownload('docx')} loading={busy === 'docx'}><FileDown className="h-4 w-4" aria-hidden /> DOCX</Button>}
+    </div>
+  );
+}
+
+function useVersions(refreshKey) {
+  const [versions, setVersions] = useState(null);
+  useEffect(() => {
+    let live = true;
+    careerService.listVersions().then((v) => live && setVersions((v || []).filter((x) => x.kind !== 'original'))).catch(() => live && setVersions([]));
+    return () => { live = false; };
+  }, [refreshKey]);
+  return versions;
+}
+
+function VersionSelect({ versions, value, onChange, allowMaster = true }) {
+  if (!versions) return <Spinner />;
+  return (
+    <Select label="Resume to use" value={value} onChange={(e) => onChange(e.target.value)}>
+      {allowMaster && <option value="">My confirmed career profile</option>}
+      {versions.map((v) => <option key={v.id} value={v.id}>{v.label}</option>)}
+    </Select>
+  );
+}
+
+/* ------------------------------------------------------------------ *
+ * Step 1 — Import
+ * ------------------------------------------------------------------ */
+
+export function ImportStep({ studio, onDone, goTo }) {
+  const { success } = useToast();
+  const [file, setFile] = useState(null);
+  const [consent, setConsent] = useState(false);
+  const [mode, setMode] = useState('replace');
+  const [url, setUrl] = useState(studio.profile?.linkedinUrl || '');
+  const [busy, setBusy] = useState('');
+  const [error, setError] = useState('');
+  const [report, setReport] = useState(null);
+  const [manual, setManual] = useState({ name: '', headline: '' });
+  const hasProfile = Boolean(studio.profile);
+
+  async function upload() {
+    setError('');
+    if (!file) return setError('Choose your LinkedIn PDF or CV first.');
+    if (!consent) return setError('Please tick the consent box to continue.');
+    setBusy('upload');
+    try {
+      const res = await studioService.importFile(file, { consent, mode: hasProfile ? mode : 'replace', linkedinUrl: url.trim() || undefined });
+      setReport(res.report);
+      success(res.report.source === 'linkedin-pdf' ? 'LinkedIn profile imported.' : 'CV imported.');
+      // Stay here so the candidate can read what was (and was not) imported.
+      onDone('import');
+    } catch (err) {
+      setError(errMsg(err, 'That file could not be imported.'));
+    } finally {
+      setBusy('');
+    }
+  }
+
+  async function saveUrl() {
+    setError('');
+    setBusy('url');
+    try {
+      const res = await studioService.setLinkedInUrl(url);
+      success(res.note);
+      onDone();
+    } catch (err) {
+      setError(errMsg(err, 'Could not save that URL.'));
+    } finally {
+      setBusy('');
+    }
+  }
+
+  async function startManual() {
+    setError('');
+    if (!manual.name.trim()) return setError('Enter your name to start a profile manually.');
+    if (!consent) return setError('Please tick the consent box to continue.');
+    setBusy('manual');
+    try {
+      await studioService.startManual({ personal: { name: manual.name.trim(), headline: manual.headline.trim() } }, { consent });
+      success('Profile started. Add your details on the review step.');
+      onDone('review');
+    } catch (err) {
+      setError(errMsg(err, 'Could not start a profile.'));
+    } finally {
+      setBusy('');
+    }
+  }
+
+  const statusTone = { imported: 'ok', partial: 'warn', 'manual-needed': 'warn' };
+  const shown = report || (studio.profile?.importStatus && { status: studio.profile.importStatus, source: studio.profile.importSource });
+
+  return (
+    <Panel title="Import your LinkedIn profile" lead="Upload the PDF LinkedIn creates for you, or your existing CV. You can continue without connecting LinkedIn.">
+      {shown && (
+        <div className="mb-5">
+          <Note tone={statusTone[shown.status] || 'info'}>
+            <strong>
+              {shown.status === 'imported' ? 'Imported' : shown.status === 'partial' ? 'Partially imported' : 'Needs manual input'}
+            </strong>{' '}
+            from {shown.source === 'linkedin-pdf' ? 'your LinkedIn PDF' : shown.source === 'manual' ? 'manual entry' : 'your CV'}.{' '}
+            {report?.note}
+            {report?.missing?.length > 0 && <> Not found: {report.missing.join(', ')}.</>}
+            {report && (
+              <div className="mt-3"><Button size="sm" onClick={() => goTo('review')}>Review my profile →</Button></div>
+            )}
+          </Note>
+        </div>
+      )}
+
+      <div className="grid gap-6 lg:grid-cols-2">
+        <div className="space-y-4">
+          <h3 className="text-small font-bold text-ink">Upload a LinkedIn PDF or CV</h3>
+          <ol className="list-decimal space-y-1 pl-5 text-caption text-slate-600">
+            <li>On LinkedIn, open your profile.</li>
+            <li>Click <strong>More</strong> → <strong>Save to PDF</strong>.</li>
+            <li>Upload that file here. A PDF or DOCX of your CV also works.</li>
+          </ol>
+          <label className="flex cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed border-line bg-paper px-4 py-7 text-center hover:border-azure-300">
+            <Upload className="h-6 w-6 text-azure" aria-hidden />
+            <span className="mt-2 text-small font-semibold text-ink">{file ? file.name : 'Choose a PDF or DOCX'}</span>
+            <span className="text-caption text-slate-500">Text-based files only · max 5 MB</span>
+            <input type="file" accept=".pdf,.docx,.doc,.txt" className="sr-only" onChange={(e) => setFile(e.target.files?.[0] || null)} />
+          </label>
+          {hasProfile && (
+            <fieldset className="space-y-1.5 text-small">
+              <legend className="font-semibold text-ink">You already have a profile</legend>
+              <label className="flex items-center gap-2"><input type="radio" checked={mode === 'merge'} onChange={() => setMode('merge')} /> Add anything new to my profile (nothing I reviewed is overwritten)</label>
+              <label className="flex items-center gap-2"><input type="radio" checked={mode === 'replace'} onChange={() => setMode('replace')} /> Replace my profile with this file</label>
+            </fieldset>
+          )}
+          <ConsentCheckbox checked={consent} onChange={(e) => setConsent(e.target.checked)} />
+          <Button onClick={upload} loading={busy === 'upload'}>Import file</Button>
+        </div>
+
+        <div className="space-y-5">
+          <div>
+            <h3 className="text-small font-bold text-ink">LinkedIn profile URL (optional)</h3>
+            <p className="mt-1 text-caption text-slate-600">Saved as a link on your profile. A URL alone does not let us read your LinkedIn data.</p>
+            <div className="mt-2 flex gap-2">
+              <Input aria-label="LinkedIn profile URL" placeholder="linkedin.com/in/your-name" value={url} onChange={(e) => setUrl(e.target.value)} className="flex-1" />
+              <Button variant="quiet" onClick={saveUrl} loading={busy === 'url'} disabled={!url.trim()}>Save</Button>
+            </div>
+          </div>
+          <div className="rounded-lg bg-paper p-4 text-caption text-slate-600">
+            <strong className="text-ink">Direct “Connect LinkedIn” import</strong> is not available: it requires LinkedIn API partner approval. We never scrape LinkedIn or ask for your LinkedIn password.
+          </div>
+          {!hasProfile && (
+            <div>
+              <h3 className="text-small font-bold text-ink">Or start manually</h3>
+              <div className="mt-2 grid gap-2 sm:grid-cols-2">
+                <Input aria-label="Full name" placeholder="Full name" value={manual.name} onChange={(e) => setManual((m) => ({ ...m, name: e.target.value }))} />
+                <Input aria-label="Headline" placeholder="Headline, e.g. Frontend Developer" value={manual.headline} onChange={(e) => setManual((m) => ({ ...m, headline: e.target.value }))} />
+              </div>
+              <Button className="mt-2" variant="quiet" onClick={startManual} loading={busy === 'manual'}>Start with manual entry</Button>
+            </div>
+          )}
+        </div>
+      </div>
+      <ErrorLine error={error} />
+    </Panel>
+  );
+}
+
+/* ------------------------------------------------------------------ *
+ * Step 2 — Review and confirm
+ * ------------------------------------------------------------------ */
+
+export function ReviewStep({ studio, onDone }) {
+  const { success } = useToast();
+  const [draft, setDraft] = useState(null);
+  const [needsReview, setNeedsReview] = useState([]);
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState('');
+
+  useEffect(() => {
+    careerService.getProfile().then((p) => {
+      if (p?.master) {
+        setDraft(p.master);
+        setNeedsReview(p.master._needsReview || []);
+      }
+    }).catch((err) => setError(errMsg(err, 'Could not load your profile.')));
+  }, [studio.profile?.importedAt]);
+
+  async function confirm() {
+    setError('');
+    setBusy(true);
+    try {
+      await studioService.confirm(draft);
+      success('Profile confirmed. It is now the source for every document.');
+      onDone('profile-pdf');
+    } catch (err) {
+      setError(errMsg(err, 'Could not save your profile.'));
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  if (!studio.profile) return <Panel title="Review your profile"><Note>Import your profile first.</Note></Panel>;
+  if (!draft) return <Panel title="Review your profile"><Spinner /><ErrorLine error={error} /></Panel>;
+
+  return (
+    <Panel title="Review and confirm your profile" lead="Check every section. Edit anything that is wrong, add what is missing, and remove what does not belong. Nothing is used for documents until you confirm.">
+      {needsReview.length > 0 && (
+        <div className="mb-5"><Note tone="warn">{needsReview.length} field{needsReview.length === 1 ? '' : 's'} could not be read confidently and {needsReview.length === 1 ? 'is' : 'are'} highlighted below. We would rather ask than guess.</Note></div>
+      )}
+      {studio.profile.importAdded?.length > 0 && (
+        <div className="mb-5"><Note>Added from your latest file: {studio.profile.importAdded.slice(0, 8).join('; ')}{studio.profile.importAdded.length > 8 ? '…' : ''}</Note></div>
+      )}
+      <ProfileEditor value={draft} onChange={setDraft} needsReview={needsReview} />
+      <div className="sticky bottom-0 -mx-5 mt-6 flex flex-wrap items-center gap-3 border-t border-line bg-white/95 px-5 py-4 backdrop-blur sm:-mx-7 sm:px-7">
+        <Button onClick={confirm} loading={busy}><CheckCircle2 className="h-4 w-4" aria-hidden /> Save and confirm profile</Button>
+        {studio.profile.confirmedAt && <span className="text-caption text-slate-500">Last confirmed {new Date(studio.profile.confirmedAt).toLocaleString()}</span>}
+      </div>
+      <ErrorLine error={error} />
+    </Panel>
+  );
+}
+
+/* ------------------------------------------------------------------ *
+ * Step 3 — Profile PDF
+ * ------------------------------------------------------------------ */
+
+export function ProfilePdfStep({ studio, onDone, goTo }) {
+  const [busy, setBusy] = useState('');
+  const [error, setError] = useState('');
+  const [previewUrl, setPreviewUrl] = useState('');
+  useEffect(() => () => previewUrl && URL.revokeObjectURL(previewUrl), [previewUrl]);
+
+  const name = (studio.profile?.name || 'Candidate').replace(/[^\w\s-]/g, '').trim().replace(/\s+/g, '_');
+  async function run(kind) {
+    setError('');
+    setBusy(kind);
+    try {
+      if (kind === 'preview') setPreviewUrl(await studioService.profileDocument({ mode: 'preview' }));
+      else {
+        await studioService.profileDocument({ format: kind, filename: `${name}_LinkedIn_Profile.${kind}` });
+        onDone();
+      }
+    } catch (err) {
+      setError(errMsg(err, 'Could not generate your profile document.'));
+    } finally {
+      setBusy('');
+    }
+  }
+
+  if (!studio.profile?.confirmedAt) {
+    return <Panel title="Download your LinkedIn profile as PDF"><Note tone="warn">Confirm your profile on the review step first — the PDF only contains information you have confirmed.</Note><Button className="mt-4" variant="quiet" onClick={() => goTo('review')}>Go to review</Button></Panel>;
+  }
+  return (
+    <Panel title="Download your LinkedIn profile as PDF" lead="A clean, multi-page profile document in LinkedIn’s section order, built from your confirmed information. It is a DutyLaunch document — not an official LinkedIn export, and it says so on every page.">
+      <div className="flex flex-wrap items-center gap-3">
+        <DocButtons busy={busy} onPreview={() => run('preview')} onDownload={run} />
+        <Button variant="link" onClick={() => goTo('review')}>Edit profile</Button>
+      </div>
+      {previewUrl && <iframe title="Profile PDF preview" src={previewUrl} className="mt-5 h-[70vh] w-full rounded-lg border border-line" />}
+      <ErrorLine error={error} />
+    </Panel>
+  );
+}
+
+/* ------------------------------------------------------------------ *
+ * Step 4 — Generate resume
+ * ------------------------------------------------------------------ */
+
+export function ResumeStep({ studio, onDone, goTo }) {
+  const { success } = useToast();
+  const [form, setForm] = useState({ jobTitle: '', company: '', industry: '', level: 'mid', jobDescription: '', label: '' });
+  const [busy, setBusy] = useState('');
+  const [error, setError] = useState('');
+  const [created, setCreated] = useState(null);
+  const set = (k) => (e) => setForm((f) => ({ ...f, [k]: e.target.value }));
+
+  async function generate() {
+    setError('');
+    if (!form.jobTitle.trim()) return setError('Add the target job title.');
+    setBusy('create');
+    try {
+      const res = await careerService.createVersion({
+        jobDescription: form.jobDescription.trim() || undefined,
+        jobHints: { jobTitle: form.jobTitle.trim(), company: form.company.trim() || undefined, industry: form.industry.trim() || undefined, seniority: form.level },
+        label: form.label.trim() || [form.jobTitle.trim(), form.company.trim()].filter(Boolean).join(' — '),
+      });
+      setCreated(res);
+      success(res.note || 'Resume version created.');
+      onDone();
+    } catch (err) {
+      setError(errMsg(err, 'Could not generate the resume.'));
+    } finally {
+      setBusy('');
+    }
+  }
+
+  async function download(format) {
+    setBusy(format);
+    try {
+      await studioService.resumeDocument(created.version._id, { format, filename: `${(created.version.label || 'Resume').replace(/[^\w-]+/g, '_')}.${format}` });
+      onDone();
+    } catch (err) {
+      setError(errMsg(err, 'Download failed.'));
+    } finally {
+      setBusy('');
+    }
+  }
+
+  if (!studio.profile?.confirmedAt) return <Panel title="Generate your professional resume"><Note tone="warn">Confirm your profile first.</Note><Button className="mt-4" variant="quiet" onClick={() => goTo('review')}>Go to review</Button></Panel>;
+
+  return (
+    <Panel title="Generate your professional resume" lead="A job-targeted version built from your confirmed profile. Your master profile is never changed — each job gets its own version.">
+      <div className="grid gap-4 sm:grid-cols-2">
+        <Input label="Target job title" required value={form.jobTitle} onChange={set('jobTitle')} placeholder="e.g. Frontend Developer" />
+        <Input label="Target company (optional)" value={form.company} onChange={set('company')} />
+        <Input label="Industry (optional)" value={form.industry} onChange={set('industry')} placeholder="e.g. Fintech" />
+        <Select label="Experience level" value={form.level} onChange={set('level')}>
+          {EXPERIENCE_LEVELS.map((l) => <option key={l.value} value={l.value}>{l.label}</option>)}
+        </Select>
+      </div>
+      <Textarea className="mt-4" label="Target job description" rows={7} value={form.jobDescription} onChange={set('jobDescription')} hint="Paste the full posting. Without it you still get a Resume Health score, but not a Job Match score." />
+      <Input className="mt-4" label="Name this version (optional)" value={form.label} onChange={set('label')} placeholder="e.g. MERN Stack — Acme" />
+      <Button className="mt-5" onClick={generate} loading={busy === 'create'}>Generate my resume</Button>
+      <ErrorLine error={error} />
+
+      {created && (
+        <div className="mt-6 rounded-lg border border-line bg-paper p-5">
+          <div className="flex flex-wrap items-start justify-between gap-4">
+            <div>
+              <p className="text-small font-bold text-ink">{created.version.label}</p>
+              <p className="mt-1 text-caption text-slate-600">{created.note}</p>
+              <div className="mt-3 flex flex-wrap gap-2">
+                <Badge tone="azure">Resume Health {created.version.health?.score ?? '—'}</Badge>
+                {created.version.match?.overall != null && <Badge tone="success">Job Match {created.version.match.overall}%</Badge>}
+              </div>
+            </div>
+            <DocButtons busy={busy} onDownload={download} />
+          </div>
+          <div className="mt-4 flex flex-wrap gap-3">
+            <Button size="sm" onClick={() => goTo('ats')}>Check ATS score & improve</Button>
+            <Button as={Link} to="/my-resumes" size="sm" variant="quiet">Edit sections & template in My resumes</Button>
+          </div>
+        </div>
+      )}
+    </Panel>
+  );
+}
+
+/* ------------------------------------------------------------------ *
+ * Step 5 — ATS analysis and improvement
+ * ------------------------------------------------------------------ */
+
+export function AtsStep({ onDone, refreshKey }) {
+  const { success } = useToast();
+  const versions = useVersions(refreshKey);
+  const [versionId, setVersionId] = useState('');
+  const [jd, setJd] = useState('');
+  const [analysis, setAnalysis] = useState(null);
+  const [before, setBefore] = useState(null);
+  const [proposals, setProposals] = useState([]);
+  const [decisions, setDecisions] = useState({});
+  const [engineNote, setEngineNote] = useState('');
+  const [busy, setBusy] = useState('');
+  const [error, setError] = useState('');
+
+  useEffect(() => {
+    if (versions?.length && !versionId) setVersionId(versions[0].id);
+  }, [versions, versionId]);
+  const version = versions?.find((v) => v.id === versionId);
+  useEffect(() => { setJd(version?.target?.jobDescription || ''); setAnalysis(null); setProposals([]); setBefore(null); }, [versionId]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  async function analyse() {
+    setError('');
+    setBusy('analyse');
+    try {
+      setAnalysis(await careerService.analyze({ versionId, jobDescription: jd.trim() || undefined }));
+      onDone();
+    } catch (err) {
+      setError(errMsg(err, 'Analysis failed.'));
+    } finally {
+      setBusy('');
+    }
+  }
+
+  async function improve() {
+    setError('');
+    setBusy('optimize');
+    try {
+      const res = await careerService.optimize({ versionId, jobDescription: jd.trim() || undefined });
+      setProposals(res.proposals || []);
+      setEngineNote(res.engineNote || '');
+      setDecisions({});
+      if (!res.proposals?.length) success('No changes to suggest — your bullets already read well for this job.');
+    } catch (err) {
+      setError(errMsg(err, 'Could not generate improvements.'));
+    } finally {
+      setBusy('');
+    }
+  }
+
+  const decisionList = useMemo(() => Object.entries(decisions).map(([id, d]) => ({ id, ...d })), [decisions]);
+
+  async function apply() {
+    setBusy('apply');
+    try {
+      const res = await careerService.applyOptimization({ versionId, jobDescription: jd.trim() || undefined, proposals, decisions: decisionList });
+      setBefore({ health: analysis?.health?.score, match: analysis?.match?.overall });
+      await careerService.updateVersion(versionId, { resume: res.resume });
+      setAnalysis(await careerService.analyze({ versionId, jobDescription: jd.trim() || undefined }));
+      setProposals([]);
+      setDecisions({});
+      success('Changes applied to this version and re-scored. Nothing you rejected was applied.');
+      onDone();
+    } catch (err) {
+      setError(errMsg(err, 'Could not apply those changes.'));
+    } finally {
+      setBusy('');
+    }
+  }
+
+  if (versions && !versions.length) return <Panel title="Check Resume Health and Job Match"><Note>Generate a resume first — the analysis runs on a saved version.</Note></Panel>;
+
+  return (
+    <Panel title="Check Resume Health and Job Match" lead="Scores come from DutyLaunch’s deterministic scoring engine — the same rules every time, never from an AI model. They estimate resume quality and fit with this job description; they are not scores from any employer’s ATS and do not guarantee an interview.">
+      <div className="grid gap-4 lg:grid-cols-[1fr_2fr]">
+        <VersionSelect versions={versions} value={versionId} onChange={setVersionId} allowMaster={false} />
+        <Textarea label="Job description" rows={4} value={jd} onChange={(e) => setJd(e.target.value)} hint="Required for a Job Match score." />
+      </div>
+      <Button className="mt-4" onClick={analyse} loading={busy === 'analyse'} disabled={!versionId}>Run analysis</Button>
+      <ErrorLine error={error} />
+
+      {before && analysis && (
+        <div className="mt-6"><Note tone="ok">
+          <strong>Before → after (recalculated):</strong> Resume Health {before.health ?? '—'} → {analysis.health?.score ?? '—'}
+          {before.match != null && <> · Job Match {before.match}% → {analysis.match?.overall ?? '—'}%</>}
+        </Note></div>
+      )}
+
+      {analysis && (
+        <div className="mt-6 space-y-8">
+          <ResumeHealthReport health={analysis.health} />
+          {analysis.match ? <JobMatchPanel match={analysis.match} disclaimer={analysis.match.disclaimer} /> : <Note>Add a job description to get a Job Match score.</Note>}
+          {analysis.keywords && <KeywordTable keywordResult={analysis.keywords} />}
+          <div>
+            <h3 className="mb-3 text-h4 font-bold text-ink">Recommendations</h3>
+            <RecommendationList recommendations={analysis.recommendations} />
+          </div>
+          <div className="rounded-lg border border-line bg-paper p-5">
+            <h3 className="text-small font-bold text-ink">Improve my resume</h3>
+            <p className="mt-1 text-caption text-slate-600">We suggest stronger wording for your existing lines. Each suggestion shows the original and why; nothing changes until you accept it. Your master profile is not touched.</p>
+            <Button className="mt-3" onClick={improve} loading={busy === 'optimize'}>Suggest improvements</Button>
+          </div>
+          {proposals.length > 0 && (
+            <div>
+              <ProposalReview proposals={proposals} decisions={decisions} engineNote={engineNote} onDecide={(id, d) => setDecisions((p) => ({ ...p, [id]: d }))} />
+              <div className="mt-4 flex flex-wrap items-center gap-4">
+                <Button onClick={apply} loading={busy === 'apply'} disabled={!decisionList.length}>Apply accepted changes and re-score</Button>
+                <span className="text-small text-slate-600">{decisionList.length} of {proposals.length} reviewed</span>
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+    </Panel>
+  );
+}
+
+/* ------------------------------------------------------------------ *
+ * Step 6 — Cover letter
+ * ------------------------------------------------------------------ */
+
+export function CoverLetterStep({ onDone, refreshKey }) {
+  const { success } = useToast();
+  const versions = useVersions(refreshKey);
+  const [form, setForm] = useState({ versionId: '', jobTitle: '', company: '', jobDescription: '', tone: 'professional' });
+  const [letter, setLetter] = useState(null);
+  const [content, setContent] = useState('');
+  const [busy, setBusy] = useState('');
+  const [error, setError] = useState('');
+  const [note, setNote] = useState('');
+  const set = (k) => (e) => setForm((f) => ({ ...f, [k]: e.target.value }));
+
+  useEffect(() => {
+    if (versions?.length && !form.versionId) {
+      const v = versions[0];
+      setForm((f) => ({ ...f, versionId: v.id, jobTitle: f.jobTitle || v.target?.jobTitle || '', company: f.company || v.target?.company || '', jobDescription: f.jobDescription || v.target?.jobDescription || '' }));
+    }
+  }, [versions]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const act = async (key, fn, msg) => {
+    setError('');
+    setBusy(key);
+    try {
+      const r = await fn();
+      if (msg) success(msg);
+      return r;
+    } catch (err) {
+      setError(errMsg(err, 'That did not work.'));
+      return null;
+    } finally {
+      setBusy('');
+    }
+  };
+
+  const generate = () => act('create', async () => {
+    const res = await studioService.createCoverLetter({ ...form, versionId: form.versionId || undefined });
+    setLetter(res.coverLetter);
+    setContent(res.coverLetter.content);
+    setNote(res.engineNote || '');
+    onDone();
+  }, 'Cover letter drafted.');
+
+  const save = () => act('save', async () => { setLetter(await studioService.updateCoverLetter(letter._id, { content })); }, 'Cover letter saved.');
+  const regen = (i) => act(`p${i}`, async () => {
+    if (content !== letter.content) setLetter(await studioService.updateCoverLetter(letter._id, { content }));
+    const updated = await studioService.regenerateParagraph(letter._id, i, form.tone);
+    setLetter(updated);
+    setContent(updated.content);
+  }, 'Paragraph rewritten.');
+  const duplicate = () => act('dup', async () => { const c = await studioService.duplicateCoverLetter(letter._id); setLetter(c); setContent(c.content); onDone(); }, 'Saved as a new version.');
+  const download = (format) => act(format, async () => {
+    if (content !== letter.content) setLetter(await studioService.updateCoverLetter(letter._id, { content }));
+    await studioService.coverLetterDocument(letter._id, { format, filename: `Cover_Letter_${(letter.company || 'Application').replace(/[^\w-]+/g, '_')}.${format}` });
+    onDone();
+  });
+  const copy = async () => {
+    try {
+      await navigator.clipboard.writeText(content);
+      success('Copied to clipboard.');
+    } catch {
+      setError('Your browser blocked clipboard access — select the text and copy it instead.');
+    }
+  };
+
+  const paragraphs = content.split(/\n{2,}/);
+
+  return (
+    <Panel title="Generate your cover letter" lead="Tailored to one job, using only your verified experience. It never invents facts about the company or you.">
+      <div className="grid gap-4 sm:grid-cols-2">
+        <VersionSelect versions={versions} value={form.versionId} onChange={(v) => setForm((f) => ({ ...f, versionId: v }))} />
+        <Select label="Tone" value={form.tone} onChange={set('tone')}>{COVER_LETTER_TONES.map((t) => <option key={t.value} value={t.value}>{t.label}</option>)}</Select>
+        <Input label="Job title" value={form.jobTitle} onChange={set('jobTitle')} />
+        <Input label="Company name" value={form.company} onChange={set('company')} />
+      </div>
+      <Textarea className="mt-4" label="Job description" rows={5} value={form.jobDescription} onChange={set('jobDescription')} required />
+      <Button className="mt-4" onClick={generate} loading={busy === 'create'}>{letter ? 'Generate a new letter' : 'Generate cover letter'}</Button>
+      <ErrorLine error={error} />
+
+      {letter && (
+        <div className="mt-6 grid gap-6 lg:grid-cols-2">
+          <div>
+            {note && <div className="mb-3"><Note tone="warn">{note}</Note></div>}
+            <Textarea label="Your letter (editable)" rows={18} value={content} onChange={(e) => setContent(e.target.value)} />
+            <div className="mt-3 flex flex-wrap gap-2">
+              <Button size="sm" onClick={save} loading={busy === 'save'} disabled={content === letter.content}><Save className="h-4 w-4" aria-hidden /> Save</Button>
+              <Button size="sm" variant="quiet" onClick={copy}><Copy className="h-4 w-4" aria-hidden /> Copy</Button>
+              <Button size="sm" variant="quiet" onClick={duplicate} loading={busy === 'dup'}>Save as new version</Button>
+              <DocButtons busy={busy} onDownload={download} />
+            </div>
+          </div>
+          <div>
+            <p className="text-small font-bold text-ink">Rewrite one paragraph</p>
+            <p className="text-caption text-slate-500">The rest of the letter stays exactly as it is.</p>
+            <ul className="mt-3 space-y-3">
+              {paragraphs.map((p, i) => (
+                <li key={i} className="rounded-md border border-line p-3 text-small text-slate-700">
+                  <p className="line-clamp-3">{p}</p>
+                  <Button size="sm" variant="link" className="mt-1" onClick={() => regen(i)} loading={busy === `p${i}`}><RefreshCw className="h-3.5 w-3.5" aria-hidden /> Rewrite</Button>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </div>
+      )}
+    </Panel>
+  );
+}
+
+/* ------------------------------------------------------------------ *
+ * Step 7 — Top 10 interview Q&A
+ * ------------------------------------------------------------------ */
+
+export function InterviewStep({ onDone, refreshKey, existingSetId }) {
+  const { success } = useToast();
+  const versions = useVersions(refreshKey);
+  const [form, setForm] = useState({ versionId: '', jobTitle: '', company: '', jobDescription: '', experienceLevel: 'mid' });
+  const [set, setSet] = useState(null);
+  const [open, setOpen] = useState({});
+  const [edits, setEdits] = useState({});
+  const [busy, setBusy] = useState('');
+  const [error, setError] = useState('');
+  const [notes, setNotes] = useState({});
+  const upd = (k) => (e) => setForm((f) => ({ ...f, [k]: e.target.value }));
+
+  useEffect(() => {
+    if (versions?.length && !form.versionId) {
+      const v = versions[0];
+      setForm((f) => ({ ...f, versionId: v.id, jobTitle: v.target?.jobTitle || '', company: v.target?.company || '', jobDescription: v.target?.jobDescription || '' }));
+    }
+  }, [versions]); // eslint-disable-line react-hooks/exhaustive-deps
+  useEffect(() => {
+    if (existingSetId && !set) studioService.getInterviewSet(existingSetId).then(setSet).catch(() => {});
+  }, [existingSetId]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const act = async (key, fn, msg) => {
+    setError('');
+    setBusy(key);
+    try {
+      await fn();
+      if (msg) success(msg);
+    } catch (err) {
+      setError(errMsg(err, 'That did not work.'));
+    } finally {
+      setBusy('');
+    }
+  };
+
+  const generate = () => act('create', async () => {
+    const res = await studioService.createInterviewSet({ ...form, versionId: form.versionId || undefined });
+    setSet(res.set);
+    setEdits({});
+    setNotes({ note: res.note, engine: res.engineNote });
+    onDone();
+  }, 'Your top 10 questions are ready.');
+  const saveEdits = () => act('save', async () => {
+    const questions = Object.entries(edits).map(([number, sampleAnswer]) => ({ number: Number(number), sampleAnswer }));
+    setSet(await studioService.updateInterviewSet(set._id, { questions }));
+    setEdits({});
+  }, 'Question set saved.');
+  const regen = (n) => act(`r${n}`, async () => setSet(await studioService.regenerateQuestion(set._id, n)), `Question ${n} regenerated.`);
+  const download = () => act('pdf', async () => {
+    if (Object.keys(edits).length) setSet(await studioService.updateInterviewSet(set._id, { questions: Object.entries(edits).map(([number, sampleAnswer]) => ({ number: Number(number), sampleAnswer })) }));
+    await studioService.interviewDocument(set._id, { format: 'pdf', filename: `Interview_Preparation_${(set.jobTitle || 'Role').replace(/[^\w-]+/g, '_')}.pdf` });
+    onDone();
+  });
+
+  const allOpen = set && set.questions.every((q) => open[q.number]);
+
+  return (
+    <Panel title="Your top 10 interview questions & answers" lead="Ten practice questions built from your profile, resume and the job — with personalised sample answers. They are not real or leaked questions from any employer.">
+      <div className="grid gap-4 sm:grid-cols-2">
+        <VersionSelect versions={versions} value={form.versionId} onChange={(v) => setForm((f) => ({ ...f, versionId: v }))} />
+        <Select label="Experience level" value={form.experienceLevel} onChange={upd('experienceLevel')}>{EXPERIENCE_LEVELS.map((l) => <option key={l.value} value={l.value}>{l.label}</option>)}</Select>
+        <Input label="Job title" value={form.jobTitle} onChange={upd('jobTitle')} />
+        <Input label="Company (optional)" value={form.company} onChange={upd('company')} />
+      </div>
+      <Textarea className="mt-4" label="Job description" rows={4} value={form.jobDescription} onChange={upd('jobDescription')} />
+      <Button className="mt-4" onClick={generate} loading={busy === 'create'}>{set ? 'Generate a new set' : 'Generate my top 10'}</Button>
+      {busy === 'create' && <p className="mt-2 text-caption text-slate-500">Tailoring ten questions to your experience can take up to a minute.</p>}
+      <ErrorLine error={error} />
+
+      {set && (
+        <div className="mt-6">
+          {notes.engine && <div className="mb-3"><Note tone="warn">{notes.engine}</Note></div>}
+          <div className="mb-4 flex flex-wrap items-center gap-2">
+            <Button size="sm" variant="quiet" onClick={() => setOpen(allOpen ? {} : Object.fromEntries(set.questions.map((q) => [q.number, true])))}>{allOpen ? 'Collapse all' : 'Expand all answers'}</Button>
+            <Button size="sm" onClick={saveEdits} loading={busy === 'save'} disabled={!Object.keys(edits).length}><Save className="h-4 w-4" aria-hidden /> Save question set</Button>
+            <Button size="sm" variant="outline" onClick={download} loading={busy === 'pdf'}><FileDown className="h-4 w-4" aria-hidden /> Interview prep PDF</Button>
+            <Button as={Link} to={`/mock-interview?set=${set._id}`} size="sm" variant="secondary"><PlayCircle className="h-4 w-4" aria-hidden /> Start mock interview</Button>
+          </div>
+          <ol className="space-y-3">
+            {set.questions.map((q) => (
+              <li key={q.number} className="rounded-lg border border-line">
+                <button type="button" className="flex w-full items-start gap-3 p-4 text-left" aria-expanded={Boolean(open[q.number])} onClick={() => setOpen((o) => ({ ...o, [q.number]: !o[q.number] }))}>
+                  <span className="grid h-7 w-7 flex-none place-items-center rounded-full bg-azure-50 text-caption font-bold text-azure">{q.number}</span>
+                  <span className="flex-1">
+                    <span className="block text-small font-semibold text-ink">{q.question}</span>
+                    <span className="mt-1 flex flex-wrap gap-1.5"><Badge tone="outline">{q.category}</Badge><Badge tone="neutral">{q.difficulty}</Badge>{q.edited && <Badge tone="success">edited</Badge>}</span>
+                  </span>
+                  {open[q.number] ? <ChevronUp className="h-5 w-5 text-slate-400" aria-hidden /> : <ChevronDown className="h-5 w-5 text-slate-400" aria-hidden />}
+                </button>
+                {open[q.number] && (
+                  <div className="space-y-3 border-t border-line px-4 pb-4 pt-3 text-small text-slate-700">
+                    {q.whyRelevant && <p><strong className="text-ink">Why it is asked: </strong>{q.whyRelevant}</p>}
+                    {q.interviewerExpects && <p><strong className="text-ink">What the interviewer expects: </strong>{q.interviewerExpects}</p>}
+                    <Textarea label="Sample answer (edit to make it yours)" rows={6} value={edits[q.number] ?? q.sampleAnswer ?? ''} onChange={(e) => setEdits((x) => ({ ...x, [q.number]: e.target.value }))} />
+                    {q.placeholders?.length > 0 && <Note tone="warn">Replace or confirm before using: {q.placeholders.join('; ')}</Note>}
+                    {q.keyPoints?.length > 0 && <div><strong className="text-ink">Points to remember</strong><ul className="mt-1 list-disc pl-5">{q.keyPoints.map((k) => <li key={k}>{k}</li>)}</ul></div>}
+                    {q.followUp && <p><strong className="text-ink">Possible follow-up: </strong>{q.followUp}</p>}
+                    <Button size="sm" variant="link" onClick={() => regen(q.number)} loading={busy === `r${q.number}`}><RefreshCw className="h-3.5 w-3.5" aria-hidden /> Regenerate this question</Button>
+                  </div>
+                )}
+              </li>
+            ))}
+          </ol>
+        </div>
+      )}
+    </Panel>
+  );
+}
+
+/* ------------------------------------------------------------------ *
+ * Step 8 — Documents
+ * ------------------------------------------------------------------ */
+
+export function DocumentsStep({ studio, onDone }) {
+  const [busy, setBusy] = useState('');
+  const [error, setError] = useState('');
+  const d = studio.documents;
+  const run = async (key, fn) => {
+    setError('');
+    setBusy(key);
+    try {
+      await fn();
+      onDone();
+    } catch (err) {
+      setError(errMsg(err, 'Download failed.'));
+    } finally {
+      setBusy('');
+    }
+  };
+  const Row = ({ icon: Icon = FileText, title, meta, children }) => (
+    <li className="flex flex-wrap items-center justify-between gap-3 border-b border-line py-3 last:border-0">
+      <div className="flex min-w-0 items-center gap-3">
+        <Icon className="h-5 w-5 flex-none text-azure" aria-hidden />
+        <div className="min-w-0"><p className="truncate text-small font-semibold text-ink">{title}</p>{meta && <p className="text-caption text-slate-500">{meta}</p>}</div>
+      </div>
+      <div className="flex flex-wrap gap-2">{children}</div>
+    </li>
+  );
+  const date = (v) => (v ? new Date(v).toLocaleDateString() : '');
+
+  return (
+    <Panel title="Your career documents" lead="Everything you have created, saved to your account.">
+      <ul>
+        {studio.profile?.confirmedAt && (
+          <Row title="LinkedIn profile PDF" meta="From your confirmed profile">
+            <Button size="sm" variant="outline" loading={busy === 'profile'} onClick={() => run('profile', () => studioService.profileDocument({ format: 'pdf', filename: 'LinkedIn_Profile.pdf' }))}>PDF</Button>
+          </Row>
+        )}
+        {d.resumes.map((v) => (
+          <Row key={v.id} title={v.label} meta={`Resume · Health ${v.health ?? '—'}${v.match != null ? ` · Match ${v.match}%` : ''} · ${date(v.updatedAt)}`}>
+            {['pdf', 'docx'].map((f) => <Button key={f} size="sm" variant="quiet" loading={busy === `${v.id}${f}`} onClick={() => run(`${v.id}${f}`, () => studioService.resumeDocument(v.id, { format: f, filename: `${v.label.replace(/[^\w-]+/g, '_')}.${f}` }))}>{f.toUpperCase()}</Button>)}
+          </Row>
+        ))}
+        {d.coverLetters.map((l) => (
+          <Row key={l.id} title={l.title || 'Cover letter'} meta={`Cover letter · ${l.tone} · ${date(l.updatedAt)}`}>
+            {['pdf', 'docx'].map((f) => <Button key={f} size="sm" variant="quiet" loading={busy === `${l.id}${f}`} onClick={() => run(`${l.id}${f}`, () => studioService.coverLetterDocument(l.id, { format: f, filename: `Cover_Letter.${f}` }))}>{f.toUpperCase()}</Button>)}
+          </Row>
+        ))}
+        {d.interviewSets.map((s) => (
+          <Row key={s.id} title={s.title} meta={`${s.questionCount} questions · ${date(s.updatedAt)}`}>
+            <Button size="sm" variant="quiet" loading={busy === s.id} onClick={() => run(s.id, () => studioService.interviewDocument(s.id, { format: 'pdf', filename: 'Interview_Preparation.pdf' }))}>PDF</Button>
+            <Button as={Link} to={`/mock-interview?set=${s.id}`} size="sm" variant="link">Practise</Button>
+          </Row>
+        ))}
+        {d.mockInterviews.filter((m) => m.status === 'completed').map((m) => (
+          <Row key={m.id} title={m.title} meta={`Mock interview · practice score ${m.score ?? '—'} · ${date(m.completedAt)}`}>
+            <Button as={Link} to={`/mock-interview?session=${m.id}`} size="sm" variant="link">View report</Button>
+          </Row>
+        ))}
+      </ul>
+      {!d.resumes.length && !d.coverLetters.length && !d.interviewSets.length && !studio.profile?.confirmedAt && <Note>Nothing yet — complete the steps above and your documents will appear here.</Note>}
+      <ErrorLine error={error} />
+    </Panel>
+  );
+}
+
+export { ScoreDial };

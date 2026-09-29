@@ -53,6 +53,8 @@ const Disclaimers = lazyWithReload(() => import('../pages/legal/Disclaimers.jsx'
 /* Auth */
 const Login = lazyWithReload(() => import('../pages/auth/Login.jsx'));
 const Register = lazyWithReload(() => import('../pages/auth/Register.jsx'));
+const CareerStudio = lazyWithReload(() => import('../pages/dashboard/CareerStudio.jsx'));
+const MockInterview = lazyWithReload(() => import('../pages/dashboard/MockInterview.jsx'));
 const ForgotPassword = lazyWithReload(() => import('../pages/auth/ForgotPassword.jsx'));
 
 /* Dashboard (candidate + employer) */
@@ -170,6 +172,8 @@ export function AppRoutes() {
                 <Route path="saved-jobs" element={<SavedJobs />} />
                 <Route path="my-resumes" element={<MyResumes />} />
                 <Route path="assistant" element={<Assistant />} />
+                <Route path="career-studio" element={<CareerStudio />} />
+                <Route path="mock-interview" element={<MockInterview />} />
               </Route>
               <Route element={<ProtectedRoute roles={['employer']} />}>
                 <Route path="employer/jobs" element={<EmployerJobs />} />

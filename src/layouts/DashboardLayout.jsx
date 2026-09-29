@@ -39,6 +39,8 @@ export default function DashboardLayout() {
       : {
           title: 'Job search',
           items: [
+            { to: '/career-studio', label: 'AI Career Studio', icon: 'Sparkles' },
+            { to: '/mock-interview', label: 'Mock interview', icon: 'MessagesSquare' },
             { to: '/my-resumes', label: 'My resumes', icon: 'FileText' },
             { to: '/applications', label: 'Applications', icon: 'FileStack' },
             { to: '/saved-jobs', label: 'Saved jobs', icon: 'Bookmark' },
