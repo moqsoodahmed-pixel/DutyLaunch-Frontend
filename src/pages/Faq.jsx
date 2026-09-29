@@ -3,6 +3,7 @@ import { Seo } from '../components/ui/Seo.jsx';
 import { seoFor } from '../data/seoPages.js';
 import { Container, Section } from '../components/ui/Container.jsx';
 import { PageHero } from '../components/marketing/PageHero.jsx';
+import { GlacierBackdrop } from '../components/premium/GlacierBackdrop.jsx';
 import { Tabs } from '../components/ui/Tabs.jsx';
 import { Accordion } from '../components/ui/Accordion.jsx';
 import { LoadingBlock, ErrorState, EmptyState } from '../components/ui/States.jsx';
@@ -33,7 +34,7 @@ export default function Faq() {
         breadcrumb={[{ label: 'FAQ' }]}
       />
 
-      <Section tone="white">
+      <Section tone="glacier" backdrop={<GlacierBackdrop />}>
         <Container className="max-w-3xl">
           {loading && <LoadingBlock label="Loading questions…" />}
           {error && <ErrorState error={error} onRetry={refetch} />}

@@ -1,34 +1,42 @@
 import { useEffect, useRef, useState } from 'react';
 import { Link, NavLink, useLocation } from 'react-router-dom';
-import { ChevronDown, Menu, UserRound } from 'lucide-react';
-import { primaryNav, primaryCta } from '../../data/site.js';
+import { ChevronDown, Menu, Phone, Search, UserRound } from 'lucide-react';
+import { primaryNav, primaryCta, contact } from '../../data/site.js';
 import { Button } from '../ui/Button.jsx';
 import { Logo } from './Logo.jsx';
 import { MegaMenu } from './MegaMenu.jsx';
 import { MobileMenu } from './MobileMenu.jsx';
+import { SearchModal } from './SearchModal.jsx';
+import { ContactMenu } from './ContactMenu.jsx';
 import { useAuth } from '../../context/AuthContext.jsx';
 import { cn } from '../../utils/cn.js';
 import { homePathFor } from '../../utils/homePath.js';
 
+/* Shared style for the round glass icon buttons on the right of the pill —
+   the reference site's search / call / account cluster. */
+const iconBtn =
+  'grid h-9 w-9 shrink-0 place-items-center rounded-full border border-glacier-300 bg-white/70 text-slate-600 backdrop-blur transition-all duration-200 hover:-translate-y-0.5 hover:border-frost-400 hover:text-azure hover:shadow-crystal focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-frost-400';
+
 export function Navbar() {
   const [openMenu, setOpenMenu] = useState(null);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [searchOpen, setSearchOpen] = useState(false);
+  const [contactOpen, setContactOpen] = useState(false);
+  const [menuAnchor, setMenuAnchor] = useState(0);
   const [scrolled, setScrolled] = useState(false);
   const { isAuthenticated, user } = useAuth();
   const location = useLocation();
   const navRef = useRef(null);
+  const contactRef = useRef(null);
+  const searchRef = useRef(null);
   // True when the open dropdown was opened by mouse hover (not a click/tap).
   const hoverOpened = useRef(false);
 
-  // Depending on `pathname` alone missed navigations that only change the
-  // query string or hash (e.g. /documentation?category=Apostille or
-  // /career-services#counselling) — the dropdown stayed visually open
-  // because pathname hadn't changed even though a real navigation had
-  // happened. Watching the full location tuple closes it for any
-  // navigation, not just a pathname change, with no per-route special-casing.
   useEffect(() => {
     setOpenMenu(null);
     setMobileOpen(false);
+    setSearchOpen(false);
+    setContactOpen(false);
   }, [location.pathname, location.search, location.hash]);
 
   useEffect(() => {
@@ -38,10 +46,30 @@ export function Navbar() {
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
 
+  // ⌘K / Ctrl+K opens site search from anywhere.
   useEffect(() => {
-    const onKey = (e) => e.key === 'Escape' && setOpenMenu(null);
+    const onKey = (e) => {
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
+        e.preventDefault();
+        setSearchOpen(true);
+      }
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, []);
+
+  useEffect(() => {
+    const onKey = (e) => {
+      if (e.key === 'Escape') {
+        setOpenMenu(null);
+        setContactOpen(false);
+        setSearchOpen(false);
+      }
+    };
     const onClickAway = (e) => {
       if (navRef.current && !navRef.current.contains(e.target)) setOpenMenu(null);
+      if (contactRef.current && !contactRef.current.contains(e.target)) setContactOpen(false);
+      if (searchRef.current && !searchRef.current.contains(e.target)) setSearchOpen(false);
     };
     document.addEventListener('keydown', onKey);
     document.addEventListener('mousedown', onClickAway);
@@ -51,11 +79,6 @@ export function Navbar() {
     };
   }, []);
 
-  // Safety net for hover-opened menus: while a dropdown is open, close it as
-  // soon as the mouse is over anything outside the header (which contains
-  // both the bar and the dropdown panel). This does not depend on a
-  // mouseleave event firing — fast moves, trackpads and moving the cursor
-  // straight off the panel onto the page all close it.
   useEffect(() => {
     if (!openMenu) return undefined;
     const onMove = (e) => {
@@ -69,7 +92,17 @@ export function Navbar() {
     return () => document.removeEventListener('pointermove', onMove);
   }, [openMenu]);
 
+  // Position the mega-menu's left edge under the hovered nav item, clamped
+  // so a wide panel never runs off the right of the viewport.
+  const computeAnchor = (el) => {
+    const rect = el.getBoundingClientRect();
+    const cardW = Math.min(576, window.innerWidth - 32);
+    setMenuAnchor(Math.max(16, Math.min(rect.left, window.innerWidth - cardW - 16)));
+  };
+
   const dashboardPath = homePathFor(user?.role);
+  const accountTo = isAuthenticated ? dashboardPath : '/login';
+  const accountLabel = isAuthenticated ? (user?.name?.split(' ')[0] || 'Account') : 'Sign in';
 
   return (
     <>
@@ -80,47 +113,46 @@ export function Navbar() {
         Skip to content
       </a>
 
-      {/* Close the dropdown when the cursor leaves the whole header — the bar
-          and the panel together. Listening only on the panel missed every
-          exit that never passed through it (moving up, sideways or straight
-          back onto the page from the menu button). */}
       <header
         ref={navRef}
         onMouseLeave={() => setOpenMenu(null)}
-        className={cn(
-          'sticky top-0 z-[70] transition-all duration-300',
-          scrolled ? 'py-2' : 'py-3'
-        )}
+        className={cn('sticky top-0 z-[70] transition-all duration-300', scrolled ? 'py-2' : 'py-3')}
       >
+        {/* Floating pill — always rounded-full with a glass fill and margins,
+            so it reads as the reference's floating navbar at every scroll
+            position; on scroll it tightens and turns more opaque. */}
         <div
           className={cn(
-            'mx-auto flex h-14 max-w-shell items-center gap-4 rounded-2xl px-gutter transition-all duration-300 lg:h-[4rem] xl:gap-6',
+            'mx-auto flex h-14 max-w-[80rem] items-center gap-3 rounded-full px-3 pl-4 transition-all duration-300 lg:h-[3.75rem] lg:pl-5 xl:gap-5',
             scrolled
-              ? 'max-w-[76rem] border border-line/80 bg-white/85 shadow-lift backdrop-blur-lg'
-              : 'border border-transparent bg-white/70 backdrop-blur-md'
+              ? 'max-w-[74rem] border border-white/70 bg-white/80 shadow-crystal backdrop-blur-xl'
+              : 'border border-white/60 bg-white/65 shadow-lift backdrop-blur-md'
           )}
         >
           <Logo />
 
-          <nav className="hidden flex-1 items-center gap-0.5 lg:flex" aria-label="Main">
+          <nav className="hidden flex-1 items-center justify-center gap-0.5 lg:flex" aria-label="Main">
             {primaryNav.map((item) =>
               item.menu ? (
                 <button
                   key={item.label}
                   type="button"
-                  // Mouse: hovering opens it, and a click after hovering keeps it
-                  // open (previously the click toggled it straight back shut).
-                  // Touch / keyboard: there is no hover, so a tap toggles it.
-                  onClick={() => {
+                  onClick={(e) => {
                     if (hoverOpened.current && openMenu === item.label) {
                       hoverOpened.current = false;
                       return;
                     }
-                    setOpenMenu(openMenu === item.label ? null : item.label);
+                    if (openMenu === item.label) {
+                      setOpenMenu(null);
+                    } else {
+                      computeAnchor(e.currentTarget);
+                      setOpenMenu(item.label);
+                    }
                   }}
                   onPointerEnter={(e) => {
                     if (e.pointerType !== 'mouse') return;
                     hoverOpened.current = true;
+                    computeAnchor(e.currentTarget);
                     setOpenMenu(item.label);
                   }}
                   aria-expanded={openMenu === item.label}
@@ -128,8 +160,8 @@ export function Navbar() {
                   className={cn(
                     'inline-flex items-center gap-1 whitespace-nowrap rounded-full px-2.5 py-2 text-small font-medium transition-colors xl:px-3.5',
                     openMenu === item.label
-                      ? 'bg-azure-50 text-azure-600 shadow-xs'
-                      : 'text-slate-700 hover:bg-slate-100 hover:text-ink'
+                      ? 'bg-glacier-200 text-ink shadow-frost-inset'
+                      : 'text-slate-700 hover:bg-glacier-200 hover:text-ink hover:shadow-frost-inset'
                   )}
                 >
                   {item.label}
@@ -143,7 +175,7 @@ export function Navbar() {
                   className={({ isActive }) =>
                     cn(
                       'whitespace-nowrap rounded-full px-2.5 py-2 text-small font-medium transition-colors xl:px-3.5',
-                      isActive ? 'bg-azure-50 text-azure-600 shadow-xs' : 'text-slate-700 hover:bg-slate-100 hover:text-ink'
+                      isActive ? 'text-ink font-semibold' : 'text-slate-700 hover:bg-glacier-200 hover:text-ink hover:shadow-frost-inset'
                     )
                   }
                 >
@@ -153,48 +185,67 @@ export function Navbar() {
             )}
           </nav>
 
+          {/* Right cluster: round glass icon buttons (search / call / account),
+              then the primary CTA, then the mobile menu toggle. */}
           <div className="ml-auto flex items-center gap-2 lg:ml-0">
-            {isAuthenticated ? (
-              <Link
-                to={dashboardPath}
-                className="hidden items-center gap-2 whitespace-nowrap rounded px-3 py-2 text-small font-medium text-slate-700 hover:text-ink lg:inline-flex"
+            <div ref={searchRef} className="relative hidden sm:block">
+              <button
+                type="button"
+                onClick={() => setSearchOpen((o) => !o)}
+                aria-label="Search the site"
+                aria-expanded={searchOpen}
+                aria-haspopup="true"
+                title="Search (⌘K)"
+                className={cn(iconBtn, searchOpen && 'border-frost-400 text-azure shadow-crystal')}
               >
-                <UserRound className="h-4 w-4" aria-hidden />
-                <span className="max-w-[8rem] truncate">{user?.name?.split(' ')[0]}</span>
-              </Link>
-            ) : (
-              <Link to="/login" className="hidden whitespace-nowrap rounded px-3 py-2 text-small font-medium text-slate-700 hover:text-ink lg:inline-block">
-                Sign in
-              </Link>
-            )}
-            {/* Hidden only between 1024 and 1279px, where the desktop
-                links plus Sign in fill the bar; every page hero carries its
-                own CTA. Visible on tablets (next to the menu button) and on
-                wide desktops. */}
-            <Button to={primaryCta.to} size="sm" className="hidden sm:inline-flex lg:hidden xl:inline-flex">
+                <Search className="h-4.5 w-4.5" aria-hidden />
+              </button>
+              {searchOpen && <SearchModal onClose={() => setSearchOpen(false)} />}
+            </div>
+            <div ref={contactRef} className="relative hidden sm:block">
+              <button
+                type="button"
+                onClick={() => setContactOpen((o) => !o)}
+                aria-label="Contact us"
+                aria-expanded={contactOpen}
+                aria-haspopup="true"
+                title="Contact us"
+                className={cn(iconBtn, contactOpen && 'border-frost-400 text-azure shadow-crystal')}
+              >
+                <Phone className="h-4.5 w-4.5" aria-hidden />
+              </button>
+              {contactOpen && <ContactMenu onClose={() => setContactOpen(false)} />}
+            </div>
+            <Link
+              to={accountTo}
+              aria-label={accountLabel}
+              title={accountLabel}
+              className={cn(iconBtn, 'relative')}
+            >
+              <UserRound className="h-4.5 w-4.5" aria-hidden />
+              {isAuthenticated && (
+                <span className="absolute -right-0.5 -top-0.5 h-2.5 w-2.5 rounded-full border-2 border-white bg-success" aria-hidden />
+              )}
+            </Link>
+
+            <Button to={primaryCta.to} size="sm" variant="premium" className="hidden !rounded-full sm:inline-flex lg:hidden xl:inline-flex">
               {primaryCta.label}
             </Button>
             <button
               type="button"
               onClick={() => setMobileOpen(true)}
-              className="rounded p-2 text-ink hover:bg-paper lg:hidden"
+              className="grid h-9 w-9 place-items-center rounded-full border border-glacier-300 bg-white/70 text-ink backdrop-blur transition hover:border-frost-400 lg:hidden"
               aria-label="Open menu"
             >
-              <Menu className="h-5.5 w-5.5" aria-hidden />
+              <Menu className="h-5 w-5" aria-hidden />
             </button>
           </div>
         </div>
 
-        {/* Rendered without AnimatePresence on purpose. With an exit
-            animation, a navigation that happened while the panel was open
-            (clicking one of its links) could interrupt the fade-out, and the
-            panel then stayed on screen at full opacity even though the menu
-            state was closed — the "dropdown won't close" bug. It still fades
-            in on open; on close it is removed immediately, so it cannot get
-            stuck. */}
         {openMenu && (
           <MegaMenu
             key={openMenu}
+            anchorLeft={menuAnchor}
             menuIds={primaryNav.find((i) => i.label === openMenu)?.menu || []}
             onNavigate={() => {
               hoverOpened.current = false;

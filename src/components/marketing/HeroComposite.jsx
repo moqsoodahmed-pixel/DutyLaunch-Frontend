@@ -3,6 +3,7 @@ import { animate, motion, useMotionValue, useSpring, useTransform } from 'framer
 import { Check, MapPin, Plane, ScanLine, Sparkles } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { usePrefersReducedMotion } from '../../hooks/useMediaQuery.js';
+import { GlassPanel } from '../premium/GlassPanel.jsx';
 
 const ease = [0.16, 0.84, 0.44, 1];
 const ROUTE = 'M6 34 C 90 34, 120 10, 200 10 S 300 22, 314 12';
@@ -64,10 +65,10 @@ export function HeroComposite() {
     reduced
       ? { initial: false, animate: { opacity: 1, y: 0 } }
       : {
-          initial: { opacity: 0, y: 18 },
-          animate: { opacity: 1, y: 0 },
-          transition: { duration: 0.7, delay, ease },
-        };
+        initial: { opacity: 0, y: 18 },
+        animate: { opacity: 1, y: 0 },
+        transition: { duration: 0.7, delay, ease },
+      };
 
   /* Mouse parallax: floating cards move further than the base panel, which
      reads as depth. Springs keep it smooth; range is a few pixels only. */
@@ -127,7 +128,12 @@ export function HeroComposite() {
          Below 640px the opportunity and documents cards sit in normal flow
          above/below it, and pt-12/pb-12 is what their overlap covers. */}
       <motion.div style={reduced ? undefined : { x: baseX, y: baseY }}>
-        <motion.div {...enter(0.1)} className="relative rounded-xl bg-ink-800 px-5 pb-12 pt-12 shadow-panel sm:px-7 sm:pb-16 sm:pt-20">
+        <GlassPanel
+          as={motion.div}
+          tone="dark"
+          {...enter(0.1)}
+          className="px-5 pb-12 pt-12 sm:px-7 sm:pb-16 sm:pt-20"
+        >
           <div className="flex items-center justify-between">
             <div>
               <p className="text-caption font-semibold text-azure-200">Profile readiness</p>
@@ -151,7 +157,7 @@ export function HeroComposite() {
                 initial={reduced ? false : { width: '0%' }}
                 animate={{ width: '92%' }}
                 transition={{ duration: 1.1, delay: 0.45, ease }}
-                className="relative h-full overflow-hidden rounded-full bg-amber-500"
+                className="relative h-full overflow-hidden rounded-full bg-gradient-to-r from-frost-400 via-azure-300 to-aurora-400"
               >
                 {/* Soft sheen sweeping across the bar every few seconds. */}
                 {!reduced && (
@@ -193,14 +199,14 @@ export function HeroComposite() {
             <motion.path
               d={ROUTE}
               fill="none"
-              stroke="#4A78F5"
+              stroke="#7DD3EF"
               strokeWidth="1.5"
               strokeDasharray="4 5"
               initial={reduced ? false : { pathLength: 0 }}
               animate={{ pathLength: 1 }}
               transition={{ duration: 1.3, delay: 0.8, ease }}
             />
-            <circle cx="6" cy="34" r="3.5" fill="#D98A15" />
+            <circle cx="6" cy="34" r="3.5" fill="#FBE8C8" />
 
             {/* Destination pulse */}
             {!reduced && (
@@ -209,7 +215,7 @@ export function HeroComposite() {
                 cy="12"
                 r="3.5"
                 fill="none"
-                stroke="#4A78F5"
+                stroke="#A98CEA"
                 strokeWidth="1.5"
                 initial={{ scale: 1, opacity: 0 }}
                 animate={{ scale: [1, 3.2], opacity: [0.7, 0] }}
@@ -217,7 +223,7 @@ export function HeroComposite() {
                 style={{ transformOrigin: '314px 12px', transformBox: 'view-box' }}
               />
             )}
-            <circle cx="314" cy="12" r="3.5" fill="#4A78F5" />
+            <circle cx="314" cy="12" r="3.5" fill="#A98CEA" />
 
             {/* A dot travelling the route, profile → offer, on a loop. */}
             {!reduced && (
@@ -231,7 +237,7 @@ export function HeroComposite() {
             <span>Profile ready</span>
             <span>Offer abroad</span>
           </div>
-        </motion.div>
+        </GlassPanel>
       </motion.div>
 
       {/* Opportunity card — top right, above the panel's title */}
@@ -241,7 +247,7 @@ export function HeroComposite() {
       >
         <motion.div {...enter(0.85)}>
           <Float reduced={reduced} amplitude={7} duration={5.5} delay={1.6}>
-            <div className="rounded-lg border border-line bg-white p-4 shadow-raise">
+            <div className="rounded-lg border border-white/70 bg-white/75 p-4 shadow-crystal backdrop-blur-lg">
               <div className="flex items-center gap-2">
                 <span className="inline-flex h-7 w-7 items-center justify-center rounded bg-sand-300">
                   <motion.span
@@ -265,7 +271,7 @@ export function HeroComposite() {
                   animate={reduced ? undefined : { rotate: [0, 18, 0], scale: [1, 1.15, 1] }}
                   transition={{ duration: 2.8, repeat: Infinity, repeatDelay: 1.2, ease: 'easeInOut' }}
                 >
-                  <Sparkles className="h-3.5 w-3.5 text-amber-500" />
+                  <Sparkles className="h-3.5 w-3.5 text-aurora-500" />
                 </motion.span>
                 <span className="text-caption font-medium text-slate-600">Matches 9 of 10 requirements</span>
               </div>
@@ -285,7 +291,7 @@ export function HeroComposite() {
             <Link
               to="/resume-checker"
               tabIndex={-1}
-              className="flex items-center gap-3 rounded-lg border border-line bg-white p-3.5 shadow-raise transition-transform hover:-translate-y-0.5"
+              className="flex items-center gap-3 rounded-lg border border-white/70 bg-white/75 p-3.5 shadow-crystal backdrop-blur-lg transition-transform hover:-translate-y-0.5"
             >
               <span className="relative grid h-9 w-9 shrink-0 place-items-center rounded-full bg-success/15">
                 {!reduced && (
@@ -315,16 +321,15 @@ export function HeroComposite() {
       >
         <motion.div {...enter(1)}>
           <Float reduced={reduced} amplitude={6} duration={6} delay={1.9}>
-            <div className="rounded-lg border border-line bg-white p-4 shadow-raise">
+            <div className="rounded-lg border border-white/70 bg-white/75 p-4 shadow-crystal backdrop-blur-lg">
               <p className="text-caption font-semibold text-slate-500">Documents</p>
               <ul className="mt-2.5 space-y-2">
                 {docs.map(([label, done]) => (
                   <li key={label} className="flex items-center gap-2.5">
                     <motion.span
                       layout
-                      className={`inline-flex h-4 w-4 items-center justify-center rounded-full transition-colors duration-300 ${
-                        done ? 'bg-success/15' : 'border border-dashed border-slate-300'
-                      }`}
+                      className={`inline-flex h-4 w-4 items-center justify-center rounded-full transition-colors duration-300 ${done ? 'bg-success/15' : 'border border-dashed border-slate-300'
+                        }`}
                     >
                       {done && (
                         <motion.span

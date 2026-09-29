@@ -3,6 +3,7 @@ import { Icons } from '../../utils/iconMap.js';
 import { ArrowUpRight } from 'lucide-react';
 import { Container, Section } from '../ui/Container.jsx';
 import { SectionHeader } from '../ui/SectionHeader.jsx';
+import { GlacierBackdrop } from '../premium/GlacierBackdrop.jsx';
 import { pillars } from '../../data/site.js';
 
 /**
@@ -27,14 +28,20 @@ function Tile({ pillar, tone = 'light', className, children }) {
   return (
     <Link
       to={pillar.path}
-      className={`group flex flex-col justify-between p-6 sm:p-7 ${
-        dark
-          ? 'surface-dark rounded-lg hover:bg-ink-700'
-          : sand
-            ? 'rounded-lg border border-sand-400/60 bg-sand-200 transition-colors hover:bg-sand-300'
-            : 'tile'
-      } ${className || ''}`}
+      className={`group flex flex-col justify-between p-6 sm:p-7 ${dark
+        ? 'surface-dark rounded-lg hover:bg-ink-700'
+        : sand
+          ? 'rounded-lg border border-sand-400/60 bg-sand-200 transition-colors hover:bg-sand-300'
+          // On a Glacier mesh background (this section now has one), a
+          // translucent + blurred surface has real colour behind it to
+          // blur — this is genuine glass, not the same class as the
+          // universal `.tile` used on flat sections elsewhere.
+          : 'group relative overflow-hidden rounded-lg border border-white/70 bg-white/60 shadow-crystal backdrop-blur-xl transition-all duration-200 hover:-translate-y-1 hover:border-frost-300 hover:shadow-crystal-lg'
+        } ${className || ''}`}
     >
+      {!dark && !sand && (
+        <span className="pointer-events-none absolute inset-x-0 top-0 h-[3px] origin-left scale-x-[0.4] bg-gradient-to-r from-frost-500 to-aurora-500 opacity-0 transition-all duration-200 group-hover:scale-x-100 group-hover:opacity-100" />
+      )}
       <div className={dark ? 'relative z-[1]' : ''}>
         <span
           className={
@@ -52,9 +59,8 @@ function Tile({ pillar, tone = 'light', className, children }) {
         {children}
       </div>
       <span
-        className={`mt-6 inline-flex items-center gap-1.5 text-small font-bold ${
-          dark ? 'relative z-[1] text-azure-200' : 'text-azure-600'
-        }`}
+        className={`mt-6 inline-flex items-center gap-1.5 text-small font-bold ${dark ? 'relative z-[1] text-azure-200' : 'text-azure-600'
+          }`}
       >
         Learn more
         <ArrowUpRight className="h-4 w-4 transition-transform group-hover:translate-x-1" aria-hidden />
@@ -74,7 +80,7 @@ export function ServiceMatrix() {
   };
 
   return (
-    <Section tone="white">
+    <Section tone="glacier" backdrop={<GlacierBackdrop dense />}>
       <Container>
         <SectionHeader
           label="What we do"
@@ -102,7 +108,7 @@ export function ServiceMatrix() {
 
           <Tile pillar={byId.education} className={layout.education} />
           <Tile pillar={byId.global} tone="dark" className={layout.global} />
-          <Tile pillar={byId.documentation} tone="sand" className={layout.documentation} />
+          <Tile pillar={byId.documentation} className={layout.documentation} />
           <Tile pillar={byId.jobs} className={layout.jobs} />
           <Tile pillar={courses} className={layout.courses} />
         </div>

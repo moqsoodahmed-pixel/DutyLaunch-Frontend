@@ -9,6 +9,7 @@ import { Button } from '../components/ui/Button.jsx';
 import { Modal } from '../components/ui/Modal.jsx';
 import { LoadingBlock, ErrorState, EmptyState } from '../components/ui/States.jsx';
 import { PageHero } from '../components/marketing/PageHero.jsx';
+import { GlacierBackdrop } from '../components/premium/GlacierBackdrop.jsx';
 import { PricingCard } from '../components/marketing/PricingCard.jsx';
 import { ConsultationForm } from '../components/marketing/ConsultationForm.jsx';
 import { CTASection } from '../components/marketing/CTASection.jsx';
@@ -94,7 +95,7 @@ export default function Pricing() {
       {/* Trust strip — the same social-proof row order-driven CV sites lead
           with, so a first-time visitor knows what they're paying for before
           they see a single price. */}
-      <div className="border-b border-line bg-white">
+      <div className="border-y border-glacier-400/60 bg-glacier-200/60 backdrop-blur-sm">
         <Container>
           <ul className="grid gap-x-8 gap-y-3 py-5 text-small font-semibold text-slate-600 sm:flex sm:flex-wrap sm:items-center sm:justify-center">
             {TRUST_POINTS.map(({ icon: Icon, label }) => (
@@ -107,7 +108,7 @@ export default function Pricing() {
         </Container>
       </div>
 
-      <Section tone="paper">
+      <Section tone="glacier" backdrop={<GlacierBackdrop />}>
         <Container>
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div>
@@ -145,13 +146,13 @@ export default function Pricing() {
           {/* Moved here from the removed comparison table, which repeated
               every price already shown on the cards above. */}
           <p className="mt-8 max-w-prose text-small text-slate-600">
-                Prices are one-off and inclusive of the revision window. Payment terms, accepted methods and refund
-                conditions are set out in the{' '}
-                <a href="/refund-policy" className="font-medium text-azure underline-offset-4 hover:underline">
-                  refund policy
-                </a>
-                .
-              </p>
+            Prices are one-off and inclusive of the revision window. Payment terms, accepted methods and refund
+            conditions are set out in the{' '}
+            <a href="/refund-policy" className="font-medium text-azure underline-offset-4 hover:underline">
+              refund policy
+            </a>
+            .
+          </p>
         </Container>
       </Section>
 
@@ -180,7 +181,7 @@ export default function Pricing() {
             ))}
           </RevealGroup>
 
-          <div className="mt-10 flex flex-wrap items-center justify-center gap-2 rounded-xl border border-line bg-white px-6 py-5 text-center shadow-xs">
+          <div className="mt-10 flex flex-wrap items-center justify-center gap-2 rounded-xl border border-glacier-400/60 bg-white/70 px-6 py-5 text-center shadow-crystal backdrop-blur-sm">
             <div className="inline-flex items-center gap-1 text-amber-500">
               {Array.from({ length: 5 }).map((_, i) => (
                 <Star key={i} className="h-4.5 w-4.5 fill-amber-400" aria-hidden />

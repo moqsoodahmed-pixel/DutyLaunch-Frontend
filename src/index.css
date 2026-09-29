@@ -21,6 +21,7 @@
     html {
       scroll-behavior: auto;
     }
+
     *,
     *::before,
     *::after {
@@ -31,11 +32,14 @@
   }
 
   body {
-    @apply bg-white font-sans text-body text-ink antialiased;
+    @apply bg-glacier-100 font-sans text-body text-ink antialiased;
     font-feature-settings: 'cv05' 1, 'ss01' 1;
   }
 
-  h1, h2, h3, h4 {
+  h1,
+  h2,
+  h3,
+  h4 {
     @apply text-ink font-display;
     text-wrap: balance;
   }
@@ -55,11 +59,13 @@
 }
 
 @layer components {
+
   /* The editorial rail: a hairline that runs down the left of major sections
      and carries the section label. It is the layout signature of the site. */
   .rail {
     @apply relative;
   }
+
   .rail::before {
     content: '';
     @apply absolute left-0 top-0 hidden h-full w-px bg-line lg:block;
@@ -68,24 +74,31 @@
   .prose-article {
     @apply max-w-prose text-lead text-slate-700;
   }
+
   .prose-article h2 {
     @apply mb-3 mt-10 text-h2 font-semibold text-ink;
   }
+
   .prose-article h3 {
     @apply mb-2 mt-8 text-h3 font-semibold text-ink;
   }
+
   .prose-article p {
     @apply mb-5;
   }
+
   .prose-article ul {
     @apply mb-5 list-disc space-y-2 pl-5;
   }
+
   .prose-article ol {
     @apply mb-5 list-decimal space-y-2 pl-5;
   }
+
   .prose-article strong {
     @apply font-semibold text-ink;
   }
+
   .prose-article a {
     @apply text-azure underline underline-offset-4;
   }
@@ -93,34 +106,96 @@
   /* Small uppercase pill used ahead of section headings and hero copy —
      replaces the plain colored-text "eyebrow" used before this pass. */
   .eyebrow {
-    @apply inline-flex items-center gap-2 rounded-full border border-azure-200 bg-azure-50 px-3 py-1 text-caption font-bold uppercase tracking-wider text-azure;
+    @apply inline-flex items-center gap-2 rounded-full border border-white/60 bg-white/55 px-3 py-1 text-caption font-bold uppercase tracking-wider text-azure shadow-frost-inset backdrop-blur;
   }
+
   .eyebrow-dark {
     @apply inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-3 py-1 text-caption font-bold uppercase tracking-wider text-azure-200 backdrop-blur;
   }
 
-  /* Frosted surface for cards that sit on top of the dark/gradient sections. */
+  /* Frosted surface for cards that sit on top of the dark/gradient sections.
+     visionOS-style: real backdrop blur + saturation, a bright inner top edge
+     to read as glass thickness, and a deep soft drop shadow. */
   .glass-card {
-    @apply rounded-xl border border-white/10 bg-white/[0.06] backdrop-blur-md;
+    @apply rounded-2xl border border-white/15;
+    background: rgba(255, 255, 255, 0.08);
+    -webkit-backdrop-filter: blur(20px) saturate(160%);
+    backdrop-filter: blur(20px) saturate(160%);
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.20),
+      inset 0 -1px 0 rgba(0, 0, 0, 0.10),
+      0 24px 60px -24px rgba(0, 0, 0, 0.55);
+  }
+
+  /* Light frosted panel — the Apple "control surface": a translucent white
+     pane with heavy backdrop blur, a bright top highlight and a cool floating
+     shadow. Meant to sit over a coloured/mesh (glacier) section, where the
+     blur has something to work with. Use sparingly (one or two per view) so
+     the blur cost stays low. */
+  .glass-panel {
+    @apply rounded-2xl border p-6;
+    border-color: rgba(255, 255, 255, 0.60);
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.74) 0%, rgba(255, 255, 255, 0.55) 100%);
+    -webkit-backdrop-filter: blur(24px) saturate(150%);
+    backdrop-filter: blur(24px) saturate(150%);
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.92),
+      0 30px 70px -30px rgba(93, 146, 214, 0.45),
+      0 10px 24px -14px rgba(93, 146, 214, 0.22);
   }
 
   /* Standard content card — ported from the LauncherDesk design system: a
-     thin top accent bar and a soft radial highlight sweep in on hover. */
+     thin top accent bar and a soft radial highlight sweep in on hover.
+     Kept fully opaque (not glass) deliberately: this class is used across
+     ~27 files on a mix of white/paper/sand backgrounds, and translucent
+     glass only reads correctly over a colourful backdrop it can blur — on
+     a flat section it just looks muddy. The Glacier touch here is the
+     cool-toned shadow and the frost→aurora accent line, which read well
+     regardless of what's behind the card. */
   .tile {
-    @apply relative block overflow-hidden rounded-lg border border-line bg-white p-6 shadow-xs transition-all duration-200 hover:-translate-y-1 hover:border-azure-300/70 hover:shadow-hover;
+    @apply relative block overflow-hidden rounded-xl border p-6 transition-all duration-300 ease-entrance hover:-translate-y-1.5;
+    border-color: rgba(215, 228, 243, 0.90);
+    /* A whisper of vertical gradient rather than flat white — reads as a
+       lit glass surface even on a plain white section, without the muddiness
+       real translucency gets on non-coloured backgrounds. */
+    background: linear-gradient(180deg, #ffffff 0%, rgba(241, 246, 252, 0.72) 100%);
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.90),
+      0 1px 1px rgba(15, 28, 46, 0.03),
+      0 22px 55px -28px rgba(93, 146, 214, 0.38),
+      0 8px 20px -12px rgba(93, 146, 214, 0.16);
   }
+
+  .tile:hover {
+    border-color: rgba(125, 211, 239, 0.60);
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.95),
+      0 40px 90px -30px rgba(93, 146, 214, 0.46),
+      0 14px 34px -14px rgba(93, 146, 214, 0.26);
+  }
+
   .tile::before {
     content: '';
-    @apply pointer-events-none absolute inset-x-0 top-0 h-[3px] origin-left scale-x-[0.4] bg-gradient-to-r from-azure-600 to-azure-400 opacity-0 transition-all duration-200;
+    @apply pointer-events-none absolute inset-x-0 top-0 h-[3px] origin-left scale-x-[0.4] bg-gradient-to-r from-frost-500 to-aurora-500 opacity-0 transition-all duration-200;
   }
+
   .tile:hover::before {
     @apply scale-x-100 opacity-100;
   }
+
   .tile-icon {
-    @apply mb-4 grid h-12 w-12 shrink-0 place-items-center rounded-xl border border-azure-500/10 bg-gradient-to-br from-azure-50 to-azure-100/60 transition-transform duration-200;
+    @apply mb-4 grid h-12 w-12 shrink-0 place-items-center rounded-2xl border border-white/60 transition-all duration-300;
+    background: linear-gradient(160deg, rgba(255, 255, 255, 0.92) 0%, rgba(219, 234, 254, 0.72) 100%);
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.95),
+      0 8px 18px -8px rgba(29, 93, 184, 0.35);
   }
+
   .tile:hover .tile-icon {
-    @apply scale-105 from-azure-100 to-azure-50;
+    @apply scale-105;
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 1),
+      0 12px 26px -8px rgba(29, 93, 184, 0.45);
   }
 
   /* Dark, premium section treatment — deep navy with a faint grid, masked to
@@ -128,6 +203,7 @@
   .surface-dark {
     @apply relative overflow-hidden bg-ink-800 text-white;
   }
+
   .surface-dark::before {
     content: '';
     @apply pointer-events-none absolute inset-0 opacity-40;
@@ -140,17 +216,102 @@
 
   /* Page-level hero band — soft radial glow + hairline grid, masked to the
      upper right, matching the LauncherDesk reference exactly. */
-  .surface-hero {
-    @apply relative overflow-hidden border-b border-line;
-    background: radial-gradient(900px 450px at 75% -10%, rgba(29, 93, 184, 0.12), transparent 65%),
-      radial-gradient(600px 300px at 15% 110%, rgba(43, 114, 212, 0.08), transparent 60%),
-      linear-gradient(180deg, #fbfdff 0%, #f4f8fc 60%, #f1f5f9 100%);
+  /* ================================================================
+   * SEAMLESS SECTION TRANSITIONS
+   * Every section's background runs: seam colour (top edge) → its own
+   * tone → seam colour (bottom edge). Because every boundary is the seam
+   * colour meeting itself, no section edge is ever visible — the colour
+   * shifts gradually as you scroll instead of switching at a line.
+   *
+   *   --seam-tone    the section's own colour
+   *   --seam-top     colour at the top edge   (default: the light page colour)
+   *   --seam-bottom  colour at the bottom edge (default: the light page colour)
+   *   --seam-fade    length of each fade (4rem light, 7rem dark)
+   *
+   * Two dark sections that sit next to each other set the shared edge to
+   * dark (.seam-top-dark / .seam-bottom-dark) so no light band appears
+   * between them. Applied by <Section> automatically; custom sections
+   * (Hero, GlobalSpotlight, CTASection, PageHero) use the classes directly.
+   * ================================================================ */
+  .seam {
+    --seam-top: #f8fbfe;
+    /* glacier-100 — also the <body> colour */
+    --seam-bottom: #f8fbfe;
+    --seam-fade: 4rem;
+    background-color: var(--seam-tone);
+    background-image: linear-gradient(to bottom,
+        var(--seam-top) 0,
+        var(--seam-tone) var(--seam-fade),
+        var(--seam-tone) calc(100% - var(--seam-fade)),
+        var(--seam-bottom) 100%);
   }
+
+  .seam-tone-white {
+    --seam-tone: #ffffff;
+  }
+
+  .seam-tone-paper {
+    --seam-tone: #f8fafc;
+  }
+
+  .seam-tone-glacier {
+    --seam-tone: #f1f6fc;
+  }
+
+  .seam-tone-sand {
+    --seam-tone: #f3efe7;
+  }
+
+  .seam-tone-ink {
+    --seam-tone: #132952;
+    --seam-fade: 7rem;
+  }
+
+  .seam-tone-ink900 {
+    --seam-tone: #0b1f48;
+    --seam-fade: 7rem;
+  }
+
+  .seam-top-dark {
+    --seam-top: #0b1f48;
+  }
+
+  .seam-bottom-dark {
+    --seam-bottom: #0b1f48;
+  }
+
+  /* Ends in the footer's own colour — used by the dark closing CTA. */
+  .seam-bottom-footer {
+    --seam-bottom: #0d1b2e;
+  }
+
+  /* The footer opens with a fade from the light page colour into its own
+     dark, so a page ending on a light section flows into it. When the page
+     ends with the dark closing CTA (which already fades into the footer's
+     colour), the fade is switched off so no light band appears between two
+     dark areas. Browsers without :has() simply keep the fade. */
+  .footer-fade {
+    height: 7rem;
+    background: linear-gradient(to bottom, #f8fbfe, #0d1b2e);
+  }
+
+  main:has(> .cta-dark:last-child)+footer .footer-fade {
+    display: none;
+  }
+
+  .surface-hero {
+    @apply relative overflow-hidden;
+    background: radial-gradient(900px 450px at 75% -10%, rgba(79, 193, 230, 0.16), transparent 65%),
+      radial-gradient(600px 300px at 12% 85%, rgba(169, 140, 234, 0.12), transparent 60%),
+      linear-gradient(180deg, #fbfdff 0%, #f4f8fc 55%, #f8fbfe 100%);
+  }
+
   .surface-hero::before {
     content: '';
     @apply pointer-events-none absolute inset-0 z-0 animate-glow-pan;
     background: radial-gradient(850px 400px at 80% -10%, rgba(29, 93, 184, 0.14), transparent 65%);
   }
+
   .surface-hero::after {
     content: '';
     @apply pointer-events-none absolute inset-0 z-0 opacity-[0.48];
@@ -160,7 +321,8 @@
     mask-image: radial-gradient(780px 420px at 75% 0%, #000, transparent 75%);
     -webkit-mask-image: radial-gradient(780px 420px at 75% 0%, #000, transparent 75%);
   }
-  .surface-hero > * {
+
+  .surface-hero>* {
     @apply relative z-[1];
   }
 }
@@ -169,12 +331,15 @@
   .tabular {
     font-variant-numeric: tabular-nums;
   }
+
   .hairline-t {
     box-shadow: inset 0 1px 0 #e2e8f1;
   }
+
   .no-scrollbar::-webkit-scrollbar {
     display: none;
   }
+
   .no-scrollbar {
     -ms-overflow-style: none;
     scrollbar-width: none;

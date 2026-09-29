@@ -16,7 +16,7 @@ import { fadeUp, stagger } from '../../utils/motion.js';
  */
 export function PageHero({ eyebrow, title, lead, breadcrumb, actions, aside, tone = 'paper' }) {
   const dark = tone === 'ink';
-  const surfaceClass = dark ? 'surface-dark' : tone === 'white' ? 'bg-white border-b border-line' : 'surface-hero';
+  const surfaceClass = dark ? 'surface-dark' : tone === 'white' ? 'seam seam-tone-white' : 'surface-hero';
 
   return (
     <section className={surfaceClass}>

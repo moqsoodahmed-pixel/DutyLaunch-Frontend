@@ -20,7 +20,7 @@ export function JobFilters({ filters, facets, onChange, onReset, resultCount }) 
 
   return (
     <aside
-      className="rounded-lg border border-line bg-white p-5 shadow-xs lg:sticky lg:top-24"
+      className="glass-panel !p-5 lg:sticky lg:top-24"
       aria-label="Job filters"
     >
       <div className="flex items-center justify-between gap-3">
@@ -72,64 +72,64 @@ export function JobFilters({ filters, facets, onChange, onReset, resultCount }) 
       )}
 
       <div id="job-filter-fields" className={cn(open ? 'block' : 'hidden', 'lg:block')}>
-      <div className="mt-5 space-y-4 border-t border-line pt-5">
-        <Select
-          label="Category"
-          placeholder="All categories"
-          options={facets?.categories || []}
-          value={filters.category || ''}
-          onChange={(e) => onChange({ category: e.target.value })}
-        />
-        <Select
-          label="Location"
-          placeholder="Anywhere"
-          options={facets?.locations || []}
-          value={filters.location || ''}
-          onChange={(e) => onChange({ location: e.target.value })}
-        />
-        <Select
-          label="Job type"
-          placeholder="Any type"
-          options={JOB_TYPES}
-          value={filters.jobType || ''}
-          onChange={(e) => onChange({ jobType: e.target.value })}
-        />
-        <Select
-          label="Work mode"
-          placeholder="Any mode"
-          options={WORK_MODES}
-          value={filters.workMode || ''}
-          onChange={(e) => onChange({ workMode: e.target.value })}
-        />
-        <Select
-          label="Maximum experience"
-          placeholder="Any experience"
-          options={[
-            { value: '1', label: 'Up to 1 year' },
-            { value: '3', label: 'Up to 3 years' },
-            { value: '7', label: 'Up to 7 years' },
-            { value: '15', label: 'Up to 15 years' },
-          ]}
-          value={filters.maxExperience || ''}
-          onChange={(e) => onChange({ maxExperience: e.target.value })}
-        />
-        <Select
-          label="Sort by"
-          options={SORTS}
-          value={filters.sort || 'relevance'}
-          onChange={(e) => onChange({ sort: e.target.value })}
-        />
-      </div>
+        <div className="mt-5 space-y-4 border-t border-line pt-5">
+          <Select
+            label="Category"
+            placeholder="All categories"
+            options={facets?.categories || []}
+            value={filters.category || ''}
+            onChange={(e) => onChange({ category: e.target.value })}
+          />
+          <Select
+            label="Location"
+            placeholder="Anywhere"
+            options={facets?.locations || []}
+            value={filters.location || ''}
+            onChange={(e) => onChange({ location: e.target.value })}
+          />
+          <Select
+            label="Job type"
+            placeholder="Any type"
+            options={JOB_TYPES}
+            value={filters.jobType || ''}
+            onChange={(e) => onChange({ jobType: e.target.value })}
+          />
+          <Select
+            label="Work mode"
+            placeholder="Any mode"
+            options={WORK_MODES}
+            value={filters.workMode || ''}
+            onChange={(e) => onChange({ workMode: e.target.value })}
+          />
+          <Select
+            label="Maximum experience"
+            placeholder="Any experience"
+            options={[
+              { value: '1', label: 'Up to 1 year' },
+              { value: '3', label: 'Up to 3 years' },
+              { value: '7', label: 'Up to 7 years' },
+              { value: '15', label: 'Up to 15 years' },
+            ]}
+            value={filters.maxExperience || ''}
+            onChange={(e) => onChange({ maxExperience: e.target.value })}
+          />
+          <Select
+            label="Sort by"
+            options={SORTS}
+            value={filters.sort || 'relevance'}
+            onChange={(e) => onChange({ sort: e.target.value })}
+          />
+        </div>
 
-      {typeof resultCount === 'number' && (
-        <p className="mt-5 text-caption text-slate-500">
-          {resultCount} {resultCount === 1 ? 'role' : 'roles'} match these filters
-        </p>
-      )}
+        {typeof resultCount === 'number' && (
+          <p className="mt-5 text-caption text-slate-500">
+            {resultCount} {resultCount === 1 ? 'role' : 'roles'} match these filters
+          </p>
+        )}
 
-      <Button variant="ghost" size="sm" className="mt-2 lg:hidden" onClick={onReset} fullWidth>
-        Reset filters
-      </Button>
+        <Button variant="ghost" size="sm" className="mt-2 lg:hidden" onClick={onReset} fullWidth>
+          Reset filters
+        </Button>
       </div>
     </aside>
   );

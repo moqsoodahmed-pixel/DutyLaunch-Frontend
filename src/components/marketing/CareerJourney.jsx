@@ -2,6 +2,7 @@ import { ClipboardList, Gauge, Target, TrendingUp, GraduationCap, Send, Rocket }
 import { Container, Section } from '../ui/Container.jsx';
 import { SectionHeader } from '../ui/SectionHeader.jsx';
 import { Reveal, RevealGroup, RevealItem } from '../ui/Reveal.jsx';
+import { GlacierBackdrop } from '../premium/GlacierBackdrop.jsx';
 
 const STEPS = [
   { icon: ClipboardList, title: 'Build', body: 'Create one professional profile — experience, skills, education and resume.' },
@@ -26,7 +27,7 @@ const STEPS = [
  */
 export function CareerJourney() {
   return (
-    <Section tone="paper">
+    <Section tone="glacier" backdrop={<GlacierBackdrop />}>
       <Container>
         <Reveal>
           <SectionHeader
@@ -45,7 +46,7 @@ export function CareerJourney() {
             <RevealItem
               as="li"
               key={title}
-              className="tile group relative flex flex-col p-6 transition-all duration-200 hover:-translate-y-1 hover:border-azure-200 hover:shadow-lift"
+              className="tile group relative flex flex-col p-6"
             >
               <div className="flex items-center gap-3">
                 <span className="tile-icon grid h-11 w-11 shrink-0 place-items-center rounded-lg bg-azure-50 transition-colors duration-200 group-hover:bg-azure-100">
@@ -65,7 +66,7 @@ export function CareerJourney() {
 
           {/* Closes the four-across grid on xl with the payoff rather than a
               gap, so the last row never reads as a missing card. */}
-          <RevealItem className="relative flex flex-col justify-center rounded-xl border border-dashed border-azure-200 bg-azure-50/40 p-6">
+          <RevealItem className="relative flex flex-col justify-center rounded-xl border border-dashed border-frost-400 bg-white/45 p-6 backdrop-blur-sm">
             <p className="text-body font-bold text-ink">One profile, start to finish.</p>
             <p className="mt-1.5 text-pretty text-small text-slate-600">
               Each step writes back to the same profile, so nothing is filled in twice.

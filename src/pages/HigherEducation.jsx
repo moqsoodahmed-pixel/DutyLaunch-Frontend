@@ -10,6 +10,7 @@ import { Badge } from '../components/ui/Badge.jsx';
 import { Button } from '../components/ui/Button.jsx';
 import { CardSkeleton, EmptyState, ErrorState } from '../components/ui/States.jsx';
 import { PageHero, HeroActions } from '../components/marketing/PageHero.jsx';
+import { GlacierBackdrop } from '../components/premium/GlacierBackdrop.jsx';
 import { CTASection } from '../components/marketing/CTASection.jsx';
 import { ItemGroups } from '../components/marketing/ItemGroups.jsx';
 import { useApi } from '../hooks/useApi.js';
@@ -166,7 +167,7 @@ export default function HigherEducation() {
         </Container>
       </Section>
 
-      <Section tone="paper">
+      <Section tone="glacier" backdrop={<GlacierBackdrop />}>
         <Container>
           <div>
             <Reveal className="max-w-3xl">

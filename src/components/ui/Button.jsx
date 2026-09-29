@@ -1,4 +1,4 @@
-import { forwardRef } from 'react';
+import { forwardRef, useCallback, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Loader2 } from 'lucide-react';
 import { cn } from '../../utils/cn.js';
@@ -14,15 +14,20 @@ const base =
 const variants = {
   // Glossy gradient fill, matching the LauncherDesk primary button exactly.
   primary:
-    'bg-btn-grad text-white shadow-blue hover:shadow-blue-lg hover:-translate-y-0.5 focus-visible:outline focus-visible:outline-[3px] focus-visible:outline-azure-300 focus-visible:outline-offset-2',
-  secondary: 'bg-ink-800 text-white shadow-lift hover:bg-ink-700 hover:-translate-y-0.5',
-  outline: 'border-[1.5px] border-azure-500 bg-transparent text-azure hover:border-azure-600 hover:bg-azure-50 hover:text-azure-600',
+    'bg-btn-grad text-white shadow-blue ring-1 ring-inset ring-white/10 hover:-translate-y-0.5 hover:brightness-105 hover:ring-white/25 hover:shadow-[0_14px_38px_-8px_rgba(29,93,184,0.7)] focus-visible:outline focus-visible:outline-[3px] focus-visible:outline-azure-300 focus-visible:outline-offset-2',
+  secondary: 'bg-ink-800 text-white shadow-lift ring-1 ring-inset ring-white/10 hover:bg-ink-700 hover:-translate-y-0.5 hover:brightness-110 hover:ring-white/20 hover:shadow-[0_14px_34px_-10px_rgba(19,41,82,0.75)]',
+  outline: 'border-[1.5px] border-azure-500 bg-transparent text-azure hover:-translate-y-0.5 hover:border-azure-600 hover:bg-azure-50 hover:text-azure-600 hover:shadow-[0_10px_26px_-10px_rgba(29,93,184,0.5)]',
   quiet: 'border-[1.5px] border-ink-800/15 bg-transparent text-slate-700 hover:border-line hover:bg-slate-100 hover:text-ink',
   ghost: 'text-ink hover:bg-slate-100',
-  onInk: 'bg-white text-ink shadow-xs hover:shadow-lift hover:-translate-y-0.5',
+  onInk: 'bg-white text-ink shadow-xs hover:-translate-y-0.5 hover:brightness-[1.02] hover:shadow-crystal',
   outlineInk: 'border border-white/20 bg-white/10 text-white hover:bg-white/[0.18]',
-  danger: 'bg-danger text-white hover:bg-danger/90',
+  danger: 'bg-danger text-white ring-1 ring-inset ring-white/10 hover:-translate-y-0.5 hover:brightness-105 hover:ring-white/25 hover:shadow-[0_12px_30px_-10px_rgba(220,38,38,0.65)]',
   link: 'text-azure underline-offset-4 hover:underline px-0',
+  /* Glacier premium variant: frost→aurora gradient, glow shadow, and a
+     shimmer sweep on hover. Opt in per-button (e.g. a hero's primary CTA) —
+     every other existing button is completely unaffected. */
+  premium:
+    'relative overflow-hidden bg-gradient-to-r from-frost-500 via-azure-400 to-aurora-500 text-white shadow-crystal hover:shadow-crystal-lg hover:-translate-y-0.5 focus-visible:outline focus-visible:outline-[3px] focus-visible:outline-frost-400 focus-visible:outline-offset-2 before:absolute before:inset-0 before:-translate-x-full before:bg-gradient-to-r before:from-transparent before:via-white/35 before:to-transparent before:transition-transform before:duration-700 hover:before:translate-x-full',
 };
 
 const sizes = {
@@ -32,7 +37,7 @@ const sizes = {
 };
 
 export const Button = forwardRef(function Button(
-  { as, to, href, variant = 'primary', size = 'md', loading = false, fullWidth, className, children, ...rest },
+  { as, to, href, variant = 'primary', size = 'md', loading = false, fullWidth, magnetic = false, className, children, ...rest },
   ref
 ) {
   const classes = cn(base, variants[variant], variant !== 'link' && sizes[size], fullWidth && 'w-full', className);
@@ -43,16 +48,50 @@ export const Button = forwardRef(function Button(
     </>
   );
 
+  /* Magnetic interaction — opt-in only. The element leans a few pixels
+     toward the cursor while hovered, and eases back to rest on leave. Plain
+     inline transform + CSS transition (no motion library dependency here),
+     clamped to a small range so it reads as a subtle premium detail rather
+     than the button visibly chasing the pointer. */
+  const magneticRef = useRef(null);
+  const [magneticOffset, setMagneticOffset] = useState({ x: 0, y: 0 });
+  const mergedRef = useCallback(
+    (node) => {
+      magneticRef.current = node;
+      if (typeof ref === 'function') ref(node);
+      else if (ref) ref.current = node;
+    },
+    [ref]
+  );
+  const magneticHandlers = magnetic
+    ? {
+      onMouseMove: (e) => {
+        const rect = magneticRef.current?.getBoundingClientRect();
+        if (!rect) return;
+        const relX = (e.clientX - rect.left) / rect.width - 0.5;
+        const relY = (e.clientY - rect.top) / rect.height - 0.5;
+        setMagneticOffset({ x: relX * 10, y: relY * 8 });
+      },
+      onMouseLeave: () => setMagneticOffset({ x: 0, y: 0 }),
+    }
+    : {};
+  const magneticStyle = magnetic
+    ? {
+      transform: `translate3d(${magneticOffset.x}px, ${magneticOffset.y}px, 0)`,
+      transition: 'transform 0.25s cubic-bezier(.16,.84,.44,1)',
+    }
+    : undefined;
+
   if (to) {
     return (
-      <Link ref={ref} to={to} className={classes} {...rest}>
+      <Link ref={mergedRef} to={to} className={classes} style={magneticStyle} {...magneticHandlers} {...rest}>
         {content}
       </Link>
     );
   }
   if (href) {
     return (
-      <a ref={ref} href={href} className={classes} {...rest}>
+      <a ref={mergedRef} href={href} className={classes} style={magneticStyle} {...magneticHandlers} {...rest}>
         {content}
       </a>
     );
@@ -60,7 +99,14 @@ export const Button = forwardRef(function Button(
 
   const Tag = as || 'button';
   return (
-    <Tag ref={ref} className={classes} disabled={loading || rest.disabled} {...rest}>
+    <Tag
+      ref={mergedRef}
+      className={classes}
+      style={magneticStyle}
+      disabled={loading || rest.disabled}
+      {...magneticHandlers}
+      {...rest}
+    >
       {content}
     </Tag>
   );

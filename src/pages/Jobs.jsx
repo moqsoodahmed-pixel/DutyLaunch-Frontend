@@ -84,40 +84,40 @@ export default function Jobs() {
       <section className="surface-hero">
         <Container className="grid grid-cols-1 items-center gap-10 py-14 lg:grid-cols-12 lg:py-20">
           <div className="min-w-0 lg:col-span-8">
-          <p className="eyebrow">Jobs</p>
-          <h1 className="mt-4 text-h1 font-extrabold">Roles that are actually open right now.</h1>
-          <p className="mt-3 max-w-2xl text-lead text-slate-600">
-            Every listing here is live — nothing is posted to make the page look busier than the market is.
-          </p>
+            <p className="eyebrow">Jobs</p>
+            <h1 className="mt-4 text-h1 font-extrabold">Roles that are actually open right now.</h1>
+            <p className="mt-3 max-w-2xl text-lead text-slate-600">
+              Every listing here is live — nothing is posted to make the page look busier than the market is.
+            </p>
 
-          <div className="mt-8 rounded-xl border border-line bg-white p-2 shadow-lift sm:p-2.5">
-            <SearchBar
-              value={q}
-              onChange={setQ}
-              placeholder="Search job title, company or keyword"
-              aria-label="Search jobs"
-              className="sm:flex-row [&_input]:h-14 [&_input]:rounded-lg [&_input]:border-0 [&_input]:text-body"
-            >
-              <Button size="lg" className="sm:w-auto">
-                Search jobs
-              </Button>
-            </SearchBar>
-          </div>
+            <div className="mt-8 rounded-2xl border border-white/60 bg-white/70 p-2 shadow-crystal backdrop-blur-xl sm:p-2.5">
+              <SearchBar
+                value={q}
+                onChange={setQ}
+                placeholder="Search job title, company or keyword"
+                aria-label="Search jobs"
+                className="sm:flex-row [&_input]:h-14 [&_input]:rounded-lg [&_input]:border-0 [&_input]:text-body"
+              >
+                <Button size="lg" className="sm:w-auto">
+                  Search jobs
+                </Button>
+              </SearchBar>
+            </div>
 
-          <ul className="mt-6 flex flex-wrap gap-x-8 gap-y-2 text-small font-medium text-slate-600">
-            <li className="inline-flex items-center gap-2">
-              <Briefcase className="h-4 w-4 text-azure-600" aria-hidden />
-              {meta?.total ?? '—'} live roles
-            </li>
-            <li className="inline-flex items-center gap-2">
-              <MapPin className="h-4 w-4 text-azure-600" aria-hidden />
-              India &amp; the Gulf
-            </li>
-            <li className="inline-flex items-center gap-2">
-              <TrendingUp className="h-4 w-4 text-azure-600" aria-hidden />
-              Free for candidates
-            </li>
-          </ul>
+            <ul className="mt-6 flex flex-wrap gap-x-8 gap-y-2 text-small font-medium text-slate-600">
+              <li className="inline-flex items-center gap-2">
+                <Briefcase className="h-4 w-4 text-azure-600" aria-hidden />
+                {meta?.total ?? '—'} live roles
+              </li>
+              <li className="inline-flex items-center gap-2">
+                <MapPin className="h-4 w-4 text-azure-600" aria-hidden />
+                India &amp; the Gulf
+              </li>
+              <li className="inline-flex items-center gap-2">
+                <TrendingUp className="h-4 w-4 text-azure-600" aria-hidden />
+                Free for candidates
+              </li>
+            </ul>
           </div>
           {/* Desktop only: on phones the search bar should be the first thing
               on screen, not pushed down by a photo — and not rendering it

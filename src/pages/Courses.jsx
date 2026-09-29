@@ -7,6 +7,7 @@ import { SearchBar } from '../components/ui/SearchBar.jsx';
 import { Pagination } from '../components/ui/Pagination.jsx';
 import { CardSkeleton, EmptyState, ErrorState } from '../components/ui/States.jsx';
 import { PageHero } from '../components/marketing/PageHero.jsx';
+import { GlacierBackdrop } from '../components/premium/GlacierBackdrop.jsx';
 import { CTASection } from '../components/marketing/CTASection.jsx';
 import { CourseCard } from '../components/courses/CourseCard.jsx';
 import { useApi } from '../hooks/useApi.js';
@@ -72,7 +73,7 @@ export default function Courses() {
         aside={<SiteImage image={images.coursesHero} priority ratio="5 / 4" className="mx-auto w-full lg:ml-auto lg:mr-0" />}
       />
 
-      <Section tone="paper">
+      <Section tone="glacier" backdrop={<GlacierBackdrop />}>
         <Container>
           <SearchBar
             value={q}

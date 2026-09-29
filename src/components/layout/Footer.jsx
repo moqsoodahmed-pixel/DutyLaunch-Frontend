@@ -68,8 +68,11 @@ export function Footer() {
 
   return (
     <footer style={{ background: '#0D1B2E', color: '#dde8f4', position: 'relative', overflow: 'hidden' }}>
-      <div aria-hidden="true" style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 1, zIndex: 1, background: 'linear-gradient(90deg, transparent, rgba(94,169,255,.35), transparent)' }} />
-      <div aria-hidden="true" style={{ position: 'absolute', inset: 0, pointerEvents: 'none', zIndex: 0, background: 'radial-gradient(600px 300px at 15% 0%, rgba(43,114,212,.16), transparent 65%)' }} />
+      {/* Light-to-dark fade so the page flows into the footer with no visible
+          edge. Hidden automatically when the page ends with the dark CTA
+          block, which already fades into this colour (see index.css). */}
+      <div className="footer-fade" aria-hidden="true" />
+      <div aria-hidden="true" style={{ position: 'absolute', inset: 0, pointerEvents: 'none', zIndex: 0, background: 'radial-gradient(600px 300px at 15% 9rem, rgba(43,114,212,.16), transparent 65%)' }} />
 
       {/* ── MAIN BODY ── */}
       {/* Constrained to the same shell width the rest of the site uses
@@ -179,11 +182,11 @@ export function Footer() {
               </span>
             </div>
             {contact.addressMapUrl && (
-            <a href={contact.addressMapUrl} target="_blank" rel="noopener noreferrer"
-              style={{ display: 'inline-flex', alignItems: 'center', gap: 5, fontSize: 12.5, fontWeight: 600, color: '#7ecef4', textDecoration: 'none' }}>
-              <svg viewBox="0 0 24 24" width={12} height={12} fill="none" stroke="currentColor" strokeWidth={2}><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6M15 3h6v6M10 14 21 3" /></svg>
-              Open on Google Maps →
-            </a>
+              <a href={contact.addressMapUrl} target="_blank" rel="noopener noreferrer"
+                style={{ display: 'inline-flex', alignItems: 'center', gap: 5, fontSize: 12.5, fontWeight: 600, color: '#7ecef4', textDecoration: 'none' }}>
+                <svg viewBox="0 0 24 24" width={12} height={12} fill="none" stroke="currentColor" strokeWidth={2}><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6M15 3h6v6M10 14 21 3" /></svg>
+                Open on Google Maps →
+              </a>
             )}
           </div>
         </div>

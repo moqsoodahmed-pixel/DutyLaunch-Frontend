@@ -22,7 +22,17 @@ export function CTASection({
   const dark = tone === 'ink';
 
   return (
-    <section className={dark ? 'bg-ink-900 text-white' : 'bg-sand-200'}>
+    // Dark: fades in from the light page colour at the top (pt-16 keeps the
+    // copy below that 7rem fade) and straight into the footer's own colour
+    // at the bottom. `cta-dark` tells the footer to skip its own light-to-
+    // dark fade when this is the last block on the page (see index.css).
+    <section
+      className={
+        dark
+          ? 'seam seam-tone-ink900 seam-bottom-footer cta-dark pt-16 text-white'
+          : 'seam seam-tone-sand'
+      }
+    >
       <Container className="py-14 lg:py-16">
         <Reveal className="grid items-center gap-8 xl:grid-cols-[minmax(0,1fr)_auto] xl:gap-14">
           <div>
@@ -33,7 +43,8 @@ export function CTASection({
             <Button
               to={primary.to}
               size="lg"
-              variant={dark ? 'onInk' : 'primary'}
+              variant="premium"
+              magnetic
               className="w-full sm:w-auto"
             >
               {primary.label}

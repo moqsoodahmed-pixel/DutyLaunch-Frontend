@@ -3,6 +3,7 @@ import { Seo } from '../components/ui/Seo.jsx';
 import { seoFor } from '../data/seoPages.js';
 import { Container, Section } from '../components/ui/Container.jsx';
 import { PageHero } from '../components/marketing/PageHero.jsx';
+import { GlacierBackdrop } from '../components/premium/GlacierBackdrop.jsx';
 import { ContactForm } from '../components/marketing/ContactForm.jsx';
 import { ConsultationForm } from '../components/marketing/ConsultationForm.jsx';
 import { Tabs } from '../components/ui/Tabs.jsx';
@@ -30,10 +31,10 @@ export default function Contact() {
         aside={<SiteImage image={images.contactOffice} priority ratio="5 / 4" className="mx-auto w-full lg:ml-auto lg:mr-0" />}
       />
 
-      <Section tone="white">
+      <Section tone="glacier" backdrop={<GlacierBackdrop />}>
         <Container>
           <div className="grid gap-10 lg:grid-cols-12">
-            <div className="lg:col-span-4">
+            <div className="glass-panel lg:col-span-4">
               <h2 className="text-h3 font-bold text-ink">Reach us directly</h2>
               <ul className="mt-5 space-y-4 text-small text-slate-700">
                 <li className="flex items-start gap-3">
@@ -80,7 +81,7 @@ export default function Contact() {
                       href={s.href}
                       target="_blank"
                       rel="noreferrer"
-                      className="rounded border border-line px-3 py-1.5 text-caption font-medium text-slate-600 hover:border-slate-300"
+                      className="rounded-full border border-white/60 bg-white/60 px-3 py-1.5 text-caption font-medium text-slate-600 backdrop-blur transition hover:border-frost-400 hover:text-ink"
                     >
                       {s.label}
                     </a>

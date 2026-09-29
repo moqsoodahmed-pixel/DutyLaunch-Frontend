@@ -6,6 +6,7 @@ import { SectionHeader } from '../components/ui/SectionHeader.jsx';
 import { Reveal, RevealGroup, RevealItem } from '../components/ui/Reveal.jsx';
 import { Button } from '../components/ui/Button.jsx';
 import { PageHero, HeroActions } from '../components/marketing/PageHero.jsx';
+import { GlacierBackdrop } from '../components/premium/GlacierBackdrop.jsx';
 import { CTASection } from '../components/marketing/CTASection.jsx';
 import { careerServices } from '../data/site.js';
 import { serviceSchema } from '../utils/seo.js';
@@ -60,7 +61,7 @@ export default function CareerServices() {
         </Container>
       </div>
 
-      <Section tone="paper">
+      <Section tone="glacier" backdrop={<GlacierBackdrop />}>
         <Container>
           <RevealGroup className="grid gap-5" staggerDelay={0.06}>
             {careerServices.map((service, index) => {

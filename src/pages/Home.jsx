@@ -4,6 +4,7 @@ import { Seo } from '../components/ui/Seo.jsx';
 import { Container, Section } from '../components/ui/Container.jsx';
 import { SectionHeader } from '../components/ui/SectionHeader.jsx';
 import { Button } from '../components/ui/Button.jsx';
+import { RevealGroup, RevealItem } from '../components/ui/Reveal.jsx';
 import { Hero } from '../components/marketing/Hero.jsx';
 import { CareerJourney } from '../components/marketing/CareerJourney.jsx';
 import { OneProfile } from '../components/marketing/OneProfile.jsx';
@@ -63,25 +64,41 @@ export default function Home() {
             title="Six starting points, one process."
             lead="The work looks different depending on where you are. Pick the description that fits you and start there."
           />
-          <ul className="mt-10 divide-y divide-line border-y border-line">
-            {audiences.map((item) => (
-              <li key={item.label}>
+          {/* One elevated panel; rows are separated by space and hover
+              states rather than divider lines. Solid white (not glass) on
+              purpose — this is a quiet white section, and translucent glass
+              needs colour behind it to read as glass rather than grey. */}
+          <RevealGroup
+            as="ul"
+            className="mt-10 grid gap-1.5 rounded-xl border border-glacier-300 bg-white p-2 shadow-crystal sm:p-3 lg:grid-cols-2"
+            staggerDelay={0.05}
+          >
+            {audiences.map((item, i) => (
+              <RevealItem as="li" key={item.label}>
                 <Link
                   to={item.to}
-                  className="group flex items-center justify-between gap-6 py-5 transition-colors hover:bg-paper/70"
+                  className="group flex items-center gap-4 rounded-lg px-4 py-4 transition-all duration-200 hover:bg-glacier-200/80 hover:shadow-frost-inset focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-frost-400 sm:px-5"
                 >
-                  <div className="min-w-0">
+                  <span
+                    className="tabular w-7 shrink-0 text-caption font-bold text-slate-300 transition-colors duration-200 group-hover:text-frost-600"
+                    aria-hidden
+                  >
+                    {String(i + 1).padStart(2, '0')}
+                  </span>
+                  <div className="min-w-0 flex-1">
                     <span className="block text-lead font-semibold text-ink">{item.label}</span>
                     <span className="mt-0.5 block text-small text-slate-600">{item.note}</span>
                   </div>
-                  <ArrowUpRight
-                    className="h-5 w-5 shrink-0 text-slate-300 transition-colors group-hover:text-azure"
-                    aria-hidden
-                  />
+                  <span className="grid h-9 w-9 shrink-0 place-items-center rounded-full border border-glacier-400 bg-white text-slate-400 transition-all duration-200 group-hover:border-transparent group-hover:bg-gradient-to-br group-hover:from-frost-400 group-hover:to-aurora-500 group-hover:text-white group-hover:shadow-crystal">
+                    <ArrowUpRight
+                      className="h-4 w-4 transition-transform duration-200 group-hover:-translate-y-0.5 group-hover:translate-x-0.5"
+                      aria-hidden
+                    />
+                  </span>
                 </Link>
-              </li>
+              </RevealItem>
             ))}
-          </ul>
+          </RevealGroup>
         </Container>
       </Section>
 

@@ -3,6 +3,7 @@ import { Seo } from '../components/ui/Seo.jsx';
 import { Container, Section } from '../components/ui/Container.jsx';
 import { Reveal, RevealGroup, RevealItem } from '../components/ui/Reveal.jsx';
 import { PageHero, HeroActions } from '../components/marketing/PageHero.jsx';
+import { GlacierBackdrop } from '../components/premium/GlacierBackdrop.jsx';
 import { CTASection } from '../components/marketing/CTASection.jsx';
 import { TemplateGallery } from '../components/cv/TemplateGallery.jsx';
 import { TEMPLATE_COUNT } from '../data/resumeTemplates.js';
@@ -57,7 +58,7 @@ export default function CvTemplates() {
         title="Find the template for your job title."
       />
 
-      <Section tone="white">
+      <Section tone="glacier" backdrop={<GlacierBackdrop />}>
         <Container>
           <Reveal>
             <h2 className="max-w-[20ch] text-h2 font-extrabold text-ink">

@@ -4,6 +4,7 @@ import { Container, Section } from '../components/ui/Container.jsx';
 import { SectionHeader } from '../components/ui/SectionHeader.jsx';
 import { Reveal, RevealGroup, RevealItem } from '../components/ui/Reveal.jsx';
 import { PageHero, HeroActions } from '../components/marketing/PageHero.jsx';
+import { GlacierBackdrop } from '../components/premium/GlacierBackdrop.jsx';
 import { CTASection } from '../components/marketing/CTASection.jsx';
 import { pillars } from '../data/site.js';
 import { images } from '../data/images.js';
@@ -66,7 +67,7 @@ export default function About() {
         </Container>
       </Section>
 
-      <Section tone="paper">
+      <Section tone="glacier" backdrop={<GlacierBackdrop />}>
         <Container>
           <Reveal>
             <SectionHeader
@@ -79,7 +80,7 @@ export default function About() {
             {principles.map((item, i) => (
               <RevealItem
                 key={item.title}
-                className="rounded-lg border-t-2 border-ink-800 px-1 pt-5 transition-transform duration-200 hover:-translate-y-0.5"
+                className="rounded-xl border border-glacier-400/70 bg-white/70 p-6 shadow-crystal backdrop-blur-sm transition-transform duration-200 hover:-translate-y-0.5"
               >
                 <p className="tabular text-caption font-bold text-azure">{String(i + 1).padStart(2, '0')}</p>
                 <h3 className="mt-2 text-h3 font-bold text-ink">{item.title}</h3>
@@ -93,24 +94,24 @@ export default function About() {
       <Section tone="white">
         <Container size="narrow">
           <Reveal>
-          <h2 className="text-h2 font-bold">Who we are</h2>
-          <div className="mt-5 space-y-4 text-body text-slate-600">
-            <p>
-              DutyLaunch is a career, education and global-mobility practice working with candidates in India and the
-              Gulf. Our counsellors come from recruitment, higher-education admissions and documentation processing —
-              the three places where candidates most often lose time.
-            </p>
-            <p>
-              We do not publish headcounts, client totals or success rates, because figures like those are easy to
-              inflate and impossible for you to verify. What we will tell you plainly, in your first conversation, is
-              whether we have worked on cases like yours before and what happened.
-            </p>
-            <p className="rounded-lg border border-line bg-paper p-5 text-small">
-              {company.brand} is operated by{' '}
-              <strong className="font-semibold text-ink">{company.legalName}</strong> (CIN: {company.cin}), registered
-              office {company.registeredOffice}.
-            </p>
-          </div>
+            <h2 className="text-h2 font-bold">Who we are</h2>
+            <div className="mt-5 space-y-4 text-body text-slate-600">
+              <p>
+                DutyLaunch is a career, education and global-mobility practice working with candidates in India and the
+                Gulf. Our counsellors come from recruitment, higher-education admissions and documentation processing —
+                the three places where candidates most often lose time.
+              </p>
+              <p>
+                We do not publish headcounts, client totals or success rates, because figures like those are easy to
+                inflate and impossible for you to verify. What we will tell you plainly, in your first conversation, is
+                whether we have worked on cases like yours before and what happened.
+              </p>
+              <p className="rounded-xl border border-glacier-400/60 bg-white/70 p-5 text-small shadow-crystal backdrop-blur-sm">
+                {company.brand} is operated by{' '}
+                <strong className="font-semibold text-ink">{company.legalName}</strong> (CIN: {company.cin}), registered
+                office {company.registeredOffice}.
+              </p>
+            </div>
           </Reveal>
         </Container>
       </Section>
