@@ -8,7 +8,7 @@
  * the AI Career Assistant reads its copy from there.
  */
 export const contact = {
-  email: 'hello@dutylaunch.com',
+  email: 'contact@dutylaunch.com',
   // Support address as stated in the corporate entity notice.
   supportEmail: 'support@dutylaunch.in',
   phone: '+91 85488 54826',
