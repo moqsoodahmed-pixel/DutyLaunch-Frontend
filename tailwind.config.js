@@ -210,6 +210,14 @@ export default {
           '66%': { transform: 'translate3d(-1.8%,2%,0) scale(0.98)' },
         },
         shimmer: { from: { backgroundPosition: '200% 0' }, to: { backgroundPosition: '-200% 0' } },
+        'edge-orbit': {
+          '0%': { transform: 'rotate(0deg)' },
+          '100%': { transform: 'rotate(360deg)' },
+        },
+        'carousel-drift': {
+          '0%': { transform: 'translateX(0)' },
+          '100%': { transform: 'translateX(-50%)' },
+        },
       },
       animation: {
         'meter-fill': 'meter-fill 1.1s cubic-bezier(.16,.84,.44,1) both',
@@ -218,8 +226,11 @@ export default {
         'glow-pan': 'glow-pan 20s ease-in-out infinite alternate',
         'aurora-drift': 'aurora-drift 24s ease-in-out infinite',
         shimmer: 'shimmer 2.4s linear infinite',
+        'edge-orbit': 'edge-orbit 8s linear infinite',
+        'carousel-drift': 'carousel-drift 38s linear infinite',
       },
     },
   },
+
   plugins: [],
 };

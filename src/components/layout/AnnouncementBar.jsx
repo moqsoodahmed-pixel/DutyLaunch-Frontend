@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Sparkles, X } from 'lucide-react';
+import { Zap, X } from 'lucide-react';
 
 /* Dismissible top "trending" bar — the strip the reference site runs above
    its navbar. Remembers dismissal per-browser so it does not nag on every
@@ -33,7 +33,7 @@ export function AnnouncementBar() {
     return (
         <div className="relative z-40 bg-gradient-to-r from-ink-900 via-ink-800 to-ink-700 text-white">
             <div className="mx-auto flex max-w-shell items-center justify-center gap-2 px-gutter py-2 text-small">
-                <Sparkles className="hidden h-4 w-4 shrink-0 text-frost-400 sm:block" aria-hidden />
+                <Zap className="hidden h-4 w-4 shrink-0 text-frost-400 sm:block" aria-hidden />
                 <p className="min-w-0 truncate text-center">
                     <span className="font-semibold">New:</span> Free AI Resume Health score — see what recruiters and the ATS see.{' '}
                     <Link to="/resume-checker" className="font-bold text-frost-300 underline-offset-4 hover:underline">

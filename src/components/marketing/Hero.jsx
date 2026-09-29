@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import {
-  ArrowRight, ArrowUpRight, Check, FileCheck2, Mail, Phone, Plane, ScanSearch, Sparkles,
+  ArrowRight, ArrowUpRight, Check, FileCheck2, Mail, Phone, Plane, ScanSearch, Zap,
 } from 'lucide-react';
 import { Container } from '../ui/Container.jsx';
 import { GlacierBackdrop } from '../premium/GlacierBackdrop.jsx';
@@ -14,7 +14,7 @@ const ease = [0.16, 0.84, 0.44, 1];
    multi-CTA grid, mapped to DutyLaunch's real primary journeys and routes. */
 const ACTIONS = [
   { to: '/resume-checker', label: 'Resume Checker', sub: 'Free Resume Health score', icon: ScanSearch, badge: 'FREE', grad: 'from-azure-500 to-azure-700' },
-  { to: '/ai-resume-builder', label: 'AI Resume Builder', sub: 'Matched to a job description', icon: Sparkles, badge: 'AI', grad: 'from-aurora-500 to-violet-600' },
+  { to: '/ai-resume-builder', label: 'AI Resume Builder', sub: 'Matched to a job description', icon: Zap, badge: 'AI', grad: 'from-aurora-500 to-violet-600' },
   { to: '/dubai-launch', label: 'Dubai Launch', sub: 'Jobs & relocation in the Gulf', icon: Plane, grad: 'from-frost-500 to-frost-600' },
   { to: '/appostle-services', label: 'Apostille & Attestation', sub: 'Documents, legalised & tracked', icon: FileCheck2, grad: 'from-ink-600 to-ink-800' },
 ];
@@ -86,7 +86,7 @@ export function Hero() {
             transition={{ duration: 0.5, ease }}
             className="eyebrow"
           >
-            <Sparkles className="h-3.5 w-3.5" aria-hidden />
+            <Zap className="h-3.5 w-3.5" aria-hidden />
             Career · Education · Global mobility · Documentation
           </motion.p>
 

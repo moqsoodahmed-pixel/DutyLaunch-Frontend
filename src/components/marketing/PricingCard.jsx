@@ -1,4 +1,4 @@
-import { Check, Sparkles } from 'lucide-react';
+import { Check, TrendingUp } from 'lucide-react';
 import { Button } from '../ui/Button.jsx';
 import { Badge } from '../ui/Badge.jsx';
 import { formatCurrency } from '../../utils/format.js';
@@ -17,20 +17,40 @@ export function PricingCard({ pkg, highlighted, onSelect }) {
   return (
     <article
       className={cn(
-        // h-full: fill the grid row so every card in the row is the same height;
-        // the feature list is flex-1, which pins the button to the bottom.
-        'relative flex h-full flex-col rounded-xl p-6 transition-transform sm:p-7',
+        'group relative flex h-full flex-col rounded-2xl p-[1.5px] overflow-hidden transition-all duration-300',
         featured
-          ? 'bg-btn-grad text-white shadow-blue-lg ring-1 ring-azure-700/40 sm:-translate-y-2'
-          : 'tile border border-line bg-white'
+          ? 'shadow-[0_24px_60px_-15px_rgba(29,93,184,0.45),0_0_24px_rgba(79,193,230,0.4)] sm:-translate-y-2'
+          : 'shadow-crystal hover:-translate-y-1 hover:shadow-crystal-lg'
       )}
     >
-      {featured && (
-        <span className="absolute -top-3 left-1/2 inline-flex -translate-x-1/2 items-center gap-1 rounded-full bg-amber-400 px-3 py-1 text-caption font-extrabold uppercase tracking-wide text-ink-900 shadow-xs">
-          <Sparkles className="h-3.5 w-3.5" aria-hidden />
-          Most chosen
-        </span>
-      )}
+      {/* Continuous Travelling Border Glow */}
+      <div
+        className={cn(
+          'pointer-events-none absolute -inset-[200%] animate-edge-orbit transition-opacity duration-500',
+          featured ? 'opacity-100' : 'opacity-25 group-hover:opacity-85'
+        )}
+        style={{
+          background:
+            'conic-gradient(from 0deg, transparent 0deg, transparent 260deg, #4FC1E6 295deg, #7DD3EF 325deg, #A98CEA 345deg, #FDF3E2 355deg, rgba(255,255,255,1) 358deg, transparent 360deg)',
+        }}
+        aria-hidden="true"
+      />
+
+      {/* Card Inner Body */}
+      <div
+        className={cn(
+          'relative flex h-full flex-col rounded-[14.5px] p-6 sm:p-7 backdrop-blur-xl',
+          featured
+            ? 'bg-btn-grad text-white'
+            : 'border border-white/80 bg-white/95'
+        )}
+      >
+        {featured && (
+          <span className="absolute -top-3 left-1/2 inline-flex -translate-x-1/2 items-center gap-1 rounded-full bg-gradient-to-r from-amber-300 to-amber-400 px-3 py-1 text-caption font-extrabold uppercase tracking-wide text-ink-900 shadow-lift">
+            <TrendingUp className="h-3.5 w-3.5" aria-hidden />
+            Most chosen
+          </span>
+        )}
 
       <div>
         <h3 className={cn('text-h3 font-bold', featured ? 'text-white' : 'text-ink')}>{pkg.name}</h3>
@@ -82,6 +102,7 @@ export function PricingCard({ pkg, highlighted, onSelect }) {
           {pkg.deliveryDays} delivery · {pkg.revisionWindow}
         </p>
       </div>
-    </article>
+    </div>
+  </article>
   );
 }

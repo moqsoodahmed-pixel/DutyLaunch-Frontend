@@ -344,4 +344,28 @@
     -ms-overflow-style: none;
     scrollbar-width: none;
   }
-}
+
+  /* Dynamic Edge Glow: subtle continuous travelling border light for important cards, navbar and sections */
+  .edge-glow-container {
+    position: relative;
+    overflow: hidden;
+    padding: 1.5px;
+  }
+
+  .edge-glow-container::before {
+    content: '';
+    position: absolute;
+    inset: -200%;
+    background: conic-gradient(
+      from 0deg,
+      transparent 0deg,
+      transparent 260deg,
+      rgba(79, 193, 230, 0.75) 300deg,
+      rgba(169, 140, 234, 0.9) 340deg,
+      rgba(255, 255, 255, 0.95) 355deg,
+      transparent 360deg
+    );
+    animation: edge-orbit 8s linear infinite;
+    pointer-events: none;
+  }
+}

@@ -35,28 +35,29 @@ export default function CvTemplates() {
   return (
     <>
       <Seo
-        title="ATS resume templates by role"
-        description={`${TEMPLATE_COUNT} ATS-friendly CV templates for software, data, IT, engineering, finance, healthcare, education, marketing and operations roles. Written by career writers and ATS-checked before delivery.`}
+        title="DutyLaunch Flagship ATS Resume Templates"
+        description="Explore the five DutyLaunch flagship ATS resume templates: DL Elite, DL Tech, DL Professional, DL Executive, and DL Modern. Engineered to 100% ATS parsing standards."
       />
 
       <PageHero
-        eyebrow="CV templates"
-        title="ATS templates, one for every role you apply to."
-        lead={`${TEMPLATE_COUNT} formats across software, data, IT and security, engineering, finance, healthcare, education, marketing and operations. Pick the one that matches the job — a writer fills it with your history.`}
-        breadcrumb={[{ label: 'Pricing', to: '/pricing' }, { label: 'Templates' }]}
+        eyebrow="Flagship CV Templates"
+        title="Five Flagship ATS Templates. One for Every Career Level."
+        lead="Engineered for Taleo, Workday, Greenhouse, and iCIMS. DL Elite, DL Tech, DL Professional, DL Executive, and DL Modern provide flawless semantic parsing with premium Glacier design."
+        breadcrumb={[{ label: 'Career Tools', to: '/ai-resume-builder' }, { label: 'Templates' }]}
         actions={
           <HeroActions
-            primary={{ label: 'Create a new CV', to: '/cv-builder?path=new' }}
-            secondary={{ label: 'Improve my existing CV', to: '/cv-builder?path=improve' }}
+            primary={{ label: 'Launch AI Resume Builder', to: '/ai-resume-builder' }}
+            secondary={{ label: 'Check My Resume ATS Score', to: '/resume-checker' }}
           />
         }
       />
 
       <TemplateGallery
         tone="paper"
-        label="Browse by role"
-        title="Find the template for your job title."
+        label="DutyLaunch Flagships"
+        title="Pick your flagship DutyLaunch format."
       />
+
 
       <Section tone="glacier" backdrop={<GlacierBackdrop />}>
         <Container>
@@ -88,8 +89,7 @@ export default function CvTemplates() {
           </RevealGroup>
 
           <p className="mt-8 max-w-prose text-small text-slate-500">
-            The bracketed figures in every preview — [X]% , [currency][X] — are blanks, not sample results. They are
-            replaced with your real numbers during the rewrite, and we never invent metrics on a client CV.
+            Every template is loaded with realistic, production-ready career achievements, metrics, and credentials. When you open any template in the AI Resume Builder, our engine automatically maps your actual career achievements with verified ATS compatibility.
           </p>
         </Container>
       </Section>
