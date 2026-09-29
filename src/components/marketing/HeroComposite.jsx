@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { animate, motion, useMotionValue, useSpring, useTransform } from 'framer-motion';
-import { Check, MapPin, Plane, ScanLine, Sparkles } from 'lucide-react';
+import { Check, MapPin, Plane, ScanLine, Zap } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { usePrefersReducedMotion } from '../../hooks/useMediaQuery.js';
 import { GlassPanel } from '../premium/GlassPanel.jsx';
@@ -271,7 +271,7 @@ export function HeroComposite() {
                   animate={reduced ? undefined : { rotate: [0, 18, 0], scale: [1, 1.15, 1] }}
                   transition={{ duration: 2.8, repeat: Infinity, repeatDelay: 1.2, ease: 'easeInOut' }}
                 >
-                  <Sparkles className="h-3.5 w-3.5 text-aurora-500" />
+                  <Zap className="h-3.5 w-3.5 text-aurora-500" />
                 </motion.span>
                 <span className="text-caption font-medium text-slate-600">Matches 9 of 10 requirements</span>
               </div>

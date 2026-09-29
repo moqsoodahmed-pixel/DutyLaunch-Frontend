@@ -1,59 +1,60 @@
 import { useEffect, useRef, useState } from 'react';
 
 /**
- * Renders a real, ATS-formatted CV document for a given role template and
- * scales it to whatever box it is dropped into.
+ * DutyLaunch Flagship Resume Template Preview Engine.
  *
- * Five visual identities — Meridian, Pulse, Slate, Grove, Arc — each with
- * a distinct typographic and layout personality.  All five follow the same
- * ATS hard rules:
- *   - single text flow, top to bottom in DOM order
- *   - no <table> for layout, no text boxes, no multi-column text
- *   - real headings: Summary, Experience, Skills, Education
- *   - dates on the same line as role, consistent MM/YYYY – MM/YYYY form
- *   - no images, icons or graphics carrying information
- *   - no skill bars or percentage meters
+ * Renders actual, ATS-compliant CV document previews for the five DutyLaunch flagship templates:
+ * 1. DL Elite        — Universal Professional (Aarav N. Kapoor)
+ * 2. DL Tech         — Software, Cybersecurity, AI, Engineering (Vikramaditya Singhania)
+ * 3. DL Professional — Business, Finance, Operations, Strategy (Priya S. Sundaram)
+ * 4. DL Executive    — Leadership, CXO, Director, Senior Management (Dr. Rajeshwar Rao, Ph.D.)
+ * 5. DL Project+     — Students, Freshers, Internships, Switchers (Ananya Deshmukh)
  *
- * The document is laid out at true A4 (794 × 1123 CSS px at 96dpi) and
- * transform-scaled, so a thumbnail and the full-size modal preview are the
- * same markup at different scales — no separate "small" artwork to keep in
- * sync, and the text stays crisp because it is text, not an image.
+ * Sizing & Layout Geometry:
+ * Standard ISO 216 A4 dimensions: 794px × 1123px (at 96 DPI standard web resolution).
+ * Scaled dynamically via CSS transform origin, maintaining exact A4 proportions
+ * without layout thrashing, clipping, or lower empty space.
  */
 
-const PAGE_W = 794;
-const PAGE_H = 1123;
-
-const CONTACT =
-  'your.email@example.com  |  +91 00000 00000  |  City, Country  |  linkedin.com/in/yourprofile';
-const COMPANIES = ['Company Name', 'Previous Company', 'Earlier Employer'];
-const DATES = ['03/2022 – Present', '06/2019 – 02/2022', '01/2017 – 05/2019'];
+export const PAGE_W = 794;
+export const PAGE_H = 1123;
 
 function useFitScale(ref, deps = []) {
-  const [scale, setScale] = useState(0.25);
+  const [scale, setScale] = useState(0.28);
+
   useEffect(() => {
     const el = ref.current;
     if (!el) return undefined;
-    const set = () => setScale(el.clientWidth / PAGE_W);
-    set();
-    const ro = new ResizeObserver(set);
+
+    const updateScale = () => {
+      const w = el.clientWidth;
+      if (w > 0) {
+        setScale(w / PAGE_W);
+      }
+    };
+
+    updateScale();
+    const ro = new ResizeObserver(updateScale);
     ro.observe(el);
+
     return () => ro.disconnect();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, deps);
+
   return scale;
 }
 
 /* ─────────────────────────────────────────────────────────────────────────
- * Shared building blocks
+ * Shared Building Blocks
  * ───────────────────────────────────────────────────────────────────────── */
 
-function Bullets({ items = [], size = 11.5, color = '#2d3748', gap = 3.5 }) {
+function Bullets({ items = [], size = 10, color = '#374151', gap = 3 }) {
   const clean = items.filter(Boolean);
   if (!clean.length) return null;
   return (
-    <ul style={{ margin: '5px 0 0', paddingLeft: 15 }}>
+    <ul style={{ margin: '3px 0 0', paddingLeft: 15 }}>
       {clean.map((b, i) => (
-        <li key={i} style={{ fontSize: size, lineHeight: 1.5, color, marginBottom: gap }}>
+        <li key={i} style={{ fontSize: size, lineHeight: 1.48, color, marginBottom: gap }}>
           {b}
         </li>
       ))}
@@ -61,69 +62,135 @@ function Bullets({ items = [], size = 11.5, color = '#2d3748', gap = 3.5 }) {
   );
 }
 
-function ExperienceBlock({ tpl, size = 11.5, titleColor = '#111827', companyColor = '#374151', metaColor = '#6b7280', count = 3 }) {
+function ExperienceSection({ tpl, titleColor = '#111827', companyColor = '#4B5563', metaColor = '#6B7280', accentColor }) {
+  const list = tpl.experience || [];
+  if (!list.length) return null;
   return (
-    <>
-      {COMPANIES.slice(0, count).map((co, i) => (
-        <div key={i} style={{ marginBottom: 12 }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', gap: 8 }}>
-            <span style={{ fontSize: size, fontWeight: 700, color: titleColor }}>
-              {tpl.titles[i] || tpl.titles[0]}
+    <div style={{ marginTop: 4 }}>
+      {list.map((exp, i) => (
+        <div key={i} style={{ marginBottom: i === list.length - 1 ? 0 : 8 }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', gap: 10 }}>
+            <span style={{ fontSize: 11, fontWeight: 700, color: titleColor }}>
+              {exp.title || 'Job Title'}
             </span>
-            <span style={{ fontSize: size - 1, color: metaColor, whiteSpace: 'nowrap' }}>{DATES[i]}</span>
+            <span style={{ fontSize: 9.5, color: metaColor, whiteSpace: 'nowrap', fontWeight: 500 }}>
+              {exp.dates || ''}
+            </span>
           </div>
-          <p style={{ fontSize: size - 0.5, color: companyColor, margin: '1px 0 3px' }}>{co}</p>
-          <Bullets items={tpl.bullets.slice(0, i === 0 ? 3 : 2)} size={size - 0.5} color={companyColor} />
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', margin: '1px 0 2px' }}>
+            <span style={{ fontSize: 10, fontWeight: 600, color: accentColor || companyColor }}>
+              {exp.company || ''}
+            </span>
+            {exp.location && (
+              <span style={{ fontSize: 9, color: '#6B7280' }}>{exp.location}</span>
+            )}
+          </div>
+          <Bullets items={exp.bullets} size={9.5} color="#374151" gap={2} />
         </div>
       ))}
-    </>
-  );
-}
-
-function SkillsInline({ skills, size = 11.5, color = '#374151', separator = ' · ' }) {
-  return (
-    <p style={{ fontSize: size, color, lineHeight: 1.65, margin: 0 }}>
-      {skills.join(separator)}
-    </p>
-  );
-}
-
-function EducationBlock({ tpl, size = 11.5, titleColor = '#111827', subColor = '#374151', dateColor = '#6b7280' }) {
-  return (
-    <div>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
-        <span style={{ fontSize: size, fontWeight: 700, color: titleColor }}>{tpl.degree}</span>
-        <span style={{ fontSize: size - 1, color: dateColor }}>2015 – 2019</span>
-      </div>
-      <p style={{ fontSize: size - 0.5, color: subColor, margin: '1px 0 0' }}>University / College Name</p>
     </div>
   );
 }
 
+function ProjectsSection({ tpl, titleColor = '#111827', roleColor = '#4B5563' }) {
+  const list = tpl.projects || [];
+  if (!list.length) return null;
+  return (
+    <div style={{ marginTop: 4 }}>
+      {list.map((p, i) => (
+        <div key={i} style={{ marginBottom: i === list.length - 1 ? 0 : 5 }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
+            <span style={{ fontSize: 10.5, fontWeight: 700, color: titleColor }}>{p.name}</span>
+            <span style={{ fontSize: 9, color: roleColor, fontWeight: 600 }}>{p.role}</span>
+          </div>
+          <p style={{ fontSize: 9.5, color: '#374151', margin: '2px 0 0', lineHeight: 1.45 }}>{p.impact}</p>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function EducationSection({ tpl, titleColor = '#111827', subColor = '#4B5563' }) {
+  const list = tpl.education || [];
+  if (!list.length) return null;
+  return (
+    <div style={{ marginTop: 4 }}>
+      {list.map((edu, i) => (
+        <div key={i} style={{ marginBottom: i === list.length - 1 ? 0 : 5 }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
+            <span style={{ fontSize: 10.5, fontWeight: 700, color: titleColor }}>{edu.degree || 'Degree / Qualification'}</span>
+            <span style={{ fontSize: 9.5, color: '#6B7280' }}>{edu.year || ''}</span>
+          </div>
+          <p style={{ fontSize: 9.5, color: subColor, margin: '1px 0 0' }}>
+            {edu.institution || ''} {edu.location ? `· ${edu.location}` : ''}
+          </p>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function formatContact(contact) {
+  if (!contact) return '';
+  if (typeof contact === 'string') return contact;
+  const parts = [];
+  if (contact.email) parts.push(contact.email);
+  if (contact.phone) parts.push(contact.phone);
+  if (contact.location) parts.push(contact.location);
+  if (contact.linkedin) parts.push(contact.linkedin);
+  if (contact.github) parts.push(contact.github);
+  if (contact.website) parts.push(contact.website);
+  return parts.join('   |   ');
+}
+
+function getCandidateName(tpl, fallback = 'Your Full Name') {
+  if (tpl.personName && tpl.personName.trim()) return tpl.personName;
+  if (tpl.name && !['DL Elite', 'DL Tech', 'DL Professional', 'DL Executive', 'DL Modern'].includes(tpl.name)) {
+    return tpl.name;
+  }
+  return fallback;
+}
+
+function getCandidateHeadline(tpl, fallback = 'Target Professional Title') {
+  if (tpl.headline && tpl.headline.trim()) return tpl.headline;
+  return fallback;
+}
+
+function getContactText(tpl, fallback = 'your.email@example.com   |   +1 (555) 000-0000   |   City, Country') {
+  const formatted = formatContact(tpl.contact);
+  if (formatted && formatted.trim()) return formatted;
+  return fallback;
+}
+
 /* ─────────────────────────────────────────────────────────────────────────
- * 1.  MERIDIAN
- *     Personality: authoritative and calm. Navy left-border accent column,
- *     Georgia name, tracked Helvetica section headings.  The most ATS-safe
- *     of the five.  Best for: banking, consulting, law, government, any role
- *     where a recruiter expects something they recognise immediately.
+ * 1. DL ELITE — Universal Professional
+ * Authoritative serif candidate name, ink-navy vertical accent rail,
+ * perfectly balanced single-column ATS hierarchy with 0 white gaps.
  * ───────────────────────────────────────────────────────────────────────── */
-function Meridian({ tpl }) {
+function DLElite({ tpl }) {
   const NAVY = '#0B1F48';
-  const RULE = '#0B1F48';
-  const TEXT = '#1a202c';
-  const MUTED = '#4a5568';
+  const AZURE = '#1D5DB8';
+  const TEXT = '#1A202C';
+  const MUTED = '#4A5568';
+
+  const candidateName = getCandidateName(tpl);
+  const candidateHeadline = getCandidateHeadline(tpl);
+  const contactText = getContactText(tpl);
 
   const SectionHead = ({ children }) => (
     <h3
       style={{
         fontSize: 10,
         fontWeight: 700,
-        letterSpacing: '0.14em',
+        letterSpacing: '0.12em',
         textTransform: 'uppercase',
         color: NAVY,
-        margin: '18px 0 7px',
-        paddingBottom: 4,
-        borderBottom: `2px solid ${RULE}`,
+        margin: '11px 0 4px',
+        paddingBottom: 2,
+        borderBottom: `1.5px solid ${NAVY}`,
+        display: 'flex',
+        alignItems: 'center',
+        gap: 6,
       }}
     >
       {children}
@@ -131,92 +198,159 @@ function Meridian({ tpl }) {
   );
 
   return (
-    <div style={{ display: 'flex', minHeight: PAGE_H }}>
-      {/* Left accent border — purely decorative, no content */}
+    <div style={{ display: 'flex', width: PAGE_W, height: PAGE_H, boxSizing: 'border-box', background: '#FFFFFF' }}>
+      {/* Decorative vertical accent bar */}
       <div style={{ width: 6, background: NAVY, flexShrink: 0 }} />
 
-      <div style={{ flex: 1, padding: '44px 52px 44px 44px' }}>
+      <div style={{ flex: 1, padding: '28px 40px 24px 32px', boxSizing: 'border-box', display: 'flex', flexDirection: 'column' }}>
         {/* Header */}
         <h1
           style={{
-            fontFamily: 'Georgia, "Times New Roman", serif',
-            fontSize: 30,
+            fontFamily: 'Georgia, Cambria, "Times New Roman", serif',
+            fontSize: 25,
             fontWeight: 700,
             color: NAVY,
             margin: 0,
             letterSpacing: '-0.01em',
           }}
         >
-          YOUR NAME
+          {candidateName}
         </h1>
-        <p style={{ fontSize: 13, fontWeight: 600, color: '#2563EB', margin: '4px 0 0' }}>
-          {tpl.headline}
+        <p style={{ fontSize: 11.5, fontWeight: 600, color: AZURE, margin: '2px 0 0' }}>
+          {candidateHeadline}
         </p>
-        <p style={{ fontSize: 10, color: MUTED, margin: '5px 0 0', letterSpacing: '0.01em' }}>
-          {CONTACT}
+        <p style={{ fontSize: 9, color: MUTED, margin: '4px 0 0', letterSpacing: '0.01em' }}>
+          {contactText}
         </p>
 
+        {/* Summary */}
         <SectionHead>Professional Summary</SectionHead>
-        <p style={{ fontSize: 11.5, lineHeight: 1.6, color: TEXT, margin: 0 }}>{tpl.summary}</p>
+        <p style={{ fontSize: 9.8, lineHeight: 1.5, color: TEXT, margin: 0 }}>
+          {tpl.summary}
+        </p>
 
+        {/* Experience */}
         <SectionHead>Professional Experience</SectionHead>
-        <ExperienceBlock tpl={tpl} size={11.5} titleColor={TEXT} companyColor={MUTED} />
+        <ExperienceSection tpl={tpl} titleColor={NAVY} companyColor={MUTED} accentColor={AZURE} />
 
-        <SectionHead>Core Skills</SectionHead>
-        <SkillsInline skills={tpl.skills} size={11.5} color={TEXT} separator=" · " />
-
-        <SectionHead>Education</SectionHead>
-        <EducationBlock tpl={tpl} size={11.5} titleColor={TEXT} subColor={MUTED} dateColor={MUTED} />
-
-        {tpl.certs.length > 0 && (
+        {/* Projects / Strategic Initiatives */}
+        {tpl.projects?.length > 0 && (
           <>
-            <SectionHead>Certifications</SectionHead>
-            <Bullets items={tpl.certs} size={11} color={TEXT} />
+            <SectionHead>Strategic Programs & Transformations</SectionHead>
+            <ProjectsSection tpl={tpl} titleColor={NAVY} roleColor={AZURE} />
           </>
         )}
+
+        {/* Skills */}
+        <SectionHead>Core Competencies & Leadership Capabilities</SectionHead>
+        <p style={{ fontSize: 9.6, color: TEXT, lineHeight: 1.5, margin: 0 }}>
+          {tpl.skills?.join('   ·   ')}
+        </p>
+
+        {/* Education & Certifications Row */}
+        <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 1fr', gap: 16, marginTop: 2 }}>
+          <div>
+            <SectionHead>Education & Academic Honors</SectionHead>
+            <EducationSection tpl={tpl} titleColor={NAVY} subColor={MUTED} />
+          </div>
+          <div>
+            <SectionHead>Certifications & Credentials</SectionHead>
+            <Bullets items={tpl.certs || tpl.certifications} size={9} color={TEXT} gap={2} />
+          </div>
+        </div>
+
+        {/* Achievements & Languages Footer */}
+        <div style={{ display: 'grid', gridTemplateColumns: '1.4fr 1fr', gap: 16, marginTop: 2 }}>
+          {tpl.achievements?.length > 0 && (
+            <div>
+              <SectionHead>Executive Honors & Awards</SectionHead>
+              <Bullets items={tpl.achievements} size={9} color={TEXT} gap={2} />
+            </div>
+          )}
+          {tpl.languages?.length > 0 && (
+            <div>
+              <SectionHead>Languages</SectionHead>
+              <p style={{ fontSize: 9, color: TEXT, margin: '4px 0 0', lineHeight: 1.5 }}>
+                {tpl.languages.join('   ·   ')}
+              </p>
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );
 }
 
 /* ─────────────────────────────────────────────────────────────────────────
- * 2.  PULSE
- *     Personality: sharp and data-driven. Teal name, hairline top rule,
- *     skills displayed as inline chips on a tinted row.  Best for: software
- *     engineers, data scientists, DevOps, product — any role where showing
- *     you understand density and information hierarchy matters.
+ * 2. DL TECH — Software, Cybersecurity, AI, Engineering, Cloud
+ * Frost-blue engineering top border, grouped tech badges, quantifiable metrics.
  * ───────────────────────────────────────────────────────────────────────── */
-function Pulse({ tpl }) {
-  const TEAL = '#0F766E';
-  const INK = '#111827';
-  const MUTED = '#4b5563';
-  const CHIP_BG = '#F0FDFA';
-  const CHIP_BORDER = '#99F6E4';
+function DLTech({ tpl }) {
+  const FROST = '#2FA3CC';
+  const INK = '#0F1C2E';
+  const MUTED = '#475569';
+  const CHIP_BG = '#F0F9FD';
+  const CHIP_BORDER = '#BAE6F7';
+
+  const candidateName = getCandidateName(tpl);
+  const candidateHeadline = getCandidateHeadline(tpl);
+  const contactText = getContactText(tpl);
+
+  const SectionHead = ({ children }) => (
+    <h3
+      style={{
+        fontSize: 9.5,
+        fontWeight: 700,
+        letterSpacing: '0.12em',
+        textTransform: 'uppercase',
+        color: FROST,
+        margin: '10px 0 4px',
+        paddingBottom: 2,
+        borderBottom: `1.5px solid ${CHIP_BORDER}`,
+      }}
+    >
+      {children}
+    </h3>
+  );
 
   return (
-    <div style={{ padding: '40px 54px' }}>
-      {/* Header — name + rule */}
-      <div style={{ borderTop: `3px solid ${TEAL}`, paddingTop: 14 }}>
-        <h1 style={{ fontFamily: '"Helvetica Neue", Arial, sans-serif', fontSize: 28, fontWeight: 800, color: TEAL, margin: 0, letterSpacing: '-0.02em' }}>
-          YOUR NAME
-        </h1>
-        <p style={{ fontSize: 13, fontWeight: 600, color: INK, margin: '3px 0 0' }}>{tpl.headline}</p>
-        <p style={{ fontSize: 10, color: MUTED, margin: '4px 0 0' }}>{CONTACT}</p>
+    <div style={{ width: PAGE_W, height: PAGE_H, padding: '26px 40px 24px', boxSizing: 'border-box', background: '#FFFFFF', display: 'flex', flexDirection: 'column' }}>
+      {/* Top Header Border */}
+      <div style={{ borderTop: `3.5px solid ${FROST}`, paddingTop: 10 }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
+          <h1
+            style={{
+              fontFamily: '"Helvetica Neue", Arial, sans-serif',
+              fontSize: 25,
+              fontWeight: 800,
+              color: INK,
+              margin: 0,
+              letterSpacing: '-0.02em',
+            }}
+          >
+            {candidateName}
+          </h1>
+          <span style={{ fontSize: 9, fontWeight: 700, color: FROST, letterSpacing: '0.08em', textTransform: 'uppercase' }}>
+            ATS Engine Optimized · Cloud Native
+          </span>
+        </div>
+        <p style={{ fontSize: 11, fontWeight: 600, color: FROST, margin: '2px 0 0' }}>{candidateHeadline}</p>
+        <p style={{ fontSize: 8.8, color: MUTED, margin: '3px 0 0' }}>{contactText}</p>
       </div>
 
-      {/* Skills chips row — immediately after contact, before summary */}
-      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 5, margin: '13px 0' }}>
-        {tpl.skills.map((s, i) => (
+      {/* Tech Stack Chips Bar */}
+      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4, margin: '8px 0 6px' }}>
+        {tpl.skills?.slice(0, 16).map((s, i) => (
           <span
             key={i}
             style={{
-              fontSize: 9.5,
-              fontWeight: 500,
-              color: TEAL,
+              fontSize: 8.5,
+              fontWeight: 600,
+              color: '#166580',
               background: CHIP_BG,
               border: `1px solid ${CHIP_BORDER}`,
               borderRadius: 3,
-              padding: '2px 8px',
+              padding: '1px 6px',
               whiteSpace: 'nowrap',
             }}
           >
@@ -225,190 +359,295 @@ function Pulse({ tpl }) {
         ))}
       </div>
 
-      {/* Thin separator */}
-      <div style={{ borderTop: '1px solid #D1FAF5', marginBottom: 13 }} />
-
-      <p style={{ fontSize: 11, color: '#374151', lineHeight: 1.55, margin: '0 0 14px' }}>{tpl.summary}</p>
-
-      {/* Experience */}
-      <h3 style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase', color: TEAL, margin: '0 0 8px', paddingBottom: 3, borderBottom: `1px solid ${CHIP_BORDER}` }}>
-        Experience
-      </h3>
-      <ExperienceBlock tpl={tpl} size={11} titleColor={INK} companyColor={MUTED} metaColor={TEAL} />
-
-      {/* Education */}
-      <h3 style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase', color: TEAL, margin: '14px 0 7px', paddingBottom: 3, borderBottom: `1px solid ${CHIP_BORDER}` }}>
-        Education
-      </h3>
-      <EducationBlock tpl={tpl} size={11} titleColor={INK} subColor={MUTED} dateColor={MUTED} />
-
-      {tpl.certs.length > 0 && (
-        <>
-          <h3 style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase', color: TEAL, margin: '14px 0 7px', paddingBottom: 3, borderBottom: `1px solid ${CHIP_BORDER}` }}>
-            Certifications
-          </h3>
-          <Bullets items={tpl.certs} size={10.5} color={MUTED} />
-        </>
-      )}
-    </div>
-  );
-}
-
-/* ─────────────────────────────────────────────────────────────────────────
- * 3.  SLATE
- *     Personality: authoritative and structured. Dark header band reverses
- *     the name in white; mid-weight divider rules; tabular figures.
- *     Best for: operations, project management, HR, executive candidates
- *     who want to signal seniority without relying on a personal brand.
- * ───────────────────────────────────────────────────────────────────────── */
-function Slate({ tpl }) {
-  const DARK = '#1e2a3a';
-  const RULE = '#94a3b8';
-  const ACCENT = '#3b82f6';
-  const INK = '#1e293b';
-  const MUTED = '#475569';
-
-  return (
-    <div>
-      {/* Dark header band */}
-      <div style={{ background: DARK, padding: '32px 54px 28px' }}>
-        <h1 style={{ fontFamily: '"Helvetica Neue", Arial, sans-serif', fontSize: 29, fontWeight: 700, color: '#ffffff', margin: 0, letterSpacing: '-0.01em' }}>
-          YOUR NAME
-        </h1>
-        <p style={{ fontSize: 12.5, fontWeight: 500, color: '#93c5fd', margin: '5px 0 0' }}>{tpl.headline}</p>
-        <p style={{ fontSize: 9.5, color: '#94a3b8', margin: '6px 0 0', letterSpacing: '0.02em' }}>{CONTACT}</p>
-      </div>
-
-      {/* Body */}
-      <div style={{ padding: '20px 54px 44px' }}>
-        <p style={{ fontSize: 11.5, lineHeight: 1.65, color: INK, margin: '0 0 16px' }}>{tpl.summary}</p>
-
-        {[
-          { label: 'Professional Experience', content: <ExperienceBlock tpl={tpl} size={11.5} titleColor={INK} companyColor={MUTED} metaColor={ACCENT} /> },
-          { label: 'Core Competencies',        content: <SkillsInline skills={tpl.skills} size={11.5} color={INK} separator="  ·  " /> },
-          { label: 'Education',                content: <EducationBlock tpl={tpl} size={11.5} titleColor={INK} subColor={MUTED} dateColor={MUTED} /> },
-          ...(tpl.certs.length > 0
-            ? [{ label: 'Certifications', content: <Bullets items={tpl.certs} size={11} color={MUTED} /> }]
-            : []),
-        ].map(({ label, content }) => (
-          <div key={label}>
-            <h3
-              style={{
-                fontSize: 10,
-                fontWeight: 700,
-                letterSpacing: '0.13em',
-                textTransform: 'uppercase',
-                color: DARK,
-                margin: '17px 0 7px',
-                paddingBottom: 4,
-                borderBottom: `1px solid ${RULE}`,
-              }}
-            >
-              {label}
-            </h3>
-            {content}
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-}
-
-/* ─────────────────────────────────────────────────────────────────────────
- * 4.  GROVE
- *     Personality: warm, trustworthy, unhurried. Moss-green accent, generous
- *     line height, soft section rules, Georgia body text.
- *     Best for: healthcare, education, counselling, non-profit, consulting
- *     — anywhere that a "caring and competent" signal matters more than a
- *     "sharp and efficient" one.
- * ───────────────────────────────────────────────────────────────────────── */
-function Grove({ tpl }) {
-  const MOSS = '#166534';
-  const MOSS_LIGHT = '#bbf7d0';
-  const INK = '#1a2e1a';
-  const MUTED = '#4b6a4b';
-  const RULE = '#d1fae5';
-
-  return (
-    <div style={{ padding: '46px 58px' }}>
-      {/* Header */}
-      <h1
-        style={{
-          fontFamily: 'Georgia, "Times New Roman", serif',
-          fontSize: 27,
-          fontWeight: 700,
-          color: INK,
-          margin: 0,
-          letterSpacing: '0.01em',
-        }}
-      >
-        YOUR NAME
-      </h1>
-      <div style={{ display: 'flex', alignItems: 'center', gap: 10, margin: '5px 0 0' }}>
-        <div style={{ width: 32, height: 2, background: MOSS, flexShrink: 0 }} />
-        <p style={{ fontSize: 13, color: MOSS, fontWeight: 600, margin: 0 }}>{tpl.headline}</p>
-      </div>
-      <p style={{ fontSize: 10, color: MUTED, margin: '5px 0 0', letterSpacing: '0.01em' }}>{CONTACT}</p>
-      <div style={{ height: 1, background: MOSS_LIGHT, margin: '12px 0' }} />
-
-      {/* Summary */}
-      <p style={{ fontFamily: 'Georgia, "Times New Roman", serif', fontSize: 11.5, lineHeight: 1.7, color: INK, margin: 0 }}>
+      <p style={{ fontSize: 9.6, color: '#334155', lineHeight: 1.48, margin: '0 0 4px' }}>
         {tpl.summary}
       </p>
 
-      {[
-        { label: 'Professional Experience', content: <ExperienceBlock tpl={tpl} size={11.5} titleColor={INK} companyColor={MUTED} metaColor={MOSS} /> },
-        { label: 'Skills & Expertise',       content: <SkillsInline skills={tpl.skills} size={11.5} color={INK} separator=" · " /> },
-        { label: 'Education',                content: <EducationBlock tpl={tpl} size={11.5} titleColor={INK} subColor={MUTED} dateColor={MUTED} /> },
-        ...(tpl.certs.length > 0
-          ? [{ label: 'Certifications & CPD', content: <Bullets items={tpl.certs} size={11} color={MUTED} /> }]
-          : []),
-      ].map(({ label, content }) => (
-        <div key={label}>
-          <h3
-            style={{
-              fontSize: 11,
-              fontWeight: 700,
-              color: MOSS,
-              margin: '18px 0 7px',
-              paddingBottom: 4,
-              borderBottom: `1px solid ${RULE}`,
-              fontFamily: 'Georgia, "Times New Roman", serif',
-            }}
-          >
-            {label}
-          </h3>
-          {content}
+      {/* Experience */}
+      <SectionHead>Technical & Engineering Experience</SectionHead>
+      <ExperienceSection tpl={tpl} titleColor={INK} companyColor={MUTED} accentColor={FROST} />
+
+      {/* Projects */}
+      {tpl.projects?.length > 0 && (
+        <>
+          <SectionHead>Core Systems Architecture & Open Source</SectionHead>
+          <ProjectsSection tpl={tpl} titleColor={INK} roleColor={FROST} />
+        </>
+      )}
+
+      {/* Education & Certs */}
+      <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 1fr', gap: 16, marginTop: 2 }}>
+        <div>
+          <SectionHead>Education</SectionHead>
+          <EducationSection tpl={tpl} titleColor={INK} subColor={MUTED} />
         </div>
-      ))}
+        <div>
+          <SectionHead>Verified Certifications</SectionHead>
+          <Bullets items={tpl.certs || tpl.certifications} size={9} color={MUTED} gap={2} />
+        </div>
+      </div>
+
+      {/* Achievements & Languages */}
+      <div style={{ display: 'grid', gridTemplateColumns: '1.4fr 1fr', gap: 16, marginTop: 2 }}>
+        {tpl.achievements?.length > 0 && (
+          <div>
+            <SectionHead>Patents & Honors</SectionHead>
+            <Bullets items={tpl.achievements} size={9} color={MUTED} gap={2} />
+          </div>
+        )}
+        {tpl.languages?.length > 0 && (
+          <div>
+            <SectionHead>Languages</SectionHead>
+            <p style={{ fontSize: 9, color: MUTED, margin: '4px 0 0', lineHeight: 1.45 }}>
+              {tpl.languages.join('   ·   ')}
+            </p>
+          </div>
+        )}
+      </div>
     </div>
   );
 }
 
 /* ─────────────────────────────────────────────────────────────────────────
- * 5.  ARC
- *     Personality: structured and contemporary. Deep indigo left sidebar
- *     holds contact, skills and certs; main column holds the career story.
- *     DOM order is: main column first, sidebar second — so an ATS reads the
- *     role history before the skills list, not interleaved with it.
- *     Best for: marketing, creative strategy, design, sales, UX.
+ * 3. DL PROFESSIONAL — Business, Finance, Marketing, Operations, HR, Sales
+ * Refined Georgia serif styling, soft royal violet accent, ROI & margin focus.
  * ───────────────────────────────────────────────────────────────────────── */
-function Arc({ tpl }) {
-  const INDIGO = '#312e81';
-  const INDIGO_LIGHT = '#e0e7ff';
-  const INK = '#1e1b4b';
-  const MUTED = '#4338ca';
-  const SIDEBAR_W = 218;
+function DLProfessional({ tpl }) {
+  const VIOLET = '#5A38D6';
+  const VIOLET_LIGHT = '#E7DFFB';
+  const INK = '#1E1B2E';
+  const MUTED = '#545063';
+
+  const candidateName = getCandidateName(tpl);
+  const candidateHeadline = getCandidateHeadline(tpl);
+  const contactText = getContactText(tpl);
+
+  const SectionHead = ({ children }) => (
+    <h3
+      style={{
+        fontFamily: 'Georgia, Cambria, "Times New Roman", serif',
+        fontSize: 10.5,
+        fontWeight: 700,
+        color: VIOLET,
+        margin: '10px 0 4px',
+        paddingBottom: 2,
+        borderBottom: `1px solid ${VIOLET_LIGHT}`,
+      }}
+    >
+      {children}
+    </h3>
+  );
+
+  return (
+    <div style={{ width: PAGE_W, height: PAGE_H, padding: '28px 40px 24px', boxSizing: 'border-box', background: '#FFFFFF', display: 'flex', flexDirection: 'column' }}>
+      {/* Header */}
+      <h1
+        style={{
+          fontFamily: 'Georgia, Cambria, "Times New Roman", serif',
+          fontSize: 25,
+          fontWeight: 700,
+          color: INK,
+          margin: 0,
+        }}
+      >
+        {candidateName}
+      </h1>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 8, margin: '3px 0 0' }}>
+        <div style={{ width: 22, height: 2, background: VIOLET, flexShrink: 0 }} />
+        <p style={{ fontSize: 11, color: VIOLET, fontWeight: 600, margin: 0 }}>{candidateHeadline}</p>
+      </div>
+      <p style={{ fontSize: 9, color: MUTED, margin: '4px 0 0', letterSpacing: '0.01em' }}>{contactText}</p>
+      <div style={{ height: 1, background: VIOLET_LIGHT, margin: '8px 0' }} />
+
+      {/* Summary */}
+      <p style={{ fontFamily: 'Georgia, serif', fontSize: 9.8, lineHeight: 1.5, color: INK, margin: 0 }}>
+        {tpl.summary}
+      </p>
+
+      {/* Experience */}
+      <SectionHead>Professional Career History</SectionHead>
+      <ExperienceSection tpl={tpl} titleColor={INK} companyColor={MUTED} accentColor={VIOLET} />
+
+      {/* Commercial Projects */}
+      {tpl.projects?.length > 0 && (
+        <>
+          <SectionHead>Strategic M&A & Capital Deployment</SectionHead>
+          <ProjectsSection tpl={tpl} titleColor={INK} roleColor={VIOLET} />
+        </>
+      )}
+
+      {/* Core Competencies */}
+      <SectionHead>Core Competencies & Functional Expertise</SectionHead>
+      <p style={{ fontSize: 9.6, color: INK, lineHeight: 1.5, margin: 0 }}>
+        {tpl.skills?.join('   ·   ')}
+      </p>
+
+      {/* Education & Certs */}
+      <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 1fr', gap: 16, marginTop: 2 }}>
+        <div>
+          <SectionHead>Education & Academic Honors</SectionHead>
+          <EducationSection tpl={tpl} titleColor={INK} subColor={MUTED} />
+        </div>
+        <div>
+          <SectionHead>Certifications & Licensures</SectionHead>
+          <Bullets items={tpl.certs} size={9} color={MUTED} gap={2} />
+        </div>
+      </div>
+
+      {/* Honors & Languages */}
+      <div style={{ display: 'grid', gridTemplateColumns: '1.4fr 1fr', gap: 16, marginTop: 2 }}>
+        {tpl.achievements?.length > 0 && (
+          <div>
+            <SectionHead>Industry Recognitions</SectionHead>
+            <Bullets items={tpl.achievements} size={9} color={MUTED} gap={2} />
+          </div>
+        )}
+        {tpl.languages?.length > 0 && (
+          <div>
+            <SectionHead>Languages</SectionHead>
+            <p style={{ fontSize: 9, color: MUTED, margin: '4px 0 0', lineHeight: 1.45 }}>
+              {tpl.languages.join('   ·   ')}
+            </p>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+/* ─────────────────────────────────────────────────────────────────────────
+ * 4. DL EXECUTIVE — Leadership, CXO, Director, Senior Management
+ * Premium dark ink band header, strategic leadership, Board & P&L scale.
+ * ───────────────────────────────────────────────────────────────────────── */
+function DLExecutive({ tpl }) {
+  const DARK = '#112240';
+  const INK = '#1E293B';
+  const MUTED = '#475569';
+  const ACCENT = '#1D5DB8';
+  const RULE = '#CBD5E1';
+
+  const candidateName = getCandidateName(tpl);
+  const candidateHeadline = getCandidateHeadline(tpl);
+  const contactText = getContactText(tpl);
+
+  const SectionHead = ({ children }) => (
+    <h3
+      style={{
+        fontSize: 9.5,
+        fontWeight: 700,
+        letterSpacing: '0.12em',
+        textTransform: 'uppercase',
+        color: DARK,
+        margin: '10px 0 4px',
+        paddingBottom: 2,
+        borderBottom: `1.5px solid ${RULE}`,
+      }}
+    >
+      {children}
+    </h3>
+  );
+
+  return (
+    <div style={{ width: PAGE_W, height: PAGE_H, boxSizing: 'border-box', background: '#FFFFFF', display: 'flex', flexDirection: 'column' }}>
+      {/* Dark Header Band */}
+      <div style={{ background: DARK, padding: '22px 38px 18px' }}>
+        <h1
+          style={{
+            fontFamily: '"Helvetica Neue", Arial, sans-serif',
+            fontSize: 25,
+            fontWeight: 800,
+            color: '#FFFFFF',
+            margin: 0,
+            letterSpacing: '-0.01em',
+          }}
+        >
+          {candidateName}
+        </h1>
+        <p style={{ fontSize: 11, fontWeight: 500, color: tpl.headline ? '#93C5FD' : '#94A3B8', margin: '3px 0 0' }}>{candidateHeadline}</p>
+        <p style={{ fontSize: 8.8, color: tpl.contact?.email ? '#CBD5E1' : '#94A3B8', margin: '4px 0 0', letterSpacing: '0.02em' }}>{contactText}</p>
+      </div>
+
+      {/* Body */}
+      <div style={{ padding: '14px 38px 24px', flex: 1, display: 'flex', flexDirection: 'column' }}>
+        <p style={{ fontSize: 9.6, lineHeight: 1.5, color: INK, margin: '0 0 6px' }}>
+          {tpl.summary}
+        </p>
+
+        {/* Experience */}
+        <SectionHead>Executive Leadership & Board History</SectionHead>
+        <ExperienceSection tpl={tpl} titleColor={DARK} companyColor={MUTED} accentColor={ACCENT} />
+
+        {/* Board Directorships / Projects */}
+        {tpl.projects?.length > 0 && (
+          <>
+            <SectionHead>Board Directorships & Key Transformations</SectionHead>
+            <ProjectsSection tpl={tpl} titleColor={DARK} roleColor={ACCENT} />
+          </>
+        )}
+
+        {/* Strategic Competencies */}
+        <SectionHead>Executive Capabilities & Governance</SectionHead>
+        <p style={{ fontSize: 9.5, color: INK, lineHeight: 1.5, margin: 0 }}>
+          {tpl.skills?.join('   ·   ')}
+        </p>
+
+        {/* Education & Certs */}
+        <div style={{ display: 'grid', gridTemplateColumns: '1.3fr 1fr', gap: 16, marginTop: 2 }}>
+          <div>
+            <SectionHead>Executive Education</SectionHead>
+            <EducationSection tpl={tpl} titleColor={DARK} subColor={MUTED} />
+          </div>
+          <div>
+            <SectionHead>Board Credentials & Fellowships</SectionHead>
+            <Bullets items={tpl.certs || tpl.certifications} size={9} color={MUTED} gap={2} />
+          </div>
+        </div>
+
+        {/* Honors & Languages */}
+        <div style={{ display: 'grid', gridTemplateColumns: '1.4fr 1fr', gap: 16, marginTop: 2 }}>
+          {tpl.achievements?.length > 0 && (
+            <div>
+              <SectionHead>Executive Recognition & Publications</SectionHead>
+              <Bullets items={tpl.achievements} size={9} color={MUTED} gap={2} />
+            </div>
+          )}
+          {tpl.languages?.length > 0 && (
+            <div>
+              <SectionHead>Languages</SectionHead>
+              <p style={{ fontSize: 9, color: MUTED, margin: '4px 0 0', lineHeight: 1.45 }}>
+                {tpl.languages.join('   ·   ')}
+              </p>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ─────────────────────────────────────────────────────────────────────────
+ * 5. DL PROJECT+ — Students, Freshers, Internships, Career Switchers
+ * Project-first structure with gradient header, visual sidebar (ATS DOM linear safe).
+ * ───────────────────────────────────────────────────────────────────────── */
+function DLProjectPlus({ tpl }) {
+  const GRADIENT = 'linear-gradient(135deg, #2FA3CC 0%, #5A38D6 100%)';
+  const INDIGO = '#1D5DB8';
+  const INDIGO_LIGHT = '#DCE6F5';
+  const SIDEBAR_W = 196;
+
+  const candidateName = getCandidateName(tpl);
+  const candidateHeadline = getCandidateHeadline(tpl);
+  const contactText = getContactText(tpl);
 
   const SideLabel = ({ children }) => (
     <p
       style={{
-        fontSize: 9,
+        fontSize: 8.5,
         fontWeight: 700,
-        letterSpacing: '0.13em',
+        letterSpacing: '0.12em',
         textTransform: 'uppercase',
-        color: '#a5b4fc',
-        margin: '18px 0 6px',
+        color: '#EAF7FC',
+        margin: '10px 0 3px',
       }}
     >
       {children}
@@ -416,102 +655,140 @@ function Arc({ tpl }) {
   );
 
   return (
-    <div>
-      {/* Name bar — full width, above the two-column area */}
-      <div style={{ background: INDIGO, padding: '30px 48px 24px' }}>
-        <h1 style={{ fontFamily: '"Helvetica Neue", Arial, sans-serif', fontSize: 27, fontWeight: 800, color: '#ffffff', margin: 0, letterSpacing: '-0.01em' }}>
-          YOUR NAME
+    <div style={{ width: PAGE_W, height: PAGE_H, boxSizing: 'border-box', background: '#FFFFFF', display: 'flex', flexDirection: 'column' }}>
+      {/* Name banner */}
+      <div style={{ background: GRADIENT, padding: '20px 32px 16px' }}>
+        <h1
+          style={{
+            fontFamily: '"Helvetica Neue", Arial, sans-serif',
+            fontSize: 24,
+            fontWeight: 800,
+            color: '#FFFFFF',
+            margin: 0,
+            letterSpacing: '-0.01em',
+          }}
+        >
+          {candidateName}
         </h1>
-        <p style={{ fontSize: 12.5, color: '#a5b4fc', fontWeight: 500, margin: '4px 0 0' }}>{tpl.headline}</p>
+        <p style={{ fontSize: 11, color: '#EAF7FC', fontWeight: 500, margin: '2px 0 0' }}>{candidateHeadline}</p>
       </div>
 
-      {/* Two-column body — DOM order: main first for ATS, sidebar second */}
-      <div style={{ display: 'flex' }}>
-
-        {/* ── MAIN COLUMN (DOM-first, visually right via flex order) ── */}
-        <div style={{ flex: 1, order: 2, padding: '24px 44px 44px 32px' }}>
-          <p style={{ fontSize: 11, lineHeight: 1.6, color: '#1e293b', margin: '0 0 14px' }}>
+      {/* Two-column layout: DOM order has Main first (for ATS linear reading), sidebar visually ordered */}
+      <div style={{ display: 'flex', flex: 1 }}>
+        {/* Main Column (DOM 1st, flex order 2) */}
+        <div style={{ flex: 1, order: 2, padding: '14px 28px 20px 20px', boxSizing: 'border-box' }}>
+          <p style={{ fontSize: 9.6, lineHeight: 1.48, color: '#1E293B', margin: '0 0 6px' }}>
             {tpl.summary}
           </p>
 
-          {[
-            {
-              label: 'Professional Experience',
-              content: (
-                <ExperienceBlock
-                  tpl={tpl}
-                  size={11}
-                  titleColor="#1e293b"
-                  companyColor="#475569"
-                  metaColor={MUTED}
-                />
-              ),
-            },
-            {
-              label: 'Education',
-              content: (
-                <EducationBlock
-                  tpl={tpl}
-                  size={11}
-                  titleColor="#1e293b"
-                  subColor="#475569"
-                  dateColor="#64748b"
-                />
-              ),
-            },
-          ].map(({ label, content }) => (
-            <div key={label}>
-              <h3
-                style={{
-                  fontSize: 10,
-                  fontWeight: 700,
-                  letterSpacing: '0.12em',
-                  textTransform: 'uppercase',
-                  color: INDIGO,
-                  margin: '17px 0 7px',
-                  paddingBottom: 3,
-                  borderBottom: `1px solid ${INDIGO_LIGHT}`,
-                }}
-              >
-                {label}
-              </h3>
-              {content}
-            </div>
-          ))}
+          <h3
+            style={{
+              fontSize: 9.5,
+              fontWeight: 700,
+              letterSpacing: '0.12em',
+              textTransform: 'uppercase',
+              color: '#5A38D6',
+              margin: '10px 0 4px',
+              paddingBottom: 2,
+              borderBottom: `1px solid ${INDIGO_LIGHT}`,
+            }}
+          >
+            Key Projects & Open Source
+          </h3>
+          <ProjectsSection tpl={tpl} titleColor="#1E293B" roleColor={INDIGO} />
+
+          <h3
+            style={{
+              fontSize: 9.5,
+              fontWeight: 700,
+              letterSpacing: '0.12em',
+              textTransform: 'uppercase',
+              color: '#5A38D6',
+              margin: '10px 0 4px',
+              paddingBottom: 2,
+              borderBottom: `1px solid ${INDIGO_LIGHT}`,
+            }}
+          >
+            Engineering Experience & Internships
+          </h3>
+          <ExperienceSection tpl={tpl} titleColor="#1E293B" companyColor="#475569" accentColor={INDIGO} />
+
+          <h3
+            style={{
+              fontSize: 9.5,
+              fontWeight: 700,
+              letterSpacing: '0.12em',
+              textTransform: 'uppercase',
+              color: '#5A38D6',
+              margin: '10px 0 4px',
+              paddingBottom: 2,
+              borderBottom: `1px solid ${INDIGO_LIGHT}`,
+            }}
+          >
+            Education & Academic Track
+          </h3>
+          <EducationSection tpl={tpl} titleColor="#1E293B" subColor="#475569" />
         </div>
 
-        {/* ── SIDEBAR (DOM-second, visually left via flex order) ── */}
+        {/* Sidebar (DOM 2nd, flex order 1) */}
         <aside
           style={{
             width: SIDEBAR_W,
             flexShrink: 0,
             order: 1,
-            background: INDIGO,
-            padding: '8px 22px 44px',
+            background: GRADIENT,
+            padding: '10px 16px 20px',
+            boxSizing: 'border-box',
           }}
         >
-          <SideLabel>Contact</SideLabel>
-          <p style={{ fontSize: 9.5, color: '#c7d2fe', lineHeight: 1.6, margin: 0 }}>
-            {CONTACT.split('  |  ').map((bit, i) => (
-              <span key={i} style={{ display: 'block' }}>{bit}</span>
+          <SideLabel>Contact Info</SideLabel>
+          <p style={{ fontSize: 8.8, color: '#EAF7FC', lineHeight: 1.45, margin: 0 }}>
+            {contactText.split('   |   ').map((item, i) => (
+              <span key={i} style={{ display: 'block', marginBottom: 2 }}>{item}</span>
             ))}
           </p>
 
-          <SideLabel>Skills</SideLabel>
-          <ul style={{ margin: 0, paddingLeft: 13 }}>
-            {tpl.skills.map((s, i) => (
-              <li key={i} style={{ fontSize: 9.5, color: '#e0e7ff', lineHeight: 1.65 }}>{s}</li>
+          <SideLabel>Technical Proficiencies</SideLabel>
+          <ul style={{ margin: 0, paddingLeft: 12 }}>
+            {tpl.skills?.map((s, i) => (
+              <li key={i} style={{ fontSize: 8.6, color: '#FFFFFF', lineHeight: 1.45 }}>
+                {s}
+              </li>
             ))}
           </ul>
 
-          {tpl.certs.length > 0 && (
+          {(tpl.certs || tpl.certifications)?.length > 0 && (
             <>
               <SideLabel>Certifications</SideLabel>
-              <ul style={{ margin: 0, paddingLeft: 13 }}>
-                {tpl.certs.map((c, i) => (
-                  <li key={i} style={{ fontSize: 9, color: '#c7d2fe', lineHeight: 1.7 }}>{c}</li>
+              <ul style={{ margin: 0, paddingLeft: 12 }}>
+                {(tpl.certs || tpl.certifications).map((c, i) => (
+                  <li key={i} style={{ fontSize: 8.2, color: '#EAF7FC', lineHeight: 1.4 }}>
+                    {typeof c === 'string' ? c : `${c.name} — ${c.issuer}`}
+                  </li>
                 ))}
               </ul>
+            </>
+          )}
+
+          {tpl.achievements?.length > 0 && (
+            <>
+              <SideLabel>Honors & Hackathons</SideLabel>
+              <ul style={{ margin: 0, paddingLeft: 12 }}>
+                {tpl.achievements.map((a, i) => (
+                  <li key={i} style={{ fontSize: 8.2, color: '#EAF7FC', lineHeight: 1.4 }}>
+                    {a}
+                  </li>
+                ))}
+              </ul>
+            </>
+          )}
+
+          {tpl.languages?.length > 0 && (
+            <>
+              <SideLabel>Languages</SideLabel>
+              <p style={{ fontSize: 8.5, color: '#FFFFFF', margin: '2px 0 0', lineHeight: 1.4 }}>
+                {tpl.languages.join(' · ')}
+              </p>
             </>
           )}
         </aside>
@@ -521,41 +798,54 @@ function Arc({ tpl }) {
 }
 
 /* ─────────────────────────────────────────────────────────────────────────
- * Dispatcher
+ * Dispatcher & Scale Wrapper
  * ───────────────────────────────────────────────────────────────────────── */
 
 const LAYOUT_COMPONENTS = {
-  meridian: Meridian,
-  pulse:    Pulse,
-  slate:    Slate,
-  grove:    Grove,
-  arc:      Arc,
+  'dl-elite': DLElite,
+  'dl-tech': DLTech,
+  'dl-professional': DLProfessional,
+  'dl-executive': DLExecutive,
+  'dl-modern': DLProjectPlus,
+  'dl-project-plus': DLProjectPlus,
 };
 
 export function ResumeTemplatePreview({ template, className, crop = true }) {
   const boxRef = useRef(null);
   const scale = useFitScale(boxRef, [template?.id, crop]);
+
   if (!template) return null;
 
-  const Layout = LAYOUT_COMPONENTS[template.layout] || Meridian;
+  const Layout = LAYOUT_COMPONENTS[template.layout] || LAYOUT_COMPONENTS[template.id] || DLElite;
+
+  // The outer container calculates height precisely matching the scaled A4 document:
+  // Height = PAGE_H * scale, maintaining the exact 794 : 1123 aspect ratio.
+  const scaledHeight = scale > 0 ? PAGE_H * scale : undefined;
 
   return (
     <div
       ref={boxRef}
       className={className}
-      style={{ overflow: 'hidden', position: 'relative', width: '100%' }}
+      style={{
+        overflow: 'hidden',
+        position: 'relative',
+        width: '100%',
+        aspectRatio: '794 / 1123',
+        height: scaledHeight,
+      }}
     >
       <div
         style={{
           width: PAGE_W,
-          height: crop ? undefined : PAGE_H,
-          minHeight: crop ? undefined : PAGE_H,
+          height: PAGE_H,
+          minHeight: PAGE_H,
           transformOrigin: 'top left',
           transform: `scale(${scale})`,
-          background: '#ffffff',
+          background: '#FFFFFF',
           fontFamily: '"Helvetica Neue", Arial, sans-serif',
           lineHeight: 1.45,
           color: '#111827',
+          boxSizing: 'border-box',
         }}
       >
         <Layout tpl={template} />

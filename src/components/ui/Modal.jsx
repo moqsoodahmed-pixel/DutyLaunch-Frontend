@@ -61,26 +61,37 @@ export function Modal({ open, onClose, title, description, children, footer, siz
             exit={{ opacity: 0, y: 16 }}
             transition={{ duration: 0.22, ease: [0.16, 0.84, 0.44, 1] }}
             className={cn(
-              'relative flex max-h-[92vh] w-full flex-col rounded-t-xl bg-white shadow-panel sm:rounded-xl',
+              'relative flex max-h-[92vh] w-full flex-col rounded-t-2xl p-[1.5px] overflow-hidden shadow-panel sm:rounded-2xl',
               widths[size]
             )}
           >
-            <div className="flex items-start justify-between gap-4 border-b border-line px-6 py-5">
-              <div>
-                <h2 className="text-h3 font-semibold text-ink">{title}</h2>
-                {description && <p className="mt-1 text-small text-slate-600">{description}</p>}
+            {/* Dynamic Continuous Travelling Edge Light */}
+            <div
+              className="pointer-events-none absolute -inset-[200%] animate-edge-orbit opacity-75"
+              style={{
+                background:
+                  'conic-gradient(from 0deg, transparent 0deg, transparent 270deg, #4FC1E6 305deg, #7DD3EF 325deg, #A98CEA 345deg, #FDF3E2 355deg, rgba(255,255,255,1) 358deg, transparent 360deg)',
+              }}
+              aria-hidden="true"
+            />
+            <div className="relative flex flex-col w-full h-full rounded-t-[14.5px] sm:rounded-[14.5px] bg-white overflow-hidden">
+              <div className="flex items-start justify-between gap-4 border-b border-line px-6 py-5">
+                <div>
+                  <h2 className="text-h3 font-semibold text-ink">{title}</h2>
+                  {description && <p className="mt-1 text-small text-slate-600">{description}</p>}
+                </div>
+                <button
+                  type="button"
+                  onClick={onClose}
+                  className="-mr-1.5 -mt-1 rounded p-1.5 text-slate-400 hover:bg-paper hover:text-ink transition-colors"
+                  aria-label="Close dialog"
+                >
+                  <X className="h-5 w-5" aria-hidden />
+                </button>
               </div>
-              <button
-                type="button"
-                onClick={onClose}
-                className="-mr-1.5 -mt-1 rounded p-1.5 text-slate-400 hover:bg-paper hover:text-ink"
-                aria-label="Close dialog"
-              >
-                <X className="h-5 w-5" aria-hidden />
-              </button>
+              <div className="flex-1 overflow-y-auto px-6 py-5">{children}</div>
+              {footer && <div className="border-t border-line px-6 py-4">{footer}</div>}
             </div>
-            <div className="flex-1 overflow-y-auto px-6 py-5">{children}</div>
-            {footer && <div className="border-t border-line px-6 py-4">{footer}</div>}
           </motion.div>
         </div>
       )}

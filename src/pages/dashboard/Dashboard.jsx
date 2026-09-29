@@ -24,26 +24,36 @@ function ProfileStrengthCard({ user }) {
   const tone = strength.score >= 80 ? 'success' : strength.score >= 50 ? 'azure' : 'amber';
 
   return (
-    <div className="tile flex flex-col gap-5 p-6 sm:flex-row sm:items-center">
-      <ProgressRing value={strength.score} tone={tone} sublabel="/ 100" />
-      <div className="min-w-0 flex-1">
-        <p className="eyebrow">DutyLaunch Profile Strength</p>
-        <p className="mt-2 text-small text-slate-600">{strength.summary}</p>
-        {strength.missing.length > 0 && (
-          <ul className="mt-3 flex flex-wrap gap-1.5">
-            {strength.missing.map((label) => (
-              <li key={label}>
-                <Badge tone="amber" className="inline-flex items-center gap-1">
-                  <CircleAlert className="h-3 w-3" aria-hidden />
-                  {label}
-                </Badge>
-              </li>
-            ))}
-          </ul>
-        )}
-        <Button to="/profile" size="sm" className="mt-4">
-          Complete my profile
-        </Button>
+    <div className="relative overflow-hidden rounded-2xl p-[1.5px] shadow-crystal">
+      <div
+        className="pointer-events-none absolute -inset-[200%] animate-edge-orbit opacity-60"
+        style={{
+          background:
+            'conic-gradient(from 0deg, transparent 0deg, transparent 260deg, #4FC1E6 295deg, #7DD3EF 325deg, #A98CEA 345deg, #FDF3E2 355deg, rgba(255,255,255,1) 358deg, transparent 360deg)',
+        }}
+        aria-hidden="true"
+      />
+      <div className="relative flex flex-col gap-5 rounded-[14.5px] border border-white/80 bg-white/95 p-6 backdrop-blur-xl sm:flex-row sm:items-center">
+        <ProgressRing value={strength.score} tone={tone} sublabel="/ 100" />
+        <div className="min-w-0 flex-1">
+          <p className="eyebrow">DutyLaunch Profile Strength</p>
+          <p className="mt-2 text-small text-slate-600">{strength.summary}</p>
+          {strength.missing.length > 0 && (
+            <ul className="mt-3 flex flex-wrap gap-1.5">
+              {strength.missing.map((label) => (
+                <li key={label}>
+                  <Badge tone="amber" className="inline-flex items-center gap-1">
+                    <CircleAlert className="h-3 w-3" aria-hidden />
+                    {label}
+                  </Badge>
+                </li>
+              ))}
+            </ul>
+          )}
+          <Button to="/profile" size="sm" variant="premium" className="mt-4">
+            Complete my profile
+          </Button>
+        </div>
       </div>
     </div>
   );

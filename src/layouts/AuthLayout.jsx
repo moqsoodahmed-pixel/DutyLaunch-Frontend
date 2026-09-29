@@ -39,9 +39,22 @@ export default function AuthLayout() {
         </div>
 
         <main id="main" className="mx-auto flex w-full max-w-md flex-1 flex-col justify-center py-8 sm:py-10">
-          <Suspense fallback={<PageFallback />}>
-            <Outlet />
-          </Suspense>
+          <div className="relative overflow-hidden rounded-3xl p-[1.5px] shadow-crystal">
+            {/* Continuous travelling border glow */}
+            <div
+              className="pointer-events-none absolute -inset-[200%] animate-edge-orbit opacity-60"
+              style={{
+                background:
+                  'conic-gradient(from 0deg, transparent 0deg, transparent 260deg, #4FC1E6 295deg, #7DD3EF 325deg, #A98CEA 345deg, #FDF3E2 355deg, rgba(255,255,255,1) 358deg, transparent 360deg)',
+              }}
+              aria-hidden="true"
+            />
+            <div className="relative rounded-[22.5px] border border-white/80 bg-white/95 p-7 sm:p-9 shadow-sm backdrop-blur-xl">
+              <Suspense fallback={<PageFallback />}>
+                <Outlet />
+              </Suspense>
+            </div>
+          </div>
         </main>
 
         {/* Sign-in pages have no main footer, so the compliance links and

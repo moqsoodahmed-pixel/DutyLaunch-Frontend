@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Navigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext.jsx';
-import { FileSearch, ScanLine, Sparkles, Target } from 'lucide-react';
+import { FileSearch, ScanLine, Target, Zap } from 'lucide-react';
 import { Seo } from '../components/ui/Seo.jsx';
 import { Container, Section } from '../components/ui/Container.jsx';
 import { SectionHeader } from '../components/ui/SectionHeader.jsx';
@@ -24,7 +24,7 @@ const HOW_IT_WORKS = [
   { icon: FileSearch, title: 'We read your resume', body: 'Your PDF or Word file is parsed the same way an ATS would — extracting the raw text, not just the design.' },
   { icon: ScanLine, title: 'We check the fundamentals', body: 'Contact details, section headings, formatting and length are checked against what parsers handle reliably.' },
   { icon: Target, title: 'We score relevance', body: 'Keywords, skills, experience and measurable achievements are weighted using our own published methodology — add a job description and we score against that role specifically.' },
-  { icon: Sparkles, title: 'You get a plan', body: 'A category-by-category breakdown plus specific, actionable recommendations — not just a number.' },
+  { icon: Zap, title: 'You get a plan', body: 'A category-by-category breakdown plus specific, actionable recommendations — not just a number.' },
 ];
 
 const FAQS = [

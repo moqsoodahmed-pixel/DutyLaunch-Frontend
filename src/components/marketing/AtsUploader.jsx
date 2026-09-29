@@ -158,27 +158,43 @@ export function AtsUploader({ onResult }) {
             }}
             onDragLeave={() => setDragging(false)}
             onDrop={onDrop}
-            className={cn(
-              'group relative flex cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed px-6 py-14 text-center transition-colors',
-              dragging ? 'border-azure bg-azure-50' : 'border-line bg-white hover:border-azure-400 hover:bg-azure-50/40'
-            )}
+            className="group relative overflow-hidden rounded-2xl p-[1.5px] shadow-crystal transition-all duration-300 hover:shadow-crystal-lg cursor-pointer"
           >
-            <span className="grid h-14 w-14 place-items-center rounded-full bg-azure-50 text-azure transition-transform group-hover:scale-105">
-              <UploadCloud className="h-6 w-6" aria-hidden />
-            </span>
-            <p className="mt-5 text-lead font-bold text-ink">Drag &amp; drop your CV here</p>
-            <p className="mt-1 text-small text-slate-500">or</p>
-            <span className="mt-3 inline-flex items-center rounded bg-ink-800 px-4 py-2 text-small font-semibold text-white transition-colors group-hover:bg-ink-700">
-              Browse files
-            </span>
-            <p className="mt-5 text-caption text-slate-400">Supported: PDF, DOC, DOCX &middot; Maximum size 10 MB</p>
-            <input
-              ref={inputRef}
-              type="file"
-              accept=".pdf,.doc,.docx"
-              className="sr-only"
-              onChange={(e) => e.target.files?.[0] && pickFile(e.target.files[0])}
+            {/* Dynamic Continuous Travelling Edge Light */}
+            <div
+              className={cn(
+                'pointer-events-none absolute -inset-[200%] animate-edge-orbit transition-opacity duration-500',
+                dragging ? 'opacity-100' : 'opacity-40 group-hover:opacity-100'
+              )}
+              style={{
+                background:
+                  'conic-gradient(from 0deg, transparent 0deg, transparent 260deg, #4FC1E6 295deg, #7DD3EF 325deg, #A98CEA 345deg, #FDF3E2 355deg, rgba(255,255,255,1) 358deg, transparent 360deg)',
+              }}
+              aria-hidden="true"
             />
+            <div
+              className={cn(
+                'relative flex flex-col items-center justify-center rounded-[14.5px] border-2 border-dashed px-6 py-14 text-center backdrop-blur-xl transition-all duration-300',
+                dragging ? 'border-azure bg-azure-50/70' : 'border-frost-300/80 bg-white/95 group-hover:border-azure group-hover:bg-azure-50/30'
+              )}
+            >
+              <span className="grid h-16 w-16 place-items-center rounded-2xl bg-gradient-to-tr from-glacier-100 to-white text-azure shadow-crystal transition-transform duration-300 group-hover:scale-110">
+                <UploadCloud className="h-7 w-7 text-azure" aria-hidden />
+              </span>
+              <p className="mt-5 text-lead font-bold text-ink">Drag &amp; drop your CV here</p>
+              <p className="mt-1 text-small text-slate-500">or</p>
+              <span className="mt-3 inline-flex items-center rounded-full bg-gradient-to-r from-azure to-frost-600 px-5 py-2 text-small font-semibold text-white shadow-crystal transition-transform duration-200 group-hover:scale-105">
+                Browse files
+              </span>
+              <p className="mt-5 text-caption text-slate-400">Supported: PDF, DOC, DOCX &middot; Maximum size 10 MB</p>
+              <input
+                ref={inputRef}
+                type="file"
+                accept=".pdf,.doc,.docx"
+                className="sr-only"
+                onChange={(e) => e.target.files?.[0] && pickFile(e.target.files[0])}
+              />
+            </div>
           </motion.div>
         )}
 
@@ -188,100 +204,112 @@ export function AtsUploader({ onResult }) {
             initial={{ opacity: 0, y: 8 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0 }}
-            className="rounded-xl border border-line bg-white p-6"
+            className="group relative overflow-hidden rounded-2xl p-[1.5px] shadow-crystal"
           >
-            <div className="flex items-center gap-4">
-              <span className="grid h-11 w-11 shrink-0 place-items-center rounded-lg bg-azure-50 text-azure">
-                <FileText className="h-5 w-5" aria-hidden />
-              </span>
-              <div className="min-w-0 flex-1">
-                <p className="truncate text-small font-semibold text-ink">{file.name}</p>
-                <p className="text-caption text-slate-500">{formatSize(file.size)}</p>
+            {/* Dynamic Continuous Travelling Edge Light */}
+            <div
+              className="pointer-events-none absolute -inset-[200%] animate-edge-orbit opacity-75"
+              style={{
+                background:
+                  'conic-gradient(from 0deg, transparent 0deg, transparent 260deg, #4FC1E6 295deg, #7DD3EF 325deg, #A98CEA 345deg, #FDF3E2 355deg, rgba(255,255,255,1) 358deg, transparent 360deg)',
+              }}
+              aria-hidden="true"
+            />
+            <div className="relative rounded-[14.5px] border border-white/80 bg-white/95 p-6 backdrop-blur-xl">
+              <div className="flex items-center gap-4">
+                <span className="grid h-12 w-12 shrink-0 place-items-center rounded-xl bg-gradient-to-tr from-glacier-100 to-white text-azure shadow-crystal">
+                  <FileText className="h-6 w-6 text-azure" aria-hidden />
+                </span>
+                <div className="min-w-0 flex-1">
+                  <p className="truncate text-small font-bold text-ink">{file.name}</p>
+                  <p className="text-caption text-slate-500">{formatSize(file.size)}</p>
+                </div>
+                {!busy && (
+                  <div className="flex shrink-0 items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={() => inputRef.current?.click()}
+                      className="rounded-full bg-azure-50 px-3 py-1 text-caption font-semibold text-azure transition-colors hover:bg-azure-100"
+                    >
+                      Replace
+                    </button>
+                    <button
+                      type="button"
+                      onClick={reset}
+                      aria-label="Remove file"
+                      className="rounded-full p-1.5 text-slate-400 hover:bg-paper hover:text-ink transition-colors"
+                    >
+                      <X className="h-4 w-4" aria-hidden />
+                    </button>
+                  </div>
+                )}
+                <input
+                  ref={inputRef}
+                  type="file"
+                  accept=".pdf,.doc,.docx"
+                  className="sr-only"
+                  onChange={(e) => e.target.files?.[0] && pickFile(e.target.files[0])}
+                />
               </div>
-              {!busy && (
-                <div className="flex shrink-0 items-center gap-2">
-                  <button
-                    type="button"
-                    onClick={() => inputRef.current?.click()}
-                    className="rounded px-2 py-1 text-caption font-semibold text-azure hover:bg-azure-50"
-                  >
-                    Replace
-                  </button>
-                  <button
-                    type="button"
-                    onClick={reset}
-                    aria-label="Remove file"
-                    className="rounded p-1.5 text-slate-400 hover:bg-paper hover:text-ink"
-                  >
-                    <X className="h-4 w-4" aria-hidden />
-                  </button>
+
+              {status === 'uploading' && (
+                <div className="mt-5">
+                  <div className="h-1.5 overflow-hidden rounded-full bg-paper">
+                    <motion.div
+                      className="h-full rounded-full bg-azure"
+                      animate={{ width: `${progress}%` }}
+                      transition={{ ease: 'easeOut' }}
+                    />
+                  </div>
+                  <p className="mt-2 text-caption text-slate-500">Uploading… {progress}%</p>
                 </div>
               )}
-              <input
-                ref={inputRef}
-                type="file"
-                accept=".pdf,.doc,.docx"
-                className="sr-only"
-                onChange={(e) => e.target.files?.[0] && pickFile(e.target.files[0])}
-              />
-            </div>
 
-            {status === 'uploading' && (
-              <div className="mt-5">
-                <div className="h-1.5 overflow-hidden rounded-full bg-paper">
-                  <motion.div
-                    className="h-full rounded-full bg-azure"
-                    animate={{ width: `${progress}%` }}
-                    transition={{ ease: 'easeOut' }}
-                  />
+              {status === 'analyzing' && (
+                <div className="mt-5 space-y-2 border-t border-line pt-4">
+                  <p className="flex items-center gap-2 text-small font-semibold text-ink">
+                    <Loader2 className="h-4 w-4 animate-spin text-azure" aria-hidden />
+                    Analyzing your resume…
+                  </p>
+                  <ul className="mt-2 space-y-1.5">
+                    {ANALYSIS_STEPS.map((step, i) => (
+                      <li key={step} className="flex items-center gap-2 text-caption text-slate-500">
+                        <span
+                          className={cn(
+                            'inline-block h-1.5 w-1.5 rounded-full',
+                            i < stepIndex ? 'bg-success' : i === stepIndex ? 'bg-azure animate-pulse' : 'bg-slate-300'
+                          )}
+                        />
+                        <span className={i <= stepIndex ? 'text-ink font-medium' : ''}>{step}</span>
+                      </li>
+                    ))}
+                  </ul>
                 </div>
-                <p className="mt-2 text-caption text-slate-500">Uploading… {progress}%</p>
-              </div>
-            )}
+              )}
 
-            {status === 'analyzing' && (
-              <div className="mt-5 space-y-2 border-t border-line pt-4">
-                <p className="flex items-center gap-2 text-small font-semibold text-ink">
-                  <Loader2 className="h-4 w-4 animate-spin text-azure" aria-hidden />
-                  Analyzing your resume…
-                </p>
-                <ul className="mt-2 space-y-1.5">
-                  {ANALYSIS_STEPS.map((step, i) => (
-                    <li key={step} className="flex items-center gap-2 text-caption text-slate-500">
-                      <span
-                        className={cn(
-                          'inline-block h-1.5 w-1.5 rounded-full',
-                          i < stepIndex ? 'bg-success' : i === stepIndex ? 'bg-azure animate-pulse' : 'bg-slate-300'
-                        )}
-                      />
-                      <span className={i <= stepIndex ? 'text-ink' : ''}>{step}</span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            )}
+              {!busy && status !== 'error' && (
+                <ConsentCheckbox
+                  className="mt-5"
+                  checked={consent}
+                  onChange={(e) => {
+                    setConsent(e.target.checked);
+                    if (e.target.checked) setConsentError('');
+                  }}
+                  error={consentError}
+                />
+              )}
 
-            {!busy && status !== 'error' && (
-              <ConsentCheckbox
-                className="mt-5"
-                checked={consent}
-                onChange={(e) => {
-                  setConsent(e.target.checked);
-                  if (e.target.checked) setConsentError('');
-                }}
-                error={consentError}
-              />
-            )}
-
-            {!busy && status !== 'error' && (
-              <button
-                type="button"
-                onClick={submit}
-                className="mt-5 inline-flex h-11 w-full items-center justify-center rounded bg-azure text-small font-semibold text-white transition-colors hover:bg-azure-700"
-              >
-                Check My ATS Score
-              </button>
-            )}
+              {!busy && status !== 'error' && (
+                <button
+                  type="button"
+                  onClick={submit}
+                  className="group relative mt-5 flex h-12 w-full items-center justify-center overflow-hidden rounded-xl bg-gradient-to-r from-[#1A3665] via-[#1D5DB8] to-[#2B72D4] px-6 text-body font-bold text-white shadow-crystal transition-all duration-300 hover:scale-[1.01] hover:shadow-[0_20px_50px_-15px_rgba(29,93,184,0.45)] active:scale-[0.99]"
+                >
+                  <span className="pointer-events-none absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/25 to-transparent transition-transform duration-700 ease-out group-hover:translate-x-full" />
+                  Check My ATS Score
+                </button>
+              )}
+            </div>
           </motion.div>
         )}
       </AnimatePresence>

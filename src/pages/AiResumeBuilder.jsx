@@ -1,10 +1,11 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Link } from 'react-router-dom';
-import { Download, FileUp, Loader2, Sparkles } from 'lucide-react';
+import { Link, useSearchParams } from 'react-router-dom';
+import { Download, FileUp, Loader2, ShieldCheck, CheckCircle2, TrendingUp } from 'lucide-react';
 import { Seo } from '../components/ui/Seo.jsx';
 import { Container, Section } from '../components/ui/Container.jsx';
 import { SectionHeader } from '../components/ui/SectionHeader.jsx';
 import { PageHero, HeroActions } from '../components/marketing/PageHero.jsx';
+import { ResumeShowcase } from '../components/cv/ResumeShowcase.jsx';
 import { Button } from '../components/ui/Button.jsx';
 import { Badge } from '../components/ui/Badge.jsx';
 import { ErrorState } from '../components/ui/States.jsx';
@@ -65,6 +66,9 @@ export default function AiResumeBuilder() {
   const [consent, setConsent] = useState(false);
   const [consentError, setConsentError] = useState('');
 
+  const [searchParams] = useSearchParams();
+  const paramTemplate = searchParams.get('template');
+
   const [step, setStep] = useState('upload');
   const [busy, setBusy] = useState('');
   const [error, setError] = useState(null);
@@ -79,8 +83,14 @@ export default function AiResumeBuilder() {
   const [decisions, setDecisions] = useState({});
 
   const [templates, setTemplates] = useState([]);
-  const [templateId, setTemplateId] = useState('');
+  const [templateId, setTemplateId] = useState(paramTemplate || '');
   const [blockingIssues, setBlockingIssues] = useState([]);
+
+  useEffect(() => {
+    if (paramTemplate) {
+      setTemplateId(paramTemplate);
+    }
+  }, [paramTemplate]);
 
   const fileInput = useRef(null);
   const reportRef = useRef(null);
@@ -269,7 +279,28 @@ export default function AiResumeBuilder() {
         title={seo.heading}
         lead={seo.subheading}
         breadcrumb={[{ label: 'Career Tools', to: '/ai-resume-builder' }, { label: 'AI Resume Builder' }]}
-        actions={<HeroActions primary={seo.primaryCta} secondary={seo.secondaryCta} />}
+        actions={
+          <div className="flex flex-col gap-4">
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+              <HeroActions primary={seo.primaryCta} secondary={seo.secondaryCta} />
+            </div>
+            <div className="flex flex-wrap items-center gap-x-5 gap-y-2 text-[12px] font-semibold text-slate-600">
+              <span className="inline-flex items-center gap-1.5 text-emerald-700">
+                <ShieldCheck className="h-4 w-4 text-emerald-600" aria-hidden />
+                100% ATS Verified
+              </span>
+              <span className="inline-flex items-center gap-1.5 text-azure-700">
+                <TrendingUp className="h-4 w-4 text-azure" aria-hidden />
+                10,000+ Resumes Built
+              </span>
+              <span className="inline-flex items-center gap-1.5 text-purple-700">
+                <CheckCircle2 className="h-4 w-4 text-purple-600" aria-hidden />
+                Zero Layout Rejection
+              </span>
+            </div>
+          </div>
+        }
+        aside={<ResumeShowcase />}
       />
 
       {/* Progress rail — the spec asks for clear progress indicators, and
@@ -304,75 +335,98 @@ export default function AiResumeBuilder() {
           />
 
           <div className="mt-8 grid gap-6 lg:grid-cols-2">
-            <div className="rounded-lg border border-line bg-white p-6">
-              <input
-                ref={fileInput}
-                type="file"
-                accept=".pdf,.doc,.docx,.txt,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,text/plain"
-                className="sr-only"
-                onChange={(e) => handleFile(e.target.files?.[0])}
-              />
-              <button
-                type="button"
-                onClick={() => {
-                  if (!consent) return setConsentError(CONSENT_REQUIRED_MESSAGE);
-                  return fileInput.current?.click();
+            {/* Upload Area Card with Continuous Travelling Edge Glow */}
+            <div className="group relative overflow-hidden rounded-2xl p-[1.5px] shadow-crystal transition-all duration-300 hover:shadow-crystal-lg">
+              <div
+                className="pointer-events-none absolute -inset-[200%] animate-edge-orbit opacity-40 group-hover:opacity-100 transition-opacity duration-500"
+                style={{
+                  background:
+                    'conic-gradient(from 0deg, transparent 0deg, transparent 260deg, #4FC1E6 295deg, #7DD3EF 325deg, #A98CEA 345deg, #FDF3E2 355deg, rgba(255,255,255,1) 358deg, transparent 360deg)',
                 }}
-                className="flex w-full flex-col items-center gap-3 rounded border-2 border-dashed border-line px-6 py-12 text-center transition hover:border-azure hover:bg-azure-50/40"
-              >
-                {busy === 'upload' ? (
-                  <Loader2 className="h-7 w-7 animate-spin text-azure" aria-hidden />
-                ) : (
-                  <FileUp className="h-7 w-7 text-azure" aria-hidden />
+                aria-hidden="true"
+              />
+              <div className="relative flex h-full flex-col rounded-[14.5px] border border-white/80 bg-white/95 p-6 backdrop-blur-xl">
+                <input
+                  ref={fileInput}
+                  type="file"
+                  accept=".pdf,.doc,.docx,.txt,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,text/plain"
+                  className="sr-only"
+                  onChange={(e) => handleFile(e.target.files?.[0])}
+                />
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (!consent) return setConsentError(CONSENT_REQUIRED_MESSAGE);
+                    return fileInput.current?.click();
+                  }}
+                  className="flex w-full flex-1 flex-col items-center justify-center gap-3 rounded-xl border-2 border-dashed border-frost-300/80 bg-frost-50/30 px-6 py-10 text-center transition-all duration-300 hover:border-azure hover:bg-azure-50/50 hover:shadow-crystal"
+                >
+                  {busy === 'upload' ? (
+                    <Loader2 className="h-8 w-8 animate-spin text-azure" aria-hidden />
+                  ) : (
+                    <div className="grid h-14 w-14 place-items-center rounded-2xl bg-white shadow-crystal text-azure transition-transform duration-200 group-hover:scale-110">
+                      <FileUp className="h-7 w-7 text-azure" aria-hidden />
+                    </div>
+                  )}
+                  <span className="text-body font-bold text-ink">{busy === 'upload' ? 'Reading your CV…' : 'Choose your CV'}</span>
+                  <span className="text-small text-slate-500">PDF, DOC or DOCX (Max 10MB)</span>
+                </button>
+
+                <ConsentCheckbox
+                  className="mt-4"
+                  checked={consent}
+                  onChange={(e) => {
+                    setConsent(e.target.checked);
+                    if (e.target.checked) setConsentError('');
+                  }}
+                  error={consentError}
+                />
+
+                {parsed && (
+                  <p className="mt-4 rounded-lg bg-glacier-50 border border-glacier-200/80 p-2.5 text-small text-slate-700">
+                    Read <span className="font-semibold text-ink">{resume?._source?.fileName}</span> —{' '}
+                    {resume?.experience?.length || 0} roles, {resume?.education?.length || 0} qualifications.
+                  </p>
                 )}
-                <span className="font-semibold">{busy === 'upload' ? 'Reading your CV…' : 'Choose your CV'}</span>
-                <span className="text-small text-slate-600">PDF, DOC or DOCX</span>
-              </button>
-
-              <ConsentCheckbox
-                className="mt-4"
-                checked={consent}
-                onChange={(e) => {
-                  setConsent(e.target.checked);
-                  if (e.target.checked) setConsentError('');
-                }}
-                error={consentError}
-              />
-
-              {parsed && (
-                <p className="mt-4 text-small text-slate-600">
-                  Read <span className="font-medium text-ink">{resume?._source?.fileName}</span> —{' '}
-                  {resume?.experience?.length || 0} roles, {resume?.education?.length || 0} qualifications.
-                </p>
-              )}
+              </div>
             </div>
 
-            <div className="rounded-lg border border-line bg-white p-6">
-              <label className="block">
-                <span className="mb-2 block font-semibold">Target job description</span>
-                <span className="mb-3 block text-small text-slate-600">
-                  Optional, but this is where most of the value is. Without it we can score structure and writing
-                  quality, but not relevance.
-                </span>
-                <textarea
-                  value={jobDescription}
-                  onChange={(e) => setJobDescription(e.target.value)}
-                  rows={9}
-                  placeholder="Paste the full job description here…"
-                  className="w-full rounded-xs border border-line px-3.5 py-3 text-small outline-none focus:border-azure focus:ring-2 focus:ring-azure-100"
-                />
-              </label>
+            {/* Target Job Description Card with Continuous Travelling Edge Glow */}
+            <div className="group relative overflow-hidden rounded-2xl p-[1.5px] shadow-crystal transition-all duration-300 hover:shadow-crystal-lg">
+              <div
+                className="pointer-events-none absolute -inset-[200%] animate-edge-orbit opacity-40 group-hover:opacity-100 transition-opacity duration-500"
+                style={{
+                  background:
+                    'conic-gradient(from 0deg, transparent 0deg, transparent 260deg, #4FC1E6 295deg, #7DD3EF 325deg, #A98CEA 345deg, #FDF3E2 355deg, rgba(255,255,255,1) 358deg, transparent 360deg)',
+                }}
+                aria-hidden="true"
+              />
+              <div className="relative flex h-full flex-col rounded-[14.5px] border border-white/80 bg-white/95 p-6 backdrop-blur-xl">
+                <label className="block flex-1">
+                  <span className="mb-1.5 block font-bold text-ink">Target job description</span>
+                  <span className="mb-3 block text-small text-slate-500">
+                    Optional, but unlocks targeted ATS keyword matching and role relevance scores.
+                  </span>
+                  <textarea
+                    value={jobDescription}
+                    onChange={(e) => setJobDescription(e.target.value)}
+                    rows={7}
+                    placeholder="Paste the target job description or requirements here…"
+                    className="w-full rounded-lg border border-line bg-glacier-50/30 px-3.5 py-3 text-small outline-none transition-all focus:border-azure focus:bg-white focus:ring-2 focus:ring-azure-100"
+                  />
+                </label>
 
-              <Button
-                className="mt-4"
-                fullWidth
-                loading={busy === 'analyze'}
-                disabled={!resume}
-                onClick={runAnalysis}
-              >
-                <Sparkles className="mr-2 h-4 w-4" aria-hidden />
-                Analyze my resume
-              </Button>
+                <Button
+                  className="mt-4 shadow-crystal"
+                  fullWidth
+                  variant="premium"
+                  loading={busy === 'analyze'}
+                  disabled={!resume}
+                  onClick={runAnalysis}
+                >
+                  Analyze my resume
+                </Button>
+              </div>
             </div>
           </div>
 

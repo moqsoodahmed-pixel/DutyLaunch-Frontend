@@ -104,7 +104,6 @@ export const pillars = [
     icon: 'Sparkles',
     summary: 'Everything that turns your experience into a stronger application.',
     items: [
-      { label: 'Resume Checker', path: '/resume-checker', description: 'Free Resume Health score and fixes' },
       { label: 'AI Resume Builder', path: '/ai-resume-builder', description: 'Build a resume matched to a job description' },
       { label: 'LinkedIn Optimization', path: '/linkedin-optimization', description: 'Headline, About and keyword review' },
       { label: 'Cover Letter Generator', path: '/cover-letter-generator', description: 'A draft built from your own evidence' },

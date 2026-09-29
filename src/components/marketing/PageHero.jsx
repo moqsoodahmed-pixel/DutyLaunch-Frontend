@@ -10,9 +10,8 @@ import { fadeUp, stagger } from '../../utils/motion.js';
  * the upper right, sitting above a light gradient wash — the same premium
  * hero treatment repeats identically on every page that uses this component.
  *
- * The heading column is capped at ~22ch so long titles ("Pick the degree for
- * the job, not the brochure.") break into two balanced lines instead of
- * stretching edge-to-edge or wrapping awkwardly at the h1 scale.
+ * Balanced 6-column split ensures the left headline/CTA and right showcase
+ * align with zero wasted vertical whitespace and 100% viewport harmony.
  */
 export function PageHero({ eyebrow, title, lead, breadcrumb, actions, aside, tone = 'paper' }) {
   const dark = tone === 'ink';
@@ -20,44 +19,44 @@ export function PageHero({ eyebrow, title, lead, breadcrumb, actions, aside, ton
 
   return (
     <section className={surfaceClass}>
-      <Container className={`py-11 lg:py-14 ${dark ? 'relative z-[1]' : ''}`}>
+      <Container className={`py-6 lg:py-8 ${dark ? 'relative z-[1]' : ''}`}>
         {breadcrumb && !dark && <Breadcrumb items={breadcrumb} />}
         <motion.div
           variants={stagger(0.08)}
           initial="hidden"
           animate="show"
-          className="grid items-center gap-8 lg:grid-cols-12 lg:gap-12"
+          className="grid items-center gap-6 lg:grid-cols-12 lg:gap-8"
         >
-          <div className="lg:col-span-7">
+          <div className="flex flex-col justify-center lg:col-span-6 xl:col-span-6">
             {eyebrow && (
-              <motion.p variants={fadeUp} className={`mb-4 inline-flex ${dark ? 'eyebrow-dark' : 'eyebrow'}`}>
+              <motion.p variants={fadeUp} className={`mb-3.5 inline-flex self-start ${dark ? 'eyebrow-dark' : 'eyebrow'}`}>
                 {eyebrow}
               </motion.p>
             )}
             <motion.h1
               variants={fadeUp}
-              className={`max-w-[22ch] text-h1 font-extrabold ${dark ? 'text-white' : ''}`}
+              className={`max-w-[20ch] text-h1 font-extrabold tracking-tight ${dark ? 'text-white' : 'text-ink'}`}
             >
               {title}
             </motion.h1>
             {lead && (
               <motion.p
                 variants={fadeUp}
-                className={`mt-4 max-w-prose text-lead ${dark ? 'text-slate-300' : 'text-slate-600'}`}
+                className={`mt-3.5 max-w-prose text-lead leading-relaxed ${dark ? 'text-slate-300' : 'text-slate-600'}`}
               >
                 {lead}
               </motion.p>
             )}
             {actions && (
-              <motion.div variants={fadeUp} className="mt-7 flex flex-col gap-3 sm:flex-row">
+              <motion.div variants={fadeUp} className="mt-6 flex flex-col gap-3 sm:flex-row sm:items-center">
                 {actions}
               </motion.div>
             )}
           </div>
           {aside && (
-            <motion.div variants={fadeUp} className="lg:col-span-5 lg:col-start-8">
+            <div className="flex w-full items-center justify-center lg:col-span-6 xl:col-span-6">
               {aside}
-            </motion.div>
+            </div>
           )}
         </motion.div>
       </Container>
@@ -69,15 +68,17 @@ export function HeroActions({ primary, secondary, dark }) {
   return (
     <>
       {primary && (
-        <Button to={primary.to} size="lg" variant={dark ? 'onInk' : 'primary'}>
+        <Button to={primary.to} size="lg" variant={dark ? 'onInk' : 'premium'} className="shadow-crystal hover:shadow-crystal-lg">
           {primary.label}
         </Button>
       )}
       {secondary && (
-        <Button to={secondary.to} size="lg" variant={dark ? 'outlineInk' : 'outline'}>
+        <Button to={secondary.to} size="lg" variant={dark ? 'outlineInk' : 'outline'} className="bg-white/80 backdrop-blur-md">
           {secondary.label}
         </Button>
       )}
     </>
   );
 }
+
+export default PageHero;

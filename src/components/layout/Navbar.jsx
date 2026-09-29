@@ -13,9 +13,9 @@ import { cn } from '../../utils/cn.js';
 import { homePathFor } from '../../utils/homePath.js';
 
 /* Shared style for the round glass icon buttons on the right of the pill —
-   the reference site's search / call / account cluster. */
+   with smooth lift, scale 1.04, neon glow, and 250ms transitions matching Analyze button colors. */
 const iconBtn =
-  'grid h-9 w-9 shrink-0 place-items-center rounded-full border border-glacier-300 bg-white/70 text-slate-600 backdrop-blur transition-all duration-200 hover:-translate-y-0.5 hover:border-frost-400 hover:text-azure hover:shadow-crystal focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-frost-400';
+  'group/icon grid h-9 w-9 shrink-0 cursor-pointer place-items-center rounded-full border border-glacier-300 bg-white/90 text-slate-600 backdrop-blur-md transition-all duration-[250ms] ease-out hover:-translate-y-0.5 hover:scale-[1.04] hover:border-frost-400 hover:text-azure hover:bg-gradient-to-r hover:from-frost-50 hover:via-azure-50/50 hover:to-aurora-50 hover:shadow-[0_8px_20px_-4px_rgba(79,193,230,0.4),0_4px_12px_-2px_rgba(169,140,234,0.35)] active:scale-95 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-frost-400 [&>svg]:transition-colors [&>svg]:duration-[250ms] group-hover/icon:[&>svg]:text-azure';
 
 export function Navbar() {
   const [openMenu, setOpenMenu] = useState(null);
@@ -118,129 +118,154 @@ export function Navbar() {
         onMouseLeave={() => setOpenMenu(null)}
         className={cn('sticky top-0 z-[70] transition-all duration-300', scrolled ? 'py-2' : 'py-3')}
       >
-        {/* Floating pill — always rounded-full with a glass fill and margins,
-            so it reads as the reference's floating navbar at every scroll
-            position; on scroll it tightens and turns more opaque. */}
+        {/* Outer neon edge glow wrapper: continuously travelling neon light around all 4 edges */}
         <div
           className={cn(
-            'mx-auto flex h-14 max-w-[80rem] items-center gap-3 rounded-full px-3 pl-4 transition-all duration-300 lg:h-[3.75rem] lg:pl-5 xl:gap-5',
-            scrolled
-              ? 'max-w-[74rem] border border-white/70 bg-white/80 shadow-crystal backdrop-blur-xl'
-              : 'border border-white/60 bg-white/65 shadow-lift backdrop-blur-md'
+            'relative mx-auto transition-all duration-500 rounded-full p-[2px] overflow-hidden',
+            scrolled ? 'max-w-[74rem]' : 'max-w-[80rem]'
           )}
         >
-          <Logo />
+          {/* Animated Neon Travelling Edge Light (Analyze button reference: Cyan -> Blue -> Purple) */}
+          <div
+            className="pointer-events-none absolute -inset-[200%] animate-edge-orbit opacity-90"
+            style={{
+              background:
+                'conic-gradient(from 0deg, transparent 0deg, transparent 270deg, #4FC1E6 300deg, #2B72D4 330deg, #A98CEA 355deg, transparent 360deg)',
+              animation: 'edge-orbit 6s linear infinite',
+            }}
+            aria-hidden="true"
+          />
 
-          <nav className="hidden flex-1 items-center justify-center gap-0.5 lg:flex" aria-label="Main">
-            {primaryNav.map((item) =>
-              item.menu ? (
-                <button
-                  key={item.label}
-                  type="button"
-                  onClick={(e) => {
-                    if (hoverOpened.current && openMenu === item.label) {
-                      hoverOpened.current = false;
-                      return;
-                    }
-                    if (openMenu === item.label) {
-                      setOpenMenu(null);
-                    } else {
+          {/* Floating pill body */}
+          <div
+            className={cn(
+              'relative flex h-14 w-full items-center gap-3 rounded-full px-3 pl-4 transition-all duration-300 lg:h-[3.75rem] lg:pl-5 xl:gap-5',
+              scrolled
+                ? 'border border-white/80 bg-white/94 shadow-[0_18px_45px_-12px_rgba(79,193,230,0.3)] backdrop-blur-2xl'
+                : 'border border-white/70 bg-white/85 shadow-crystal backdrop-blur-xl'
+            )}
+          >
+            <Logo />
+
+            <nav className="hidden flex-1 items-center justify-center gap-1 lg:flex" aria-label="Main">
+              {primaryNav.map((item) =>
+                item.menu ? (
+                  <button
+                    key={item.label}
+                    type="button"
+                    onClick={(e) => {
+                      if (hoverOpened.current && openMenu === item.label) {
+                        hoverOpened.current = false;
+                        return;
+                      }
+                      if (openMenu === item.label) {
+                        setOpenMenu(null);
+                      } else {
+                        computeAnchor(e.currentTarget);
+                        setOpenMenu(item.label);
+                      }
+                    }}
+                    onPointerEnter={(e) => {
+                      if (e.pointerType !== 'mouse') return;
+                      hoverOpened.current = true;
                       computeAnchor(e.currentTarget);
                       setOpenMenu(item.label);
+                    }}
+                    aria-expanded={openMenu === item.label}
+                    aria-haspopup="true"
+                    className={cn(
+                      'group/nav relative overflow-hidden inline-flex items-center gap-1 whitespace-nowrap rounded-full px-3 py-2 text-small font-semibold cursor-pointer border border-transparent transition-all duration-[250ms] ease-out hover:-translate-y-0.5 hover:scale-[1.04] active:scale-95 xl:px-3.5',
+                      openMenu === item.label
+                        ? 'bg-gradient-to-r from-frost-50 via-azure-50/50 to-aurora-50 text-azure-700 shadow-[0_8px_20px_-4px_rgba(79,193,230,0.35),0_4px_12px_-2px_rgba(169,140,234,0.3)] border-frost-300'
+                        : 'text-slate-700 hover:bg-gradient-to-r hover:from-frost-50 hover:via-azure-50/50 hover:to-aurora-50 hover:text-azure-700 hover:border-frost-300/80 hover:shadow-[0_8px_20px_-4px_rgba(79,193,230,0.35),0_4px_12px_-2px_rgba(169,140,234,0.3)]'
+                    )}
+                  >
+                    {item.label}
+                    <ChevronDown className={cn('h-4 w-4 transition-transform duration-[250ms] text-slate-500 group-hover/nav:text-azure', openMenu === item.label && 'rotate-180')} aria-hidden />
+                  </button>
+                ) : (
+                  <NavLink
+                    key={item.path}
+                    to={item.path}
+                    onMouseEnter={() => setOpenMenu(null)}
+                    className={({ isActive }) =>
+                      cn(
+                        'relative overflow-hidden inline-flex items-center whitespace-nowrap rounded-full px-3 py-2 text-small font-semibold cursor-pointer border border-transparent transition-all duration-[250ms] ease-out hover:-translate-y-0.5 hover:scale-[1.04] active:scale-95 xl:px-3.5',
+                        isActive
+                          ? 'bg-gradient-to-r from-frost-50 via-azure-50/50 to-aurora-50 text-azure-700 font-bold shadow-[0_8px_20px_-4px_rgba(79,193,230,0.35)] border-frost-300'
+                          : 'text-slate-700 hover:bg-gradient-to-r hover:from-frost-50 hover:via-azure-50/50 hover:to-aurora-50 hover:text-azure-700 hover:border-frost-300/80 hover:shadow-[0_8px_20px_-4px_rgba(79,193,230,0.35),0_4px_12px_-2px_rgba(169,140,234,0.3)]'
+                      )
                     }
-                  }}
-                  onPointerEnter={(e) => {
-                    if (e.pointerType !== 'mouse') return;
-                    hoverOpened.current = true;
-                    computeAnchor(e.currentTarget);
-                    setOpenMenu(item.label);
-                  }}
-                  aria-expanded={openMenu === item.label}
-                  aria-haspopup="true"
-                  className={cn(
-                    'inline-flex items-center gap-1 whitespace-nowrap rounded-full px-2.5 py-2 text-small font-medium transition-colors xl:px-3.5',
-                    openMenu === item.label
-                      ? 'bg-glacier-200 text-ink shadow-frost-inset'
-                      : 'text-slate-700 hover:bg-glacier-200 hover:text-ink hover:shadow-frost-inset'
-                  )}
-                >
-                  {item.label}
-                  <ChevronDown className={cn('h-4 w-4 transition-transform', openMenu === item.label && 'rotate-180')} aria-hidden />
-                </button>
-              ) : (
-                <NavLink
-                  key={item.path}
-                  to={item.path}
-                  onMouseEnter={() => setOpenMenu(null)}
-                  className={({ isActive }) =>
-                    cn(
-                      'whitespace-nowrap rounded-full px-2.5 py-2 text-small font-medium transition-colors xl:px-3.5',
-                      isActive ? 'text-ink font-semibold' : 'text-slate-700 hover:bg-glacier-200 hover:text-ink hover:shadow-frost-inset'
-                    )
-                  }
-                >
-                  {item.label}
-                </NavLink>
-              )
-            )}
-          </nav>
-
-          {/* Right cluster: round glass icon buttons (search / call / account),
-              then the primary CTA, then the mobile menu toggle. */}
-          <div className="ml-auto flex items-center gap-2 lg:ml-0">
-            <div ref={searchRef} className="relative hidden sm:block">
-              <button
-                type="button"
-                onClick={() => setSearchOpen((o) => !o)}
-                aria-label="Search the site"
-                aria-expanded={searchOpen}
-                aria-haspopup="true"
-                title="Search (⌘K)"
-                className={cn(iconBtn, searchOpen && 'border-frost-400 text-azure shadow-crystal')}
-              >
-                <Search className="h-4.5 w-4.5" aria-hidden />
-              </button>
-              {searchOpen && <SearchModal onClose={() => setSearchOpen(false)} />}
-            </div>
-            <div ref={contactRef} className="relative hidden sm:block">
-              <button
-                type="button"
-                onClick={() => setContactOpen((o) => !o)}
-                aria-label="Contact us"
-                aria-expanded={contactOpen}
-                aria-haspopup="true"
-                title="Contact us"
-                className={cn(iconBtn, contactOpen && 'border-frost-400 text-azure shadow-crystal')}
-              >
-                <Phone className="h-4.5 w-4.5" aria-hidden />
-              </button>
-              {contactOpen && <ContactMenu onClose={() => setContactOpen(false)} />}
-            </div>
-            <Link
-              to={accountTo}
-              aria-label={accountLabel}
-              title={accountLabel}
-              className={cn(iconBtn, 'relative')}
-            >
-              <UserRound className="h-4.5 w-4.5" aria-hidden />
-              {isAuthenticated && (
-                <span className="absolute -right-0.5 -top-0.5 h-2.5 w-2.5 rounded-full border-2 border-white bg-success" aria-hidden />
+                  >
+                    {item.label}
+                  </NavLink>
+                )
               )}
-            </Link>
+            </nav>
 
-            <Button to={primaryCta.to} size="sm" variant="premium" className="hidden !rounded-full sm:inline-flex lg:hidden xl:inline-flex">
-              {primaryCta.label}
-            </Button>
-            <button
-              type="button"
-              onClick={() => setMobileOpen(true)}
-              className="grid h-9 w-9 place-items-center rounded-full border border-glacier-300 bg-white/70 text-ink backdrop-blur transition hover:border-frost-400 lg:hidden"
-              aria-label="Open menu"
-            >
-              <Menu className="h-5 w-5" aria-hidden />
-            </button>
+            {/* Right cluster: Search, Call, User, then "Analyze My Resume Free" CTA button */}
+            <div className="ml-auto flex items-center gap-2 lg:ml-0">
+              <div ref={searchRef} className="relative hidden sm:block">
+                <button
+                  type="button"
+                  onClick={() => setSearchOpen((o) => !o)}
+                  aria-label="Search the site"
+                  aria-expanded={searchOpen}
+                  aria-haspopup="true"
+                  title="Search (⌘K)"
+                  className={cn(iconBtn, searchOpen && 'border-frost-400 text-azure shadow-crystal')}
+                >
+                  <Search className="h-4.5 w-4.5" aria-hidden />
+                </button>
+                {searchOpen && <SearchModal onClose={() => setSearchOpen(false)} />}
+              </div>
+              <div ref={contactRef} className="relative hidden sm:block">
+                <button
+                  type="button"
+                  onClick={() => setContactOpen((o) => !o)}
+                  aria-label="Contact us"
+                  aria-expanded={contactOpen}
+                  aria-haspopup="true"
+                  title="Contact us"
+                  className={cn(iconBtn, contactOpen && 'border-frost-400 text-azure shadow-crystal')}
+                >
+                  <Phone className="h-4.5 w-4.5" aria-hidden />
+                </button>
+                {contactOpen && <ContactMenu onClose={() => setContactOpen(false)} />}
+              </div>
+              <Link
+                to={accountTo}
+                aria-label={accountLabel}
+                title={accountLabel}
+                className={cn(iconBtn, 'relative')}
+              >
+                <UserRound className="h-4.5 w-4.5" aria-hidden />
+                {isAuthenticated && (
+                  <span className="absolute -right-0.5 -top-0.5 h-2.5 w-2.5 rounded-full border-2 border-white bg-success" aria-hidden />
+                )}
+              </Link>
+
+              {/* Official Color Reference: Analyze My Resume Free Button */}
+              <Button
+                to={primaryCta.to}
+                size="sm"
+                variant="premium"
+                className="hidden !rounded-full sm:inline-flex lg:hidden xl:inline-flex transition-all duration-[250ms] hover:scale-[1.04] hover:-translate-y-0.5 hover:shadow-[0_12px_28px_-6px_rgba(79,193,230,0.45),0_6px_16px_-4px_rgba(169,140,234,0.4)]"
+              >
+                {primaryCta.label}
+              </Button>
+              <button
+                type="button"
+                onClick={() => setMobileOpen(true)}
+                className={cn(iconBtn, 'lg:hidden')}
+                aria-label="Open menu"
+              >
+                <Menu className="h-5 w-5" aria-hidden />
+              </button>
+            </div>
           </div>
         </div>
+
 
         {openMenu && (
           <MegaMenu

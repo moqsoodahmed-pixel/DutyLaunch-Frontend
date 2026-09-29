@@ -14,6 +14,9 @@ import {
 import { Badge } from '../ui/Badge.jsx';
 import { Button } from '../ui/Button.jsx';
 import { cn } from '../../utils/cn.js';
+import { TEMPLATES } from '../../data/resumeTemplates.js';
+import { ResumeTemplatePreview } from '../cv/ResumeTemplatePreview.jsx';
+
 
 /**
  * Presentation layer for the Career Intelligence engine's output.
@@ -633,37 +636,79 @@ export function ProposalReview({ proposals = [], decisions, onDecide, engineNote
 }
 
 /* ------------------------------------------------------------------ *
- * Template gallery
+ * Template gallery (HRMS-Style Selection with A4 Previews)
  * ------------------------------------------------------------------ */
 
 export function TemplateGallery({ templates = [], selectedId, onSelect, suggestedId }) {
+  const list = TEMPLATES;
+
   return (
-    <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-      {templates.map((template) => {
-        const selected = template.id === selectedId;
+    <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+      {list.map((tpl) => {
+        const selected = tpl.id === selectedId;
         return (
-          <button
-            key={template.id}
-            type="button"
-            onClick={() => onSelect?.(template.id)}
+          <div
+            key={tpl.id}
+            onClick={() => onSelect?.(tpl.id)}
             className={cn(
-              'rounded-lg border p-5 text-left transition hover:-translate-y-0.5 hover:shadow-lift',
-              selected ? 'border-azure ring-2 ring-azure-100' : 'border-line bg-white'
+              'group relative flex flex-col overflow-hidden rounded-2xl border p-3.5 cursor-pointer transition-all duration-300 bg-white',
+              selected
+                ? 'border-azure ring-2 ring-azure shadow-crystal-lg scale-[1.02]'
+                : 'border-line hover:-translate-y-1 hover:border-azure-300 hover:shadow-crystal'
             )}
-            aria-pressed={selected}
           >
-            <div className="mb-3 flex items-start justify-between gap-2">
-              <span className="font-semibold">{template.name}</span>
-              {template.id === suggestedId && <Badge tone="azure">Suggested</Badge>}
+            {/* Top Bar with Selected Tick */}
+            <div className="mb-2 flex items-center justify-between">
+              <span className="font-bold text-ink text-small">{tpl.name}</span>
+              {selected ? (
+                <span className="inline-flex items-center gap-1 rounded-full bg-emerald-600 px-2 py-0.5 text-[10px] font-bold text-white shadow-xs animate-rise">
+                  <Check className="h-3 w-3" /> Selected
+                </span>
+              ) : tpl.id === suggestedId ? (
+                <Badge tone="azure">Recommended</Badge>
+              ) : (
+                <span className="text-[10px] font-semibold text-azure bg-azure-50 px-2 py-0.5 rounded-full">
+                  ATS 100%
+                </span>
+              )}
             </div>
-            <p className="text-small text-slate-600">{template.description}</p>
-            {template.bestFor && <p className="mt-2.5 text-caption text-slate-500">Best for: {template.bestFor}</p>}
-          </button>
+
+            {/* Document Preview */}
+            <div className="relative overflow-hidden rounded-lg border border-glacier-300/80 bg-glacier-100/50 p-1.5">
+              <ResumeTemplatePreview template={tpl} crop={true} />
+            </div>
+
+            {/* Target Details */}
+            <div className="mt-2.5 flex-1">
+              <p className="text-[11.5px] font-semibold text-slate-700">
+                Persona: <span className="font-bold text-ink">{tpl.personName}</span>
+              </p>
+              <p className="text-caption text-slate-500 line-clamp-1 mt-0.5">{tpl.targetRoles}</p>
+            </div>
+
+            {/* Use Template CTA Button */}
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                onSelect?.(tpl.id);
+              }}
+              className={cn(
+                'mt-3 flex w-full items-center justify-center gap-1.5 rounded-xl py-2 px-3 text-[12px] font-bold transition-all duration-300',
+                selected
+                  ? 'bg-gradient-to-r from-azure via-cyan-600 to-purple-600 text-white shadow-crystal hover:from-azure-600 hover:to-purple-700'
+                  : 'bg-frost-50 text-azure hover:bg-gradient-to-r hover:from-azure hover:to-purple-600 hover:text-white'
+              )}
+            >
+              {selected ? 'Active Template' : 'Use Template'}
+            </button>
+          </div>
         );
       })}
     </div>
   );
 }
+
 
 /* ------------------------------------------------------------------ *
  * Next actions
