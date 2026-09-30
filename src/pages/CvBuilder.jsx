@@ -352,8 +352,89 @@ export default function CvBuilder() {
   // Preview zoom factor
   const [previewZoom, setPreviewZoom] = useState('fit');
 
-  // Handle print
+  // Handle print with high-precision isolated 1-page A4 export
   const handlePrint = () => {
+    try {
+      const sheet = document.querySelector('[data-resume-sheet="true"]');
+      if (sheet) {
+        let frame = document.getElementById('cv-dedicated-print-frame');
+        if (frame) frame.remove();
+
+        frame = document.createElement('iframe');
+        frame.id = 'cv-dedicated-print-frame';
+        frame.style.position = 'fixed';
+        frame.style.right = '0';
+        frame.style.bottom = '0';
+        frame.style.width = '0';
+        frame.style.height = '0';
+        frame.style.border = 'none';
+        frame.style.visibility = 'hidden';
+        document.body.appendChild(frame);
+
+        const frameDoc = frame.contentWindow.document;
+        frameDoc.open();
+        frameDoc.write(`<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>${liveTemplateData.personName || 'DutyLaunch_Resume'} - ATS Resume</title>
+  <style>
+    @page {
+      size: A4 portrait;
+      margin: 0mm !important;
+    }
+    *, *::before, *::after {
+      box-sizing: border-box !important;
+      -webkit-print-color-adjust: exact !important;
+      print-color-adjust: exact !important;
+      color-adjust: exact !important;
+    }
+    html, body {
+      margin: 0 !important;
+      padding: 0 !important;
+      background: #ffffff !important;
+      width: 210mm !important;
+      height: 297mm !important;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      overflow: hidden !important;
+    }
+    .print-container {
+      width: 210mm !important;
+      height: 297mm !important;
+      min-height: 297mm !important;
+      max-height: 297mm !important;
+      margin: 0 auto !important;
+      padding: 0 !important;
+      background: #ffffff !important;
+      overflow: hidden !important;
+    }
+    .print-container > div {
+      transform: none !important;
+      width: 210mm !important;
+      height: 297mm !important;
+      min-height: 297mm !important;
+      max-height: 297mm !important;
+      margin: 0 !important;
+    }
+  </style>
+</head>
+<body>
+  <div class="print-container">
+    ${sheet.outerHTML}
+  </div>
+</body>
+</html>`);
+        frameDoc.close();
+
+        setTimeout(() => {
+          frame.contentWindow.focus();
+          frame.contentWindow.print();
+        }, 300);
+        return;
+      }
+    } catch (e) {
+      console.warn('Iframe print error, falling back to window.print():', e);
+    }
     window.print();
   };
 
@@ -499,8 +580,14 @@ export default function CvBuilder() {
         ? certifications.map((c) => (typeof c === 'string' ? c : `${c.name} — ${c.issuer} (${c.year})`))
         : (baseTpl.certifications || baseTpl.certs || []),
       // Languages
-      languages: hasUserLanguages
-        ? languages.map((l) => (typeof l === 'string' ? l : `${l.name} (${l.level})`))
+      languages: hasUserLanguages && languages.some((l) => (typeof l === 'string' ? l.trim() : l?.name?.trim()))
+        ? languages
+            .map((l) => {
+              if (typeof l === 'string') return l.trim();
+              if (!l?.name?.trim()) return '';
+              return l.level?.trim() ? `${l.name.trim()} (${l.level.trim()})` : l.name.trim();
+            })
+            .filter(Boolean)
         : (baseTpl.languages || []),
       // Awards / Achievements
       awards: hasUserAwards
@@ -581,28 +668,91 @@ export default function CvBuilder() {
       {/* Print Specific CSS to Isolate Real A4 Page for Browser Print / PDF Export */}
       <style>{`
         @media print {
-          body * {
-            visibility: hidden !important;
+          @page {
+            size: A4 portrait;
+            margin: 0mm !important;
           }
-          #cv-print-area, #cv-print-area * {
-            visibility: visible !important;
+          *, *::before, *::after {
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
+            color-adjust: exact !important;
           }
-          #cv-print-area {
-            position: fixed !important;
-            left: 0 !important;
-            top: 0 !important;
-            width: 100% !important;
+          html, body {
             margin: 0 !important;
             padding: 0 !important;
             background: #ffffff !important;
-            transform: none !important;
+            width: 210mm !important;
+            height: 297mm !important;
+            overflow: hidden !important;
+          }
+          /* Hide all surrounding layout via display:none so zero extra sheets exist */
+          header, nav, footer, aside, #announcement-bar, #floating-contact, .no-print, [role="banner"], [role="navigation"], [role="contentinfo"] {
+            display: none !important;
+          }
+
+          main {
+            margin: 0 !important;
+            padding: 0 !important;
+            width: 100% !important;
+            height: 100% !important;
+            background: #ffffff !important;
+          }
+          .cv-builder-left-col, .cv-builder-subheader, .cv-preview-controls, .cv-download-card {
+            display: none !important;
+          }
+          .cv-builder-grid {
+            display: block !important;
+            margin: 0 !important;
+            padding: 0 !important;
+          }
+          .cv-builder-right-col {
+            position: static !important;
+            width: 210mm !important;
+            height: 297mm !important;
+            margin: 0 auto !important;
+            padding: 0 !important;
+            top: auto !important;
+          }
+          .cv-preview-outer {
+            background: transparent !important;
+            border: none !important;
             box-shadow: none !important;
+            padding: 0 !important;
+            margin: 0 !important;
+            backdrop-filter: none !important;
+          }
+          #cv-print-area {
+            width: 210mm !important;
+            height: 297mm !important;
+            min-height: 297mm !important;
+            max-height: 297mm !important;
+            margin: 0 auto !important;
+            padding: 0 !important;
+            box-shadow: none !important;
+            border: none !important;
+            position: static !important;
+            overflow: hidden !important;
+            page-break-after: avoid !important;
+            page-break-inside: avoid !important;
+            background: #ffffff !important;
+          }
+          .dl-resume-preview-box {
+            height: 297mm !important;
+            aspect-ratio: auto !important;
+            overflow: hidden !important;
+          }
+          .dl-resume-a4-sheet, [data-resume-sheet="true"] {
+            transform: none !important;
+            width: 210mm !important;
+            height: 297mm !important;
+            min-height: 297mm !important;
+            max-height: 297mm !important;
           }
         }
       `}</style>
 
       {/* Sub-Header Banner (IN NORMAL FLOW - Never overlaps with sticky Navbar) */}
-      <div className="border-b border-line bg-white shadow-xs">
+      <div className="border-b border-line bg-white shadow-xs cv-builder-subheader">
         <div className="mx-auto flex max-w-[96rem] flex-wrap items-center justify-between gap-3 px-4 py-3 sm:px-6">
           <div className="flex items-center gap-3">
             <Link
@@ -673,11 +823,11 @@ export default function CvBuilder() {
       {/* Main Workspace Split Layout */}
       <main className="min-h-screen bg-slate-50/70 py-6">
         <div className="mx-auto max-w-[96rem] px-4 sm:px-6">
-          <div className="grid grid-cols-1 gap-8 lg:grid-cols-12 items-start">
+          <div className="grid grid-cols-1 gap-8 lg:grid-cols-12 items-start cv-builder-grid">
             {/* ════════════════════════════════════════════════════════════
              * LEFT CONFIGURATION PANEL (Inputs start empty + Recommended Options)
              * ════════════════════════════════════════════════════════════ */}
-            <div className="lg:col-span-6 xl:col-span-6 space-y-4">
+            <div className="lg:col-span-6 xl:col-span-6 space-y-4 cv-builder-left-col">
               {/* Introduction Banner with Quick Template Switcher */}
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 rounded-xl border border-white/90 bg-white p-4 shadow-crystal backdrop-blur-md">
                 <div>
@@ -1539,7 +1689,604 @@ export default function CvBuilder() {
                 )}
               </div>
 
-              {/* ── 8. RECOMMENDED ADDITIONAL SECTIONS ── */}
+              {/* ── 8. LANGUAGES ACCORDION ── */}
+              <div id="section-languages" className="overflow-hidden rounded-xl border border-line bg-white shadow-crystal transition-all duration-200">
+                <button
+                  type="button"
+                  onClick={() => toggleSection('languages')}
+                  className="flex w-full items-center justify-between p-4 text-left font-bold text-ink hover:bg-slate-50 transition-colors"
+                >
+                  <span className="flex items-center gap-2 text-small">
+                    <Globe2 className="h-4 w-4 text-cyan-600" />
+                    Languages ({languages.length})
+                  </span>
+                  <span className="flex items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setLanguages((prev) => [
+                          ...prev,
+                          { id: `lang-${Date.now()}`, name: '', level: 'Full Professional' },
+                        ]);
+                        setOpenSections((prev) => ({ ...prev, languages: true }));
+                      }}
+                      className="rounded bg-cyan-50 px-2 py-0.5 text-[11px] font-bold text-cyan-700 hover:bg-cyan-600 hover:text-white transition-colors cursor-pointer"
+                    >
+                      + Add Language
+                    </button>
+                    {openSections.languages ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+                  </span>
+                </button>
+
+                {openSections.languages && (
+                  <div className="border-t border-line p-4 space-y-3 bg-slate-50/50">
+                    {/* Quick Suggestions */}
+                    <div className="rounded-lg border border-cyan-200 bg-cyan-50/50 p-3">
+                      <div className="text-[12px] font-bold text-cyan-950 mb-1.5 flex items-center gap-1.5">
+                        <Zap className="h-3.5 w-3.5 text-cyan-600" />
+                        <span>Quick Suggestions (Click to add):</span>
+                      </div>
+                      <div className="flex flex-wrap gap-1.5">
+                        {['English', 'Arabic', 'Hindi', 'French', 'German', 'Spanish', 'Malayalam', 'Tamil', 'Urdu', 'Russian'].map(
+                          (langName) => {
+                            const alreadyAdded = languages.some((l) => (l.name || '').toLowerCase() === langName.toLowerCase());
+                            return (
+                              <button
+                                key={langName}
+                                type="button"
+                                disabled={alreadyAdded}
+                                onClick={() => {
+                                  setLanguages((prev) => [
+                                    ...prev,
+                                    { id: `lang-${Date.now()}`, name: langName, level: 'Full Professional' },
+                                  ]);
+                                }}
+                                className={cn(
+                                  'rounded-md border px-2 py-1 text-[11px] font-semibold transition-all cursor-pointer',
+                                  alreadyAdded
+                                    ? 'border-slate-200 bg-slate-100 text-slate-400 cursor-not-allowed'
+                                    : 'border-cyan-200 bg-white text-cyan-900 hover:bg-cyan-600 hover:text-white'
+                                )}
+                              >
+                                {alreadyAdded ? `✓ ${langName}` : `+ ${langName}`}
+                              </button>
+                            );
+                          }
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Language Cards */}
+                    {languages.length > 0 ? (
+                      languages.map((lang, idx) => (
+                        <div key={lang.id || idx} className="rounded-xl border border-line bg-white p-3.5 space-y-2.5 shadow-xs">
+                          <div className="flex items-center justify-between">
+                            <span className="text-small font-bold text-ink flex items-center gap-1.5">
+                              <Globe2 className="h-3.5 w-3.5 text-cyan-600" />
+                              <span>Language #{idx + 1}</span>
+                            </span>
+                            <button
+                              type="button"
+                              onClick={() => setLanguages(languages.filter((_, i) => i !== idx))}
+                              className="text-slate-400 hover:text-red-600 p-1 cursor-pointer"
+                              aria-label={`Remove ${lang.name || 'language'}`}
+                            >
+                              <Trash2 className="h-3.5 w-3.5" />
+                            </button>
+                          </div>
+
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                            <div>
+                              <label className="block text-[11px] font-semibold text-slate-600 mb-1">Language Name</label>
+                              <input
+                                type="text"
+                                placeholder="e.g. English, Arabic, French"
+                                value={lang.name}
+                                onChange={(e) => {
+                                  const next = [...languages];
+                                  next[idx] = { ...next[idx], name: e.target.value };
+                                  setLanguages(next);
+                                }}
+                                className="w-full rounded-lg border border-line bg-white px-2.5 py-1.5 text-[12px] text-ink focus:border-azure focus:outline-none"
+                              />
+                            </div>
+
+                            <div>
+                              <label className="block text-[11px] font-semibold text-slate-600 mb-1">Proficiency Level</label>
+                              <select
+                                value={lang.level}
+                                onChange={(e) => {
+                                  const next = [...languages];
+                                  next[idx] = { ...next[idx], level: e.target.value };
+                                  setLanguages(next);
+                                }}
+                                className="w-full rounded-lg border border-line bg-white px-2.5 py-1.5 text-[12px] text-ink focus:border-azure focus:outline-none cursor-pointer"
+                              >
+                                <option value="Native / Bilingual">Native / Bilingual</option>
+                                <option value="Full Professional">Full Professional</option>
+                                <option value="Professional Working">Professional Working</option>
+                                <option value="Limited Working">Limited Working</option>
+                                <option value="Elementary">Elementary</option>
+                              </select>
+                            </div>
+                          </div>
+                        </div>
+                      ))
+                    ) : (
+                      <div className="rounded-xl border border-dashed border-slate-300 p-5 text-center bg-white">
+                        <Globe2 className="h-7 w-7 text-slate-300 mx-auto mb-1.5" />
+                        <h4 className="text-small font-bold text-slate-700">No Languages Added</h4>
+                        <p className="text-[12px] text-slate-500 mb-2.5">Click any recommended language above or add a custom one.</p>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+
+              {/* ── 9. CERTIFICATIONS ACCORDION ── */}
+              <div id="section-certifications" className="overflow-hidden rounded-xl border border-line bg-white shadow-crystal transition-all duration-200">
+                <button
+                  type="button"
+                  onClick={() => toggleSection('certifications')}
+                  className="flex w-full items-center justify-between p-4 text-left font-bold text-ink hover:bg-slate-50 transition-colors"
+                >
+                  <span className="flex items-center gap-2 text-small">
+                    <Award className="h-4 w-4 text-emerald-600" />
+                    Certifications ({certifications.length})
+                  </span>
+                  <span className="flex items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setCertifications((prev) => [
+                          ...prev,
+                          { id: `c-${Date.now()}`, name: '', issuer: '', year: '' },
+                        ]);
+                        setOpenSections((prev) => ({ ...prev, certifications: true }));
+                      }}
+                      className="rounded bg-emerald-50 px-2 py-0.5 text-[11px] font-bold text-emerald-700 hover:bg-emerald-600 hover:text-white transition-colors cursor-pointer"
+                    >
+                      + Add Certification
+                    </button>
+                    {openSections.certifications ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+                  </span>
+                </button>
+
+                {openSections.certifications && (
+                  <div className="border-t border-line p-4 space-y-3 bg-slate-50/50">
+                    <div className="rounded-lg border border-emerald-200 bg-emerald-50/50 p-3">
+                      <div className="text-[12px] font-bold text-emerald-950 mb-1.5 flex items-center gap-1.5">
+                        <Zap className="h-3.5 w-3.5 text-emerald-600" />
+                        <span>Popular Certifications:</span>
+                      </div>
+                      <div className="flex flex-wrap gap-1.5">
+                        {[
+                          { name: 'PMP® (Project Management Professional)', issuer: 'PMI' },
+                          { name: 'AWS Certified Solutions Architect', issuer: 'AWS' },
+                          { name: 'Six Sigma Green Belt', issuer: 'IASSC' },
+                          { name: 'Google Cloud Professional', issuer: 'Google' },
+                          { name: 'Scrum Master (CSM)', issuer: 'Scrum Alliance' },
+                        ].map((c) => (
+                          <button
+                            key={c.name}
+                            type="button"
+                            onClick={() => {
+                              setCertifications((prev) => [
+                                ...prev,
+                                { id: `c-${Date.now()}`, name: c.name, issuer: c.issuer, year: new Date().getFullYear().toString() },
+                              ]);
+                            }}
+                            className="rounded-md border border-emerald-200 bg-white px-2 py-1 text-[11px] font-semibold text-emerald-900 hover:bg-emerald-600 hover:text-white transition-all cursor-pointer"
+                          >
+                            + {c.name.split('(')[0]}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+
+                    {certifications.length > 0 ? (
+                      certifications.map((cert, idx) => (
+                        <div key={cert.id || idx} className="rounded-xl border border-line bg-white p-3.5 space-y-2.5 shadow-xs">
+                          <div className="flex items-center justify-between">
+                            <span className="text-small font-bold text-ink">Certification #{idx + 1}</span>
+                            <button
+                              type="button"
+                              onClick={() => setCertifications(certifications.filter((_, i) => i !== idx))}
+                              className="text-slate-400 hover:text-red-600 p-1 cursor-pointer"
+                            >
+                              <Trash2 className="h-3.5 w-3.5" />
+                            </button>
+                          </div>
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                            <input
+                              type="text"
+                              placeholder="Certification Name"
+                              value={cert.name}
+                              onChange={(e) => {
+                                const next = [...certifications];
+                                next[idx] = { ...next[idx], name: e.target.value };
+                                setCertifications(next);
+                              }}
+                              className="rounded-lg border border-line bg-white px-2.5 py-1.5 text-[12px] text-ink focus:border-azure focus:outline-none"
+                            />
+                            <input
+                              type="text"
+                              placeholder="Issuing Organization"
+                              value={cert.issuer}
+                              onChange={(e) => {
+                                const next = [...certifications];
+                                next[idx] = { ...next[idx], issuer: e.target.value };
+                                setCertifications(next);
+                              }}
+                              className="rounded-lg border border-line bg-white px-2.5 py-1.5 text-[12px] text-ink focus:border-azure focus:outline-none"
+                            />
+                          </div>
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                            <input
+                              type="text"
+                              placeholder="Year Acquired (e.g. 2023)"
+                              value={cert.year}
+                              onChange={(e) => {
+                                const next = [...certifications];
+                                next[idx] = { ...next[idx], year: e.target.value };
+                                setCertifications(next);
+                              }}
+                              className="rounded-lg border border-line bg-white px-2.5 py-1.5 text-[12px] text-ink focus:border-azure focus:outline-none"
+                            />
+                            <input
+                              type="text"
+                              placeholder="Credential ID / License URL (optional)"
+                              value={cert.credentialId || ''}
+                              onChange={(e) => {
+                                const next = [...certifications];
+                                next[idx] = { ...next[idx], credentialId: e.target.value };
+                                setCertifications(next);
+                              }}
+                              className="rounded-lg border border-line bg-white px-2.5 py-1.5 text-[12px] text-ink focus:border-azure focus:outline-none"
+                            />
+                          </div>
+                        </div>
+                      ))
+                    ) : (
+                      <div className="rounded-xl border border-dashed border-slate-300 p-5 text-center bg-white">
+                        <Award className="h-7 w-7 text-slate-300 mx-auto mb-1.5" />
+                        <h4 className="text-small font-bold text-slate-700">No Certifications Added</h4>
+                        <p className="text-[12px] text-slate-500 mb-2.5">Add professional credentials and licenses to stand out.</p>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+
+              {/* ── 10. KEY PROJECTS ACCORDION ── */}
+              <div id="section-projects" className="overflow-hidden rounded-xl border border-line bg-white shadow-crystal transition-all duration-200">
+                <button
+                  type="button"
+                  onClick={() => toggleSection('projects')}
+                  className="flex w-full items-center justify-between p-4 text-left font-bold text-ink hover:bg-slate-50 transition-colors"
+                >
+                  <span className="flex items-center gap-2 text-small">
+                    <FolderGit2 className="h-4 w-4 text-azure" />
+                    Key Projects ({projects.length})
+                  </span>
+                  <span className="flex items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setProjects((prev) => [
+                          ...prev,
+                          { id: `prj-${Date.now()}`, name: '', role: '', impact: '', link: '' },
+                        ]);
+                        setOpenSections((prev) => ({ ...prev, projects: true }));
+                      }}
+                      className="rounded bg-azure-50 px-2 py-0.5 text-[11px] font-bold text-azure hover:bg-azure hover:text-white transition-colors cursor-pointer"
+                    >
+                      + Add Project
+                    </button>
+                    {openSections.projects ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+                  </span>
+                </button>
+
+                {openSections.projects && (
+                  <div className="border-t border-line p-4 space-y-3 bg-slate-50/50">
+                    {projects.length > 0 ? (
+                      projects.map((prj, idx) => (
+                        <div key={prj.id || idx} className="rounded-xl border border-line bg-white p-3.5 space-y-2.5 shadow-xs">
+                          <div className="flex items-center justify-between">
+                            <span className="text-small font-bold text-ink">Project #{idx + 1}</span>
+                            <button
+                              type="button"
+                              onClick={() => setProjects(projects.filter((_, i) => i !== idx))}
+                              className="text-slate-400 hover:text-red-600 p-1 cursor-pointer"
+                            >
+                              <Trash2 className="h-3.5 w-3.5" />
+                            </button>
+                          </div>
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                            <input
+                              type="text"
+                              placeholder="Project Name"
+                              value={prj.name}
+                              onChange={(e) => {
+                                const next = [...projects];
+                                next[idx] = { ...next[idx], name: e.target.value };
+                                setProjects(next);
+                              }}
+                              className="rounded-lg border border-line bg-white px-2.5 py-1.5 text-[12px] text-ink focus:border-azure focus:outline-none"
+                            />
+                            <input
+                              type="text"
+                              placeholder="Your Role (e.g. Lead Architect)"
+                              value={prj.role}
+                              onChange={(e) => {
+                                const next = [...projects];
+                                next[idx] = { ...next[idx], role: e.target.value };
+                                setProjects(next);
+                              }}
+                              className="rounded-lg border border-line bg-white px-2.5 py-1.5 text-[12px] text-ink focus:border-azure focus:outline-none"
+                            />
+                          </div>
+                          <input
+                            type="text"
+                            placeholder="Demo URL or Repository (optional)"
+                            value={prj.link || ''}
+                            onChange={(e) => {
+                              const next = [...projects];
+                              next[idx] = { ...next[idx], link: e.target.value };
+                              setProjects(next);
+                            }}
+                            className="w-full rounded-lg border border-line bg-white px-2.5 py-1.5 text-[12px] text-ink focus:border-azure focus:outline-none"
+                          />
+                          <textarea
+                            rows={2}
+                            placeholder="Key Impact & Technologies used"
+                            value={prj.impact}
+                            onChange={(e) => {
+                              const next = [...projects];
+                              next[idx] = { ...next[idx], impact: e.target.value };
+                              setProjects(next);
+                            }}
+                            className="w-full rounded-lg border border-line bg-white px-2.5 py-1.5 text-[12px] text-ink focus:border-azure focus:outline-none"
+                          />
+                        </div>
+                      ))
+                    ) : (
+                      <div className="rounded-xl border border-dashed border-slate-300 p-5 text-center bg-white">
+                        <FolderGit2 className="h-7 w-7 text-slate-300 mx-auto mb-1.5" />
+                        <h4 className="text-small font-bold text-slate-700">No Projects Added</h4>
+                        <p className="text-[12px] text-slate-500 mb-2.5">Showcase key initiatives, open source, or portfolio work.</p>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+
+              {/* ── 11. AWARDS & HONORS ACCORDION ── */}
+              <div id="section-awards" className="overflow-hidden rounded-xl border border-line bg-white shadow-crystal transition-all duration-200">
+                <button
+                  type="button"
+                  onClick={() => toggleSection('awards')}
+                  className="flex w-full items-center justify-between p-4 text-left font-bold text-ink hover:bg-slate-50 transition-colors"
+                >
+                  <span className="flex items-center gap-2 text-small">
+                    <Sparkles className="h-4 w-4 text-purple-600" />
+                    Awards & Honors ({awards.length})
+                  </span>
+                  <span className="flex items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setAwards((prev) => [
+                          ...prev,
+                          { id: `awd-${Date.now()}`, title: '', issuer: '', year: '', description: '' },
+                        ]);
+                        setOpenSections((prev) => ({ ...prev, awards: true }));
+                      }}
+                      className="rounded bg-purple-50 px-2 py-0.5 text-[11px] font-bold text-purple-700 hover:bg-purple-600 hover:text-white transition-colors cursor-pointer"
+                    >
+                      + Add Award
+                    </button>
+                    {openSections.awards ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+                  </span>
+                </button>
+
+                {openSections.awards && (
+                  <div className="border-t border-line p-4 space-y-3 bg-slate-50/50">
+                    {awards.length > 0 ? (
+                      awards.map((awd, idx) => (
+                        <div key={awd.id || idx} className="rounded-xl border border-line bg-white p-3.5 space-y-2.5 shadow-xs">
+                          <div className="flex items-center justify-between">
+                            <span className="text-small font-bold text-ink">Award #{idx + 1}</span>
+                            <button
+                              type="button"
+                              onClick={() => setAwards(awards.filter((_, i) => i !== idx))}
+                              className="text-slate-400 hover:text-red-600 p-1 cursor-pointer"
+                            >
+                              <Trash2 className="h-3.5 w-3.5" />
+                            </button>
+                          </div>
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                            <input
+                              type="text"
+                              placeholder="Award Title"
+                              value={awd.title}
+                              onChange={(e) => {
+                                const next = [...awards];
+                                next[idx] = { ...next[idx], title: e.target.value };
+                                setAwards(next);
+                              }}
+                              className="rounded-lg border border-line bg-white px-2.5 py-1.5 text-[12px] text-ink focus:border-azure focus:outline-none"
+                            />
+                            <input
+                              type="text"
+                              placeholder="Conferring Organization / Issuer"
+                              value={awd.issuer}
+                              onChange={(e) => {
+                                const next = [...awards];
+                                next[idx] = { ...next[idx], issuer: e.target.value };
+                                setAwards(next);
+                              }}
+                              className="rounded-lg border border-line bg-white px-2.5 py-1.5 text-[12px] text-ink focus:border-azure focus:outline-none"
+                            />
+                          </div>
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                            <input
+                              type="text"
+                              placeholder="Year (e.g. 2023)"
+                              value={awd.year}
+                              onChange={(e) => {
+                                const next = [...awards];
+                                next[idx] = { ...next[idx], year: e.target.value };
+                                setAwards(next);
+                              }}
+                              className="rounded-lg border border-line bg-white px-2.5 py-1.5 text-[12px] text-ink focus:border-azure focus:outline-none"
+                            />
+                            <input
+                              type="text"
+                              placeholder="Short Description"
+                              value={awd.description}
+                              onChange={(e) => {
+                                const next = [...awards];
+                                next[idx] = { ...next[idx], description: e.target.value };
+                                setAwards(next);
+                              }}
+                              className="rounded-lg border border-line bg-white px-2.5 py-1.5 text-[12px] text-ink focus:border-azure focus:outline-none"
+                            />
+                          </div>
+                        </div>
+                      ))
+                    ) : (
+                      <div className="rounded-xl border border-dashed border-slate-300 p-5 text-center bg-white">
+                        <Sparkles className="h-7 w-7 text-slate-300 mx-auto mb-1.5" />
+                        <h4 className="text-small font-bold text-slate-700">No Awards Added</h4>
+                        <p className="text-[12px] text-slate-500 mb-2.5">Highlight recognitions, hackathons, or company honors.</p>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+
+              {/* ── 12. CUSTOM SECTION ACCORDION ── */}
+              <div id="section-custom" className="overflow-hidden rounded-xl border border-line bg-white shadow-crystal transition-all duration-200">
+                <button
+                  type="button"
+                  onClick={() => toggleSection('custom')}
+                  className="flex w-full items-center justify-between p-4 text-left font-bold text-ink hover:bg-slate-50 transition-colors"
+                >
+                  <span className="flex items-center gap-2 text-small">
+                    <Layers className="h-4 w-4 text-amber-600" />
+                    Custom Section ({customSections.length})
+                  </span>
+                  <span className="flex items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setCustomSections((prev) => [
+                          ...prev,
+                          { id: `cst-${Date.now()}`, title: 'Publications & Speaking', items: [''] },
+                        ]);
+                        setOpenSections((prev) => ({ ...prev, custom: true }));
+                      }}
+                      className="rounded bg-amber-50 px-2 py-0.5 text-[11px] font-bold text-amber-700 hover:bg-amber-600 hover:text-white transition-colors cursor-pointer"
+                    >
+                      + Add Section
+                    </button>
+                    {openSections.custom ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+                  </span>
+                </button>
+
+                {openSections.custom && (
+                  <div className="border-t border-line p-4 space-y-3 bg-slate-50/50">
+                    {customSections.length > 0 ? (
+                      customSections.map((sec, idx) => (
+                        <div key={sec.id || idx} className="rounded-xl border border-line bg-white p-3.5 space-y-2.5 shadow-xs">
+                          <div className="flex items-center justify-between">
+                            <span className="text-small font-bold text-ink">Custom Section #{idx + 1}</span>
+                            <button
+                              type="button"
+                              onClick={() => setCustomSections(customSections.filter((_, i) => i !== idx))}
+                              className="text-slate-400 hover:text-red-600 p-1 cursor-pointer"
+                            >
+                              <Trash2 className="h-3.5 w-3.5" />
+                            </button>
+                          </div>
+                          <input
+                            type="text"
+                            placeholder="Section Title (e.g. Publications, Volunteer Work)"
+                            value={sec.title}
+                            onChange={(e) => {
+                              const next = [...customSections];
+                              next[idx] = { ...next[idx], title: e.target.value };
+                              setCustomSections(next);
+                            }}
+                            className="w-full rounded-lg border border-line bg-white px-2.5 py-1.5 text-[12px] font-semibold text-ink focus:border-azure focus:outline-none"
+                          />
+                          <div className="space-y-1.5">
+                            <label className="block text-[11px] font-semibold text-slate-600">Bullet Points</label>
+                            {(sec.items || ['']).map((item, itemIdx) => (
+                              <div key={itemIdx} className="flex items-center gap-1.5">
+                                <input
+                                  type="text"
+                                  placeholder={`Bullet #${itemIdx + 1}`}
+                                  value={item}
+                                  onChange={(e) => {
+                                    const next = [...customSections];
+                                    const newItems = [...(next[idx].items || [])];
+                                    newItems[itemIdx] = e.target.value;
+                                    next[idx] = { ...next[idx], items: newItems };
+                                    setCustomSections(next);
+                                  }}
+                                  className="flex-1 rounded-lg border border-line bg-white px-2.5 py-1 text-[12px] text-ink focus:border-azure focus:outline-none"
+                                />
+                                {(sec.items || []).length > 1 && (
+                                  <button
+                                    type="button"
+                                    onClick={() => {
+                                      const next = [...customSections];
+                                      next[idx] = {
+                                        ...next[idx],
+                                        items: next[idx].items.filter((_, i) => i !== itemIdx),
+                                      };
+                                      setCustomSections(next);
+                                    }}
+                                    className="text-slate-400 hover:text-red-600 p-1 cursor-pointer"
+                                  >
+                                    <Trash2 className="h-3 w-3" />
+                                  </button>
+                                )}
+                              </div>
+                            ))}
+                            <button
+                              type="button"
+                              onClick={() => {
+                                const next = [...customSections];
+                                next[idx] = { ...next[idx], items: [...(next[idx].items || []), ''] };
+                                setCustomSections(next);
+                              }}
+                              className="text-[11px] font-bold text-azure hover:underline mt-1 inline-block cursor-pointer"
+                            >
+                              + Add Bullet
+                            </button>
+                          </div>
+                        </div>
+                      ))
+                    ) : (
+                      <div className="rounded-xl border border-dashed border-slate-300 p-5 text-center bg-white">
+                        <Layers className="h-7 w-7 text-slate-300 mx-auto mb-1.5" />
+                        <h4 className="text-small font-bold text-slate-700">No Custom Section Added</h4>
+                        <p className="text-[12px] text-slate-500 mb-2.5">Create your own customized category.</p>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+
+              {/* ── 13. RECOMMENDED ADDITIONAL SECTIONS ── */}
               <div className="rounded-xl border border-line bg-white p-4 shadow-crystal">
                 <h3 className="text-small font-bold text-ink mb-2">Recommended Additional Sections</h3>
                 <p className="text-[12px] text-slate-500 mb-3">Add only the extra sections relevant to your target role:</p>
@@ -1547,10 +2294,15 @@ export default function CvBuilder() {
                   <button
                     type="button"
                     onClick={() => {
-                      setProjects([...projects, { id: `prj-${Date.now()}`, name: '', role: '', impact: '', link: '' }]);
+                      if (projects.length === 0) {
+                        setProjects([{ id: `prj-${Date.now()}`, name: '', role: '', impact: '', link: '' }]);
+                      }
                       setOpenSections((prev) => ({ ...prev, projects: true }));
+                      setTimeout(() => {
+                        document.getElementById('section-projects')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                      }, 50);
                     }}
-                    className="inline-flex items-center gap-1 rounded-lg border border-line bg-slate-50 px-2.5 py-1.5 text-[12px] font-semibold text-slate-700 hover:border-azure hover:bg-azure-50 transition-colors"
+                    className="inline-flex items-center gap-1 rounded-lg border border-line bg-slate-50 px-2.5 py-1.5 text-[12px] font-semibold text-slate-700 hover:border-azure hover:bg-azure-50 transition-colors cursor-pointer"
                   >
                     <Plus className="h-3.5 w-3.5 text-azure" /> Key Projects ({projects.length})
                   </button>
@@ -1558,10 +2310,15 @@ export default function CvBuilder() {
                   <button
                     type="button"
                     onClick={() => {
-                      setCertifications([...certifications, { id: `c-${Date.now()}`, name: '', issuer: '', year: '' }]);
+                      if (certifications.length === 0) {
+                        setCertifications([{ id: `c-${Date.now()}`, name: '', issuer: '', year: '' }]);
+                      }
                       setOpenSections((prev) => ({ ...prev, certifications: true }));
+                      setTimeout(() => {
+                        document.getElementById('section-certifications')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                      }, 50);
                     }}
-                    className="inline-flex items-center gap-1 rounded-lg border border-line bg-slate-50 px-2.5 py-1.5 text-[12px] font-semibold text-slate-700 hover:border-azure hover:bg-azure-50 transition-colors"
+                    className="inline-flex items-center gap-1 rounded-lg border border-line bg-slate-50 px-2.5 py-1.5 text-[12px] font-semibold text-slate-700 hover:border-emerald-500 hover:bg-emerald-50 transition-colors cursor-pointer"
                   >
                     <Plus className="h-3.5 w-3.5 text-emerald-600" /> Certifications ({certifications.length})
                   </button>
@@ -1569,10 +2326,15 @@ export default function CvBuilder() {
                   <button
                     type="button"
                     onClick={() => {
-                      setLanguages([...languages, { id: `l-${Date.now()}`, name: '', level: 'Full Professional' }]);
+                      if (languages.length === 0) {
+                        setLanguages([{ id: `lang-${Date.now()}`, name: '', level: 'Full Professional' }]);
+                      }
                       setOpenSections((prev) => ({ ...prev, languages: true }));
+                      setTimeout(() => {
+                        document.getElementById('section-languages')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                      }, 50);
                     }}
-                    className="inline-flex items-center gap-1 rounded-lg border border-line bg-slate-50 px-2.5 py-1.5 text-[12px] font-semibold text-slate-700 hover:border-azure hover:bg-azure-50 transition-colors"
+                    className="inline-flex items-center gap-1 rounded-lg border border-line bg-slate-50 px-2.5 py-1.5 text-[12px] font-semibold text-slate-700 hover:border-cyan-500 hover:bg-cyan-50 transition-colors cursor-pointer"
                   >
                     <Plus className="h-3.5 w-3.5 text-cyan-600" /> Languages ({languages.length})
                   </button>
@@ -1580,10 +2342,15 @@ export default function CvBuilder() {
                   <button
                     type="button"
                     onClick={() => {
-                      setAwards([...awards, { id: `awd-${Date.now()}`, title: '', issuer: '', year: '', description: '' }]);
+                      if (awards.length === 0) {
+                        setAwards([{ id: `awd-${Date.now()}`, title: '', issuer: '', year: '', description: '' }]);
+                      }
                       setOpenSections((prev) => ({ ...prev, awards: true }));
+                      setTimeout(() => {
+                        document.getElementById('section-awards')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                      }, 50);
                     }}
-                    className="inline-flex items-center gap-1 rounded-lg border border-line bg-slate-50 px-2.5 py-1.5 text-[12px] font-semibold text-slate-700 hover:border-azure hover:bg-azure-50 transition-colors"
+                    className="inline-flex items-center gap-1 rounded-lg border border-line bg-slate-50 px-2.5 py-1.5 text-[12px] font-semibold text-slate-700 hover:border-purple-500 hover:bg-purple-50 transition-colors cursor-pointer"
                   >
                     <Plus className="h-3.5 w-3.5 text-purple-600" /> Awards & Honors ({awards.length})
                   </button>
@@ -1591,10 +2358,15 @@ export default function CvBuilder() {
                   <button
                     type="button"
                     onClick={() => {
-                      setCustomSections([...customSections, { id: `cst-${Date.now()}`, title: 'Publications & Speaking', items: [''] }]);
+                      if (customSections.length === 0) {
+                        setCustomSections([{ id: `cst-${Date.now()}`, title: 'Publications & Speaking', items: [''] }]);
+                      }
                       setOpenSections((prev) => ({ ...prev, custom: true }));
+                      setTimeout(() => {
+                        document.getElementById('section-custom')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                      }, 50);
                     }}
-                    className="inline-flex items-center gap-1 rounded-lg border border-line bg-slate-50 px-2.5 py-1.5 text-[12px] font-semibold text-slate-700 hover:border-azure hover:bg-azure-50 transition-colors"
+                    className="inline-flex items-center gap-1 rounded-lg border border-line bg-slate-50 px-2.5 py-1.5 text-[12px] font-semibold text-slate-700 hover:border-amber-500 hover:bg-amber-50 transition-colors cursor-pointer"
                   >
                     <Plus className="h-3.5 w-3.5 text-amber-600" /> Custom Section ({customSections.length})
                   </button>
@@ -1606,9 +2378,9 @@ export default function CvBuilder() {
              * RIGHT LIVE DOCUMENT PREVIEW (STICKY TOP-24 - Below Navbar)
              * Real ISO A4 Page (794px × 1123px) — NO placeholder boxes, NO fake wireframes!
              * ════════════════════════════════════════════════════════════ */}
-            <div className="lg:col-span-6 xl:col-span-6 lg:sticky lg:top-24 space-y-4">
+            <div className="lg:col-span-6 xl:col-span-6 lg:sticky lg:top-24 space-y-4 cv-builder-right-col">
               {/* Preview Controls Bar */}
-              <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-white/90 bg-white p-3 shadow-crystal backdrop-blur-md">
+              <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-white/90 bg-white p-3 shadow-crystal backdrop-blur-md cv-preview-controls">
                 <div className="flex items-center gap-2">
                   <span className="flex h-2.5 w-2.5 rounded-full bg-emerald-500 animate-pulse" />
                   <span className="text-[12px] font-bold text-ink">
@@ -1655,7 +2427,7 @@ export default function CvBuilder() {
               {/* Live ISO A4 Document Container */}
               <div
                 className={cn(
-                  'relative rounded-2xl border border-white/80 bg-slate-200/60 p-3 sm:p-5 shadow-crystal-lg backdrop-blur-xl transition-all duration-300',
+                  'relative rounded-2xl border border-white/80 bg-slate-200/60 p-3 sm:p-5 shadow-crystal-lg backdrop-blur-xl transition-all duration-300 cv-preview-outer',
                   previewZoom === '100%' ? 'overflow-x-auto' : 'overflow-hidden'
                 )}
               >
@@ -1673,7 +2445,7 @@ export default function CvBuilder() {
               </div>
 
               {/* Bottom Quick-Launch Card */}
-              <div className="flex items-center justify-between rounded-xl border border-white/90 bg-gradient-to-r from-azure-50/80 via-white to-aurora-100/40 p-3.5 shadow-crystal">
+              <div className="flex items-center justify-between rounded-xl border border-white/90 bg-gradient-to-r from-azure-50/80 via-white to-aurora-100/40 p-3.5 shadow-crystal cv-download-card">
                 <div className="flex items-center gap-2.5">
                   <CheckCircle2 className="h-4 w-4 text-emerald-600" />
                   <span className="text-[12px] font-semibold text-slate-700">

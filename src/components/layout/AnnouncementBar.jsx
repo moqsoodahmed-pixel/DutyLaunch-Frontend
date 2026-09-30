@@ -31,7 +31,7 @@ export function AnnouncementBar() {
     };
 
     return (
-        <div className="relative z-40 bg-gradient-to-r from-ink-900 via-ink-800 to-ink-700 text-white">
+        <div id="announcement-bar" className="relative z-40 bg-gradient-to-r from-ink-900 via-ink-800 to-ink-700 text-white print:hidden">
             <div className="mx-auto flex max-w-shell items-center justify-center gap-2 px-gutter py-2 text-small">
                 <Zap className="hidden h-4 w-4 shrink-0 text-frost-400 sm:block" aria-hidden />
                 <p className="min-w-0 truncate text-center">

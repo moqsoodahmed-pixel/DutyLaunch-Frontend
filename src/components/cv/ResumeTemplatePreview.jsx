@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import { cn } from '../../utils/cn.js';
 
 /**
  * DutyLaunch Flagship Resume Template Preview Engine.
@@ -825,7 +826,7 @@ export function ResumeTemplatePreview({ template, className, crop = true }) {
   return (
     <div
       ref={boxRef}
-      className={className}
+      className={cn('dl-resume-preview-box', className)}
       style={{
         overflow: 'hidden',
         position: 'relative',
@@ -835,6 +836,8 @@ export function ResumeTemplatePreview({ template, className, crop = true }) {
       }}
     >
       <div
+        data-resume-sheet="true"
+        className="dl-resume-a4-sheet"
         style={{
           width: PAGE_W,
           height: PAGE_H,

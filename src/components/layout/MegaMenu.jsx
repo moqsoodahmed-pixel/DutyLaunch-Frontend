@@ -15,7 +15,7 @@ import { menuGroups } from '../../data/site.js';
  *  - The visible card is a centred, rounded, frosted panel; items are a tidy
  *    grid, each highlighting on hover with a soft glass inset.
  */
-export function MegaMenu({ menuIds, onNavigate, anchorLeft = 0 }) {
+export function MegaMenu({ menuIds, onNavigate, anchorLeft = 0, onMouseEnter, onMouseLeave }) {
   const groups = menuGroups.filter((p) => menuIds.includes(p.id));
   const single = groups.length === 1;
 
@@ -23,8 +23,11 @@ export function MegaMenu({ menuIds, onNavigate, anchorLeft = 0 }) {
     <motion.div
       initial={{ opacity: 0, y: -6 }}
       animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: -4 }}
       transition={{ duration: 0.16 }}
       style={{ left: anchorLeft }}
+      onMouseEnter={onMouseEnter}
+      onMouseLeave={onMouseLeave}
       className="absolute top-full z-50 pt-2"
     >
       <div className="w-[min(36rem,calc(100vw-2rem))] overflow-hidden rounded-2xl border border-white/60 bg-white/90 shadow-crystal-lg backdrop-blur-2xl">

@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { Link, NavLink, useLocation } from 'react-router-dom';
 import { ChevronDown, Menu, Phone, Search, UserRound } from 'lucide-react';
-import { primaryNav, primaryCta, contact } from '../../data/site.js';
+import { primaryNav, primaryCta } from '../../data/site.js';
 import { Button } from '../ui/Button.jsx';
 import { Logo } from './Logo.jsx';
 import { MegaMenu } from './MegaMenu.jsx';
@@ -29,8 +29,7 @@ export function Navbar() {
   const navRef = useRef(null);
   const contactRef = useRef(null);
   const searchRef = useRef(null);
-  // True when the open dropdown was opened by mouse hover (not a click/tap).
-  const hoverOpened = useRef(false);
+  const closeTimeoutRef = useRef(null);
 
   useEffect(() => {
     setOpenMenu(null);
@@ -67,9 +66,15 @@ export function Navbar() {
       }
     };
     const onClickAway = (e) => {
-      if (navRef.current && !navRef.current.contains(e.target)) setOpenMenu(null);
-      if (contactRef.current && !contactRef.current.contains(e.target)) setContactOpen(false);
-      if (searchRef.current && !searchRef.current.contains(e.target)) setSearchOpen(false);
+      if (navRef.current && !navRef.current.contains(e.target)) {
+        setOpenMenu(null);
+      }
+      if (contactRef.current && !contactRef.current.contains(e.target)) {
+        setContactOpen(false);
+      }
+      if (searchRef.current && !searchRef.current.contains(e.target)) {
+        setSearchOpen(false);
+      }
     };
     document.addEventListener('keydown', onKey);
     document.addEventListener('mousedown', onClickAway);
@@ -79,25 +84,40 @@ export function Navbar() {
     };
   }, []);
 
-  useEffect(() => {
-    if (!openMenu) return undefined;
-    const onMove = (e) => {
-      if (e.pointerType && e.pointerType !== 'mouse') return;
-      if (navRef.current && !navRef.current.contains(e.target)) {
-        hoverOpened.current = false;
-        setOpenMenu(null);
-      }
-    };
-    document.addEventListener('pointermove', onMove, { passive: true });
-    return () => document.removeEventListener('pointermove', onMove);
-  }, [openMenu]);
-
   // Position the mega-menu's left edge under the hovered nav item, clamped
   // so a wide panel never runs off the right of the viewport.
   const computeAnchor = (el) => {
+    if (!el) return;
     const rect = el.getBoundingClientRect();
     const cardW = Math.min(576, window.innerWidth - 32);
     setMenuAnchor(Math.max(16, Math.min(rect.left, window.innerWidth - cardW - 16)));
+  };
+
+  const handleMenuEnter = (label, element) => {
+    if (closeTimeoutRef.current) {
+      clearTimeout(closeTimeoutRef.current);
+      closeTimeoutRef.current = null;
+    }
+    computeAnchor(element);
+    setOpenMenu(label);
+  };
+
+  const handleMenuLeave = () => {
+    if (closeTimeoutRef.current) clearTimeout(closeTimeoutRef.current);
+    closeTimeoutRef.current = setTimeout(() => {
+      setOpenMenu(null);
+    }, 150);
+  };
+
+  const handleDropdownEnter = () => {
+    if (closeTimeoutRef.current) {
+      clearTimeout(closeTimeoutRef.current);
+      closeTimeoutRef.current = null;
+    }
+  };
+
+  const handleDropdownLeave = () => {
+    handleMenuLeave();
   };
 
   const dashboardPath = homePathFor(user?.role);
@@ -115,26 +135,27 @@ export function Navbar() {
 
       <header
         ref={navRef}
-        onMouseLeave={() => setOpenMenu(null)}
+        onMouseLeave={handleMenuLeave}
         className={cn('sticky top-0 z-[70] transition-all duration-300', scrolled ? 'py-2' : 'py-3')}
       >
-        {/* Outer neon edge glow wrapper: continuously travelling neon light around all 4 edges */}
+        {/* Outer pill wrapper — overflow visible so dropdowns like ContactMenu are not clipped */}
         <div
           className={cn(
-            'relative mx-auto transition-all duration-500 rounded-full p-[2px] overflow-hidden',
+            'relative mx-auto transition-all duration-500',
             scrolled ? 'max-w-[74rem]' : 'max-w-[80rem]'
           )}
         >
-          {/* Animated Neon Travelling Edge Light (Analyze button reference: Cyan -> Blue -> Purple) */}
-          <div
-            className="pointer-events-none absolute -inset-[200%] animate-edge-orbit opacity-90"
-            style={{
-              background:
-                'conic-gradient(from 0deg, transparent 0deg, transparent 270deg, #4FC1E6 300deg, #2B72D4 330deg, #A98CEA 355deg, transparent 360deg)',
-              animation: 'edge-orbit 6s linear infinite',
-            }}
-            aria-hidden="true"
-          />
+          {/* Uniform, continuous dynamic edge lighting around the entire perimeter (no dead gaps) */}
+          <div className="pointer-events-none absolute inset-0 rounded-full p-[2px] overflow-hidden" aria-hidden="true">
+            <div
+              className="absolute -inset-[200%] opacity-90"
+              style={{
+                background:
+                  'conic-gradient(from 0deg, #4FC1E6 0deg, #2B72D4 45deg, #A98CEA 90deg, #7DD3EF 135deg, #4FC1E6 180deg, #2B72D4 225deg, #A98CEA 270deg, #7DD3EF 315deg, #4FC1E6 360deg)',
+                animation: 'edge-orbit 8s linear infinite',
+              }}
+            />
+          </div>
 
           {/* Floating pill body */}
           <div
@@ -154,23 +175,15 @@ export function Navbar() {
                     key={item.label}
                     type="button"
                     onClick={(e) => {
-                      if (hoverOpened.current && openMenu === item.label) {
-                        hoverOpened.current = false;
-                        return;
-                      }
                       if (openMenu === item.label) {
+                        if (closeTimeoutRef.current) clearTimeout(closeTimeoutRef.current);
                         setOpenMenu(null);
                       } else {
-                        computeAnchor(e.currentTarget);
-                        setOpenMenu(item.label);
+                        handleMenuEnter(item.label, e.currentTarget);
                       }
                     }}
-                    onPointerEnter={(e) => {
-                      if (e.pointerType !== 'mouse') return;
-                      hoverOpened.current = true;
-                      computeAnchor(e.currentTarget);
-                      setOpenMenu(item.label);
-                    }}
+                    onMouseEnter={(e) => handleMenuEnter(item.label, e.currentTarget)}
+                    onMouseLeave={handleMenuLeave}
                     aria-expanded={openMenu === item.label}
                     aria-haspopup="true"
                     className={cn(
@@ -181,13 +194,22 @@ export function Navbar() {
                     )}
                   >
                     {item.label}
-                    <ChevronDown className={cn('h-4 w-4 transition-transform duration-[250ms] text-slate-500 group-hover/nav:text-azure', openMenu === item.label && 'rotate-180')} aria-hidden />
+                    <ChevronDown
+                      className={cn(
+                        'h-4 w-4 transition-transform duration-[250ms] text-slate-500 group-hover/nav:text-azure',
+                        openMenu === item.label && 'rotate-180'
+                      )}
+                      aria-hidden
+                    />
                   </button>
                 ) : (
                   <NavLink
                     key={item.path}
                     to={item.path}
-                    onMouseEnter={() => setOpenMenu(null)}
+                    onMouseEnter={() => {
+                      if (closeTimeoutRef.current) clearTimeout(closeTimeoutRef.current);
+                      setOpenMenu(null);
+                    }}
                     className={({ isActive }) =>
                       cn(
                         'relative overflow-hidden inline-flex items-center whitespace-nowrap rounded-full px-3 py-2 text-small font-semibold cursor-pointer border border-transparent transition-all duration-[250ms] ease-out hover:-translate-y-0.5 hover:scale-[1.04] active:scale-95 xl:px-3.5',
@@ -208,17 +230,16 @@ export function Navbar() {
               <div ref={searchRef} className="relative hidden sm:block">
                 <button
                   type="button"
-                  onClick={() => setSearchOpen((o) => !o)}
+                  onClick={() => setSearchOpen(true)}
                   aria-label="Search the site"
                   aria-expanded={searchOpen}
-                  aria-haspopup="true"
-                  title="Search (⌘K)"
+                  aria-haspopup="dialog"
                   className={cn(iconBtn, searchOpen && 'border-frost-400 text-azure shadow-crystal')}
                 >
                   <Search className="h-4.5 w-4.5" aria-hidden />
                 </button>
-                {searchOpen && <SearchModal onClose={() => setSearchOpen(false)} />}
               </div>
+
               <div ref={contactRef} className="relative hidden sm:block">
                 <button
                   type="button"
@@ -226,17 +247,16 @@ export function Navbar() {
                   aria-label="Contact us"
                   aria-expanded={contactOpen}
                   aria-haspopup="true"
-                  title="Contact us"
                   className={cn(iconBtn, contactOpen && 'border-frost-400 text-azure shadow-crystal')}
                 >
                   <Phone className="h-4.5 w-4.5" aria-hidden />
                 </button>
                 {contactOpen && <ContactMenu onClose={() => setContactOpen(false)} />}
               </div>
+
               <Link
                 to={accountTo}
                 aria-label={accountLabel}
-                title={accountLabel}
                 className={cn(iconBtn, 'relative')}
               >
                 <UserRound className="h-4.5 w-4.5" aria-hidden />
@@ -254,6 +274,7 @@ export function Navbar() {
               >
                 {primaryCta.label}
               </Button>
+
               <button
                 type="button"
                 onClick={() => setMobileOpen(true)}
@@ -266,19 +287,24 @@ export function Navbar() {
           </div>
         </div>
 
-
+        {/* Desktop Dropdown MegaMenu with smooth bridging and clean auto-closing */}
         {openMenu && (
           <MegaMenu
             key={openMenu}
             anchorLeft={menuAnchor}
             menuIds={primaryNav.find((i) => i.label === openMenu)?.menu || []}
             onNavigate={() => {
-              hoverOpened.current = false;
+              if (closeTimeoutRef.current) clearTimeout(closeTimeoutRef.current);
               setOpenMenu(null);
             }}
+            onMouseEnter={handleDropdownEnter}
+            onMouseLeave={handleDropdownLeave}
           />
         )}
       </header>
+
+      {/* Centered Command Palette Search Modal — opens outside navbar so it never clips or distorts */}
+      {searchOpen && <SearchModal onClose={() => setSearchOpen(false)} />}
 
       <MobileMenu open={mobileOpen} onClose={() => setMobileOpen(false)} />
     </>
