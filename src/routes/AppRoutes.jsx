@@ -1,5 +1,6 @@
 import { Suspense } from 'react';
 import { PageFallback } from '../components/ui/PageFallback.jsx';
+import { ChunkErrorBoundary } from '../components/ui/ChunkErrorBoundary.jsx';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { ProtectedRoute, GuestRoute } from './ProtectedRoute.jsx';
 import { ScrollToTop } from './ScrollToTop.jsx';
@@ -85,126 +86,129 @@ export function AppRoutes() {
   return (
     <>
       <ScrollToTop />
-      {/* Outer safety net only. Pages load inside each layout's own
-          Suspense, so the header never unmounts during navigation. */}
-      <Suspense fallback={<PageFallback />}>
-        <Routes>
-          <Route element={<PublicLayout />}>
-            <Route index element={<Home />} />
-            <Route path="about" element={<About />} />
-            <Route path="career-services" element={<CareerServices />} />
-            <Route path="pricing" element={<Pricing />} />
-            <Route path="cv-builder" element={<CvBuilder />} />
-            <Route path="cv-templates" element={<CvTemplates />} />
-            <Route path="upskills" element={<Upskills />} />
-            <Route path="higher-education" element={<HigherEducation />} />
-            <Route path="higher-education/:slug" element={<ProgrammeDetail track="education" />} />
-            <Route path="courses" element={<Courses />} />
-            <Route path="courses/:slug" element={<CourseDetail />} />
-            <Route path="professional-courses" element={<ProfessionalCourses />} />
-            <Route path="professional-courses/:slug" element={<ProgrammeDetail track="courses" />} />
-            {/* --- Career Tools, at their SEO URLs -------------------- */}
-            <Route path="ai-resume-builder" element={<AiResumeBuilder />} />
-            <Route path="resume-checker" element={<AtsResumeChecker />} />
-            <Route path="linkedin-optimization" element={<LinkedInOptimizer />} />
-            <Route path="cover-letter-generator" element={<CoverLetter />} />
-            <Route path="interview-preparation" element={<InterviewCoach />} />
+      {/* ChunkErrorBoundary catches "stale chunk after deploy" errors and
+          triggers a once-guarded reload. Suspense shows PageFallback while
+          each lazy page loads. */}
+      <ChunkErrorBoundary>
+        <Suspense fallback={<PageFallback />}>
+          <Routes>
+            <Route element={<PublicLayout />}>
+              <Route index element={<Home />} />
+              <Route path="about" element={<About />} />
+              <Route path="career-services" element={<CareerServices />} />
+              <Route path="pricing" element={<Pricing />} />
+              <Route path="cv-builder" element={<CvBuilder />} />
+              <Route path="cv-templates" element={<CvTemplates />} />
+              <Route path="upskills" element={<Upskills />} />
+              <Route path="higher-education" element={<HigherEducation />} />
+              <Route path="higher-education/:slug" element={<ProgrammeDetail track="education" />} />
+              <Route path="courses" element={<Courses />} />
+              <Route path="courses/:slug" element={<CourseDetail />} />
+              <Route path="professional-courses" element={<ProfessionalCourses />} />
+              <Route path="professional-courses/:slug" element={<ProgrammeDetail track="courses" />} />
+              {/* --- Career Tools, at their SEO URLs -------------------- */}
+              <Route path="ai-resume-builder" element={<AiResumeBuilder />} />
+              <Route path="resume-checker" element={<AtsResumeChecker />} />
+              <Route path="linkedin-optimization" element={<LinkedInOptimizer />} />
+              <Route path="cover-letter-generator" element={<CoverLetter />} />
+              <Route path="interview-preparation" element={<InterviewCoach />} />
 
-            {/* --- Services and marketplaces -------------------------- */}
-            <Route path="dubai-launch" element={<DubaiPackage />} />
-            <Route path="appostle-services" element={<Documentation />} />
-            <Route path="jobs" element={<Jobs />} />
-            <Route path="jobs/:idOrSlug" element={<JobDetail />} />
-            <Route path="employers" element={<Employer />} />
-            <Route path="partners" element={<Partners />} />
+              {/* --- Services and marketplaces -------------------------- */}
+              <Route path="dubai-launch" element={<DubaiPackage />} />
+              <Route path="appostle-services" element={<Documentation />} />
+              <Route path="jobs" element={<Jobs />} />
+              <Route path="jobs/:idOrSlug" element={<JobDetail />} />
+              <Route path="employers" element={<Employer />} />
+              <Route path="partners" element={<Partners />} />
 
-            {/* --- Legacy URLs ---------------------------------------
+              {/* --- Legacy URLs ---------------------------------------
                 These paths were indexed and linked before the information
                 architecture changed. They redirect rather than 404, so a
                 rename does not throw away the search ranking or break an
                 existing campaign link. `replace` keeps them out of the
                 browser's back history. */}
-            <Route path="ats-resume-checker" element={<Navigate to="/resume-checker" replace />} />
-            <Route path="career-tools/linkedin" element={<Navigate to="/linkedin-optimization" replace />} />
-            <Route path="career-tools/cover-letter" element={<Navigate to="/cover-letter-generator" replace />} />
-            <Route path="career-tools/interview" element={<Navigate to="/interview-preparation" replace />} />
-            <Route path="dubai-job-seeker-package" element={<Navigate to="/dubai-launch" replace />} />
-            <Route path="documentation" element={<Navigate to="/appostle-services" replace />} />
-            <Route path="employer" element={<Navigate to="/employers" replace />} />
-            <Route path="blog" element={<Blog />} />
-            <Route path="blog/:slug" element={<BlogPost />} />
-            <Route path="faq" element={<Faq />} />
-            <Route path="contact" element={<Contact />} />
+              <Route path="ats-resume-checker" element={<Navigate to="/resume-checker" replace />} />
+              <Route path="career-tools/linkedin" element={<Navigate to="/linkedin-optimization" replace />} />
+              <Route path="career-tools/cover-letter" element={<Navigate to="/cover-letter-generator" replace />} />
+              <Route path="career-tools/interview" element={<Navigate to="/interview-preparation" replace />} />
+              <Route path="dubai-job-seeker-package" element={<Navigate to="/dubai-launch" replace />} />
+              <Route path="documentation" element={<Navigate to="/appostle-services" replace />} />
+              <Route path="employer" element={<Navigate to="/employers" replace />} />
+              <Route path="blog" element={<Blog />} />
+              <Route path="blog/:slug" element={<BlogPost />} />
+              <Route path="faq" element={<Faq />} />
+              <Route path="contact" element={<Contact />} />
 
-            <Route path="privacy-policy" element={<Privacy />} />
-            <Route path="terms-and-conditions" element={<Terms />} />
-            <Route path="refund-policy" element={<RefundCancellation />} />
-            <Route path="disclaimers" element={<Disclaimers />} />
-            {/* Old legal URLs: keep bookmarks and search results working. */}
-            <Route path="terms" element={<Navigate to="/terms-and-conditions" replace />} />
-            <Route path="cancellation-policy" element={<Navigate to="/refund-policy" replace />} />
+              <Route path="privacy-policy" element={<Privacy />} />
+              <Route path="terms-and-conditions" element={<Terms />} />
+              <Route path="refund-policy" element={<RefundCancellation />} />
+              <Route path="disclaimers" element={<Disclaimers />} />
+              {/* Old legal URLs: keep bookmarks and search results working. */}
+              <Route path="terms" element={<Navigate to="/terms-and-conditions" replace />} />
+              <Route path="cancellation-policy" element={<Navigate to="/refund-policy" replace />} />
 
-            <Route path="*" element={<NotFound />} />
-          </Route>
-
-          <Route element={<GuestRoute />}>
-            <Route element={<AuthLayout />}>
-              <Route path="login" element={<Login />} />
-              <Route path="register" element={<Register />} />
-              <Route path="forgot-password" element={<ForgotPassword />} />
+              <Route path="*" element={<NotFound />} />
             </Route>
-          </Route>
 
-          {/* Signed-in app shell: candidates, employers and partner institutes
+            <Route element={<GuestRoute />}>
+              <Route element={<AuthLayout />}>
+                <Route path="login" element={<Login />} />
+                <Route path="register" element={<Register />} />
+                <Route path="forgot-password" element={<ForgotPassword />} />
+              </Route>
+            </Route>
+
+            {/* Signed-in app shell: candidates, employers and partner institutes
               share it (each sees its own sidebar); admins have their own shell
               below. */}
-          <Route element={<ProtectedRoute roles={['user', 'employer', 'institute']} />}>
-            <Route element={<DashboardLayout />}>
-              <Route element={<ProtectedRoute roles={['user', 'employer']} />}>
-                <Route path="dashboard" element={<Dashboard />} />
-                <Route path="profile" element={<Profile />} />
-              </Route>
-              <Route element={<ProtectedRoute roles={['institute']} />}>
-                <Route path="partner" element={<PartnerProfile />} />
-              </Route>
-              <Route element={<ProtectedRoute roles={['user']} />}>
-                <Route path="applications" element={<Applications />} />
-                <Route path="saved-jobs" element={<SavedJobs />} />
-                <Route path="my-resumes" element={<MyResumes />} />
-                <Route path="assistant" element={<Assistant />} />
-                <Route path="career-studio" element={<CareerStudio />} />
-                <Route path="mock-interview" element={<MockInterview />} />
-              </Route>
-              <Route element={<ProtectedRoute roles={['employer']} />}>
-                <Route path="employer/jobs" element={<EmployerJobs />} />
-                <Route path="employer/jobs/new" element={<EmployerJobForm />} />
-                <Route path="employer/jobs/:id/edit" element={<EmployerJobForm />} />
-                <Route path="employer/applications" element={<EmployerApplications />} />
+            <Route element={<ProtectedRoute roles={['user', 'employer', 'institute']} />}>
+              <Route element={<DashboardLayout />}>
+                <Route element={<ProtectedRoute roles={['user', 'employer']} />}>
+                  <Route path="dashboard" element={<Dashboard />} />
+                  <Route path="profile" element={<Profile />} />
+                </Route>
+                <Route element={<ProtectedRoute roles={['institute']} />}>
+                  <Route path="partner" element={<PartnerProfile />} />
+                </Route>
+                <Route element={<ProtectedRoute roles={['user']} />}>
+                  <Route path="applications" element={<Applications />} />
+                  <Route path="saved-jobs" element={<SavedJobs />} />
+                  <Route path="my-resumes" element={<MyResumes />} />
+                  <Route path="assistant" element={<Assistant />} />
+                  <Route path="career-studio" element={<CareerStudio />} />
+                  <Route path="mock-interview" element={<MockInterview />} />
+                </Route>
+                <Route element={<ProtectedRoute roles={['employer']} />}>
+                  <Route path="employer/jobs" element={<EmployerJobs />} />
+                  <Route path="employer/jobs/new" element={<EmployerJobForm />} />
+                  <Route path="employer/jobs/:id/edit" element={<EmployerJobForm />} />
+                  <Route path="employer/applications" element={<EmployerApplications />} />
+                </Route>
               </Route>
             </Route>
-          </Route>
 
-          <Route element={<ProtectedRoute roles={['admin']} />}>
-            <Route element={<AdminLayout />}>
-              <Route path="admin" element={<AdminDashboard />} />
-              <Route path="admin/users" element={<AdminUsers />} />
-              <Route path="admin/jobs" element={<AdminJobs />} />
-              <Route path="admin/applications" element={<AdminApplications />} />
-              <Route path="admin/courses" element={<AdminCourses />} />
-              <Route path="admin/blogs" element={<AdminBlogs />} />
-              <Route path="admin/faqs" element={<AdminFaqs />} />
-              <Route path="admin/consultations" element={<AdminConsultations />} />
-              <Route path="admin/messages" element={<AdminMessages />} />
-              <Route path="admin/testimonials" element={<AdminTestimonials />} />
-              <Route path="admin/partners" element={<AdminPartners />} />
-              <Route path="admin/scoring" element={<AdminScoring />} />
-              <Route path="admin/resume-checks" element={<AdminResumeChecks />} />
+            <Route element={<ProtectedRoute roles={['admin']} />}>
+              <Route element={<AdminLayout />}>
+                <Route path="admin" element={<AdminDashboard />} />
+                <Route path="admin/users" element={<AdminUsers />} />
+                <Route path="admin/jobs" element={<AdminJobs />} />
+                <Route path="admin/applications" element={<AdminApplications />} />
+                <Route path="admin/courses" element={<AdminCourses />} />
+                <Route path="admin/blogs" element={<AdminBlogs />} />
+                <Route path="admin/faqs" element={<AdminFaqs />} />
+                <Route path="admin/consultations" element={<AdminConsultations />} />
+                <Route path="admin/messages" element={<AdminMessages />} />
+                <Route path="admin/testimonials" element={<AdminTestimonials />} />
+                <Route path="admin/partners" element={<AdminPartners />} />
+                <Route path="admin/scoring" element={<AdminScoring />} />
+                <Route path="admin/resume-checks" element={<AdminResumeChecks />} />
+              </Route>
             </Route>
-          </Route>
 
-          <Route path="*" element={<Navigate to="/" replace />} />
-        </Routes>
-      </Suspense>
+            <Route path="*" element={<Navigate to="/" replace />} />
+          </Routes>
+        </Suspense>
+      </ChunkErrorBoundary>
     </>
   );
 }
