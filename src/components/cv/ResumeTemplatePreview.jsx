@@ -1107,7 +1107,9 @@ export function ResumeTemplatePreview({ template, className, crop = true }) {
   return (
     <div
       ref={boxRef}
-      className={cn('dl-resume-preview-box', className)}
+      data-resume-protect="true"
+      onContextMenu={(e) => e.preventDefault()}
+      className={cn('dl-resume-preview-box dl-protected-preview select-none', className)}
       style={{
         overflow: 'hidden',
         position: 'relative',
@@ -1124,7 +1126,13 @@ export function ResumeTemplatePreview({ template, className, crop = true }) {
           height: PAGE_H,
           minHeight: PAGE_H,
           transformOrigin: 'top left',
-          transform: `scale(${scale})`,
+          transform: `scale(${scale}) translateZ(0)`,
+          WebkitFontSmoothing: 'antialiased',
+          MozOsxFontSmoothing: 'grayscale',
+          textRendering: 'optimizeLegibility',
+          imageRendering: '-webkit-optimize-contrast',
+          backfaceVisibility: 'hidden',
+          WebkitBackfaceVisibility: 'hidden',
           background: '#FFFFFF',
           fontFamily: '"Helvetica Neue", Arial, sans-serif',
           lineHeight: 1.45,

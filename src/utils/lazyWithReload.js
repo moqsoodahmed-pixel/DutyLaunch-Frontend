@@ -1,12 +1,15 @@
 import { lazy } from 'react';
 
 const KEY = 'dl:chunk-reload-at';
-const WINDOW_MS = 10_000;
+const WINDOW_MS = 4_000;
 
 /**
  * Reload the page once to pick up the current deploy. Guarded so a genuinely
  * broken chunk can't cause an endless reload loop: if we already reloaded in
- * the last 10 seconds, return false and let the error surface instead.
+ * the last 4 seconds, return false and let the error surface instead.
+ *
+ * Uses cache-busting URL navigation (window.location.replace) to force the
+ * browser to bypass its local HTML cache and fetch the latest deployment.
  */
 export function reloadOnceForNewDeploy() {
   try {
@@ -16,7 +19,14 @@ export function reloadOnceForNewDeploy() {
   } catch {
     // sessionStorage unavailable (private mode etc.) — still try one reload.
   }
-  window.location.reload();
+
+  try {
+    const url = new URL(window.location.href);
+    url.searchParams.set('_v', String(Date.now()));
+    window.location.replace(url.toString());
+  } catch {
+    window.location.reload();
+  }
   return true;
 }
 

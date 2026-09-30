@@ -7,17 +7,21 @@ import {
   ArrowRight,
   Check,
   Maximize2,
+  Lock,
+  ShieldCheck,
 } from 'lucide-react';
 import { Seo } from '../components/ui/Seo.jsx';
 import { Container } from '../components/ui/Container.jsx';
 import { SectionHeader } from '../components/ui/SectionHeader.jsx';
 import { ResumeShowcase } from '../components/cv/ResumeShowcase.jsx';
-import { InfiniteFlowingShowcase } from '../components/cv/TemplateGallery.jsx';
+import { InfiniteFlowingShowcase, PaidUnlockModal, getTemplatePricing } from '../components/cv/TemplateGallery.jsx';
 import { ResumeTemplatePreview } from '../components/cv/ResumeTemplatePreview.jsx';
+import { useContentProtection } from '../hooks/useContentProtection.js';
 import { Modal } from '../components/ui/Modal.jsx';
 import { Button } from '../components/ui/Button.jsx';
 import { Badge } from '../components/ui/Badge.jsx';
 import { ErrorState } from '../components/ui/States.jsx';
+import { cn } from '../utils/cn.js';
 import { seoFor } from '../data/seoPages.js';
 import { careerService, printResumeHtml } from '../services/careerService.js';
 import { useToast } from '../context/ToastContext.jsx';
@@ -77,6 +81,8 @@ export default function AiResumeBuilder() {
   const [templateId, setTemplateId] = useState(paramTemplate || '');
   const [blockingIssues, setBlockingIssues] = useState([]);
   const [previewModal, setPreviewModal] = useState(null);
+  const [unlockTarget, setUnlockTarget] = useState(null);
+  const { isUnlocked, isWindowBlurred } = useContentProtection();
 
   useEffect(() => {
     if (paramTemplate) {
@@ -95,6 +101,20 @@ export default function AiResumeBuilder() {
   const scrollToReport = useCallback(() => {
     window.requestAnimationFrame(() => reportRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }));
   }, []);
+
+  const [dragOver, setDragOver] = useState(false);
+
+  const loadDemoResume = () => {
+    const demo = TEMPLATES[0];
+    setParsed({
+      needsReview: [],
+      reviewNote: 'Loaded verified ATS profile (Universal Operations & Strategy Director).',
+      fileName: 'Aarav_Kapoor_ATS_Profile.pdf',
+    });
+    setResume(demo);
+    setStep('review');
+    success('Loaded demo verified ATS resume (Aarav N. Kapoor).');
+  };
 
   const scrollToUpload = () => {
     uploadSectionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -223,6 +243,13 @@ export default function AiResumeBuilder() {
   /* ---------- export ---------- */
 
   async function handleExport(acknowledge = false) {
+    const target = TEMPLATES.find((t) => t.id === templateId);
+    const pricing = getTemplatePricing(target);
+    if (pricing.isPremium && !isUnlocked(templateId)) {
+      setUnlockTarget(target);
+      toastError(`Payment is required to export using ${target?.name || 'this paid template'}.`);
+      return;
+    }
     setBusy('export');
     setError(null);
     try {
@@ -336,7 +363,7 @@ export default function AiResumeBuilder() {
                         fileInput.current.click();
                       }
                     }}
-                    className="group relative inline-flex items-center justify-center gap-2.5 rounded-xl bg-gradient-to-r from-azure via-cyan-600 to-purple-600 px-6 py-3.5 text-body font-bold text-white shadow-[0_12px_36px_-6px_rgba(43,114,212,0.6),0_0_24px_rgba(56,189,248,0.4)] transition-all duration-[250ms] hover:-translate-y-0.5 hover:scale-[1.02] hover:brightness-105 hover:shadow-[0_16px_45px_-6px_rgba(43,114,212,0.7),0_0_32px_rgba(169,140,234,0.6)] active:scale-95 cursor-pointer"
+                    className="group relative dl-glass-btn inline-flex items-center justify-center gap-2.5 rounded-xl bg-gradient-to-r from-azure via-cyan-600 to-purple-600 px-6 py-3.5 text-body font-bold text-white shadow-[0_12px_36px_-6px_rgba(43,114,212,0.6),0_0_24px_rgba(56,189,248,0.4)] transition-all duration-[250ms] hover:-translate-y-0.5 hover:scale-[1.02] hover:brightness-105 hover:shadow-[0_16px_45px_-6px_rgba(43,114,212,0.7),0_0_32px_rgba(169,140,234,0.6)] active:scale-95 cursor-pointer"
                   >
                     Analyze My Resume Free
                     <ArrowRight className="h-4.5 w-4.5 transition-transform group-hover:translate-x-1" />
@@ -344,7 +371,7 @@ export default function AiResumeBuilder() {
 
                   <Link
                     to="/cv-builder"
-                    className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/20 bg-white/10 px-6 py-3.5 text-body font-bold text-white shadow-crystal backdrop-blur-md transition-all duration-[250ms] hover:-translate-y-0.5 hover:scale-[1.02] hover:border-cyan-400/50 hover:bg-white/15 hover:text-cyan-200 hover:shadow-[0_0_20px_rgba(56,189,248,0.25)] active:scale-95"
+                    className="dl-glass-btn inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-sky-500 via-cyan-500 to-sky-600 border border-sky-300/40 px-6 py-3.5 text-body font-bold text-white shadow-[0_10px_30px_-6px_rgba(14,165,233,0.5),0_0_20px_rgba(56,189,248,0.35)] transition-all duration-[250ms] hover:-translate-y-0.5 hover:scale-[1.02] hover:brightness-110 hover:shadow-[0_14px_38px_-6px_rgba(14,165,233,0.65),0_0_28px_rgba(56,189,248,0.5)] active:scale-95"
                   >
                     Create Resume From Scratch
                   </Link>
@@ -363,7 +390,7 @@ export default function AiResumeBuilder() {
         </section>
 
         {/* ── FEATURED RESUME TEMPLATES CAROUSEL (PAUSE-ON-HOVER VERIFIED) ── */}
-        <section className="relative z-10 py-6 border-t border-cyan-500/20 bg-[#060E1C]/75 backdrop-blur-md">
+        <section className="relative z-10 mt-6 sm:mt-8 py-6 border-t border-cyan-500/20 bg-[#060E1C]/75 backdrop-blur-md">
           <Container>
             <div className="flex flex-col items-start justify-between gap-2 sm:flex-row sm:items-end mb-2">
               <div>
@@ -386,18 +413,25 @@ export default function AiResumeBuilder() {
               templates={TEMPLATES}
               selected={templateId}
               onSelect={(id) => {
+                const target = TEMPLATES.find((t) => t.id === id);
+                const pricing = getTemplatePricing(target);
+                if (pricing.isPremium && !isUnlocked(id)) {
+                  setUnlockTarget(target);
+                  return;
+                }
                 setTemplateId(id);
                 success(`Template set to ${id.toUpperCase()}`);
               }}
               onOpen={(tpl) => setPreviewModal(tpl)}
+              tone="dark"
             />
           </Container>
         </section>
 
-        {/* ── PROGRESS RAIL ── */}
+        {/* ── PROGRESS RAIL — mobile responsive horizontal track ── */}
         <div className="border-y border-cyan-500/20 bg-[#060D1A]/90 backdrop-blur-xl sticky top-[70px] z-30 shadow-[0_4px_20px_rgba(0,0,0,0.5)]">
-          <Container className="py-3">
-            <ol className="flex flex-wrap items-center gap-x-2 gap-y-2 text-small">
+          <Container className="py-2.5 overflow-x-auto no-scrollbar">
+            <ol className="flex items-center gap-x-3 sm:gap-x-4 text-small min-w-max">
               {STEPS.map((s, i) => (
                 <li key={s.id} className="flex items-center gap-2">
                   <span
@@ -451,24 +485,78 @@ export default function AiResumeBuilder() {
                     className="sr-only"
                     onChange={(e) => handleFile(e.target.files?.[0])}
                   />
-                  <button
-                    type="button"
+
+                  {/* Modern Drag-and-Drop Area */}
+                  <div
+                    onDragOver={(e) => {
+                      e.preventDefault();
+                      setDragOver(true);
+                    }}
+                    onDragLeave={() => setDragOver(false)}
+                    onDrop={(e) => {
+                      e.preventDefault();
+                      setDragOver(false);
+                      if (!consent) {
+                        setConsentError(CONSENT_REQUIRED_MESSAGE);
+                        return;
+                      }
+                      const file = e.dataTransfer?.files?.[0];
+                      if (file) handleFile(file);
+                    }}
                     onClick={() => {
                       if (!consent) return setConsentError(CONSENT_REQUIRED_MESSAGE);
                       return fileInput.current?.click();
                     }}
-                    className="flex w-full flex-1 flex-col items-center justify-center gap-3 rounded-xl border-2 border-dashed border-cyan-500/40 bg-cyan-950/20 px-6 py-10 text-center transition-all duration-300 hover:border-cyan-400 hover:bg-cyan-950/35 hover:shadow-[0_0_20px_rgba(56,189,248,0.2)] cursor-pointer"
+                    className={cn(
+                      'group/drop relative flex w-full flex-1 flex-col items-center justify-center gap-3.5 rounded-xl border-2 border-dashed p-8 sm:p-10 text-center transition-all duration-300 cursor-pointer overflow-hidden',
+                      dragOver
+                        ? 'border-cyan-400 bg-cyan-950/50 shadow-[0_0_28px_rgba(56,189,248,0.35)] scale-[1.01]'
+                        : 'border-cyan-500/35 bg-cyan-950/20 hover:border-cyan-400 hover:bg-cyan-950/35 hover:shadow-[0_0_24px_rgba(56,189,248,0.2)]'
+                    )}
                   >
                     {busy === 'upload' ? (
-                      <Loader2 className="h-8 w-8 animate-spin text-cyan-400" aria-hidden />
-                    ) : (
-                      <div className="grid h-14 w-14 place-items-center rounded-2xl bg-cyan-950/80 border border-cyan-400/40 shadow-crystal text-cyan-300 transition-transform duration-200 group-hover:scale-110">
-                        <FileUp className="h-7 w-7 text-cyan-300" aria-hidden />
+                      <div className="flex flex-col items-center gap-3">
+                        <Loader2 className="h-10 w-10 animate-spin text-cyan-400" aria-hidden />
+                        <span className="text-body font-bold text-white">Reading & parsing your CV…</span>
+                        <div className="h-1.5 w-48 overflow-hidden rounded-full bg-cyan-950">
+                          <div className="h-full w-full bg-gradient-to-r from-cyan-400 to-azure animate-pulse" />
+                        </div>
+                        <span className="text-caption text-slate-400">Extracting work experience, education and skills</span>
                       </div>
+                    ) : (
+                      <>
+                        <div className="grid h-16 w-16 place-items-center rounded-2xl bg-cyan-950/80 border border-cyan-400/40 text-cyan-300 shadow-crystal transition-transform duration-300 group-hover/drop:scale-110">
+                          <FileUp className="h-8 w-8 text-cyan-300" aria-hidden />
+                        </div>
+                        <div>
+                          <p className="text-body font-bold text-white">
+                            {dragOver ? 'Drop your resume file here' : 'Choose a file or drag & drop here'}
+                          </p>
+                          <p className="mt-1 text-small text-slate-400">PDF, DOC, DOCX or TXT (Max 10MB)</p>
+                        </div>
+
+                        <div className="flex flex-wrap items-center justify-center gap-2 pt-1">
+                          <span className="rounded-full bg-cyan-950/80 border border-cyan-500/30 px-2.5 py-0.5 text-[10px] font-bold text-cyan-300">
+                            ATS-Verified Parser
+                          </span>
+                          <span className="rounded-full bg-cyan-950/80 border border-cyan-500/30 px-2.5 py-0.5 text-[10px] font-bold text-cyan-300">
+                            Privacy Protected
+                          </span>
+                        </div>
+                      </>
                     )}
-                    <span className="text-body font-bold text-white">{busy === 'upload' ? 'Reading your CV…' : 'Choose your CV'}</span>
-                    <span className="text-small text-slate-400">PDF, DOC or DOCX (Max 10MB)</span>
-                  </button>
+                  </div>
+
+                  <div className="mt-3 flex items-center justify-between text-caption px-1">
+                    <span className="text-slate-400">Don&apos;t have a file ready?</span>
+                    <button
+                      type="button"
+                      onClick={loadDemoResume}
+                      className="font-bold text-cyan-400 hover:text-cyan-300 hover:underline cursor-pointer"
+                    >
+                      Load verified ATS sample profile →
+                    </button>
+                  </div>
 
                   <ConsentCheckbox
                     className="mt-4 text-slate-300"
@@ -482,7 +570,7 @@ export default function AiResumeBuilder() {
 
                   {parsed && (
                     <p className="mt-4 rounded-lg bg-cyan-950/40 border border-cyan-500/30 p-2.5 text-small text-slate-300">
-                      Read <span className="font-semibold text-white">{resume?._source?.fileName}</span> —{' '}
+                      Read <span className="font-semibold text-white">{resume?._source?.fileName || parsed.fileName}</span> —{' '}
                       {resume?.experience?.length || 0} roles, {resume?.education?.length || 0} qualifications.
                     </p>
                   )}
@@ -659,7 +747,15 @@ export default function AiResumeBuilder() {
                     templates={templates}
                     selectedId={templateId}
                     suggestedId={analysis.suggestedTemplate}
-                    onSelect={setTemplateId}
+                    onSelect={(id) => {
+                      const target = TEMPLATES.find((t) => t.id === id);
+                      const pricing = getTemplatePricing(target);
+                      if (pricing.isPremium && !isUnlocked(id)) {
+                        setUnlockTarget(target);
+                        return;
+                      }
+                      setTemplateId(id);
+                    }}
                   />
                 </div>
 
@@ -703,7 +799,7 @@ export default function AiResumeBuilder() {
         )}
       </div>
 
-      {/* Full Screen Template Preview Modal */}
+      {/* Full Screen Template Preview Modal with Paid Blur & Unlock */}
       <Modal
         open={Boolean(previewModal)}
         onClose={() => setPreviewModal(null)}
@@ -711,31 +807,100 @@ export default function AiResumeBuilder() {
         description={previewModal ? previewModal.description : ''}
         size="lg"
       >
-        {previewModal && (
-          <div className="space-y-4">
-            <div className="overflow-hidden rounded-xl border border-glacier-300 bg-white shadow-crystal">
-              <ResumeTemplatePreview template={previewModal} crop={false} />
+        {previewModal && (() => {
+          const previewPricing = getTemplatePricing(previewModal);
+          const isPreviewLocked = previewPricing.isPremium && !isUnlocked(previewModal.id);
+
+          return (
+            <div
+              data-resume-protect="true"
+              onContextMenu={(e) => e.preventDefault()}
+              className="space-y-4 dl-protected-preview select-none"
+            >
+              <div className="relative overflow-hidden rounded-xl border border-glacier-300 bg-white shadow-crystal" style={{ aspectRatio: '210 / 297' }}>
+                <div className={cn("h-full w-full", isPreviewLocked && "filter blur-[12px] brightness-95 pointer-events-none")}>
+                  <ResumeTemplatePreview template={previewModal} crop={false} />
+                </div>
+
+                {isPreviewLocked && (
+                  <div className="absolute inset-0 z-20 flex flex-col items-center justify-center p-6 text-center bg-slate-950/50 backdrop-blur-xs">
+                    <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-tr from-amber-500 to-orange-500 text-white shadow-xl mb-3">
+                      <Lock className="h-7 w-7" />
+                    </div>
+                    <span className="rounded-full bg-amber-500/25 border border-amber-400/40 px-3 py-1 text-caption font-bold uppercase tracking-wider text-amber-300">
+                      Paid Executive Template
+                    </span>
+                    <h3 className="mt-2 text-lg font-extrabold text-white">{previewModal.role}</h3>
+                    <p className="mt-1 text-small text-slate-300 max-w-sm">
+                      This is a paid flagship ATS template. Unlock access to preview unblurred, customize, and export.
+                    </p>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const target = previewModal;
+                        setPreviewModal(null);
+                        setUnlockTarget(target);
+                      }}
+                      className="mt-4 rounded-full bg-gradient-to-r from-amber-500 via-orange-500 to-amber-600 px-6 py-2.5 text-body font-bold text-white shadow-lg transition-transform hover:scale-105 active:scale-95 cursor-pointer"
+                    >
+                      Pay & Unlock This Template
+                    </button>
+                  </div>
+                )}
+
+                {isWindowBlurred && (
+                  <div className="absolute inset-0 z-30 flex flex-col items-center justify-center bg-slate-950/90 p-4 text-center backdrop-blur-md">
+                    <ShieldCheck className="h-8 w-8 text-cyan-400 mb-1" />
+                    <p className="text-small font-bold text-white">Content Protected</p>
+                    <p className="text-caption text-slate-400">Return to window to view</p>
+                  </div>
+                )}
+              </div>
+
+              <div className="flex flex-col gap-3 sm:flex-row">
+                {isPreviewLocked ? (
+                  <Button
+                    variant="premium"
+                    fullWidth
+                    onClick={() => {
+                      const target = previewModal;
+                      setPreviewModal(null);
+                      setUnlockTarget(target);
+                    }}
+                  >
+                    Pay to Access & Use {previewModal.name}
+                  </Button>
+                ) : (
+                  <Button
+                    variant="premium"
+                    fullWidth
+                    onClick={() => {
+                      setTemplateId(previewModal.id);
+                      setPreviewModal(null);
+                      success(`Selected ${previewModal.name}`);
+                      scrollToUpload();
+                    }}
+                  >
+                    Use {previewModal.name} in AI Builder
+                  </Button>
+                )}
+                <Button variant="outline" fullWidth onClick={() => setPreviewModal(null)}>
+                  Close Preview
+                </Button>
+              </div>
             </div>
-            <div className="flex flex-col gap-3 sm:flex-row">
-              <Button
-                variant="premium"
-                fullWidth
-                onClick={() => {
-                  setTemplateId(previewModal.id);
-                  setPreviewModal(null);
-                  success(`Selected ${previewModal.name}`);
-                  scrollToUpload();
-                }}
-              >
-                Use {previewModal.name} in AI Builder
-              </Button>
-              <Button variant="outline" fullWidth onClick={() => setPreviewModal(null)}>
-                Close Preview
-              </Button>
-            </div>
-          </div>
-        )}
+          );
+        })()}
       </Modal>
+
+      <PaidUnlockModal
+        tpl={unlockTarget}
+        open={Boolean(unlockTarget)}
+        onClose={() => setUnlockTarget(null)}
+        onUnlockSuccess={(unlockedTpl) => {
+          success(`Unlocked ${unlockedTpl.name}! Template ready to use.`);
+        }}
+      />
     </>
   );
 }

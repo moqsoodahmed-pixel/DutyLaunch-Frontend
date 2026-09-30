@@ -128,17 +128,8 @@ export function Hero() {
               <Link
                 key={to}
                 to={to}
-                className={`group relative flex items-center gap-3.5 overflow-hidden rounded-2xl bg-gradient-to-br ${grad} p-4 text-white shadow-crystal border border-white/25 backdrop-blur-xl transition-all duration-300 hover:-translate-y-1.5 hover:scale-[1.025] hover:border-white/60 hover:shadow-[0_20px_45px_-12px_rgba(43,114,212,0.5),0_0_24px_rgba(255,255,255,0.25)] active:scale-[0.98] active:translate-y-0 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white`}
+                className={`group relative dl-glass-btn flex items-center gap-3.5 overflow-hidden rounded-2xl bg-gradient-to-br ${grad} p-4 text-white shadow-crystal border border-white/25 backdrop-blur-xl transition-all duration-300 hover:-translate-y-1.5 hover:scale-[1.025] hover:border-white/60 hover:shadow-[0_20px_45px_-12px_rgba(43,114,212,0.5),0_0_24px_rgba(255,255,255,0.25)] active:scale-[0.98] active:translate-y-0 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white`}
               >
-                {/* Continuous glassy top edge highlight */}
-                <span className="pointer-events-none absolute inset-x-0 top-0 h-1/2 bg-gradient-to-b from-white/35 via-white/10 to-transparent transition-opacity duration-300 group-hover:opacity-100" aria-hidden />
-
-                {/* Dynamic traveling glass sweep beam on hover */}
-                <span className="pointer-events-none absolute -inset-full top-0 block h-[300%] w-1/2 -rotate-45 bg-gradient-to-r from-transparent via-white/45 to-transparent opacity-0 transition-all duration-700 ease-in-out group-hover:translate-x-[400%] group-hover:opacity-100" aria-hidden />
-
-                {/* Frosted radial glass glare blooming from top */}
-                <span className="pointer-events-none absolute inset-0 bg-radial-[circle_at_50%_0%] from-white/30 via-white/5 to-transparent opacity-40 transition-opacity duration-300 group-hover:opacity-90" aria-hidden />
-
                 {/* Glassy icon bubble with refraction and scale */}
                 <span className="relative grid h-11 w-11 shrink-0 place-items-center rounded-xl border border-white/40 bg-white/20 shadow-inner backdrop-blur-md transition-all duration-300 group-hover:scale-110 group-hover:bg-white/35 group-hover:border-white/70 group-hover:shadow-[0_0_18px_rgba(255,255,255,0.4)]">
                   <Icon className="h-5 w-5 transition-transform duration-300 group-hover:scale-105" aria-hidden />
@@ -208,8 +199,8 @@ export function Hero() {
                   onClick={() => setTab(key)}
                   aria-pressed={tab === key}
                   className={`flex-1 rounded-full px-3 py-1.5 text-caption font-bold transition-all duration-200 ${tab === key
-                      ? 'bg-gradient-to-r from-frost-500 to-aurora-500 text-white shadow-crystal'
-                      : 'text-slate-600 hover:text-ink'
+                    ? 'bg-gradient-to-r from-frost-500 to-aurora-500 text-white shadow-crystal'
+                    : 'text-slate-600 hover:text-ink'
                     }`}
                 >
                   {j.label}
@@ -252,7 +243,7 @@ export function Hero() {
 
             <Link
               to="/resume-checker"
-              className="group mt-4 flex items-center justify-center gap-2 rounded-xl bg-btn-grad px-5 py-3 text-small font-bold text-white shadow-blue transition-all duration-200 hover:-translate-y-0.5 hover:shadow-blue-lg"
+              className="group dl-glass-btn mt-4 flex items-center justify-center gap-2 rounded-xl bg-btn-grad px-5 py-3 text-small font-bold text-white shadow-blue transition-all duration-200 hover:-translate-y-0.5 hover:shadow-blue-lg"
             >
               Start with a free Resume Health check
               <ArrowUpRight className="h-4 w-4 transition-transform duration-200 group-hover:-translate-y-0.5 group-hover:translate-x-0.5" aria-hidden />

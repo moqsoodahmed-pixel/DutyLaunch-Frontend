@@ -65,10 +65,10 @@ export default function CoverLetter() {
     <>
       <Seo title="Cover Letter Generator" description="Draft a targeted cover letter from your own CV and the job description — no invented claims." />
       <PageHero
-        eyebrow="Career Tools"
+        eyebrow="Career+"
         title="Cover Letter Assistant"
         lead="A first draft built from your own CV and the job you are applying for. It only uses experience your CV already shows, and it never makes claims about the employer."
-        breadcrumb={[{ label: 'Career Tools', to: '/resume-checker' }, { label: 'Cover Letter' }]}
+        breadcrumb={[{ label: 'Career+', to: '/resume-checker' }, { label: 'Cover Letter' }]}
       />
 
       <Section tone="white">

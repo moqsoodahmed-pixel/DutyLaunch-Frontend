@@ -1,6 +1,6 @@
 import { useMemo, useRef, useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Check, Search, ShieldCheck, Maximize2, ArrowRight, Zap, Award } from 'lucide-react';
+import { Check, Search, Maximize2, ArrowRight, Lock, ShieldCheck } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Container, Section } from '../ui/Container.jsx';
 import { SectionHeader } from '../ui/SectionHeader.jsx';
@@ -14,286 +14,355 @@ import { TEMPLATES, LAYOUTS, LEVELS, TEMPLATE_COUNT } from '../../data/resumeTem
 import { cn } from '../../utils/cn.js';
 import { easing } from '../../utils/motion.js';
 import { usePrefersReducedMotion } from '../../hooks/useMediaQuery.js';
+import { useContentProtection } from '../../hooks/useContentProtection.js';
 
 const LAYOUT_LABEL = Object.fromEntries(LAYOUTS.map((l) => [l.value, l.label]));
 
 /**
- * Premium Flagship ATS Template Card:
- * - Preview, Template Name, Industry.
- * - Three prominent badges: ATS Ready badge, Modern badge, Professional badge.
- * - Quick Preview button & functional "Use Template" CTA button.
- * - Smooth hover lift, scale, blue/purple glow, and continuous edge lighting.
+ * Checks whether a template is free or paid in the system.
  */
-export function TemplateCard({ tpl, selected, onSelect, onOpen, className }) {
-  const [hovered, setHovered] = useState(false);
+export function getTemplatePricing(tpl) {
+  const id = tpl?.id || tpl?.aliasId || '';
+  if (id === 'dl-elite' || id === 'ats-classic' || id === 'ats-minimal' || id === 'ats-fresher') {
+    return { isPremium: false, badge: 'Free' };
+  }
+  return { isPremium: true, badge: 'Paid' };
+}
+
+/**
+ * Payment Required Modal.
+ * Displayed when user tries to access/use a Paid template.
+ * Explicitly states that payment is required before granting access to edit, use, or export.
+ */
+export function PaymentRequiredModal({ tpl, open, onClose, onUnlockSuccess }) {
+  const [processing, setProcessing] = useState(false);
+  const { unlock } = useContentProtection();
   const navigate = useNavigate();
 
-  const handleUseTemplate = (e) => {
-    e.stopPropagation();
+  if (!open || !tpl) return null;
+
+  const handlePay = () => {
+    setProcessing(true);
+    setTimeout(() => {
+      unlock(tpl.id);
+      setProcessing(false);
+      onUnlockSuccess?.(tpl);
+      onClose();
+    }, 450);
+  };
+
+  return (
+    <Modal
+      open={open}
+      onClose={onClose}
+      title={`Payment Required: ${tpl.name}`}
+      description="Paid Executive ATS Resume Template"
+      size="md"
+    >
+      <div className="space-y-4 pt-1">
+        <div className="relative overflow-hidden rounded-xl border border-amber-400/40 bg-gradient-to-br from-amber-500/15 via-orange-500/10 to-slate-900/60 p-4">
+          <div className="flex items-center gap-3.5">
+            <div className="grid h-12 w-12 shrink-0 place-items-center rounded-xl bg-gradient-to-tr from-amber-500 to-orange-500 text-white shadow-lg shadow-orange-500/30">
+              <Lock className="h-6 w-6" />
+            </div>
+            <div>
+              <span className="inline-block rounded-full bg-amber-500/25 border border-amber-400/40 px-2 py-0.5 text-[10px] font-extrabold uppercase tracking-wider text-amber-700 dark:text-amber-300">
+                Paid Template — Access Restricted
+              </span>
+              <h3 className="text-base font-extrabold text-ink">{tpl.role}</h3>
+              <p className="text-caption text-slate-500">Requires purchase before use in builder or export</p>
+            </div>
+          </div>
+        </div>
+
+        <div className="rounded-xl border border-slate-200/90 bg-slate-50/80 p-3.5 space-y-2 text-small text-slate-700">
+          <p className="font-semibold text-ink text-[13px]">
+            To access and build your resume with this template, please complete payment:
+          </p>
+          <div className="flex items-center gap-2 text-caption">
+            <Check className="h-4 w-4 text-emerald-500 shrink-0" />
+            <span>Full unlimited editing in CV Builder & AI Match Engine</span>
+          </div>
+          <div className="flex items-center gap-2 text-caption">
+            <Check className="h-4 w-4 text-emerald-500 shrink-0" />
+            <span>Guaranteed 98%+ ATS parser compliance score</span>
+          </div>
+          <div className="flex items-center gap-2 text-caption">
+            <Check className="h-4 w-4 text-emerald-500 shrink-0" />
+            <span>Instant high-resolution PDF and Word export</span>
+          </div>
+        </div>
+
+        <div className="flex flex-col gap-2 pt-2 sm:flex-row">
+          <button
+            type="button"
+            disabled={processing}
+            onClick={handlePay}
+            className="flex-1 rounded-xl bg-gradient-to-r from-amber-500 via-orange-500 to-amber-600 px-5 py-3 text-body font-bold text-white shadow-lg shadow-orange-500/25 transition-all hover:brightness-110 active:scale-95 disabled:opacity-50 cursor-pointer"
+          >
+            {processing ? 'Processing Payment…' : 'Pay & Access Template'}
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              onClose();
+              navigate('/pricing');
+            }}
+            className="rounded-xl border border-slate-200 px-4 py-3 text-small font-semibold text-slate-600 hover:bg-slate-100 transition-colors cursor-pointer"
+          >
+            View Pricing Plans
+          </button>
+        </div>
+      </div>
+    </Modal>
+  );
+}
+
+export { PaymentRequiredModal as PaidUnlockModal };
+
+/**
+ * Template card redesigned as an authentic ISO A4 paper document.
+ * CLEAN PRESENTATION: No Free/Paid badges on the carousel card.
+ * Previews the true resume design.
+ * When the user attempts to use a Paid template, access is denied and prompts payment.
+ * Anti-screenshot and right-click protected.
+ */
+export function TemplateCard({ tpl, selected, onSelect, onOpen, className, tone = 'light' }) {
+  const [hovered, setHovered] = useState(false);
+  const [paymentModalOpen, setPaymentModalOpen] = useState(false);
+  const navigate = useNavigate();
+  const pricing = getTemplatePricing(tpl);
+  const { isUnlocked, isWindowBlurred } = useContentProtection();
+
+  const isPaid = pricing.isPremium;
+  const isAccessible = !isPaid || isUnlocked(tpl.id);
+
+  const handleAction = (e) => {
+    e?.stopPropagation();
+    if (!isAccessible) {
+      setPaymentModalOpen(true);
+      return;
+    }
     onSelect?.(tpl.id);
     navigate(`/cv-builder?template=${tpl.id}`);
   };
 
-  return (
-    <div
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
-      className={cn(
-        'group relative flex flex-col overflow-hidden rounded-2xl p-[1.5px] cursor-pointer transition-all duration-[260ms]',
-        'hover:-translate-y-1 hover:scale-[1.025]',
-        selected
-          ? 'shadow-[0_24px_60px_-15px_rgba(43,114,212,0.45),0_0_28px_rgba(79,193,230,0.55)]'
-          : 'shadow-crystal hover:shadow-[0_28px_70px_-15px_rgba(43,114,212,0.38),0_0_24px_rgba(169,140,234,0.38)]',
-        className
-      )}
-    >
-      {/* Continuous Travelling Border Glow */}
-      <div
-        className={cn(
-          'pointer-events-none absolute -inset-[200%] transition-opacity duration-500',
-          hovered || selected ? 'opacity-100' : 'opacity-40'
-        )}
-        style={{
-          background:
-            'conic-gradient(from 0deg, transparent 0deg, transparent 270deg, #4FC1E6 305deg, #2B72D4 330deg, #A98CEA 355deg, transparent 360deg)',
-          animation: 'edge-orbit 6s linear infinite',
-        }}
-        aria-hidden="true"
-      />
+  const handleCardClick = () => {
+    if (!isAccessible) {
+      setPaymentModalOpen(true);
+      return;
+    }
+    onSelect?.(tpl.id);
+  };
 
-      {/* Card Inner Body */}
-      <div className="relative flex h-full flex-col overflow-hidden rounded-[14.5px] border border-cyan-500/25 bg-[#0B1528]/95 backdrop-blur-xl">
-        {/* Glossy Highlight Overlay */}
+  return (
+    <>
+      <div
+        data-resume-protect="true"
+        onContextMenu={(e) => e.preventDefault()}
+        onMouseEnter={() => setHovered(true)}
+        onMouseLeave={() => setHovered(false)}
+        onClick={handleCardClick}
+        className={cn(
+          'group relative flex flex-col cursor-pointer transition-all duration-[260ms] ease-out dl-protected-preview select-none',
+          'hover:-translate-y-2 hover:scale-[1.04]',
+          className
+        )}
+      >
+        {/* A4 paper preview — clean, realistic, authentic A4 paper */}
         <div
           className={cn(
-            'pointer-events-none absolute inset-0 z-20 bg-gradient-to-tr from-white/0 via-cyan-400/10 to-transparent transition-opacity duration-500',
-            hovered ? 'opacity-100' : 'opacity-0'
+            'relative overflow-hidden rounded-[4px] bg-white transition-all duration-[260ms]',
+            selected
+              ? 'shadow-[0_0_0_2px_rgba(43,114,212,0.9),0_18px_45px_-10px_rgba(43,114,212,0.4)]'
+              : 'shadow-[0_3px_12px_-2px_rgba(15,28,46,0.18),0_1px_3px_rgba(15,28,46,0.08)] border border-slate-200/90',
+            hovered && !selected && 'shadow-[0_20px_45px_-10px_rgba(15,28,46,0.25),0_4px_12px_rgba(15,28,46,0.1)] border-azure-400'
           )}
-        />
-
-        {/* Top bar: Template Name & Industry */}
-        <div className="flex items-center justify-between border-b border-cyan-500/20 bg-[#0E1D38] px-3 py-2">
-          <div className="flex items-center gap-1.5 min-w-0">
-            <span className="h-2 w-2 shrink-0 rounded-full bg-cyan-400 animate-pulse" />
-            <span className="truncate text-[12.5px] font-bold text-white">{tpl.name}</span>
-          </div>
-          <span className="shrink-0 rounded-full bg-cyan-950/80 border border-cyan-400/40 px-2 py-0.5 text-[9.5px] font-bold text-cyan-300">
-            {tpl.industry || tpl.tagline}
-          </span>
-        </div>
-
-        {/* 3 Prominent Badges Rail: ATS Ready, Modern, Professional */}
-        <div className="flex flex-wrap items-center gap-1 border-b border-cyan-500/15 bg-[#081326] px-3 py-1.5">
-          <span className="inline-flex items-center gap-1 rounded-full bg-emerald-950/70 px-1.5 py-0.5 text-[9px] font-bold text-emerald-300 border border-emerald-400/40">
-            <ShieldCheck className="h-2.5 w-2.5 text-emerald-400" />
-            ATS Ready
-          </span>
-          <span className="inline-flex items-center gap-1 rounded-full bg-cyan-950/70 px-1.5 py-0.5 text-[9px] font-bold text-cyan-300 border border-cyan-400/40">
-            <Zap className="h-2.5 w-2.5 text-cyan-300" />
-            Modern
-          </span>
-          <span className="inline-flex items-center gap-1 rounded-full bg-purple-950/70 px-1.5 py-0.5 text-[9px] font-bold text-purple-300 border border-purple-400/40">
-            <Award className="h-2.5 w-2.5 text-purple-300" />
-            Professional
-          </span>
-        </div>
-
-        {/* Document Preview (Compact Scaled A4 with zero excess whitespace) */}
-        <div
-          role="button"
-          tabIndex={0}
-          onClick={() => onSelect?.(tpl.id)}
-          onKeyDown={(e) => {
-            if (e.key === 'Enter' || e.key === ' ') {
-              e.preventDefault();
-              onSelect?.(tpl.id);
-            }
-          }}
-          aria-pressed={selected}
-          className="relative block w-full bg-[#060D1A]/60 p-2 text-left outline-none focus-visible:ring-2 focus-visible:ring-cyan-400"
+          style={{ aspectRatio: '210 / 297' }}
         >
-          <div
-            className={cn(
-              'overflow-hidden rounded-md border border-cyan-500/20 bg-white shadow-xs transition-all duration-[260ms] h-[215px] sm:h-[245px]',
-              hovered ? 'scale-[1.01] brightness-[1.02]' : 'brightness-100'
-            )}
-          >
-            <ResumeTemplatePreview template={tpl} crop={true} />
+          {/* Full resume preview — uncropped, clean preview */}
+          <div className="block h-full w-full outline-none">
+            <ResumeTemplatePreview template={tpl} crop={false} />
           </div>
 
+          {/* Privacy Shield on Window Blur / Screen capture */}
+          {isWindowBlurred && (
+            <div className="absolute inset-0 z-30 flex flex-col items-center justify-center bg-slate-950/90 p-3 text-center backdrop-blur-md">
+              <ShieldCheck className="h-6 w-6 text-cyan-400 mb-1" />
+              <p className="text-[11px] font-bold text-white">Content Protected</p>
+              <p className="text-[9.5px] text-slate-400">Return to window to view</p>
+            </div>
+          )}
+
+          {/* Top-Right Corner Free Badge for free templates only */}
+          {!pricing.isPremium && (
+            <span className="absolute right-2 top-2 z-10 inline-flex items-center gap-1 rounded-full bg-emerald-600 border border-emerald-300/60 px-2.5 py-0.5 text-[10.5px] font-extrabold uppercase tracking-wide text-white shadow-[0_2px_10px_rgba(5,150,105,0.45)] backdrop-blur-xs">
+              Free
+            </span>
+          )}
+
+          {/* Selected badge */}
           {selected && (
-            <span className="absolute right-3.5 top-3.5 z-10 inline-flex items-center gap-1 rounded-full bg-emerald-500 px-2 py-0.5 text-[10px] font-bold text-white shadow-lift animate-rise">
-              <Check className="h-3 w-3" aria-hidden />
+            <span className="absolute left-2 top-2 z-10 inline-flex items-center gap-1 rounded-full bg-azure px-2 py-0.5 text-[10px] font-bold text-white shadow-sm">
+              <Check className="h-2.5 w-2.5" aria-hidden />
               Selected
             </span>
           )}
 
-          {/* Quick Preview Hover Button */}
-          <button
-            type="button"
-            onClick={(e) => {
-              e.stopPropagation();
-              onOpen?.(tpl);
-            }}
-            className="absolute bottom-3.5 left-1/2 z-10 inline-flex -translate-x-1/2 translate-y-2 items-center gap-1.5 rounded-full bg-slate-900/90 border border-cyan-400/40 px-3 py-1 text-caption font-semibold text-white shadow-lift backdrop-blur transition-all duration-200 group-hover:translate-y-0 group-hover:opacity-100 hover:bg-azure hover:shadow-crystal focus:translate-y-0 focus:opacity-100 sm:opacity-0"
+          {/* Quick Preview hover overlay */}
+          <div
+            className={cn(
+              'absolute inset-0 flex items-end justify-center pb-4 transition-opacity duration-200',
+              hovered ? 'opacity-100' : 'opacity-0'
+            )}
           >
-            <Maximize2 className="h-3 w-3" aria-hidden />
-            Quick Preview
-          </button>
-        </div>
-
-        {/* Details & Actions Footer */}
-        <div className="flex flex-1 flex-col p-3 pt-2">
-          <div className="flex items-baseline justify-between gap-1">
-            <h3 className="truncate text-small font-bold text-white">{tpl.role}</h3>
-            <span className="shrink-0 text-caption font-medium text-cyan-300/80">{tpl.personName?.split(' ')[0]}</span>
-          </div>
-          <p className="mt-0.5 truncate text-caption text-slate-400">{tpl.targetRoles}</p>
-
-          {/* Action Row: Quick Preview & Use Template */}
-          <div className="mt-2.5 flex items-center gap-2 border-t border-cyan-500/20 pt-2">
+            <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent" />
             <button
               type="button"
               onClick={(e) => {
                 e.stopPropagation();
                 onOpen?.(tpl);
               }}
-              className="flex-1 rounded-lg border border-cyan-500/30 bg-cyan-950/40 py-2 text-center text-[11.5px] font-semibold text-cyan-300 transition-colors hover:bg-cyan-900/60 hover:text-white"
+              className="relative z-10 inline-flex items-center gap-1.5 rounded-full bg-white/95 px-3 py-1.5 text-caption font-semibold text-ink shadow-lg backdrop-blur transition-transform duration-150 hover:scale-[1.04] hover:bg-white hover:shadow-xl cursor-pointer"
             >
-              Preview
+              <Maximize2 className="h-3 w-3" aria-hidden />
+              Quick Preview
             </button>
+          </div>
+        </div>
+
+        {/* Template info row — clean role and name, NO free/paid badges */}
+        <div className="mt-2 px-0.5">
+          <div className="flex items-start justify-between gap-1.5">
+            <div className="min-w-0 flex-1">
+              <h3 className={cn("text-xs sm:text-small font-bold leading-tight line-clamp-1", tone === 'dark' ? "text-white" : "text-slate-900")}>
+                {tpl.role}
+              </h3>
+              <p className={cn("truncate mt-0.5 text-caption", tone === 'dark' ? "text-slate-300" : "text-slate-500")}>
+                {tpl.name}
+              </p>
+            </div>
             <button
               type="button"
-              onClick={handleUseTemplate}
-              className="flex flex-1 items-center justify-center gap-1 rounded-lg bg-gradient-to-r from-azure via-cyan-600 to-purple-600 py-2 px-3 text-[11.5px] font-bold text-white shadow-crystal transition-all duration-200 hover:brightness-105 hover:shadow-crystal-lg active:scale-[0.98]"
+              onClick={handleAction}
+              className="shrink-0 rounded-lg bg-azure hover:bg-azure-600 px-3 py-1 text-[11px] font-bold text-white shadow-xs transition-all duration-150 active:scale-95 cursor-pointer"
             >
-              Use Template
-              <ArrowRight className="h-3 w-3 transition-transform duration-200 group-hover:translate-x-0.5" />
+              Use
             </button>
           </div>
         </div>
       </div>
-    </div>
+
+      <PaymentRequiredModal
+        tpl={tpl}
+        open={paymentModalOpen}
+        onClose={() => setPaymentModalOpen(false)}
+        onUnlockSuccess={(unlockedTpl) => {
+          onSelect?.(unlockedTpl.id);
+          navigate(`/cv-builder?template=${unlockedTpl.id}`);
+        }}
+      />
+    </>
   );
 }
 
 /**
- * Premium Infinite Flowing Showcase:
- * - Continuous automatic movement, infinite conveyor loop, no visible reset.
- * - Auto-pauses immediately on hover anywhere over the carousel track or cards.
- * - Resumes immediately on mouse leave with zero jump, zero jitter, and no restart.
- * - Retains exact subpixel translation in a ref.
+ * Infinite conveyor carousel — improved with smooth snapping, no clipping,
+ * proper spacing, dynamic mobile/tablet sizing, and high contrast text.
  */
-export function InfiniteFlowingShowcase({ templates, selected, onSelect, onOpen }) {
+export function InfiniteFlowingShowcase({ templates, selected, onSelect, onOpen, tone = 'dark' }) {
   const containerRef = useRef(null);
   const cardRefs = useRef([]);
   const isPausedRef = useRef(false);
   const positionsRef = useRef(null);
   const reduceMotion = usePrefersReducedMotion();
 
-  // Duplicate templates to create an unbroken seamless conveyor loop
+  const [isSmall, setIsSmall] = useState(false);
+  useEffect(() => {
+    const checkSize = () => setIsSmall(window.innerWidth < 640);
+    checkSize();
+    window.addEventListener('resize', checkSize);
+    return () => window.removeEventListener('resize', checkSize);
+  }, []);
+
   const items = useMemo(() => [...templates, ...templates, ...templates], [templates]);
   const itemCount = items.length;
+
+  const cardWidth = isSmall ? 175 : 220;
+  const gap = isSmall ? 12 : 18;
+  const itemStep = cardWidth + gap;
+  const totalSpan = itemCount * itemStep;
 
   useEffect(() => {
     if (reduceMotion) return undefined;
 
-    const isSmall = window.innerWidth < 640;
-    const cardWidth = isSmall ? 235 : 285;
-    const gap = isSmall ? 16 : 20;
-    const itemStep = cardWidth + gap;
-    const totalSpan = itemCount * itemStep;
-
-    // Preserve positions array across re-renders
     if (!positionsRef.current || positionsRef.current.length !== itemCount) {
       positionsRef.current = items.map((_, i) => i * itemStep);
     }
 
-    let lastTime = performance.now();
+    let lastTime = typeof performance !== 'undefined' ? performance.now() : Date.now();
     let animId;
-    const speed = 46; // pixels per second
+    const speed = 38;
 
     const step = (now) => {
       const dt = Math.min((now - lastTime) / 1000, 0.1);
       lastTime = now;
 
-      // Only move when NOT hovered/paused
       if (!isPausedRef.current && positionsRef.current) {
         const positions = positionsRef.current;
         for (let i = 0; i < positions.length; i++) {
           positions[i] -= speed * dt;
-
-          // Wrap around seamlessly off left edge
           if (positions[i] < -itemStep) {
             positions[i] += totalSpan;
           }
-
           const el = cardRefs.current[i];
           if (el) {
             el.style.transform = `translate3d(${positions[i]}px, 0, 0)`;
           }
         }
       }
-
       animId = requestAnimationFrame(step);
     };
 
     animId = requestAnimationFrame(step);
-
     return () => cancelAnimationFrame(animId);
-  }, [items, itemCount, reduceMotion]);
+  }, [items, itemCount, reduceMotion, itemStep, totalSpan]);
 
-  const handlePause = () => {
-    isPausedRef.current = true;
-  };
+  const handlePause = () => { isPausedRef.current = true; };
+  const handleResume = () => { isPausedRef.current = false; };
 
-  const handleResume = () => {
-    isPausedRef.current = false;
-  };
+  // A4 aspect ratio height: cardWidth * (297 / 210) + 90px space for info row
+  const cardH = Math.round(cardWidth * (297 / 210)) + 90;
 
   return (
     <div
       ref={containerRef}
       onMouseEnter={handlePause}
       onMouseLeave={handleResume}
-      onPointerEnter={handlePause}
-      onPointerLeave={handleResume}
-      onMouseOver={handlePause}
-      onPointerOver={handlePause}
-      className="relative my-4 w-full overflow-hidden py-3 select-none"
-      aria-label="Infinite Rotating Resume Carousel"
+      onTouchStart={handlePause}
+      onTouchEnd={handleResume}
+      className="relative my-4 sm:my-6 w-full overflow-hidden py-3 select-none"
+      aria-label="Template carousel"
     >
-      {/* Edge gradient fade masks */}
-      <div className="pointer-events-none absolute inset-y-0 left-0 z-20 w-10 bg-gradient-to-r from-glacier-100 via-glacier-100/70 to-transparent sm:w-24" />
-      <div className="pointer-events-none absolute inset-y-0 right-0 z-20 w-10 bg-gradient-to-l from-glacier-100 via-glacier-100/70 to-transparent sm:w-24" />
-
-      {/* Conveyor Track */}
       <div
-        onMouseEnter={handlePause}
-        onMouseLeave={handleResume}
-        onPointerEnter={handlePause}
-        onPointerLeave={handleResume}
-        onMouseOver={handlePause}
-        onPointerOver={handlePause}
-        className="relative h-[440px] w-full sm:h-[470px]"
+        className="relative w-full"
+        style={{ height: cardH }}
       >
         {items.map((tpl, i) => (
           <div
             key={`${tpl.id}-${i}`}
-            ref={(node) => {
-              cardRefs.current[i] = node;
-            }}
+            ref={(node) => { cardRefs.current[i] = node; }}
             onMouseEnter={handlePause}
             onMouseLeave={handleResume}
-            onPointerEnter={handlePause}
-            onPointerLeave={handleResume}
-            className="absolute top-2 left-0 w-[235px] will-change-transform sm:w-[285px]"
+            className="absolute top-1 left-0 will-change-transform"
             style={{
-              transform: `translate3d(${i * 305}px, 0, 0)`,
+              width: cardWidth,
+              transform: `translate3d(${i * itemStep}px, 0, 0)`,
             }}
           >
             <TemplateCard
               tpl={tpl}
+              tone={tone}
               selected={selected === tpl.id}
               onSelect={onSelect}
               onOpen={onOpen}
@@ -318,8 +387,9 @@ export function TemplateGallery({
   const [query, setQuery] = useState('');
   const [selected, setSelected] = useState(TEMPLATES[0].id);
   const [preview, setPreview] = useState(null);
+  const [paymentModalTpl, setPaymentModalTpl] = useState(null);
+  const { isUnlocked } = useContentProtection();
 
-  // Filter templates based on current selections
   const visible = useMemo(() => {
     const q = query.trim().toLowerCase();
     const list = TEMPLATES.filter((t) => {
@@ -352,30 +422,22 @@ export function TemplateGallery({
           />
         </Reveal>
 
-        {/* ── PREMIUM INFINITE ROTATING CAROUSEL (PAUSE ON HOVER VERIFIED) ── */}
+        {/* Carousel */}
         <InfiniteFlowingShowcase
           templates={TEMPLATES}
           selected={selected}
           onSelect={setSelected}
           onOpen={setPreview}
+          tone={tone === 'dark' ? 'dark' : 'light'}
         />
 
-        {/* ── FILTER CONTROLS ── */}
-        <div className="mt-6 space-y-4">
+        {/* Filter controls */}
+        <div className="mt-4 space-y-4">
           <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
-            <Tabs
-              options={LAYOUTS}
-              value={layout}
-              onChange={setLayout}
-              label="Filter by Flagship Template"
-            />
-
+            <Tabs options={LAYOUTS} value={layout} onChange={setLayout} label="Filter by template" />
             <label className="relative w-full lg:max-w-xs">
               <span className="sr-only">Search templates by role or skill</span>
-              <Search
-                className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400"
-                aria-hidden
-              />
+              <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" aria-hidden />
               <input
                 type="search"
                 value={query}
@@ -385,14 +447,7 @@ export function TemplateGallery({
               />
             </label>
           </div>
-
-          <Tabs
-            options={LEVELS}
-            value={level}
-            onChange={setLevel}
-            label="Filter by career stage"
-          />
-
+          <Tabs options={LEVELS} value={level} onChange={setLevel} label="Filter by career stage" />
           {layout !== 'all' && (
             <p className="text-small text-slate-600">
               <span className="font-bold text-azure">{LAYOUT_LABEL[layout]}:</span>{' '}
@@ -413,7 +468,7 @@ export function TemplateGallery({
             />
           </div>
         ) : (
-          <ul className="mt-6 grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+          <ul className="mt-6 grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
             {visible.map((tpl, i) => (
               <motion.li
                 key={tpl.id}
@@ -424,6 +479,7 @@ export function TemplateGallery({
               >
                 <TemplateCard
                   tpl={tpl}
+                  tone={tone === 'dark' ? 'dark' : 'light'}
                   selected={selected === tpl.id}
                   onSelect={setSelected}
                   onOpen={setPreview}
@@ -433,58 +489,78 @@ export function TemplateGallery({
           </ul>
         )}
 
-        {/* Action Callout Bar */}
-        <div className="relative mt-10 overflow-hidden rounded-2xl p-[1.5px] shadow-crystal">
-          <div
-            className="pointer-events-none absolute -inset-[200%] opacity-65 animate-edge-orbit"
-            style={{
-              background:
-                'conic-gradient(from 0deg, transparent 0deg, transparent 270deg, #4FC1E6 310deg, #A98CEA 340deg, #FDF3E2 355deg, transparent 360deg)',
-            }}
-            aria-hidden="true"
-          />
-          <div className="relative flex flex-col items-center gap-4 rounded-[14.5px] border border-white/80 bg-gradient-to-r from-frost-50 via-white to-aurora-200/40 p-5 text-center backdrop-blur-xl sm:flex-row sm:justify-between sm:text-left">
+        {/* CTA bar */}
+        <div className="mt-10 overflow-hidden rounded-2xl border border-azure-200/60 bg-gradient-to-r from-frost-50 via-white to-aurora-50 p-5 shadow-sm">
+          <div className="flex flex-col items-center gap-4 text-center sm:flex-row sm:justify-between sm:text-left">
             <div>
               <h4 className="font-bold text-ink">Ready to generate your ATS-optimized CV?</h4>
               <p className="mt-1 max-w-prose text-small text-slate-600">
-                Switch templates anytime in the AI Resume Builder with one click — all content updates seamlessly without losing formatting.
+                Switch templates anytime in the AI Resume Builder with one click.
               </p>
             </div>
-            <Button to={cta.to} variant="premium" className="shrink-0 shadow-crystal">
+            <Button to={cta.to} variant="premium" className="shrink-0">
               {cta.label}
             </Button>
           </div>
         </div>
       </Container>
 
-      {/* Full Screen Preview Modal */}
+      {/* Preview Modal */}
       <Modal
         open={Boolean(preview)}
         onClose={() => setPreview(null)}
-        title={preview ? `${preview.name} (${preview.personName}) — ${preview.industry || preview.tagline}` : ''}
+        title={preview ? `${preview.name} — ${preview.industry || preview.tagline}` : ''}
         description={preview ? preview.description : ''}
         size="lg"
       >
-        {preview && (
-          <div className="space-y-4">
-            <div className="overflow-hidden rounded-xl border border-glacier-300 bg-white shadow-crystal">
-              <ResumeTemplatePreview template={preview} crop={false} />
+        {preview && (() => {
+          const pricing = getTemplatePricing(preview);
+          const isPaid = pricing.isPremium;
+          const isAccessible = !isPaid || isUnlocked(preview.id);
+
+          return (
+            <div
+              data-resume-protect="true"
+              onContextMenu={(e) => e.preventDefault()}
+              className="space-y-4 dl-protected-preview select-none"
+            >
+              <div className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm" style={{ aspectRatio: '210 / 297' }}>
+                <ResumeTemplatePreview template={preview} crop={false} />
+              </div>
+              <div className="flex flex-col gap-3 sm:flex-row">
+                {isAccessible ? (
+                  <Button to={`/cv-builder?template=${preview.id}`} variant="premium" fullWidth>
+                    Use {preview.name} in Builder
+                  </Button>
+                ) : (
+                  <Button
+                    variant="premium"
+                    fullWidth
+                    onClick={() => {
+                      setPreview(null);
+                      setPaymentModalTpl(preview);
+                    }}
+                  >
+                    Pay to Access & Use in Builder
+                  </Button>
+                )}
+                <Button variant="outline" fullWidth onClick={() => setPreview(null)}>
+                  Close Preview
+                </Button>
+              </div>
             </div>
-            <div className="flex flex-col gap-3 sm:flex-row">
-              <Button
-                to={`/cv-builder?template=${preview.id}`}
-                variant="premium"
-                fullWidth
-              >
-                Use {preview.name} in Builder
-              </Button>
-              <Button variant="outline" fullWidth onClick={() => setPreview(null)}>
-                Close Preview
-              </Button>
-            </div>
-          </div>
-        )}
+          );
+        })()}
       </Modal>
+
+      <PaymentRequiredModal
+        tpl={paymentModalTpl}
+        open={Boolean(paymentModalTpl)}
+        onClose={() => setPaymentModalTpl(null)}
+        onUnlockSuccess={(unlockedTpl) => {
+          setSelected(unlockedTpl.id);
+        }}
+      />
     </Section>
   );
 }

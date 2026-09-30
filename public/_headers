@@ -9,7 +9,9 @@
 # 1) The HTML shell must always be re-checked, so it always points at the
 #    current bundle names.
 /*
-  Cache-Control: no-cache
+  Cache-Control: no-cache, no-store, must-revalidate, max-age=0
+  Pragma: no-cache
+  Expires: 0
 
 # 2) Bundles are content-hashed — a given filename never changes — so they
 #    can be cached for a year. "! Cache-Control" drops the no-cache rule

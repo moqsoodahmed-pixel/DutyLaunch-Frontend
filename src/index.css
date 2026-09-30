@@ -368,4 +368,79 @@
     animation: edge-orbit 8s linear infinite;
     pointer-events: none;
   }
+
+  /* Anti-screenshot & Content Protection */
+  .dl-protected-preview {
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    -webkit-touch-callout: none;
+  }
+
+  /* Clean Glass Sweep Hover Effect for buttons across the entire website */
+  @keyframes dl-glass-sweep {
+    0% {
+      transform: translate3d(-160%, 0, 0) skewX(-25deg);
+      opacity: 0;
+    }
+    15% {
+      opacity: 0.95;
+    }
+    70% {
+      opacity: 0.95;
+    }
+    100% {
+      transform: translate3d(280%, 0, 0) skewX(-25deg);
+      opacity: 0;
+    }
+  }
+
+  .dl-glass-btn {
+    position: relative;
+    overflow: hidden;
+  }
+
+  .dl-glass-btn::after {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: 0;
+    width: 60%;
+    height: 200%;
+    background: linear-gradient(
+      90deg,
+      transparent 0%,
+      rgba(255, 255, 255, 0.2) 25%,
+      rgba(255, 255, 255, 0.75) 50%,
+      rgba(255, 255, 255, 0.2) 75%,
+      transparent 100%
+    );
+    transform: translate3d(-160%, 0, 0) skewX(-25deg);
+    pointer-events: none;
+    opacity: 0;
+    z-index: 20;
+  }
+
+  .dl-glass-btn:hover::after {
+    animation: dl-glass-sweep 0.75s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  }
+}
+
+@media print {
+  [data-resume-protect="true"],
+  .dl-resume-preview-box,
+  .dl-resume-a4-sheet {
+    display: none !important;
+    visibility: hidden !important;
+  }
+  body::after {
+    content: "DutyLaunch — Resume templates protected from direct printing. Please use the official export button.";
+    display: block;
+    padding: 100px 20px;
+    font-size: 20px;
+    font-weight: 700;
+    text-align: center;
+    color: #0F172A;
+  }
 }

@@ -9,7 +9,7 @@ import { cn } from '../../utils/cn.js';
    line and the button grows, instead of pushing the page wider than the
    screen. max-w-full keeps any button inside its container. */
 const base =
-  'relative overflow-hidden group/btn inline-flex max-w-full items-center justify-center gap-2 text-center leading-tight sm:whitespace-nowrap rounded font-semibold cursor-pointer transition-all duration-[250ms] ease-out disabled:cursor-not-allowed disabled:opacity-55 active:scale-[0.98] active:translate-y-0 hover:scale-[1.04] hover:-translate-y-0.5 before:pointer-events-none before:absolute before:inset-0 before:-translate-x-full before:bg-gradient-to-r before:from-transparent before:via-white/30 before:to-transparent before:transition-transform before:duration-500 before:ease-out hover:before:translate-x-full [&>svg]:transition-transform [&>svg]:duration-[250ms] [&>svg]:ease-out group-hover/btn:[&>svg]:scale-110';
+  'relative overflow-hidden dl-glass-btn group/btn inline-flex max-w-full items-center justify-center gap-2 text-center leading-tight sm:whitespace-nowrap rounded font-semibold cursor-pointer transition-all duration-[250ms] ease-out disabled:cursor-not-allowed disabled:opacity-55 active:scale-[0.98] active:translate-y-0 hover:scale-[1.04] hover:-translate-y-0.5 [&>svg]:transition-transform [&>svg]:duration-[250ms] [&>svg]:ease-out group-hover/btn:[&>svg]:scale-110';
 
 const variants = {
   // Glossy gradient fill, matching the LauncherDesk primary button exactly.
@@ -18,17 +18,17 @@ const variants = {
   secondary:
     'bg-ink-800 text-white shadow-lift ring-1 ring-inset ring-white/10 hover:bg-ink-700 hover:brightness-110 hover:ring-white/20 hover:shadow-[0_14px_34px_-10px_rgba(19,41,82,0.75)]',
   outline:
-    'border-[1.5px] border-azure-500 bg-transparent text-azure hover:border-azure-600 hover:bg-azure-50 hover:text-azure-600 hover:shadow-[0_10px_26px_-10px_rgba(29,93,184,0.5)]',
+    'border-[1.5px] border-azure-400 bg-azure-50/90 text-azure-800 hover:border-azure-500 hover:bg-azure-100 hover:text-azure-900 hover:shadow-[0_10px_26px_-10px_rgba(29,93,184,0.5)]',
   quiet:
-    'border-[1.5px] border-ink-800/15 bg-transparent text-slate-700 hover:border-line hover:bg-slate-100 hover:text-ink',
-  ghost: 'text-ink hover:bg-slate-100',
+    'border-[1.5px] border-slate-300 bg-slate-100/90 text-slate-800 hover:border-slate-400 hover:bg-slate-200 hover:text-ink',
+  ghost: 'bg-slate-100/80 text-ink hover:bg-slate-200/90',
   onInk:
     'bg-white text-ink shadow-xs hover:brightness-[1.02] hover:shadow-crystal',
   outlineInk:
-    'border border-white/20 bg-white/10 text-white hover:bg-white/[0.18]',
+    'border border-sky-300/40 bg-gradient-to-r from-sky-500/90 via-cyan-500/90 to-sky-600/90 text-white hover:brightness-110 hover:shadow-[0_0_20px_rgba(56,189,248,0.4)]',
   danger:
     'bg-danger text-white ring-1 ring-inset ring-white/10 hover:brightness-105 hover:ring-white/25 hover:shadow-[0_12px_30px_-10px_rgba(220,38,38,0.65)]',
-  link: 'text-azure underline-offset-4 hover:underline px-0 hover:scale-100 hover:translate-y-0 before:hidden',
+  link: 'text-azure underline-offset-4 hover:underline px-0 hover:scale-100 hover:translate-y-0 before:hidden after:hidden',
   /* Glacier premium variant: frost→aurora gradient, glow shadow, and a
      shimmer sweep on hover matching official Analyze My Resume Free button. */
   premium:

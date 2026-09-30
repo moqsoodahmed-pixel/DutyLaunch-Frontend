@@ -37,8 +37,12 @@ export function MegaMenu({ menuIds, onNavigate, anchorLeft = 0, onMouseEnter, on
             return (
               <div key={group.id}>
                 <div className="mb-3 flex items-center gap-3">
-                  <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl border border-white/60 bg-gradient-to-br from-azure-50 to-glacier-200 text-azure shadow-frost-inset">
-                    <Icon className="h-4.5 w-4.5" aria-hidden />
+                  <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl border border-white/60 bg-gradient-to-br from-azure-50 to-glacier-200 text-azure shadow-frost-inset overflow-hidden p-1.5">
+                    {group.id === 'career-tools' || group.icon === 'LogoMark' ? (
+                      <img src="/favicon-192.png" alt="DutyLaunch" className="h-6 w-6 object-contain" />
+                    ) : (
+                      <Icon className="h-4.5 w-4.5" aria-hidden />
+                    )}
                   </span>
                   <div className="min-w-0">
                     <h3 className="text-body font-bold text-ink">{group.label}</h3>

@@ -10,6 +10,14 @@ import {
   Minus,
   Pencil,
   X,
+  Layers,
+  Award,
+  Zap,
+  BookOpen,
+  FileText,
+  Target,
+  ShieldCheck,
+  CheckCircle2,
 } from 'lucide-react';
 import { Badge } from '../ui/Badge.jsx';
 import { Button } from '../ui/Button.jsx';
@@ -38,45 +46,99 @@ const TONE_CLASS = {
   red: 'text-danger',
 };
 
-export function ScoreDial({ score, band, label = 'Resume Health', size = 132 }) {
-  const radius = (size - 14) / 2;
+const CATEGORY_ICONS = {
+  structure: Layers,
+  achievement: Award,
+  skills: Zap,
+  readability: BookOpen,
+  formatting: FileText,
+  keywords: Target,
+};
+
+export function ScoreDial({ score, band, label = 'ATS Health Score', size = 136 }) {
+  const radius = (size - 16) / 2;
   const circumference = 2 * Math.PI * radius;
   const offset = circumference - (Math.max(0, Math.min(100, score)) / 100) * circumference;
-  const tone = TONE_CLASS[band?.tone] || 'text-azure';
+  const isHigh = score >= 80;
+  const isMedium = score >= 60 && score < 80;
+
+  const gradientId = `score-grad-${score}`;
 
   return (
-    <div className="flex items-center gap-5">
+    <div className="flex flex-col sm:flex-row items-center gap-5">
       <div className="relative shrink-0" style={{ width: size, height: size }}>
         <svg width={size} height={size} className="-rotate-90" role="img" aria-label={`${label}: ${score} out of 100`}>
-          <circle cx={size / 2} cy={size / 2} r={radius} strokeWidth="10" className="stroke-slate-200" fill="none" />
+          <defs>
+            <linearGradient id={gradientId} x1="0%" y1="0%" x2="100%" y2="100%">
+              {isHigh ? (
+                <>
+                  <stop offset="0%" stopColor="#10B981" />
+                  <stop offset="100%" stopColor="#06B6D4" />
+                </>
+              ) : isMedium ? (
+                <>
+                  <stop offset="0%" stopColor="#F59E0B" />
+                  <stop offset="100%" stopColor="#F97316" />
+                </>
+              ) : (
+                <>
+                  <stop offset="0%" stopColor="#EF4444" />
+                  <stop offset="100%" stopColor="#F43F5E" />
+                </>
+              )}
+            </linearGradient>
+          </defs>
+          <circle cx={size / 2} cy={size / 2} r={radius} strokeWidth="11" className="stroke-slate-100" fill="none" />
           <circle
             cx={size / 2}
             cy={size / 2}
             r={radius}
-            strokeWidth="10"
+            strokeWidth="11"
             fill="none"
             strokeLinecap="round"
             strokeDasharray={circumference}
             strokeDashoffset={offset}
-            className={cn('transition-[stroke-dashoffset] duration-700 ease-out', tone)}
-            stroke="currentColor"
+            stroke={`url(#${gradientId})`}
+            className="transition-[stroke-dashoffset] duration-1000 ease-out"
           />
         </svg>
         <div className="absolute inset-0 grid place-content-center text-center">
-          <span className="text-h2 font-extrabold leading-none">{score}</span>
-          <span className="text-caption text-slate-500">out of 100</span>
+          <span className="text-3xl sm:text-4xl font-black text-ink leading-none">{score}</span>
+          <span className="text-[11px] font-semibold uppercase tracking-wider text-slate-400 mt-1">out of 100</span>
         </div>
       </div>
-      <div>
-        <p className="eyebrow mb-1">{label}</p>
-        <p className={cn('text-h3 font-bold', tone)}>{band?.label}</p>
+      <div className="text-center sm:text-left">
+        <span className="inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-caption font-bold uppercase tracking-wider bg-slate-100 text-slate-600 mb-2">
+          {label}
+        </span>
+        <div className="flex items-center justify-center sm:justify-start gap-2">
+          <span
+            className={cn(
+              'inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-small font-bold',
+              isHigh
+                ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
+                : isMedium
+                  ? 'bg-amber-50 text-amber-700 border border-amber-200'
+                  : 'bg-rose-50 text-rose-700 border border-rose-200'
+            )}
+          >
+            {band?.label || (isHigh ? 'Excellent ATS Score' : isMedium ? 'Good Baseline' : 'Needs Review')}
+          </span>
+        </div>
+        <p className="mt-1.5 text-caption text-slate-500 max-w-[24ch]">
+          {isHigh
+            ? 'Strong formatting & keyword alignment. Recruiter ATS ready.'
+            : isMedium
+              ? 'Meets structural requirements with a few recommended tweaks.'
+              : 'Several key ATS flags require updates before sending.'}
+        </p>
       </div>
     </div>
   );
 }
 
 /* ------------------------------------------------------------------ *
- * Resume Health report
+ * Resume Health report — Premium Dashboard Layout
  * ------------------------------------------------------------------ */
 
 const SEVERITY_TONE = { high: 'danger', medium: 'amber', low: 'neutral' };
@@ -88,81 +150,167 @@ export function ResumeHealthReport({ health }) {
   const categories = Object.entries(health.categories || {});
 
   return (
-    <div className="space-y-7">
-      <div className="flex flex-col gap-6 rounded-lg border border-line bg-white p-6 sm:flex-row sm:items-center sm:justify-between">
-        <ScoreDial score={health.score} band={health.band} />
-        {!health.scoredAgainstJd && (
-          <p className="max-w-xs text-small text-slate-600">
-            Scored without a target job. Add a job description and we can also score keyword alignment and how
-            relevant your experience is to that role.
-          </p>
-        )}
+    <div className="space-y-6">
+      {/* Top Card: Resume Score Dashboard */}
+      <div className="overflow-hidden rounded-2xl border border-slate-200/90 bg-white p-6 sm:p-8 shadow-sm">
+        <div className="grid gap-6 lg:grid-cols-12 lg:items-center">
+          <div className="lg:col-span-5 flex justify-center lg:justify-start">
+            <ScoreDial score={health.score} band={health.band} />
+          </div>
+
+          <div className="lg:col-span-4 border-t border-slate-100 pt-4 lg:border-t-0 lg:border-l lg:pl-6 lg:pt-0">
+            <h4 className="text-small font-bold text-ink">Score Assessment</h4>
+            <p className="mt-1 text-small text-slate-600 leading-relaxed">
+              {!health.scoredAgainstJd
+                ? 'Evaluated across core formatting, bullet impact, and section parsing. Add a job description to calculate role relevance and keyword alignment.'
+                : 'Scored with target job requirements. Keywords and skills matched directly against job specifications.'}
+            </p>
+            {health.methodology && (
+              <p className="mt-2.5 flex items-start gap-1.5 text-caption text-slate-500">
+                <Info className="mt-0.5 h-3.5 w-3.5 shrink-0 text-azure" aria-hidden />
+                <span>{health.methodology}</span>
+              </p>
+            )}
+          </div>
+
+          <div className="lg:col-span-3 flex flex-col gap-2.5 sm:flex-row lg:flex-col justify-end">
+            <Button
+              to="/cv-builder"
+              variant="premium"
+              size="sm"
+              className="w-full justify-center shadow-sm text-center"
+            >
+              Fix in CV Builder
+              <ArrowRight className="h-3.5 w-3.5 ml-1" />
+            </Button>
+            <button
+              type="button"
+              onClick={() => window.print()}
+              className="inline-flex w-full items-center justify-center rounded-xl border border-slate-200 bg-white px-3 py-2 text-caption font-semibold text-slate-700 shadow-xs transition-colors hover:bg-slate-50 hover:text-ink"
+            >
+              Print / Save ATS Report
+            </button>
+          </div>
+        </div>
       </div>
 
-      {/* Methodology sits with the score, not buried in a footer. A number
-          this prominent has to say what it is and what it isn't. */}
-      <p className="flex gap-2.5 rounded border border-line bg-paper p-4 text-small text-slate-600">
-        <Info className="mt-0.5 h-4 w-4 shrink-0 text-slate-400" aria-hidden />
-        <span>{health.methodology}</span>
-      </p>
+      {/* 2-Column Responsive Score Cards Grid */}
+      <div>
+        <div className="flex items-center justify-between mb-3 px-1">
+          <h3 className="text-small font-bold uppercase tracking-wider text-slate-500">
+            Category Breakdown ({categories.length} Evaluation Areas)
+          </h3>
+          <span className="text-caption text-slate-400">Click any card to expand findings</span>
+        </div>
 
-      <div className="space-y-2.5">
-        {categories.map(([key, category]) => {
-          const open = openCategory === key;
-          return (
-            <div key={key} className="overflow-hidden rounded border border-line bg-white">
-              <button
-                type="button"
-                onClick={() => setOpenCategory(open ? null : key)}
-                className="flex w-full items-center gap-4 px-5 py-4 text-left hover:bg-paper"
-                aria-expanded={open}
+        <div className="grid gap-3.5 sm:grid-cols-2">
+          {categories.map(([key, category]) => {
+            const open = openCategory === key;
+            const Icon = CATEGORY_ICONS[key] || ShieldCheck;
+            const isHigh = category.score >= 80;
+            const isMedium = category.score >= 60 && category.score < 80;
+
+            return (
+              <div
+                key={key}
+                className={cn(
+                  'overflow-hidden rounded-xl border bg-white transition-all duration-200',
+                  open
+                    ? 'border-azure-300 shadow-md ring-1 ring-azure-200/50'
+                    : 'border-slate-200/90 shadow-2xs hover:-translate-y-0.5 hover:border-slate-300 hover:shadow-xs'
+                )}
               >
-                <div className="min-w-0 flex-1">
-                  <div className="flex items-baseline gap-2.5">
-                    <span className="font-semibold">{category.label}</span>
-                    <span className="text-caption text-slate-500">{category.weight}% of your score</span>
+                <button
+                  type="button"
+                  onClick={() => setOpenCategory(open ? null : key)}
+                  className="flex w-full items-center gap-3.5 p-4 text-left cursor-pointer outline-none"
+                  aria-expanded={open}
+                >
+                  <div
+                    className={cn(
+                      'grid h-10 w-10 shrink-0 place-items-center rounded-lg',
+                      isHigh
+                        ? 'bg-emerald-50 text-emerald-600'
+                        : isMedium
+                          ? 'bg-amber-50 text-amber-600'
+                          : 'bg-rose-50 text-rose-600'
+                    )}
+                  >
+                    <Icon className="h-5 w-5" aria-hidden />
                   </div>
-                  <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-slate-100">
-                    <div
-                      className={cn(
-                        'h-full rounded-full transition-[width] duration-700',
-                        category.score >= 80 ? 'bg-success' : category.score >= 60 ? 'bg-amber-400' : 'bg-danger'
-                      )}
-                      style={{ width: `${category.score}%` }}
-                    />
-                  </div>
-                </div>
-                <span className="w-10 text-right font-bold tabular-nums">{category.score}</span>
-                <ChevronDown className={cn('h-4 w-4 text-slate-400 transition-transform', open && 'rotate-180')} aria-hidden />
-              </button>
 
-              {open && (
-                <div className="border-t border-line bg-paper px-5 py-4">
-                  {category.findings?.length ? (
-                    <ul className="space-y-3">
-                      {category.findings.map((finding, i) => (
-                        <li key={i} className="flex gap-3">
-                          <Badge tone={SEVERITY_TONE[finding.severity]} className="mt-0.5 shrink-0">
-                            {finding.severity}
-                          </Badge>
-                          <div>
-                            <p className="text-small font-medium">{finding.label}</p>
-                            {finding.detail && <p className="mt-0.5 text-small text-slate-600">{finding.detail}</p>}
-                          </div>
-                        </li>
-                      ))}
-                    </ul>
-                  ) : (
-                    <p className="text-small text-slate-600">Nothing to fix here.</p>
-                  )}
-                </div>
-              )}
-            </div>
-          );
-        })}
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-baseline justify-between gap-2">
+                      <span className="text-small font-bold text-ink truncate">{category.label}</span>
+                      <span className="text-caption font-bold text-slate-700 tabular-nums">
+                        {category.score}
+                        <span className="text-[10px] text-slate-400 font-normal">/100</span>
+                      </span>
+                    </div>
+
+                    {/* Gradient Animated Progress Bar */}
+                    <div className="mt-2 h-2 w-full overflow-hidden rounded-full bg-slate-100 shadow-inner">
+                      <div
+                        className={cn(
+                          'h-full rounded-full transition-all duration-700 ease-out',
+                          isHigh
+                            ? 'bg-gradient-to-r from-emerald-400 to-teal-500'
+                            : isMedium
+                              ? 'bg-gradient-to-r from-amber-400 to-orange-500'
+                              : 'bg-gradient-to-r from-rose-400 to-red-600'
+                        )}
+                        style={{ width: `${Math.max(6, category.score)}%` }}
+                      />
+                    </div>
+
+                    <div className="mt-1.5 flex items-center justify-between text-[11px] text-slate-500">
+                      <span>{category.weight}% weighting</span>
+                      <span className={isHigh ? 'text-emerald-600 font-semibold' : isMedium ? 'text-amber-600 font-semibold' : 'text-rose-600 font-semibold'}>
+                        {category.findings?.length ? `${category.findings.length} findings` : 'Optimal'}
+                      </span>
+                    </div>
+                  </div>
+
+                  <ChevronDown
+                    className={cn('h-4 w-4 shrink-0 text-slate-400 transition-transform duration-200', open && 'rotate-180')}
+                    aria-hidden
+                  />
+                </button>
+
+                {open && (
+                  <div className="border-t border-slate-100 bg-slate-50/70 p-4">
+                    {category.findings?.length ? (
+                      <ul className="space-y-2.5">
+                        {category.findings.map((finding, i) => (
+                          <li key={i} className="flex items-start gap-2.5 rounded-lg bg-white p-2.5 border border-slate-200/70 shadow-2xs">
+                            <Badge tone={SEVERITY_TONE[finding.severity]} className="mt-0.5 shrink-0 text-[10px] uppercase font-bold">
+                              {finding.severity}
+                            </Badge>
+                            <div className="min-w-0">
+                              <p className="text-small font-semibold text-ink">{finding.label}</p>
+                              {finding.detail && (
+                                <p className="mt-0.5 text-caption text-slate-600 leading-relaxed">{finding.detail}</p>
+                              )}
+                            </div>
+                          </li>
+                        ))}
+                      </ul>
+                    ) : (
+                      <p className="text-small text-emerald-700 font-medium flex items-center gap-1.5">
+                        <CheckCircle2 className="h-4 w-4 text-emerald-500" />
+                        All checks in this category are fully optimal.
+                      </p>
+                    )}
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
       </div>
 
-      <div className="grid gap-5 sm:grid-cols-3">
+      {/* 3-Column Improvement Summary Cards */}
+      <div className="grid gap-4 sm:grid-cols-3">
         <SummaryList title="What is strong" items={health.whatIsStrong} tone="success" />
         <SummaryList title="What needs work" items={health.whatNeedsImprovement} tone="amber" />
         <SummaryList title="What is missing" items={health.whatIsMissing} tone="danger" />
@@ -172,25 +320,30 @@ export function ResumeHealthReport({ health }) {
 }
 
 function SummaryList({ title, items, tone }) {
-  const dot = { success: 'bg-success', amber: 'bg-amber-400', danger: 'bg-danger' }[tone];
+  const dot = { success: 'bg-emerald-500', amber: 'bg-amber-500', danger: 'bg-rose-500' }[tone];
+  const borderTone = { success: 'border-emerald-200/80', amber: 'border-amber-200/80', danger: 'border-rose-200/80' }[tone];
   return (
-    <div className="rounded border border-line bg-white p-5">
-      <h3 className="mb-3 text-small font-semibold">{title}</h3>
+    <div className={cn('rounded-xl border bg-white p-5 shadow-2xs', borderTone)}>
+      <h3 className="mb-3 text-small font-bold text-ink flex items-center gap-2">
+        <span className={cn('h-2 w-2 rounded-full', dot)} />
+        {title}
+      </h3>
       {items?.length ? (
         <ul className="space-y-2">
           {items.map((item, i) => (
-            <li key={i} className="flex gap-2.5 text-small text-slate-600">
-              <span className={cn('mt-[7px] h-1.5 w-1.5 shrink-0 rounded-full', dot)} />
-              {item}
+            <li key={i} className="flex gap-2 text-small text-slate-600 leading-snug">
+              <span className="text-slate-400 select-none">•</span>
+              <span>{item}</span>
             </li>
           ))}
         </ul>
       ) : (
-        <p className="text-small text-slate-500">—</p>
+        <p className="text-small text-slate-400 italic">None reported</p>
       )}
     </div>
   );
 }
+
 
 /* ------------------------------------------------------------------ *
  * ATS checklist

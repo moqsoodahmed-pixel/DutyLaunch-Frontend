@@ -78,10 +78,10 @@ export default function InterviewCoach() {
     <>
       <Seo title="Interview Preparation" description="Practice interview questions built from your own CV and the job you are applying for." />
       <PageHero
-        eyebrow="Career Tools"
+        eyebrow="Career+"
         title="Interview Preparation"
         lead="Practice the questions you are most likely to face: about your role, the job description, and the claims on your own CV. You get structure notes, not scripted answers to memorise."
-        breadcrumb={[{ label: 'Career Tools', to: '/resume-checker' }, { label: 'Interview Prep' }]}
+        breadcrumb={[{ label: 'Career+', to: '/resume-checker' }, { label: 'Interview Prep' }]}
       />
 
       <Section tone="white">

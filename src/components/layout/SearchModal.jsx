@@ -1,28 +1,17 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useRef, useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { CornerDownLeft, Search, X, Sparkles, ArrowRight } from 'lucide-react';
+import { Search, X, ArrowRight } from 'lucide-react';
 import { searchSite } from '../../data/searchIndex.js';
 
-const QUICK_LINKS = [
-  { title: 'Resume Checker', path: '/resume-checker', group: 'Career Tools', tag: 'FREE' },
-  { title: 'AI Resume Builder', path: '/ai-resume-builder', group: 'Career Tools', tag: 'AI' },
-  { title: 'CV Templates', path: '/cv-templates', group: 'Career Tools', tag: '5 Flagships' },
-  { title: 'Jobs Search', path: '/jobs', group: 'Jobs', tag: 'Live Roles' },
-  { title: 'Dubai Launch', path: '/dubai-launch', group: 'Global Mobility', tag: 'Gulf Jobs' },
-  { title: 'Apostille & Attestation', path: '/appostle-services', group: 'Documentation', tag: 'Verified' },
-];
-
 /**
- * Centered Command Palette Search Modal.
- * Opens as a focused, elegant crystal modal with translucent backdrop.
- * Never clips or distorts the navigation bar.
- * Supports keyboard navigation: ↑/↓ to move, ↵ to open, Esc to close.
+ * Minimal iOS/macOS Spotlight-inspired search.
+ * Interactive search button, precise website routing, smooth section scrolling,
+ * and mobile/tablet responsive layout.
  */
 export function SearchModal({ onClose }) {
   const navigate = useNavigate();
   const inputRef = useRef(null);
-  const listRef = useRef(null);
   const [query, setQuery] = useState('');
   const [active, setActive] = useState(0);
 
@@ -30,20 +19,60 @@ export function SearchModal({ onClose }) {
   const results = useMemo(() => (q ? searchSite(query) : []), [q, query]);
 
   useEffect(() => {
-    const t = setTimeout(() => inputRef.current?.focus(), 40);
+    const t = setTimeout(() => inputRef.current?.focus(), 50);
     return () => clearTimeout(t);
   }, []);
 
   useEffect(() => setActive(0), [query]);
 
-  useEffect(() => {
-    listRef.current?.querySelector(`[data-idx="${active}"]`)?.scrollIntoView({ block: 'nearest' });
-  }, [active]);
-
   const go = (entry) => {
     if (!entry) return;
     onClose?.();
+
+    if (entry.path.startsWith('http')) {
+      window.location.href = entry.path;
+      return;
+    }
+
+    if (entry.path.includes('#')) {
+      const [route, hash] = entry.path.split('#');
+      navigate(route || '/');
+      setTimeout(() => {
+        const el = document.getElementById(hash);
+        if (el) el.scrollIntoView({ behavior: 'smooth' });
+      }, 150);
+      return;
+    }
+
     navigate(entry.path);
+  };
+
+  const handleSubmit = (e) => {
+    e?.preventDefault();
+    if (results.length > 0) {
+      go(results[active] || results[0]);
+    } else if (q) {
+      const queryLower = q.toLowerCase();
+      if (queryLower.includes('template') || queryLower.includes('cv')) {
+        go({ path: '/cv-templates' });
+      } else if (queryLower.includes('ai') || queryLower.includes('builder')) {
+        go({ path: '/ai-resume-builder' });
+      } else if (queryLower.includes('check') || queryLower.includes('score') || queryLower.includes('ats')) {
+        go({ path: '/resume-checker' });
+      } else if (queryLower.includes('job')) {
+        go({ path: '/jobs' });
+      } else if (queryLower.includes('price') || queryLower.includes('cost')) {
+        go({ path: '/pricing' });
+      } else if (queryLower.includes('dubai')) {
+        go({ path: '/dubai-launch' });
+      } else if (queryLower.includes('course')) {
+        go({ path: '/courses' });
+      } else if (queryLower.includes('contact')) {
+        go({ path: '/contact' });
+      } else {
+        go({ path: `/?q=${encodeURIComponent(q)}` });
+      }
+    }
   };
 
   const onKeyDown = (e) => {
@@ -55,7 +84,7 @@ export function SearchModal({ onClose }) {
       if (results.length > 0) setActive((a) => Math.max(a - 1, 0));
     } else if (e.key === 'Enter') {
       e.preventDefault();
-      if (results[active]) go(results[active]);
+      handleSubmit();
     } else if (e.key === 'Escape') {
       e.preventDefault();
       onClose?.();
@@ -63,156 +92,118 @@ export function SearchModal({ onClose }) {
   };
 
   return (
-    <div className="fixed inset-0 z-[120] flex items-start justify-center p-4 pt-20 sm:pt-28">
-      {/* Translucent Backdrop */}
+    <div className="fixed inset-0 z-[120] flex items-start justify-center px-3 sm:px-4 pt-16 sm:pt-[4.5rem]">
+      {/* Translucent backdrop */}
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
+        transition={{ duration: 0.15 }}
         onClick={onClose}
-        className="fixed inset-0 bg-ink-950/45 backdrop-blur-md"
+        className="fixed inset-0 bg-ink-950/40 backdrop-blur-sm"
         aria-hidden="true"
       />
 
-      {/* Centered Command Palette Card */}
+      {/* Spotlight pill */}
       <motion.div
-        initial={{ opacity: 0, y: -14, scale: 0.96 }}
+        initial={{ opacity: 0, y: -10, scale: 0.97 }}
         animate={{ opacity: 1, y: 0, scale: 1 }}
-        exit={{ opacity: 0, y: -10, scale: 0.96 }}
+        exit={{ opacity: 0, y: -8, scale: 0.97 }}
         transition={{ duration: 0.18, ease: [0.16, 0.84, 0.44, 1] }}
+        className="relative z-10 w-full max-w-lg"
         role="dialog"
         aria-label="Search DutyLaunch"
-        className="relative z-10 flex max-h-[75vh] w-full max-w-2xl flex-col overflow-hidden rounded-2xl border border-white/80 bg-white/95 shadow-crystal-2xl backdrop-blur-2xl"
       >
-        {/* Search Header Bar */}
-        <div className="flex shrink-0 items-center gap-3 border-b border-glacier-200/80 px-4 py-3 sm:px-5">
-          <div className="grid h-8 w-8 place-items-center rounded-lg bg-azure-50 text-azure">
-            <Search className="h-4.5 w-4.5" aria-hidden />
-          </div>
+        {/* Search input form */}
+        <form
+          onSubmit={handleSubmit}
+          className="flex items-center gap-2.5 sm:gap-3 rounded-full border border-white/85 bg-white/95 px-3 sm:px-4 py-2.5 shadow-[0_20px_60px_-12px_rgba(15,28,46,0.28),0_8px_24px_-8px_rgba(79,193,230,0.25)] backdrop-blur-2xl"
+        >
+          <button
+            type="submit"
+            aria-label="Execute search"
+            className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-gradient-to-r from-azure to-cyan-500 text-white shadow-xs transition-all hover:scale-105 active:scale-95 cursor-pointer"
+          >
+            <Search className="h-4 w-4" aria-hidden />
+          </button>
           <input
             ref={inputRef}
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             onKeyDown={onKeyDown}
-            placeholder="Search resume, jobs, apostille, courses…"
-            className="h-10 w-full bg-transparent text-body font-medium text-ink outline-none placeholder:text-slate-400"
+            placeholder="Search resumes, jobs, templates, services..."
+            className="h-7 min-w-0 flex-1 bg-transparent text-small sm:text-body font-medium text-ink outline-none placeholder:text-slate-400"
             aria-label="Search the site"
           />
           {query ? (
             <button
               type="button"
               onClick={() => setQuery('')}
-              className="grid h-7 w-7 place-items-center rounded-md text-slate-400 hover:bg-slate-100 hover:text-ink"
-              aria-label="Clear search query"
+              className="grid h-6 w-6 shrink-0 place-items-center rounded-full bg-slate-200/80 text-slate-500 transition-colors hover:bg-slate-300/80 hover:text-ink cursor-pointer"
+              aria-label="Clear"
             >
-              <X className="h-4 w-4" />
+              <X className="h-3.5 w-3.5" />
             </button>
           ) : (
-            <kbd className="hidden rounded bg-slate-100 px-2 py-0.5 text-[11px] font-semibold text-slate-500 sm:inline-block">
+            <kbd className="hidden sm:inline-block shrink-0 rounded-md border border-slate-200 bg-slate-100 px-2 py-0.5 text-[11px] font-semibold text-slate-400">
               ESC
             </kbd>
           )}
-          <button
-            type="button"
-            onClick={onClose}
-            className="grid h-7 w-7 place-items-center rounded-md text-slate-400 hover:bg-slate-100 hover:text-ink sm:hidden"
-            aria-label="Close search"
+        </form>
+
+        {/* Results dropdown — only shown when query exists */}
+        {q && results.length > 0 && (
+          <motion.div
+            initial={{ opacity: 0, y: -6 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.14, ease: [0.16, 0.84, 0.44, 1] }}
+            className="mt-2 overflow-hidden rounded-2xl border border-white/85 bg-white/95 shadow-[0_24px_60px_-12px_rgba(15,28,46,0.2)] backdrop-blur-2xl"
           >
-            <X className="h-4 w-4" />
-          </button>
-        </div>
-
-        {/* Content Area */}
-        <div ref={listRef} className="min-h-0 flex-1 overflow-y-auto p-3 sm:p-4">
-          {!q ? (
-            <div>
-              <p className="px-2 pb-2 text-[11px] font-bold uppercase tracking-wider text-slate-400">
-                Popular Quick Links
-              </p>
-              <div className="grid gap-1.5 sm:grid-cols-2">
-                {QUICK_LINKS.map((link) => (
+            <ul className="max-h-72 overflow-y-auto p-2">
+              {results.map((r, i) => (
+                <li key={r.path}>
                   <button
-                    key={link.path}
                     type="button"
-                    onClick={() => go(link)}
-                    className="group flex items-center justify-between rounded-xl border border-transparent bg-glacier-50/70 p-3 text-left transition-all duration-200 hover:scale-[1.01] hover:border-frost-300 hover:bg-white hover:shadow-xs"
+                    data-idx={i}
+                    onMouseEnter={() => setActive(i)}
+                    onClick={() => go(r)}
+                    className={`flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left transition-colors duration-100 cursor-pointer ${
+                      i === active
+                        ? 'bg-gradient-to-r from-frost-50 via-azure-50/50 to-white border border-frost-200/80'
+                        : 'hover:bg-slate-50 border border-transparent'
+                    }`}
                   >
-                    <div className="min-w-0 pr-2">
-                      <span className="block text-small font-bold text-ink group-hover:text-azure">
-                        {link.title}
-                      </span>
-                      <span className="block text-caption text-slate-500">
-                        {link.group}
-                      </span>
-                    </div>
-                    <span className="shrink-0 rounded-full bg-azure-50 px-2 py-0.5 text-[10px] font-bold text-azure-700">
-                      {link.tag}
-                    </span>
-                  </button>
-                ))}
-              </div>
-            </div>
-          ) : results.length === 0 ? (
-            <div className="px-4 py-10 text-center">
-              <p className="text-body font-semibold text-ink">No results found for &ldquo;{query}&rdquo;</p>
-              <p className="mt-1 text-small text-slate-500">
-                Try searching for keywords like &ldquo;resume&rdquo;, &ldquo;jobs&rdquo;, &ldquo;templates&rdquo;, or &ldquo;dubai&rdquo;.
-              </p>
-            </div>
-          ) : (
-            <div>
-              <p className="px-2 pb-2 text-[11px] font-bold uppercase tracking-wider text-slate-400">
-                {results.length} Search Result{results.length === 1 ? '' : 's'}
-              </p>
-              <ul className="grid gap-1">
-                {results.map((r, i) => (
-                  <li key={r.path}>
-                    <button
-                      type="button"
-                      data-idx={i}
-                      onMouseEnter={() => setActive(i)}
-                      onClick={() => go(r)}
-                      className={`flex w-full items-center gap-3 rounded-xl p-3 text-left transition-all duration-150 ${
-                        i === active
-                          ? 'border border-frost-300/80 bg-gradient-to-r from-frost-50 via-azure-50/40 to-white shadow-2xs'
-                          : 'border border-transparent hover:bg-slate-50'
-                      }`}
-                    >
-                      <span className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-gradient-to-br from-frost-400 to-aurora-500 text-white shadow-crystal">
-                        <Search className="h-4 w-4" aria-hidden />
-                      </span>
-                      <span className="min-w-0 flex-1">
-                        <span className="flex items-center gap-2">
-                          <span className="truncate text-small font-bold text-ink">{r.title}</span>
-                          <span className="shrink-0 rounded-full bg-azure-50 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-azure-700">
-                            {r.group}
-                          </span>
-                        </span>
-                        {r.description && (
-                          <span className="mt-0.5 block truncate text-caption text-slate-500">
-                            {r.description}
-                          </span>
-                        )}
-                      </span>
-                      {i === active && (
-                        <span className="flex shrink-0 items-center gap-1 text-[11px] font-semibold text-azure">
-                          <span>Open</span>
-                          <CornerDownLeft className="h-3.5 w-3.5" aria-hidden />
-                        </span>
+                    <span className="min-w-0 flex-1">
+                      <span className="block truncate text-small font-bold text-ink">{r.title}</span>
+                      {r.description && (
+                        <span className="block truncate text-caption text-slate-500">{r.description}</span>
                       )}
-                    </button>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          )}
-        </div>
+                    </span>
+                    <span className="shrink-0 rounded-full bg-azure-50 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-azure-700">
+                      {r.group}
+                    </span>
+                    <ArrowRight className="h-3.5 w-3.5 text-slate-400 shrink-0" />
+                  </button>
+                </li>
+              ))}
+            </ul>
+          </motion.div>
+        )}
 
-        {/* Footer shortcuts */}
-        <div className="flex items-center justify-between border-t border-glacier-200/80 bg-glacier-50/60 px-4 py-2 text-[11px] text-slate-500">
-          <span>Navigate with <kbd className="rounded bg-white px-1.5 py-0.5 font-semibold shadow-2xs">↑</kbd> <kbd className="rounded bg-white px-1.5 py-0.5 font-semibold shadow-2xs">↓</kbd></span>
-          <span>Press <kbd className="rounded bg-white px-1.5 py-0.5 font-semibold shadow-2xs">↵ Enter</kbd> to select</span>
-        </div>
+        {/* No results */}
+        {q && results.length === 0 && (
+          <motion.div
+            initial={{ opacity: 0, y: -4 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.14 }}
+            className="mt-2 rounded-2xl border border-white/85 bg-white/95 px-5 py-4 text-center backdrop-blur-2xl shadow-[0_24px_60px_-12px_rgba(15,28,46,0.15)]"
+          >
+            <p className="text-small font-semibold text-ink">No exact match for &ldquo;{query}&rdquo;</p>
+            <p className="mt-1 text-caption text-slate-500">
+              Press Enter or click the Search button to view matching resources.
+            </p>
+          </motion.div>
+        )}
       </motion.div>
     </div>
   );

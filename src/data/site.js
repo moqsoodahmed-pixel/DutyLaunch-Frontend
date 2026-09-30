@@ -99,9 +99,9 @@ export const pillars = [
   },
   {
     id: 'career-tools',
-    label: 'Career Tools',
+    label: 'Career+',
     path: '/ai-resume-builder',
-    icon: 'Sparkles',
+    icon: 'LogoMark',
     summary: 'Everything that turns your experience into a stronger application.',
     items: [
       { label: 'AI Resume Builder', path: '/ai-resume-builder', description: 'Build a resume matched to a job description' },
@@ -165,7 +165,7 @@ export const menuGroups = [...pillars, ...navGroups];
  * company page sits last.
  */
 export const primaryNav = [
-  { label: 'Career Tools', menu: ['career-tools'] },
+  { label: 'Career+', menu: ['career-tools'] },
   { label: 'Jobs', path: '/jobs' },
   { label: 'Upskills', menu: ['upskills'] },
   { label: 'Dubai Launch', path: '/dubai-launch' },

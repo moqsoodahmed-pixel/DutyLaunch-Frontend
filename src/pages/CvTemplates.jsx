@@ -43,7 +43,7 @@ export default function CvTemplates() {
         eyebrow="Flagship CV Templates"
         title="Five Flagship ATS Templates. One for Every Career Level."
         lead="Engineered for Taleo, Workday, Greenhouse, and iCIMS. DL Elite, DL Tech, DL Professional, DL Executive, and DL Modern provide flawless semantic parsing with premium Glacier design."
-        breadcrumb={[{ label: 'Career Tools', to: '/ai-resume-builder' }, { label: 'Templates' }]}
+        breadcrumb={[{ label: 'Career+', to: '/ai-resume-builder' }, { label: 'Templates' }]}
         actions={
           <HeroActions
             primary={{ label: 'Launch AI Resume Builder', to: '/ai-resume-builder' }}

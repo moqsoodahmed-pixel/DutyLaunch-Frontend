@@ -57,10 +57,10 @@ export default function LinkedInOptimizer() {
     <>
       <Seo title="LinkedIn Optimizer" description="LinkedIn headline, About and skills recommendations built from the same profile as your resume." />
       <PageHero
-        eyebrow="Career Tools"
+        eyebrow="Career+"
         title="LinkedIn Optimizer"
         lead="Recommendations for your headline, About section, experience and skills, built from your own CV so your LinkedIn and resume tell the same story. Nothing is scraped or posted anywhere."
-        breadcrumb={[{ label: 'Career Tools', to: '/resume-checker' }, { label: 'LinkedIn Optimizer' }]}
+        breadcrumb={[{ label: 'Career+', to: '/resume-checker' }, { label: 'LinkedIn Optimizer' }]}
       />
 
       <Section tone="white">
