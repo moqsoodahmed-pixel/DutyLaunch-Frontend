@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
-import { Download, FileUp, Loader2, ShieldCheck, CheckCircle2, TrendingUp } from 'lucide-react';
+import { Download, FileUp, Loader2 } from 'lucide-react';
 import { Seo } from '../components/ui/Seo.jsx';
 import { Container, Section } from '../components/ui/Container.jsx';
 import { SectionHeader } from '../components/ui/SectionHeader.jsx';
@@ -279,27 +279,7 @@ export default function AiResumeBuilder() {
         title={seo.heading}
         lead={seo.subheading}
         breadcrumb={[{ label: 'Career Tools', to: '/ai-resume-builder' }, { label: 'AI Resume Builder' }]}
-        actions={
-          <div className="flex flex-col gap-4">
-            <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
-              <HeroActions primary={seo.primaryCta} secondary={seo.secondaryCta} />
-            </div>
-            <div className="flex flex-wrap items-center gap-x-5 gap-y-2 text-[12px] font-semibold text-slate-600">
-              <span className="inline-flex items-center gap-1.5 text-emerald-700">
-                <ShieldCheck className="h-4 w-4 text-emerald-600" aria-hidden />
-                100% ATS Verified
-              </span>
-              <span className="inline-flex items-center gap-1.5 text-azure-700">
-                <TrendingUp className="h-4 w-4 text-azure" aria-hidden />
-                10,000+ Resumes Built
-              </span>
-              <span className="inline-flex items-center gap-1.5 text-purple-700">
-                <CheckCircle2 className="h-4 w-4 text-purple-600" aria-hidden />
-                Zero Layout Rejection
-              </span>
-            </div>
-          </div>
-        }
+        actions={<HeroActions primary={seo.primaryCta} secondary={seo.secondaryCta} />}
         aside={<ResumeShowcase />}
       />
 

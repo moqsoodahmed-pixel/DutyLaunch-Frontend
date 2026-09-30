@@ -668,7 +668,7 @@ export function TemplateGallery({ templates = [], selectedId, onSelect, suggeste
                 <Badge tone="azure">Recommended</Badge>
               ) : (
                 <span className="text-[10px] font-semibold text-azure bg-azure-50 px-2 py-0.5 rounded-full">
-                  ATS 100%
+                  ATS Ready
                 </span>
               )}
             </div>

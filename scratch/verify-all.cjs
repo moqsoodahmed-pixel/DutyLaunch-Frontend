@@ -52,8 +52,8 @@ async function verifyAll() {
   console.log('Micro cards present:');
   microCards.forEach(c => console.log(`  - "${c}":`, domBuilder.includes(c)));
 
-  console.log('Trust badges present on Left Hero:');
-  trustBadges.forEach(b => console.log(`  - "${b}":`, domBuilder.includes(b)));
+  console.log('Trust badges removed from Left Hero (must all be FALSE):');
+  trustBadges.forEach(b => console.log(`  - "${b}" present?:`, domBuilder.includes(b)));
 
   const heroShot = path.join(ARTIFACT_DIR, 'final_hero_qa.png');
   await runChrome([

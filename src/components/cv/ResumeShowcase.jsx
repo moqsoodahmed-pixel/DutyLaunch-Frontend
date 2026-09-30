@@ -232,7 +232,7 @@ export function ResumeShowcase({ className }) {
                     </div>
                     <span className="inline-flex items-center gap-1 rounded-full bg-azure-50/90 px-2 py-0.5 text-[10px] font-semibold text-azure-700">
                       <ShieldCheck className="h-3 w-3 text-azure-600" aria-hidden />
-                      ATS 100%
+                      ATS Ready
                     </span>
                   </div>
 

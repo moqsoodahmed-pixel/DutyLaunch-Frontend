@@ -36,7 +36,7 @@ export default function CvTemplates() {
     <>
       <Seo
         title="DutyLaunch Flagship ATS Resume Templates"
-        description="Explore the five DutyLaunch flagship ATS resume templates: DL Elite, DL Tech, DL Professional, DL Executive, and DL Modern. Engineered to 100% ATS parsing standards."
+        description="Explore the five DutyLaunch flagship ATS resume templates: DL Elite, DL Tech, DL Professional, DL Executive, and DL Modern. Engineered to industry ATS parsing standards."
       />
 
       <PageHero

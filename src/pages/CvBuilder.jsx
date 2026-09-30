@@ -575,7 +575,7 @@ export default function CvBuilder() {
     <>
       <Seo
         title="Live ATS Resume Builder · DutyLaunch"
-        description="Build an ATS-optimized professional resume in real-time. Split layout with live A4 document preview, instant styling, 5 flagship templates, and 100% recruiter compliance."
+        description="Build an ATS-optimized professional resume in real-time. Split layout with live A4 document preview, instant styling, 5 flagship templates, and strict recruiter compliance."
       />
 
       {/* Print Specific CSS to Isolate Real A4 Page for Browser Print / PDF Export */}
@@ -630,7 +630,7 @@ export default function CvBuilder() {
           {/* Center: ATS Status Badge */}
           <div className="hidden lg:flex items-center gap-2 rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 text-[11.5px] font-semibold text-emerald-800 shadow-2xs">
             <ShieldCheck className="h-3.5 w-3.5 text-emerald-600" />
-            <span>100% ATS Safe Standard</span>
+            <span>ATS Safe Standard</span>
             <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
             <span className="text-emerald-700 font-bold">Optimal Compliance</span>
           </div>

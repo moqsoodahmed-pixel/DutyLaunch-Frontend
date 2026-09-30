@@ -15,10 +15,6 @@ import { cn } from '../../utils/cn.js';
 import { easing } from '../../utils/motion.js';
 import { usePrefersReducedMotion } from '../../hooks/useMediaQuery.js';
 
-const ATS_LABEL = {
-  max: '100% ATS Guaranteed',
-  high: '98% ATS Compatible',
-};
 
 const LAYOUT_LABEL = Object.fromEntries(LAYOUTS.map((l) => [l.value, l.label]));
 
@@ -93,7 +89,7 @@ function TemplateCard({ tpl, selected, onSelect, onOpen, className }) {
             Candidate: <span className="font-bold text-ink">{tpl.personName}</span>
           </span>
           <span className="font-semibold text-emerald-600 inline-flex items-center gap-1">
-            <ShieldCheck className="h-3 w-3" /> ATS 100%
+            <ShieldCheck className="h-3 w-3" /> ATS Ready
           </span>
         </div>
 
@@ -408,7 +404,7 @@ export function TemplateGallery({
           />
           <div className="relative flex flex-col items-center gap-4 rounded-[14.5px] border border-white/80 bg-gradient-to-r from-frost-50 via-white to-aurora-200/40 p-6 text-center backdrop-blur-xl sm:flex-row sm:justify-between sm:text-left">
             <div>
-              <h4 className="font-bold text-ink">Ready to generate your ATS-verified CV?</h4>
+              <h4 className="font-bold text-ink">Ready to generate your ATS-optimized CV?</h4>
               <p className="mt-1 max-w-prose text-small text-slate-600">
                 Switch templates anytime in the AI Resume Builder with one click — all content updates seamlessly without losing formatting.
               </p>
