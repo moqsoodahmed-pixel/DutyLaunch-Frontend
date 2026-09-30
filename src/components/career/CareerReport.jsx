@@ -643,7 +643,7 @@ export function TemplateGallery({ templates = [], selectedId, onSelect, suggeste
   const list = TEMPLATES;
 
   return (
-    <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+    <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
       {list.map((tpl) => {
         const selected = tpl.id === selectedId;
         return (
@@ -651,31 +651,41 @@ export function TemplateGallery({ templates = [], selectedId, onSelect, suggeste
             key={tpl.id}
             onClick={() => onSelect?.(tpl.id)}
             className={cn(
-              'group relative flex flex-col overflow-hidden rounded-2xl border p-3.5 cursor-pointer transition-all duration-300 bg-white',
+              'group relative flex flex-col overflow-hidden rounded-2xl border p-3.5 cursor-pointer transition-all duration-300 bg-white/95 backdrop-blur-md',
               selected
-                ? 'border-azure ring-2 ring-azure shadow-crystal-lg scale-[1.02]'
+                ? 'border-azure ring-2 ring-azure shadow-[0_20px_50px_-15px_rgba(43,114,212,0.4)] scale-[1.02]'
                 : 'border-line hover:-translate-y-1 hover:border-azure-300 hover:shadow-crystal'
             )}
           >
-            {/* Top Bar with Selected Tick */}
+            {/* Top Bar with Selected Tick & Industry */}
             <div className="mb-2 flex items-center justify-between">
               <span className="font-bold text-ink text-small">{tpl.name}</span>
-              {selected ? (
-                <span className="inline-flex items-center gap-1 rounded-full bg-emerald-600 px-2 py-0.5 text-[10px] font-bold text-white shadow-xs animate-rise">
-                  <Check className="h-3 w-3" /> Selected
-                </span>
-              ) : tpl.id === suggestedId ? (
-                <Badge tone="azure">Recommended</Badge>
-              ) : (
-                <span className="text-[10px] font-semibold text-azure bg-azure-50 px-2 py-0.5 rounded-full">
-                  ATS Ready
-                </span>
-              )}
+              <span className="rounded-full bg-azure-50 px-2 py-0.5 text-[9.5px] font-bold text-azure-700">
+                {tpl.industry || tpl.tagline}
+              </span>
             </div>
 
-            {/* Document Preview */}
-            <div className="relative overflow-hidden rounded-lg border border-glacier-300/80 bg-glacier-100/50 p-1.5">
+            {/* Badges */}
+            <div className="mb-2 flex flex-wrap items-center gap-1">
+              <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-1.5 py-0.5 text-[9px] font-bold text-emerald-700 border border-emerald-200/60">
+                ATS Ready
+              </span>
+              <span className="inline-flex items-center gap-1 rounded-full bg-cyan-50 px-1.5 py-0.5 text-[9px] font-bold text-cyan-700 border border-cyan-200/60">
+                Modern
+              </span>
+              <span className="inline-flex items-center gap-1 rounded-full bg-purple-50 px-1.5 py-0.5 text-[9px] font-bold text-purple-700 border border-purple-200/60">
+                Professional
+              </span>
+            </div>
+
+            {/* Document Preview (Compact Scaled A4) */}
+            <div className="relative overflow-hidden rounded-lg border border-glacier-300/80 bg-glacier-100/50 p-1 h-[215px]">
               <ResumeTemplatePreview template={tpl} crop={true} />
+              {selected && (
+                <span className="absolute right-2 top-2 z-10 inline-flex items-center gap-1 rounded-full bg-emerald-600 px-2 py-0.5 text-[10px] font-bold text-white shadow-xs">
+                  <Check className="h-3 w-3" /> Selected
+                </span>
+              )}
             </div>
 
             {/* Target Details */}

@@ -1,5 +1,6 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { cn } from '../../utils/cn.js';
+import { enrichTemplateData } from '../../data/resumeTemplates.js';
 
 /**
  * DutyLaunch Flagship Resume Template Preview Engine.
@@ -203,53 +204,57 @@ function DLElite({ tpl }) {
       {/* Decorative vertical accent bar */}
       <div style={{ width: 6, background: NAVY, flexShrink: 0 }} />
 
-      <div style={{ flex: 1, padding: '28px 40px 24px 32px', boxSizing: 'border-box', display: 'flex', flexDirection: 'column' }}>
-        {/* Header */}
-        <h1
-          style={{
-            fontFamily: 'Georgia, Cambria, "Times New Roman", serif',
-            fontSize: 25,
-            fontWeight: 700,
-            color: NAVY,
-            margin: 0,
-            letterSpacing: '-0.01em',
-          }}
-        >
-          {candidateName}
-        </h1>
-        <p style={{ fontSize: 11.5, fontWeight: 600, color: AZURE, margin: '2px 0 0' }}>
-          {candidateHeadline}
-        </p>
-        <p style={{ fontSize: 9, color: MUTED, margin: '4px 0 0', letterSpacing: '0.01em' }}>
-          {contactText}
-        </p>
-
-        {/* Summary */}
-        <SectionHead>Professional Summary</SectionHead>
-        <p style={{ fontSize: 9.8, lineHeight: 1.5, color: TEXT, margin: 0 }}>
-          {tpl.summary}
-        </p>
+      <div style={{ flex: 1, padding: '22px 34px 18px 28px', boxSizing: 'border-box', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+        {/* Header & Summary */}
+        <div>
+          <h1
+            style={{
+              fontFamily: 'Georgia, Cambria, "Times New Roman", serif',
+              fontSize: 25,
+              fontWeight: 700,
+              color: NAVY,
+              margin: 0,
+              letterSpacing: '-0.01em',
+            }}
+          >
+            {candidateName}
+          </h1>
+          <p style={{ fontSize: 11.5, fontWeight: 600, color: AZURE, margin: '2px 0 0' }}>
+            {candidateHeadline}
+          </p>
+          <p style={{ fontSize: 9, color: MUTED, margin: '3px 0 0', letterSpacing: '0.01em' }}>
+            {contactText}
+          </p>
+          <SectionHead>Professional Summary</SectionHead>
+          <p style={{ fontSize: 9.8, lineHeight: 1.5, color: TEXT, margin: 0 }}>
+            {tpl.summary}
+          </p>
+        </div>
 
         {/* Experience */}
-        <SectionHead>Professional Experience</SectionHead>
-        <ExperienceSection tpl={tpl} titleColor={NAVY} companyColor={MUTED} accentColor={AZURE} />
+        <div>
+          <SectionHead>Professional Experience</SectionHead>
+          <ExperienceSection tpl={tpl} titleColor={NAVY} companyColor={MUTED} accentColor={AZURE} />
+        </div>
 
         {/* Projects / Strategic Initiatives */}
         {tpl.projects?.length > 0 && (
-          <>
+          <div>
             <SectionHead>Strategic Programs & Transformations</SectionHead>
             <ProjectsSection tpl={tpl} titleColor={NAVY} roleColor={AZURE} />
-          </>
+          </div>
         )}
 
         {/* Skills */}
-        <SectionHead>Core Competencies & Leadership Capabilities</SectionHead>
-        <p style={{ fontSize: 9.6, color: TEXT, lineHeight: 1.5, margin: 0 }}>
-          {tpl.skills?.join('   ·   ')}
-        </p>
+        <div>
+          <SectionHead>Core Competencies & Leadership Capabilities</SectionHead>
+          <p style={{ fontSize: 9.6, color: TEXT, lineHeight: 1.5, margin: 0 }}>
+            {tpl.skills?.join('   ·   ')}
+          </p>
+        </div>
 
         {/* Education & Certifications Row */}
-        <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 1fr', gap: 16, marginTop: 2 }}>
+        <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 1fr', gap: 16 }}>
           <div>
             <SectionHead>Education & Academic Honors</SectionHead>
             <EducationSection tpl={tpl} titleColor={NAVY} subColor={MUTED} />
@@ -261,7 +266,7 @@ function DLElite({ tpl }) {
         </div>
 
         {/* Achievements & Languages Footer */}
-        <div style={{ display: 'grid', gridTemplateColumns: '1.4fr 1fr', gap: 16, marginTop: 2 }}>
+        <div style={{ display: 'grid', gridTemplateColumns: '1.4fr 1fr', gap: 16 }}>
           {tpl.achievements?.length > 0 && (
             <div>
               <SectionHead>Executive Honors & Awards</SectionHead>
@@ -271,7 +276,7 @@ function DLElite({ tpl }) {
           {tpl.languages?.length > 0 && (
             <div>
               <SectionHead>Languages</SectionHead>
-              <p style={{ fontSize: 9, color: TEXT, margin: '4px 0 0', lineHeight: 1.5 }}>
+              <p style={{ fontSize: 9, color: TEXT, margin: '3px 0 0', lineHeight: 1.5 }}>
                 {tpl.languages.join('   ·   ')}
               </p>
             </div>
@@ -315,69 +320,73 @@ function DLTech({ tpl }) {
   );
 
   return (
-    <div style={{ width: PAGE_W, height: PAGE_H, padding: '26px 40px 24px', boxSizing: 'border-box', background: '#FFFFFF', display: 'flex', flexDirection: 'column' }}>
-      {/* Top Header Border */}
-      <div style={{ borderTop: `3.5px solid ${FROST}`, paddingTop: 10 }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
-          <h1
-            style={{
-              fontFamily: '"Helvetica Neue", Arial, sans-serif',
-              fontSize: 25,
-              fontWeight: 800,
-              color: INK,
-              margin: 0,
-              letterSpacing: '-0.02em',
-            }}
-          >
-            {candidateName}
-          </h1>
-          <span style={{ fontSize: 9, fontWeight: 700, color: FROST, letterSpacing: '0.08em', textTransform: 'uppercase' }}>
-            ATS Engine Optimized · Cloud Native
-          </span>
+    <div style={{ width: PAGE_W, height: PAGE_H, padding: '22px 34px 18px', boxSizing: 'border-box', background: '#FFFFFF', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+      {/* Top Header Border & Summary */}
+      <div>
+        <div style={{ borderTop: `3.5px solid ${FROST}`, paddingTop: 8 }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
+            <h1
+              style={{
+                fontFamily: '"Helvetica Neue", Arial, sans-serif',
+                fontSize: 25,
+                fontWeight: 800,
+                color: INK,
+                margin: 0,
+                letterSpacing: '-0.02em',
+              }}
+            >
+              {candidateName}
+            </h1>
+            <span style={{ fontSize: 9, fontWeight: 700, color: FROST, letterSpacing: '0.08em', textTransform: 'uppercase' }}>
+              ATS Engine Optimized · Cloud Native
+            </span>
+          </div>
+          <p style={{ fontSize: 11, fontWeight: 600, color: FROST, margin: '2px 0 0' }}>{candidateHeadline}</p>
+          <p style={{ fontSize: 8.8, color: MUTED, margin: '3px 0 0' }}>{contactText}</p>
         </div>
-        <p style={{ fontSize: 11, fontWeight: 600, color: FROST, margin: '2px 0 0' }}>{candidateHeadline}</p>
-        <p style={{ fontSize: 8.8, color: MUTED, margin: '3px 0 0' }}>{contactText}</p>
-      </div>
 
-      {/* Tech Stack Chips Bar */}
-      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4, margin: '8px 0 6px' }}>
-        {tpl.skills?.slice(0, 16).map((s, i) => (
-          <span
-            key={i}
-            style={{
-              fontSize: 8.5,
-              fontWeight: 600,
-              color: '#166580',
-              background: CHIP_BG,
-              border: `1px solid ${CHIP_BORDER}`,
-              borderRadius: 3,
-              padding: '1px 6px',
-              whiteSpace: 'nowrap',
-            }}
-          >
-            {s}
-          </span>
-        ))}
-      </div>
+        {/* Tech Stack Chips Bar */}
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4, margin: '7px 0 5px' }}>
+          {tpl.skills?.slice(0, 16).map((s, i) => (
+            <span
+              key={i}
+              style={{
+                fontSize: 8.5,
+                fontWeight: 600,
+                color: '#166580',
+                background: CHIP_BG,
+                border: `1px solid ${CHIP_BORDER}`,
+                borderRadius: 3,
+                padding: '1px 6px',
+                whiteSpace: 'nowrap',
+              }}
+            >
+              {s}
+            </span>
+          ))}
+        </div>
 
-      <p style={{ fontSize: 9.6, color: '#334155', lineHeight: 1.48, margin: '0 0 4px' }}>
-        {tpl.summary}
-      </p>
+        <p style={{ fontSize: 9.6, color: '#334155', lineHeight: 1.48, margin: '0 0 2px' }}>
+          {tpl.summary}
+        </p>
+      </div>
 
       {/* Experience */}
-      <SectionHead>Technical & Engineering Experience</SectionHead>
-      <ExperienceSection tpl={tpl} titleColor={INK} companyColor={MUTED} accentColor={FROST} />
+      <div>
+        <SectionHead>Technical & Engineering Experience</SectionHead>
+        <ExperienceSection tpl={tpl} titleColor={INK} companyColor={MUTED} accentColor={FROST} />
+      </div>
 
       {/* Projects */}
       {tpl.projects?.length > 0 && (
-        <>
+        <div>
           <SectionHead>Core Systems Architecture & Open Source</SectionHead>
           <ProjectsSection tpl={tpl} titleColor={INK} roleColor={FROST} />
-        </>
+        </div>
       )}
 
       {/* Education & Certs */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 1fr', gap: 16, marginTop: 2 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 1fr', gap: 16 }}>
         <div>
           <SectionHead>Education</SectionHead>
           <EducationSection tpl={tpl} titleColor={INK} subColor={MUTED} />
@@ -389,7 +398,7 @@ function DLTech({ tpl }) {
       </div>
 
       {/* Achievements & Languages */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1.4fr 1fr', gap: 16, marginTop: 2 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: '1.4fr 1fr', gap: 16 }}>
         {tpl.achievements?.length > 0 && (
           <div>
             <SectionHead>Patents & Honors</SectionHead>
@@ -399,7 +408,7 @@ function DLTech({ tpl }) {
         {tpl.languages?.length > 0 && (
           <div>
             <SectionHead>Languages</SectionHead>
-            <p style={{ fontSize: 9, color: MUTED, margin: '4px 0 0', lineHeight: 1.45 }}>
+            <p style={{ fontSize: 9, color: MUTED, margin: '3px 0 0', lineHeight: 1.45 }}>
               {tpl.languages.join('   ·   ')}
             </p>
           </div>
@@ -440,51 +449,57 @@ function DLProfessional({ tpl }) {
   );
 
   return (
-    <div style={{ width: PAGE_W, height: PAGE_H, padding: '28px 40px 24px', boxSizing: 'border-box', background: '#FFFFFF', display: 'flex', flexDirection: 'column' }}>
-      {/* Header */}
-      <h1
-        style={{
-          fontFamily: 'Georgia, Cambria, "Times New Roman", serif',
-          fontSize: 25,
-          fontWeight: 700,
-          color: INK,
-          margin: 0,
-        }}
-      >
-        {candidateName}
-      </h1>
-      <div style={{ display: 'flex', alignItems: 'center', gap: 8, margin: '3px 0 0' }}>
-        <div style={{ width: 22, height: 2, background: VIOLET, flexShrink: 0 }} />
-        <p style={{ fontSize: 11, color: VIOLET, fontWeight: 600, margin: 0 }}>{candidateHeadline}</p>
-      </div>
-      <p style={{ fontSize: 9, color: MUTED, margin: '4px 0 0', letterSpacing: '0.01em' }}>{contactText}</p>
-      <div style={{ height: 1, background: VIOLET_LIGHT, margin: '8px 0' }} />
+    <div style={{ width: PAGE_W, height: PAGE_H, padding: '22px 34px 18px', boxSizing: 'border-box', background: '#FFFFFF', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+      {/* Header & Summary */}
+      <div>
+        <h1
+          style={{
+            fontFamily: 'Georgia, Cambria, "Times New Roman", serif',
+            fontSize: 25,
+            fontWeight: 700,
+            color: INK,
+            margin: 0,
+          }}
+        >
+          {candidateName}
+        </h1>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, margin: '3px 0 0' }}>
+          <div style={{ width: 22, height: 2, background: VIOLET, flexShrink: 0 }} />
+          <p style={{ fontSize: 11, color: VIOLET, fontWeight: 600, margin: 0 }}>{candidateHeadline}</p>
+        </div>
+        <p style={{ fontSize: 9, color: MUTED, margin: '3px 0 0', letterSpacing: '0.01em' }}>{contactText}</p>
+        <div style={{ height: 1, background: VIOLET_LIGHT, margin: '6px 0' }} />
 
-      {/* Summary */}
-      <p style={{ fontFamily: 'Georgia, serif', fontSize: 9.8, lineHeight: 1.5, color: INK, margin: 0 }}>
-        {tpl.summary}
-      </p>
+        {/* Summary */}
+        <p style={{ fontFamily: 'Georgia, serif', fontSize: 9.8, lineHeight: 1.5, color: INK, margin: 0 }}>
+          {tpl.summary}
+        </p>
+      </div>
 
       {/* Experience */}
-      <SectionHead>Professional Career History</SectionHead>
-      <ExperienceSection tpl={tpl} titleColor={INK} companyColor={MUTED} accentColor={VIOLET} />
+      <div>
+        <SectionHead>Professional Career History</SectionHead>
+        <ExperienceSection tpl={tpl} titleColor={INK} companyColor={MUTED} accentColor={VIOLET} />
+      </div>
 
       {/* Commercial Projects */}
       {tpl.projects?.length > 0 && (
-        <>
+        <div>
           <SectionHead>Strategic M&A & Capital Deployment</SectionHead>
           <ProjectsSection tpl={tpl} titleColor={INK} roleColor={VIOLET} />
-        </>
+        </div>
       )}
 
       {/* Core Competencies */}
-      <SectionHead>Core Competencies & Functional Expertise</SectionHead>
-      <p style={{ fontSize: 9.6, color: INK, lineHeight: 1.5, margin: 0 }}>
-        {tpl.skills?.join('   ·   ')}
-      </p>
+      <div>
+        <SectionHead>Core Competencies & Functional Expertise</SectionHead>
+        <p style={{ fontSize: 9.6, color: INK, lineHeight: 1.5, margin: 0 }}>
+          {tpl.skills?.join('   ·   ')}
+        </p>
+      </div>
 
       {/* Education & Certs */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 1fr', gap: 16, marginTop: 2 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 1fr', gap: 16 }}>
         <div>
           <SectionHead>Education & Academic Honors</SectionHead>
           <EducationSection tpl={tpl} titleColor={INK} subColor={MUTED} />
@@ -496,7 +511,7 @@ function DLProfessional({ tpl }) {
       </div>
 
       {/* Honors & Languages */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1.4fr 1fr', gap: 16, marginTop: 2 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: '1.4fr 1fr', gap: 16 }}>
         {tpl.achievements?.length > 0 && (
           <div>
             <SectionHead>Industry Recognitions</SectionHead>
@@ -506,7 +521,7 @@ function DLProfessional({ tpl }) {
         {tpl.languages?.length > 0 && (
           <div>
             <SectionHead>Languages</SectionHead>
-            <p style={{ fontSize: 9, color: MUTED, margin: '4px 0 0', lineHeight: 1.45 }}>
+            <p style={{ fontSize: 9, color: MUTED, margin: '3px 0 0', lineHeight: 1.45 }}>
               {tpl.languages.join('   ·   ')}
             </p>
           </div>
@@ -569,31 +584,37 @@ function DLExecutive({ tpl }) {
       </div>
 
       {/* Body */}
-      <div style={{ padding: '14px 38px 24px', flex: 1, display: 'flex', flexDirection: 'column' }}>
-        <p style={{ fontSize: 9.6, lineHeight: 1.5, color: INK, margin: '0 0 6px' }}>
-          {tpl.summary}
-        </p>
+      <div style={{ padding: '12px 34px 18px', flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+        <div>
+          <p style={{ fontSize: 9.6, lineHeight: 1.5, color: INK, margin: '0 0 4px' }}>
+            {tpl.summary}
+          </p>
+        </div>
 
         {/* Experience */}
-        <SectionHead>Executive Leadership & Board History</SectionHead>
-        <ExperienceSection tpl={tpl} titleColor={DARK} companyColor={MUTED} accentColor={ACCENT} />
+        <div>
+          <SectionHead>Executive Leadership & Board History</SectionHead>
+          <ExperienceSection tpl={tpl} titleColor={DARK} companyColor={MUTED} accentColor={ACCENT} />
+        </div>
 
         {/* Board Directorships / Projects */}
         {tpl.projects?.length > 0 && (
-          <>
+          <div>
             <SectionHead>Board Directorships & Key Transformations</SectionHead>
             <ProjectsSection tpl={tpl} titleColor={DARK} roleColor={ACCENT} />
-          </>
+          </div>
         )}
 
         {/* Strategic Competencies */}
-        <SectionHead>Executive Capabilities & Governance</SectionHead>
-        <p style={{ fontSize: 9.5, color: INK, lineHeight: 1.5, margin: 0 }}>
-          {tpl.skills?.join('   ·   ')}
-        </p>
+        <div>
+          <SectionHead>Executive Capabilities & Governance</SectionHead>
+          <p style={{ fontSize: 9.5, color: INK, lineHeight: 1.5, margin: 0 }}>
+            {tpl.skills?.join('   ·   ')}
+          </p>
+        </div>
 
         {/* Education & Certs */}
-        <div style={{ display: 'grid', gridTemplateColumns: '1.3fr 1fr', gap: 16, marginTop: 2 }}>
+        <div style={{ display: 'grid', gridTemplateColumns: '1.3fr 1fr', gap: 16 }}>
           <div>
             <SectionHead>Executive Education</SectionHead>
             <EducationSection tpl={tpl} titleColor={DARK} subColor={MUTED} />
@@ -605,7 +626,7 @@ function DLExecutive({ tpl }) {
         </div>
 
         {/* Honors & Languages */}
-        <div style={{ display: 'grid', gridTemplateColumns: '1.4fr 1fr', gap: 16, marginTop: 2 }}>
+        <div style={{ display: 'grid', gridTemplateColumns: '1.4fr 1fr', gap: 16 }}>
           {tpl.achievements?.length > 0 && (
             <div>
               <SectionHead>Executive Recognition & Publications</SectionHead>
@@ -615,7 +636,7 @@ function DLExecutive({ tpl }) {
           {tpl.languages?.length > 0 && (
             <div>
               <SectionHead>Languages</SectionHead>
-              <p style={{ fontSize: 9, color: MUTED, margin: '4px 0 0', lineHeight: 1.45 }}>
+              <p style={{ fontSize: 9, color: MUTED, margin: '3px 0 0', lineHeight: 1.45 }}>
                 {tpl.languages.join('   ·   ')}
               </p>
             </div>
@@ -677,58 +698,66 @@ function DLProjectPlus({ tpl }) {
       {/* Two-column layout: DOM order has Main first (for ATS linear reading), sidebar visually ordered */}
       <div style={{ display: 'flex', flex: 1 }}>
         {/* Main Column (DOM 1st, flex order 2) */}
-        <div style={{ flex: 1, order: 2, padding: '14px 28px 20px 20px', boxSizing: 'border-box' }}>
-          <p style={{ fontSize: 9.6, lineHeight: 1.48, color: '#1E293B', margin: '0 0 6px' }}>
-            {tpl.summary}
-          </p>
+        <div style={{ flex: 1, order: 2, padding: '14px 28px 20px 20px', boxSizing: 'border-box', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+          <div>
+            <p style={{ fontSize: 9.6, lineHeight: 1.48, color: '#1E293B', margin: '0 0 6px' }}>
+              {tpl.summary}
+            </p>
+          </div>
 
-          <h3
-            style={{
-              fontSize: 9.5,
-              fontWeight: 700,
-              letterSpacing: '0.12em',
-              textTransform: 'uppercase',
-              color: '#5A38D6',
-              margin: '10px 0 4px',
-              paddingBottom: 2,
-              borderBottom: `1px solid ${INDIGO_LIGHT}`,
-            }}
-          >
-            Key Projects & Open Source
-          </h3>
-          <ProjectsSection tpl={tpl} titleColor="#1E293B" roleColor={INDIGO} />
+          <div>
+            <h3
+              style={{
+                fontSize: 9.5,
+                fontWeight: 700,
+                letterSpacing: '0.12em',
+                textTransform: 'uppercase',
+                color: '#5A38D6',
+                margin: '8px 0 4px',
+                paddingBottom: 2,
+                borderBottom: `1px solid ${INDIGO_LIGHT}`,
+              }}
+            >
+              Key Projects & Open Source
+            </h3>
+            <ProjectsSection tpl={tpl} titleColor="#1E293B" roleColor={INDIGO} />
+          </div>
 
-          <h3
-            style={{
-              fontSize: 9.5,
-              fontWeight: 700,
-              letterSpacing: '0.12em',
-              textTransform: 'uppercase',
-              color: '#5A38D6',
-              margin: '10px 0 4px',
-              paddingBottom: 2,
-              borderBottom: `1px solid ${INDIGO_LIGHT}`,
-            }}
-          >
-            Engineering Experience & Internships
-          </h3>
-          <ExperienceSection tpl={tpl} titleColor="#1E293B" companyColor="#475569" accentColor={INDIGO} />
+          <div>
+            <h3
+              style={{
+                fontSize: 9.5,
+                fontWeight: 700,
+                letterSpacing: '0.12em',
+                textTransform: 'uppercase',
+                color: '#5A38D6',
+                margin: '8px 0 4px',
+                paddingBottom: 2,
+                borderBottom: `1px solid ${INDIGO_LIGHT}`,
+              }}
+            >
+              Engineering Experience & Internships
+            </h3>
+            <ExperienceSection tpl={tpl} titleColor="#1E293B" companyColor="#475569" accentColor={INDIGO} />
+          </div>
 
-          <h3
-            style={{
-              fontSize: 9.5,
-              fontWeight: 700,
-              letterSpacing: '0.12em',
-              textTransform: 'uppercase',
-              color: '#5A38D6',
-              margin: '10px 0 4px',
-              paddingBottom: 2,
-              borderBottom: `1px solid ${INDIGO_LIGHT}`,
-            }}
-          >
-            Education & Academic Track
-          </h3>
-          <EducationSection tpl={tpl} titleColor="#1E293B" subColor="#475569" />
+          <div>
+            <h3
+              style={{
+                fontSize: 9.5,
+                fontWeight: 700,
+                letterSpacing: '0.12em',
+                textTransform: 'uppercase',
+                color: '#5A38D6',
+                margin: '8px 0 4px',
+                paddingBottom: 2,
+                borderBottom: `1px solid ${INDIGO_LIGHT}`,
+              }}
+            >
+              Education & Academic Track
+            </h3>
+            <EducationSection tpl={tpl} titleColor="#1E293B" subColor="#475569" />
+          </div>
         </div>
 
         {/* Sidebar (DOM 2nd, flex order 1) */}
@@ -740,6 +769,9 @@ function DLProjectPlus({ tpl }) {
             background: GRADIENT,
             padding: '10px 16px 20px',
             boxSizing: 'border-box',
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'space-between',
           }}
         >
           <SideLabel>Contact Info</SideLabel>
@@ -799,25 +831,274 @@ function DLProjectPlus({ tpl }) {
 }
 
 /* ─────────────────────────────────────────────────────────────────────────
+ * 6. DL FINANCE — Investment Banking, PE, FinTech & Quantitative
+ * Emerald & slate accents, tabular hierarchy, concise deal/metric structure.
+ * ───────────────────────────────────────────────────────────────────────── */
+function DLFinance({ tpl }) {
+  const EMERALD = '#0D9488';
+  const DARK = '#0F172A';
+  const MUTED = '#475569';
+  const BORDER = '#CBD5E1';
+
+  const candidateName = getCandidateName(tpl);
+  const candidateHeadline = getCandidateHeadline(tpl);
+  const contactText = getContactText(tpl);
+
+  const SectionHead = ({ children }) => (
+    <h3
+      style={{
+        fontSize: 9.5,
+        fontWeight: 700,
+        letterSpacing: '0.12em',
+        textTransform: 'uppercase',
+        color: DARK,
+        margin: '10px 0 4px',
+        paddingBottom: 2,
+        borderBottom: `1.5px solid ${BORDER}`,
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+      }}
+    >
+      <span>{children}</span>
+      <span style={{ fontSize: 7.5, color: EMERALD, fontWeight: 600, letterSpacing: '0.05em' }}>ATS FISCAL</span>
+    </h3>
+  );
+
+  return (
+    <div style={{ width: PAGE_W, height: PAGE_H, padding: '22px 34px 18px', boxSizing: 'border-box', background: '#FFFFFF', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+      {/* Top Banner & Summary */}
+      <div>
+        <div style={{ textAlign: 'center', borderBottom: `2px solid ${DARK}`, paddingBottom: 6 }}>
+          <h1 style={{ fontFamily: 'Georgia, Cambria, serif', fontSize: 24, fontWeight: 700, color: DARK, margin: 0 }}>
+            {candidateName}
+          </h1>
+          <p style={{ fontSize: 10.5, fontWeight: 600, color: EMERALD, margin: '2px 0 0' }}>{candidateHeadline}</p>
+          <p style={{ fontSize: 8.8, color: MUTED, margin: '2px 0 0' }}>{contactText}</p>
+        </div>
+
+        {/* Summary */}
+        <SectionHead>Executive Financial Profile</SectionHead>
+        <p style={{ fontSize: 9.4, color: '#334155', lineHeight: 1.48, margin: 0 }}>{tpl.summary}</p>
+      </div>
+
+      {/* Experience */}
+      <div>
+        <SectionHead>Investment Banking & Transaction Experience</SectionHead>
+        <ExperienceSection tpl={tpl} titleColor={DARK} companyColor={MUTED} accentColor={EMERALD} />
+      </div>
+
+      {/* Projects / Transactions */}
+      {tpl.projects?.length > 0 && (
+        <div>
+          <SectionHead>Selected M&A & Financing Mandates</SectionHead>
+          <ProjectsSection tpl={tpl} titleColor={DARK} roleColor={EMERALD} />
+        </div>
+      )}
+
+      {/* Competencies */}
+      <div>
+        <SectionHead>Quantitative & Financial Core Competencies</SectionHead>
+        <p style={{ fontSize: 9.2, color: '#334155', lineHeight: 1.45, margin: 0 }}>
+          {tpl.skills?.join('   ·   ')}
+        </p>
+      </div>
+
+      {/* Education & Certifications Row */}
+      <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 1fr', gap: 16 }}>
+        <div>
+          <SectionHead>Academic Credentials</SectionHead>
+          <EducationSection tpl={tpl} titleColor={DARK} subColor={MUTED} />
+        </div>
+        <div>
+          <SectionHead>Licenses & Certifications</SectionHead>
+          <Bullets items={tpl.certs || tpl.certifications} size={8.8} color={MUTED} gap={2} />
+        </div>
+      </div>
+
+      {/* Honors & Languages */}
+      <div style={{ display: 'grid', gridTemplateColumns: '1.4fr 1fr', gap: 16 }}>
+        {tpl.achievements?.length > 0 && (
+          <div>
+            <SectionHead>Deal Honors & Recognitions</SectionHead>
+            <Bullets items={tpl.achievements} size={8.8} color={MUTED} gap={2} />
+          </div>
+        )}
+        {tpl.languages?.length > 0 && (
+          <div>
+            <SectionHead>Languages</SectionHead>
+            <p style={{ fontSize: 9, color: MUTED, margin: '2px 0 0', lineHeight: 1.45 }}>
+              {tpl.languages.join('   ·   ')}
+            </p>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+/* ─────────────────────────────────────────────────────────────────────────
+ * 7. DL CREATIVE — Product Design, UX Architecture & Creative Direction
+ * Refined geometric layout with indigo-violet accents and case study focus.
+ * ───────────────────────────────────────────────────────────────────────── */
+function DLCreative({ tpl }) {
+  const INDIGO = '#4F46E5';
+  const INK = '#18181B';
+  const MUTED = '#52525B';
+
+  const candidateName = getCandidateName(tpl);
+  const candidateHeadline = getCandidateHeadline(tpl);
+  const contactText = getContactText(tpl);
+
+  const SectionHead = ({ children }) => (
+    <h3
+      style={{
+        fontSize: 9.5,
+        fontWeight: 700,
+        letterSpacing: '0.1em',
+        textTransform: 'uppercase',
+        color: INDIGO,
+        margin: '10px 0 4px',
+        paddingBottom: 2,
+        borderBottom: '1px solid #E4E4E7',
+      }}
+    >
+      {children}
+    </h3>
+  );
+
+  return (
+    <div style={{ width: PAGE_W, height: PAGE_H, padding: '22px 34px 18px', boxSizing: 'border-box', background: '#FFFFFF', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+      {/* Top Banner & Summary */}
+      <div>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', borderBottom: '2px solid #F4F4F5', paddingBottom: 8 }}>
+          <div>
+            <h1 style={{ fontFamily: '"Helvetica Neue", Arial, sans-serif', fontSize: 24, fontWeight: 800, color: INK, margin: 0, letterSpacing: '-0.02em' }}>
+              {candidateName}
+            </h1>
+            <p style={{ fontSize: 11, fontWeight: 600, color: INDIGO, margin: '2px 0 0' }}>{candidateHeadline}</p>
+          </div>
+          <div style={{ textAlign: 'right' }}>
+            <span style={{ fontSize: 8.5, fontWeight: 700, color: '#FFFFFF', background: INDIGO, padding: '2px 8px', borderRadius: 4, textTransform: 'uppercase' }}>
+              Design Systems & UX
+            </span>
+          </div>
+        </div>
+        <p style={{ fontSize: 8.8, color: MUTED, margin: '4px 0 0' }}>{contactText}</p>
+
+        {/* Summary */}
+        <SectionHead>Design Philosophy & Professional Summary</SectionHead>
+        <p style={{ fontSize: 9.4, color: '#27272A', lineHeight: 1.48, margin: 0 }}>{tpl.summary}</p>
+      </div>
+
+      {/* Experience */}
+      <div>
+        <SectionHead>Product Design & Architecture Experience</SectionHead>
+        <ExperienceSection tpl={tpl} titleColor={INK} companyColor={MUTED} accentColor={INDIGO} />
+      </div>
+
+      {/* Key Projects */}
+      {tpl.projects?.length > 0 && (
+        <div>
+          <SectionHead>Featured Design Systems & Case Studies</SectionHead>
+          <ProjectsSection tpl={tpl} titleColor={INK} roleColor={INDIGO} />
+        </div>
+      )}
+
+      {/* Skills */}
+      <div>
+        <SectionHead>Design Tooling & Systems Methodologies</SectionHead>
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4, margin: '3px 0' }}>
+          {tpl.skills?.slice(0, 14).map((s, i) => (
+            <span
+              key={i}
+              style={{
+                fontSize: 8.5,
+                fontWeight: 600,
+                color: INDIGO,
+                background: '#EEF2FF',
+                border: '1px solid #E0E7FF',
+                borderRadius: 3,
+                padding: '1px 6px',
+              }}
+            >
+              {s}
+            </span>
+          ))}
+        </div>
+      </div>
+
+      {/* Education & Certs */}
+      <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 1fr', gap: 16 }}>
+        <div>
+          <SectionHead>Education</SectionHead>
+          <EducationSection tpl={tpl} titleColor={INK} subColor={MUTED} />
+        </div>
+        <div>
+          <SectionHead>Credentials & Honors</SectionHead>
+          <Bullets items={tpl.certs || tpl.certifications} size={8.8} color={MUTED} gap={2} />
+        </div>
+      </div>
+
+      {/* Honors & Languages */}
+      <div style={{ display: 'grid', gridTemplateColumns: '1.4fr 1fr', gap: 16 }}>
+        {tpl.achievements?.length > 0 && (
+          <div>
+            <SectionHead>Design Awards & Speaking</SectionHead>
+            <Bullets items={tpl.achievements} size={8.8} color={MUTED} gap={2} />
+          </div>
+        )}
+        {tpl.languages?.length > 0 && (
+          <div>
+            <SectionHead>Languages</SectionHead>
+            <p style={{ fontSize: 9, color: MUTED, margin: '2px 0 0', lineHeight: 1.45 }}>
+              {tpl.languages.join('   ·   ')}
+            </p>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+/* ─────────────────────────────────────────────────────────────────────────
  * Dispatcher & Scale Wrapper
  * ───────────────────────────────────────────────────────────────────────── */
 
 const LAYOUT_COMPONENTS = {
   'dl-elite': DLElite,
+  'ats-classic': DLElite,
   'dl-tech': DLTech,
+  'ats-technology': DLTech,
+  'ats-minimal': DLTech,
   'dl-professional': DLProfessional,
+  'ats-sales': DLProfessional,
+  'ats-operations': DLElite,
   'dl-executive': DLExecutive,
+  'ats-executive': DLExecutive,
   'dl-modern': DLProjectPlus,
+  'ats-modern': DLProjectPlus,
   'dl-project-plus': DLProjectPlus,
+  'ats-fresher': DLProjectPlus,
+  'dl-finance': DLFinance,
+  'ats-finance': DLFinance,
+  'dl-creative': DLCreative,
+  'ats-international': DLCreative,
 };
 
 export function ResumeTemplatePreview({ template, className, crop = true }) {
   const boxRef = useRef(null);
   const scale = useFitScale(boxRef, [template?.id, crop]);
 
-  if (!template) return null;
+  const resolved = useMemo(() => enrichTemplateData(template), [template]);
 
-  const Layout = LAYOUT_COMPONENTS[template.layout] || LAYOUT_COMPONENTS[template.id] || DLElite;
+  if (!resolved) return null;
+
+  const Layout =
+    LAYOUT_COMPONENTS[resolved.layout] ||
+    LAYOUT_COMPONENTS[resolved.id] ||
+    LAYOUT_COMPONENTS[resolved.aliasId] ||
+    DLElite;
 
   // The outer container calculates height precisely matching the scaled A4 document:
   // Height = PAGE_H * scale, maintaining the exact 794 : 1123 aspect ratio.
@@ -851,7 +1132,7 @@ export function ResumeTemplatePreview({ template, className, crop = true }) {
           boxSizing: 'border-box',
         }}
       >
-        <Layout tpl={template} />
+        <Layout tpl={resolved} />
       </div>
     </div>
   );
