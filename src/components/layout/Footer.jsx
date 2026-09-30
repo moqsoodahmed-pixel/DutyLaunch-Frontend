@@ -89,7 +89,7 @@ export function Footer() {
   return (
     <footer style={{ background: C.bg, color: C.ink, position: 'relative', overflow: 'hidden' }}>
       {/* Same signature ambient background used behind the homepage's light
-          "glacier" sections (Hero, ServiceMatrix, CareerJourney) — this is
+          "glacier" sections (Hero, ServiceMatrix) — this is
           what actually ties the footer to the rest of the page's theme,
           rather than approximating it with a flat colour. */}
       <GlacierBackdrop dense />

@@ -48,10 +48,10 @@ export function OneProfile() {
           <div className="relative min-w-0 lg:col-span-6">
             {/* A soft, localized glow behind just the card — this section's
                 one moment of depth. The section background itself stays
-                plain white on purpose: CareerJourney directly above already
-                uses the full Glacier mesh, and repeating it here would blur
-                the two into one undifferentiated band instead of reading as
-                a rich section followed by a quiet one. */}
+                plain white on purpose: Hero directly above already carries
+                its own glacier tone and grid texture, and repeating a full
+                mesh here would blur the two into one undifferentiated band
+                instead of reading as a rich section followed by a quiet one. */}
             <div
               className="pointer-events-none absolute left-1/2 top-1/2 h-[26rem] w-[26rem] -translate-x-1/2 -translate-y-1/2 rounded-full bg-gradient-to-br from-frost-300/50 via-aurora-300/40 to-cream-200/40 blur-3xl"
               aria-hidden
