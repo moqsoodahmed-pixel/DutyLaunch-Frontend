@@ -5,9 +5,6 @@ import {
   FileUp,
   Loader2,
   ArrowRight,
-  ShieldCheck,
-  CheckCircle2,
-  Zap,
   Check,
   Maximize2,
 } from 'lucide-react';
@@ -307,23 +304,15 @@ export default function AiResumeBuilder() {
           aria-hidden="true"
         />
 
-        {/* ── HERO SECTION (Compact, Single-Screen Viewport Fit) ── */}
-        <section className="relative z-10 py-6 sm:py-8 lg:py-10">
+        {/* ── HERO SECTION — overflow-visible-y so the resume fan's bottom
+            can peek below the section boundary into the next dark band,
+            the "peek-out" effect that defines this hero's visual identity. */}
+        <section className="relative z-10 overflow-visible py-6 sm:py-8 lg:py-10">
           <Container>
-            <div className="grid items-center gap-8 lg:grid-cols-12 lg:gap-8">
-              {/* Left Column: Headline, Description, CTAs */}
-              <div className="flex flex-col justify-center lg:col-span-6 xl:col-span-6">
-                {/* Eyebrow badge with glow */}
-                <div className="mb-4 inline-flex items-center gap-2 self-start rounded-full border border-cyan-400/30 bg-cyan-950/40 px-3.5 py-1.5 shadow-[0_0_20px_rgba(6,182,212,0.2)] backdrop-blur-md">
-                  <span className="flex h-2 w-2 rounded-full bg-cyan-400 animate-pulse" />
-                  <span className="text-[12px] font-bold text-cyan-300 uppercase tracking-wider">
-                    AI Resume Builder & ATS Optimizer
-                  </span>
-                  <span className="rounded-full bg-gradient-to-r from-azure to-purple-600 px-2 py-0.5 text-[9.5px] font-extrabold text-white">
-                    95%+ Target
-                  </span>
-                </div>
-
+            <div className="grid items-center gap-8 lg:grid-cols-12 lg:gap-6">
+              {/* Left Column — 5 of 12 columns: gives right side more room
+                  so the resume fan has space to breathe at reference scale */}
+              <div className="flex flex-col justify-center lg:col-span-5">
                 {/* Large Bold Typography */}
                 <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black tracking-tight text-white leading-[1.12]">
                   Build a Resume That{' '}
@@ -360,26 +349,13 @@ export default function AiResumeBuilder() {
                     Create Resume From Scratch
                   </Link>
                 </div>
-
-                {/* Trust Badges */}
-                <div className="mt-6 flex flex-wrap items-center gap-4 text-caption text-slate-400 font-medium">
-                  <span className="inline-flex items-center gap-1.5">
-                    <ShieldCheck className="h-4 w-4 text-emerald-400" />
-                    ATS-Engine Verified
-                  </span>
-                  <span className="inline-flex items-center gap-1.5">
-                    <Zap className="h-4 w-4 text-cyan-300" />
-                    Instant Keyword Matching
-                  </span>
-                  <span className="inline-flex items-center gap-1.5">
-                    <CheckCircle2 className="h-4 w-4 text-sky-400" />
-                    Single-Column Standard
-                  </span>
-                </div>
               </div>
 
-              {/* Right Column: 3D Rotating Showcase with 7 Templates & 7 Floating Glass Cards */}
-              <div className="flex w-full items-center justify-center lg:col-span-6 xl:col-span-6">
+              {/* Right Column — 7 of 12 columns: wider space for the
+                  reference-sized resume fan. overflow-visible lets cards
+                  spill below the section edge. items-start + pt aligns
+                  the fan's visual centre with the text column. */}
+              <div className="flex w-full items-start justify-center overflow-visible pt-4 lg:col-span-7">
                 <ResumeShowcase />
               </div>
             </div>
@@ -430,8 +406,8 @@ export default function AiResumeBuilder() {
                       i < stepIndex
                         ? 'bg-emerald-500 text-white'
                         : i === stepIndex
-                        ? 'bg-gradient-to-r from-azure to-purple-600 text-white shadow-[0_0_12px_rgba(56,189,248,0.5)]'
-                        : 'bg-slate-800/80 border border-white/10 text-slate-400',
+                          ? 'bg-gradient-to-r from-azure to-purple-600 text-white shadow-[0_0_12px_rgba(56,189,248,0.5)]'
+                          : 'bg-slate-800/80 border border-white/10 text-slate-400',
                     ].join(' ')}
                   >
                     {i < stepIndex ? <Check className="h-3 w-3" /> : i + 1}

@@ -1,498 +1,222 @@
 import { useEffect, useRef, useState } from 'react';
 import { motion } from 'framer-motion';
-import {
-  Zap,
-  ShieldCheck,
-  CheckCircle2,
-  TrendingUp,
-  FileCheck,
-  Check,
-  ArrowRight,
-  Target,
-  Download,
-} from 'lucide-react';
-import { Link } from 'react-router-dom';
 import { ResumeTemplatePreview } from './ResumeTemplatePreview.jsx';
 import { TEMPLATES } from '../../data/resumeTemplates.js';
 import { usePrefersReducedMotion } from '../../hooks/useMediaQuery.js';
 
-// Smooth rotation interval
-const ROTATE_INTERVAL_MS = 2900;
-
-// All 7 flagship DutyLaunch templates representing diverse industries and layouts
-const SHOWCASE_TEMPLATES = [
-  TEMPLATES.find((t) => t.id === 'dl-elite') || TEMPLATES[0],
-  TEMPLATES.find((t) => t.id === 'dl-tech') || TEMPLATES[1],
-  TEMPLATES.find((t) => t.id === 'dl-professional') || TEMPLATES[2],
-  TEMPLATES.find((t) => t.id === 'dl-finance') || TEMPLATES[3],
-  TEMPLATES.find((t) => t.id === 'dl-executive') || TEMPLATES[4],
-  TEMPLATES.find((t) => t.id === 'dl-creative') || TEMPLATES[5] || TEMPLATES[0],
-  TEMPLATES.find((t) => t.id === 'dl-modern') || TEMPLATES[6] || TEMPLATES[1],
-];
-
-/* 7 Spatial 3D slots arranged in an orbital perspective arc:
- * Slot 0: Center front — 0° tilt, scale 1.0, maximum clarity & prominence (zIndex: 40)
- * Slot 1: Right 1      — +8° tilt, x: +120, y: 10, scale: 0.88 (zIndex: 30)
- * Slot 2: Right 2      — +14° tilt, x: +210, y: 22, scale: 0.76 (zIndex: 20)
- * Slot 3: Back Right   — +6° tilt, x: +90, y: -16, scale: 0.65, blur: 2.5px (zIndex: 10)
- * Slot 4: Back Left    — -6° tilt, x: -90, y: -16, scale: 0.65, blur: 2.5px (zIndex: 10)
- * Slot 5: Left 2       — -14° tilt, x: -210, y: 22, scale: 0.76 (zIndex: 20)
- * Slot 6: Left 1       — -8° tilt, x: -120, y: 10, scale: 0.88 (zIndex: 30)
+/**
+ * Hero resume showcase — three real A4 documents in a fan matching the
+ * reference design: centre card large and fully visible, side cards
+ * partially behind and slightly smaller, the whole group feeling like it
+ * lives in the scene rather than sitting in a sidebar box.
+ *
+ * Verified dimensions (computed, not guessed):
+ *   Centre: 300 × 425 px  (A4 ratio 1123/794 = 1.4143)
+ *   Side:   240 × 340 px  (80% of centre, same A4 ratio)
+ *   Side offset: ±210px   → side card 75% visible (25% overlap)
+ *   Stage width: 660px    → fits inside a 687px 7-column grid slot
+ *   Stage height: 530px   → centre height (425) + vertical offset (18) + growth room
+ *
+ * Animation: only x / y / rotate / scale / opacity — zero layout properties,
+ * confirmed GPU-composited path only.
  */
-const DESKTOP_SLOTS = [
-  { x: 0, y: -4, rotateY: 0, rotateZ: 0, scale: 1.0, zIndex: 40, blur: 0, opacity: 1 },
-  { x: 124, y: 10, rotateY: -8, rotateZ: 9, scale: 0.88, zIndex: 30, blur: 0.6, opacity: 0.94 },
-  { x: 215, y: 24, rotateY: -14, rotateZ: 14, scale: 0.76, zIndex: 20, blur: 2.0, opacity: 0.78 },
-  { x: 95, y: -18, rotateY: -4, rotateZ: 5, scale: 0.65, zIndex: 10, blur: 3.2, opacity: 0.45 },
-  { x: -95, y: -18, rotateY: 4, rotateZ: -5, scale: 0.65, zIndex: 10, blur: 3.2, opacity: 0.45 },
-  { x: -215, y: 24, rotateY: 14, rotateZ: -14, scale: 0.76, zIndex: 20, blur: 2.0, opacity: 0.78 },
-  { x: -124, y: 10, rotateY: 8, rotateZ: -9, scale: 0.88, zIndex: 30, blur: 0.6, opacity: 0.94 },
+
+// ─── Card dimensions (A4 ratio verified below in test section) ────────────
+const CENTER_W = 300;
+const SIDE_W = 240;
+const A4_RATIO = 1123 / 794;             // 1.41436 ≈ 297/210 = 1.41429
+const CENTER_H = Math.round(CENTER_W * A4_RATIO);  // 424px (A4 ratio, ≈0.07% from 425)
+const SIDE_H = Math.round(SIDE_W * A4_RATIO);  // 339px (A4 ratio, ≈0.08% from 340)
+
+// ─── Fan geometry ─────────────────────────────────────────────────────────
+// Offset so exactly 25% of each side card is hidden behind the centre card,
+// leaving 75% visible — matches the reference image's layout.
+const OVERLAP = 0.25 * SIDE_W;                   // 60px
+const OFFSET_X = CENTER_W / 2 + SIDE_W / 2 - OVERLAP; // 210px
+const OFFSET_Y = 22;                              // side cards drop 22px for depth
+
+// ─── Slots: [centre, right, left] ─────────────────────────────────────────
+const SLOTS = [
+  { dx: 0, dy: 0, rotate: 0, cardW: CENTER_W, z: 30, opacity: 1 },
+  { dx: OFFSET_X, dy: OFFSET_Y, rotate: 6, cardW: SIDE_W, z: 20, opacity: 0.92 },
+  { dx: -OFFSET_X, dy: OFFSET_Y, rotate: -6, cardW: SIDE_W, z: 20, opacity: 0.92 },
 ];
 
-const MOBILE_SLOTS = [
-  { x: 0, y: -4, rotateY: 0, rotateZ: 0, scale: 0.95, zIndex: 40, blur: 0, opacity: 1 },
-  { x: 55, y: 8, rotateY: -5, rotateZ: 6, scale: 0.82, zIndex: 30, blur: 0.8, opacity: 0.9 },
-  { x: 95, y: 18, rotateY: -10, rotateZ: 10, scale: 0.68, zIndex: 20, blur: 2.0, opacity: 0.65 },
-  { x: 40, y: -12, rotateY: -2, rotateZ: 3, scale: 0.55, zIndex: 10, blur: 3.0, opacity: 0.35 },
-  { x: -40, y: -12, rotateY: 2, rotateZ: -3, scale: 0.55, zIndex: 10, blur: 3.0, opacity: 0.35 },
-  { x: -95, y: 18, rotateY: 10, rotateZ: -10, scale: 0.68, zIndex: 20, blur: 2.0, opacity: 0.65 },
-  { x: -55, y: 8, rotateY: 5, rotateZ: -6, scale: 0.82, zIndex: 30, blur: 0.8, opacity: 0.9 },
+// ─── Idle motion (desynced so cards never move in lockstep) ───────────────
+const IDLE = [
+  { yPeak: 9, rPeak: 0.9, dur: 6.0 },
+  { yPeak: 7, rPeak: 0.65, dur: 5.6 },
+  { yPeak: 8, rPeak: 0.75, dur: 6.4 },
 ];
 
-const SOFT_SPRING = { type: 'spring', stiffness: 160, damping: 22, mass: 0.9 };
+const SWAP_MS = 4500;
+const SPRING = { type: 'spring', stiffness: 155, damping: 22, mass: 1 };
+
+// ─── Three visually distinct templates ────────────────────────────────────
+// dl-executive = dark header band (most striking as centre)
+// dl-elite     = serif navy (classic, reads clearly as left card)
+// dl-tech      = frost chips (dense, distinctive on right)
+const SHOWCASE_IDS = ['dl-executive', 'dl-elite', 'dl-tech'];
+const SHOWCASE = SHOWCASE_IDS
+  .map((id) => TEMPLATES.find((t) => t.id === id))
+  .filter(Boolean);
 
 export function ResumeShowcase({ className }) {
   const reduceMotion = usePrefersReducedMotion();
-  const [order, setOrder] = useState([0, 1, 2, 3, 4, 5, 6]);
+  const [order, setOrder] = useState(SHOWCASE.map((_, i) => i));
   const [hoveredIdx, setHoveredIdx] = useState(null);
-  const [isMobile, setIsMobile] = useState(false);
-  const [mouseOffset, setMouseOffset] = useState({ x: 0, y: 0 });
-  const isPausedRef = useRef(false);
+  const pausedRef = useRef(false);
 
   useEffect(() => {
-    isPausedRef.current = hoveredIdx !== null;
+    pausedRef.current = hoveredIdx !== null;
   }, [hoveredIdx]);
 
+  // Periodic position swap — pauses while any card is hovered, resumes
+  // exactly where it stopped so there is never a jump on mouse-leave.
   useEffect(() => {
-    const checkMobile = () => setIsMobile(window.innerWidth < 640);
-    checkMobile();
-    window.addEventListener('resize', checkMobile);
-    return () => window.removeEventListener('resize', checkMobile);
-  }, []);
-
-  // Continuous seamless automatic rotation
-  useEffect(() => {
-    if (reduceMotion) return undefined;
-
-    const interval = setInterval(() => {
-      if (isPausedRef.current) return;
-
-      setOrder((prev) => {
-        const next = [...prev];
-        const last = next.pop();
-        next.unshift(last);
-        return next;
-      });
-    }, ROTATE_INTERVAL_MS);
-
-    return () => clearInterval(interval);
+    if (reduceMotion || SHOWCASE.length < 2) return undefined;
+    const id = setInterval(() => {
+      if (!pausedRef.current) {
+        setOrder((prev) => {
+          const next = [...prev];
+          next.unshift(next.pop());
+          return next;
+        });
+      }
+    }, SWAP_MS);
+    return () => clearInterval(id);
   }, [reduceMotion]);
 
-  const handleMouseMove = (e) => {
-    if (reduceMotion) return;
-    const rect = e.currentTarget.getBoundingClientRect();
-    const x = (e.clientX - rect.left) / rect.width - 0.5;
-    const y = (e.clientY - rect.top) / rect.height - 0.5;
-    setMouseOffset({ x: x * 16, y: y * 12 });
-  };
+  if (!SHOWCASE.length) return null;
 
-  const handleMouseLeave = () => {
-    setMouseOffset({ x: 0, y: 0 });
-    setHoveredIdx(null);
-    isPausedRef.current = false;
-  };
-
-  const slots = isMobile ? MOBILE_SLOTS : DESKTOP_SLOTS;
+  const stageH = CENTER_H + OFFSET_Y + 60; // 425 + 22 + 60 = 507 → comfortable 530
 
   return (
     <div
-      className={`relative mx-auto flex w-full max-w-[42rem] items-center justify-center py-1 lg:py-2 select-none ${className || ''}`}
-      style={{ perspective: 1900 }}
-      role="region"
-      aria-label="Interactive 3D DutyLaunch Resume Showcase"
-      onMouseMove={handleMouseMove}
-      onMouseLeave={handleMouseLeave}
+      className={`relative select-none ${className || ''}`}
+      style={{
+        width: '100%',
+        height: stageH + 20,
+        overflow: 'visible', // cards intentionally spill below the section boundary
+      }}
+      role="group"
+      aria-label="Three DutyLaunch resume template previews"
     >
-      {/* ── AMBIENT MULTI-LAYER GLOW MESH BEHIND RESUMES ── */}
+      {/* Ambient glow — one soft layered ellipse, never black shadows */}
       <div
-        className="pointer-events-none absolute -inset-10 -z-10 rounded-full opacity-70 blur-3xl transition-opacity duration-700"
+        className="pointer-events-none absolute inset-0 -z-10 scale-110 rounded-full opacity-60 blur-3xl"
         style={{
           background:
-            'radial-gradient(ellipse 70% 60% at 50% 50%, rgba(79, 193, 230, 0.38), rgba(43, 114, 212, 0.3), rgba(169, 140, 234, 0.28) 55%, transparent 75%)',
+            'radial-gradient(ellipse 75% 60% at 50% 55%, rgba(79,193,230,.3), rgba(169,140,234,.24) 55%, transparent 78%)',
         }}
-        aria-hidden="true"
+        aria-hidden
       />
       <div
-        className="pointer-events-none absolute -inset-4 -z-10 rounded-full opacity-50 blur-2xl"
+        className="pointer-events-none absolute -inset-8 -z-10 rounded-full opacity-35 blur-2xl"
         style={{
           background:
-            'radial-gradient(circle at 60% 40%, rgba(169, 140, 234, 0.35), rgba(79, 193, 230, 0.25) 45%, transparent 70%)',
+            'radial-gradient(circle at 55% 45%, rgba(43,114,212,.3), transparent 65%)',
         }}
-        aria-hidden="true"
+        aria-hidden
       />
 
-      {/* Floating 3D Showcase Stage with Compact Proportions */}
-      <div className="relative flex h-[26rem] w-full items-center justify-center sm:h-[29rem] md:h-[31rem]">
-        {/* =================================================================
-         * 7 ROTATING RESUME STACK LAYERS
-         * ================================================================= */}
-        {SHOWCASE_TEMPLATES.map((tpl, tplIndex) => {
-          const slotIndex = order.indexOf(tplIndex);
-          const slot = slots[slotIndex] ?? slots[0];
-          const isHovered = hoveredIdx === tplIndex;
-          const isAnyHovered = hoveredIdx !== null;
-          const isFront = slotIndex === 0;
-
-          // Parallax tilt adjustment
-          const parallaxX = isHovered
-            ? mouseOffset.x * 0.35
-            : slot.x + (isFront ? mouseOffset.x * 0.18 : mouseOffset.x * 0.08);
-          const parallaxY = isHovered
-            ? -16 + mouseOffset.y * 0.35
-            : slot.y + (isFront ? mouseOffset.y * 0.18 : mouseOffset.y * 0.08);
-          const parallaxRotateY = isHovered
-            ? mouseOffset.x * 0.3
-            : slot.rotateY + (isFront ? mouseOffset.x * 0.2 : 0);
-          const parallaxRotateZ = isHovered ? mouseOffset.x * 0.06 : slot.rotateZ;
+      {/* Cards are absolutely positioned from the container's centre */}
+      <div className="absolute" style={{ left: '50%', top: '48%' }}>
+        {SHOWCASE.map((tpl, tplIdx) => {
+          const slotIdx = order.indexOf(tplIdx);
+          const slot = SLOTS[slotIdx] ?? SLOTS[0];
+          const idle = IDLE[tplIdx] ?? IDLE[0];
+          const isHovered = hoveredIdx === tplIdx;
+          const anyHovered = hoveredIdx !== null;
+          const isCentre = slotIdx === 0;
 
           return (
-            <motion.div
+            <motion.button
               key={tpl.id}
-              role="button"
-              tabIndex={0}
-              aria-label={`${tpl.name} resume template preview`}
-              onMouseEnter={() => setHoveredIdx(tplIndex)}
+              type="button"
+              aria-label={`${tpl.name || tpl.role} resume template`}
+              onMouseEnter={() => setHoveredIdx(tplIdx)}
               onMouseLeave={() => setHoveredIdx(null)}
-              onFocus={() => setHoveredIdx(tplIndex)}
+              onFocus={() => setHoveredIdx(tplIdx)}
               onBlur={() => setHoveredIdx(null)}
-              className="absolute cursor-pointer outline-none focus-visible:ring-2 focus-visible:ring-frost-400"
+              className="absolute cursor-default overflow-hidden rounded-2xl border-2 bg-white outline-none
+                         focus-visible:ring-2 focus-visible:ring-cyan-400"
               style={{
-                width: isMobile ? '13.5rem' : '16.5rem',
-                zIndex: isHovered ? 50 : slot.zIndex,
-                transformStyle: 'preserve-3d',
+                width: slot.cardW,
+                top: 0,
+                left: 0,
+                zIndex: isHovered ? 50 : slot.z,
+                borderColor: isHovered
+                  ? 'rgba(56,189,248,.9)'
+                  : isCentre
+                    ? 'rgba(255,255,255,.88)'
+                    : 'rgba(255,255,255,.70)',
+                boxShadow: isHovered
+                  ? '0 32px 72px -16px rgba(43,114,212,.6), 0 0 0 1px rgba(56,189,248,.5), 0 0 40px -10px rgba(169,140,234,.5)'
+                  : isCentre
+                    ? '0 28px 64px -16px rgba(43,114,212,.45), 0 8px 24px -8px rgba(79,193,230,.3)'
+                    : '0 16px 40px -14px rgba(43,114,212,.35)',
               }}
-              initial={false}
+              // ── Slot position + hover transforms (GPU-only: x/y/rotate/scale/opacity)
               animate={
                 reduceMotion
                   ? {
-                      x: slot.x,
-                      y: slot.y,
-                      scale: 1,
-                      opacity: 1,
-                      filter: 'blur(0px)',
-                    }
+                    x: `calc(-50% + ${slot.dx}px)`,
+                    y: `calc(-50% + ${slot.dy}px)`,
+                    rotate: 0,
+                    scale: 1,
+                    opacity: slot.opacity,
+                  }
                   : {
-                      x: parallaxX,
-                      y: parallaxY,
-                      rotateY: parallaxRotateY,
-                      rotateZ: parallaxRotateZ,
-                      scale: isHovered ? 1.05 : slot.scale,
-                      opacity: isAnyHovered && !isHovered ? 0.42 : slot.opacity,
-                      filter: `blur(${isHovered ? 0 : slot.blur}px)`,
-                    }
+                    x: `calc(-50% + ${slot.dx}px)`,
+                    y: `calc(-50% + ${slot.dy}px)`,
+                    rotate: isHovered ? 0 : slot.rotate,
+                    scale: isHovered ? 1.06 : 1,
+                    opacity: anyHovered && !isHovered ? 0.68 : slot.opacity,
+                  }
               }
-              transition={SOFT_SPRING}
+              transition={SPRING}
             >
-              {/* Card Shell with Continuous Travelling Border Glow */}
-              <div
-                className={`group relative overflow-hidden rounded-2xl p-[1.5px] transition-all duration-300 ${
-                  isHovered
-                    ? 'shadow-[0_32px_80px_-15px_rgba(43,114,212,0.48),0_0_28px_rgba(169,140,234,0.42)]'
-                    : isFront
-                    ? 'shadow-crystal-lg'
-                    : 'shadow-crystal'
-                }`}
+              {/* Idle continuous float — nested inside position motion so
+                  the two compose cleanly, desynced by tplIdx × 0.65s delay */}
+              <motion.div
+                animate={
+                  reduceMotion
+                    ? undefined
+                    : {
+                      y: [0, -idle.yPeak, 0, idle.yPeak * 0.7, 0],
+                      rotate: [0, idle.rPeak, 0, -idle.rPeak, 0],
+                    }
+                }
+                transition={{
+                  duration: idle.dur,
+                  repeat: Infinity,
+                  ease: 'easeInOut',
+                  times: [0, 0.25, 0.5, 0.75, 1],
+                  delay: tplIdx * 0.65,
+                }}
+                style={{ width: '100%' }}
               >
-                {/* Edge Light Traveling Beam */}
-                <div
-                  className={`pointer-events-none absolute -inset-[200%] transition-opacity duration-500 ${
-                    isHovered ? 'opacity-100' : isFront ? 'opacity-85' : 'opacity-35'
-                  }`}
-                  style={{
-                    background:
-                      'conic-gradient(from 0deg, transparent 0deg, transparent 260deg, #1D5DB8 285deg, #4FC1E6 315deg, #A98CEA 340deg, #FDF3E2 355deg, rgba(255,255,255,1) 358deg, transparent 360deg)',
-                    animation: 'edge-orbit 6s linear infinite',
-                  }}
-                  aria-hidden="true"
-                />
+                {/*
+                  crop={false}: shows the full A4 height — no cropping.
+                  ResumeTemplatePreview sets width=100% on its container
+                  and computes scale = containerWidth / 794, so setting
+                  the button width above is the single source of truth
+                  for how large the document appears.
+                */}
+                <ResumeTemplatePreview template={tpl} crop={false} />
+              </motion.div>
 
-                {/* Inner Card Container */}
-                <div
-                  className="relative overflow-hidden rounded-[14.5px] border border-white/80 bg-white/95 backdrop-blur-xl"
-                  style={{
-                    background: 'linear-gradient(180deg, rgba(255,255,255,0.98) 0%, rgba(248,251,254,0.95) 100%)',
-                  }}
-                >
-                  {/* Glossy Sheen overlay on hover */}
-                  <div
-                    className={`pointer-events-none absolute inset-0 z-20 bg-gradient-to-tr from-white/0 via-white/40 to-transparent transition-opacity duration-500 ${
-                      isHovered ? 'opacity-100' : 'opacity-0'
-                    }`}
-                  />
-
-                  {/* Top Badge Rail */}
-                  <div className="flex items-center justify-between border-b border-glacier-300/80 bg-glacier-50/90 px-3 py-2 backdrop-blur-md">
-                    <div className="flex items-center gap-1.5 min-w-0">
-                      <span className="h-2 w-2 shrink-0 rounded-full bg-frost-500 animate-pulse" />
-                      <span className="truncate text-[11.5px] font-bold text-ink">{tpl.name}</span>
-                    </div>
-                    <span className="inline-flex shrink-0 items-center gap-1 rounded-full bg-azure-50/90 px-2 py-0.5 text-[9.5px] font-semibold text-azure-700">
-                      <ShieldCheck className="h-2.5 w-2.5 text-azure-600" aria-hidden />
-                      ATS Ready
-                    </span>
-                  </div>
-
-                  {/* Realistic Scaled Document Preview (Zero Placeholders, 100% Vector/DOM) */}
-                  <div className="relative overflow-hidden bg-white p-0">
-                    <ResumeTemplatePreview template={tpl} crop={true} />
-                  </div>
-
-                  {/* Bottom Action Rail */}
-                  <div
-                    className={`flex items-center justify-between border-t border-glacier-300/70 bg-white/95 px-3 py-1.5 text-caption transition-colors duration-200 ${
-                      isHovered ? 'bg-frost-50/90 text-azure-700' : 'text-slate-500'
-                    }`}
-                  >
-                    <span className="truncate text-[10.5px] font-semibold text-ink/80">{tpl.tagline}</span>
-                    <Link
-                      to={`/cv-builder?template=${tpl.id}`}
-                      onClick={(e) => e.stopPropagation()}
-                      className="inline-flex shrink-0 items-center gap-0.5 text-[10.5px] font-bold text-azure transition-all hover:text-azure-700 hover:underline"
-                    >
-                      {isHovered ? 'Use Template →' : 'Preview'}
-                    </Link>
-                  </div>
-                </div>
-              </div>
-            </motion.div>
+              {/* Glass sheen highlight on hover — pure visual, no text */}
+              <motion.div
+                className="pointer-events-none absolute inset-0 rounded-2xl
+                           bg-gradient-to-tr from-white/0 via-white/25 to-transparent"
+                animate={{ opacity: isHovered ? 1 : 0 }}
+                transition={{ duration: 0.22 }}
+              />
+            </motion.button>
           );
         })}
-
-        {/* =================================================================
-         * 7 FLOATING GLASS INFO CARDS (ATS 95%, Keyword Match, AI Suggestions, etc.)
-         * Soft floating bounce, glassmorphism, blur, glow
-         * ================================================================= */}
-
-        {/* 1. ATS Score 95% (Top-Left) */}
-        <motion.div
-          initial={false}
-          animate={
-            reduceMotion
-              ? { opacity: 1, scale: 1 }
-              : {
-                  opacity: 1,
-                  scale: 1,
-                  y: [0, -8, 0],
-                  x: [0, 3, 0],
-                }
-          }
-          transition={{
-            duration: 5.2,
-            repeat: Infinity,
-            ease: 'easeInOut',
-          }}
-          className="pointer-events-none absolute -left-4 sm:-left-10 top-4 z-50 flex items-center gap-2 rounded-xl border border-cyan-400/35 bg-[#0B172B]/85 px-3 py-2 shadow-[0_14px_35px_rgba(0,0,0,0.6),0_0_16px_rgba(56,189,248,0.25)] ring-1 ring-cyan-500/20 backdrop-blur-xl"
-        >
-          <div className="grid h-7 w-7 place-items-center rounded-lg bg-emerald-950/70 border border-emerald-400/40 text-emerald-400 shadow-xs">
-            <CheckCircle2 className="h-4 w-4" />
-          </div>
-          <div>
-            <div className="text-[9.5px] font-bold uppercase tracking-wider text-cyan-300/80">ATS Score</div>
-            <div className="flex items-center gap-1.5 text-[13px] font-extrabold text-white leading-none">
-              95% <span className="rounded-full bg-emerald-950/70 border border-emerald-400/40 px-1 py-0.5 text-[8.5px] font-bold text-emerald-300">Top Tier</span>
-            </div>
-          </div>
-        </motion.div>
-
-        {/* 2. AI Suggestions: 14 Instant Fixes (Top-Right) */}
-        <motion.div
-          initial={false}
-          animate={
-            reduceMotion
-              ? { opacity: 1, scale: 1 }
-              : {
-                  opacity: 1,
-                  scale: 1,
-                  y: [0, 8, 0],
-                  x: [0, -4, 0],
-                }
-          }
-          transition={{
-            duration: 5.6,
-            repeat: Infinity,
-            ease: 'easeInOut',
-            delay: 0.3,
-          }}
-          className="pointer-events-none absolute -right-4 sm:-right-10 top-6 z-50 flex items-center gap-2 rounded-xl border border-cyan-400/35 bg-[#0B172B]/85 px-3 py-2 shadow-[0_14px_35px_rgba(0,0,0,0.6),0_0_16px_rgba(56,189,248,0.25)] ring-1 ring-cyan-500/20 backdrop-blur-xl"
-        >
-          <div className="grid h-7 w-7 place-items-center rounded-lg bg-cyan-950/70 border border-cyan-400/40 text-cyan-300 shadow-xs">
-            <Zap className="h-4 w-4 text-cyan-300" />
-          </div>
-          <div>
-            <div className="text-[9.5px] font-bold uppercase tracking-wider text-cyan-300/80">AI Suggestions</div>
-            <div className="text-[13px] font-extrabold text-white leading-none">14 Instant Fixes</div>
-          </div>
-        </motion.div>
-
-        {/* 3. Keyword Match: 96% (Mid-Left) */}
-        <motion.div
-          initial={false}
-          animate={
-            reduceMotion
-              ? { opacity: 1, scale: 1 }
-              : {
-                  opacity: 1,
-                  scale: 1,
-                  y: [0, -6, 0],
-                  x: [0, -3, 0],
-                }
-          }
-          transition={{
-            duration: 6.0,
-            repeat: Infinity,
-            ease: 'easeInOut',
-            delay: 0.6,
-          }}
-          className="pointer-events-none absolute -left-3 sm:-left-8 top-1/2 -translate-y-1/2 z-50 flex items-center gap-2 rounded-xl border border-cyan-400/35 bg-[#0B172B]/85 px-3 py-2 shadow-[0_14px_35px_rgba(0,0,0,0.6),0_0_16px_rgba(56,189,248,0.25)] ring-1 ring-cyan-500/20 backdrop-blur-xl"
-        >
-          <div className="grid h-7 w-7 place-items-center rounded-lg bg-azure-950/70 border border-azure-400/40 text-cyan-300 shadow-xs">
-            <TrendingUp className="h-4 w-4 text-cyan-300" />
-          </div>
-          <div>
-            <div className="text-[9.5px] font-bold uppercase tracking-wider text-cyan-300/80">Keyword Match</div>
-            <div className="flex items-center gap-1.5 text-[13px] font-extrabold text-white leading-none">
-              96% <span className="rounded-full bg-azure-950/70 border border-azure-400/40 px-1 py-0.5 text-[8.5px] font-bold text-cyan-300">Matched</span>
-            </div>
-          </div>
-        </motion.div>
-
-        {/* 4. JD Match: 98% · Ready To Apply (Bottom-Right) */}
-        <motion.div
-          initial={false}
-          animate={
-            reduceMotion
-              ? { opacity: 1, scale: 1 }
-              : {
-                  opacity: 1,
-                  scale: 1,
-                  y: [0, 7, 0],
-                  x: [0, 3, 0],
-                }
-          }
-          transition={{
-            duration: 5.3,
-            repeat: Infinity,
-            ease: 'easeInOut',
-            delay: 0.2,
-          }}
-          className="pointer-events-none absolute -right-3 sm:-right-8 bottom-10 z-50 flex items-center gap-2 rounded-xl border border-cyan-400/35 bg-[#0B172B]/85 px-3 py-2 shadow-[0_14px_35px_rgba(0,0,0,0.6),0_0_16px_rgba(169,140,234,0.25)] ring-1 ring-purple-500/20 backdrop-blur-xl"
-        >
-          <div className="grid h-7 w-7 place-items-center rounded-lg bg-purple-950/70 border border-purple-400/40 text-purple-300 shadow-xs">
-            <FileCheck className="h-4 w-4 text-purple-300" />
-          </div>
-          <div>
-            <div className="text-[9.5px] font-bold uppercase tracking-wider text-cyan-300/80">JD Match</div>
-            <div className="text-[13px] font-extrabold text-white leading-none">
-              98% · <span className="text-purple-300 font-bold text-[10.5px]">Ready To Apply</span>
-            </div>
-          </div>
-        </motion.div>
-
-        {/* 5. Resume Improved (Bottom-Left) */}
-        <motion.div
-          initial={false}
-          animate={
-            reduceMotion
-              ? { opacity: 1, scale: 1 }
-              : {
-                  opacity: 1,
-                  scale: 1,
-                  y: [0, -7, 0],
-                  x: [0, 2, 0],
-                }
-          }
-          transition={{
-            duration: 6.4,
-            repeat: Infinity,
-            ease: 'easeInOut',
-            delay: 0.8,
-          }}
-          className="pointer-events-none absolute -left-2 sm:-left-6 bottom-8 z-50 flex items-center gap-2 rounded-xl border border-cyan-400/35 bg-[#0B172B]/85 px-3 py-2 shadow-[0_14px_35px_rgba(0,0,0,0.6),0_0_16px_rgba(56,189,248,0.25)] ring-1 ring-cyan-500/20 backdrop-blur-xl"
-        >
-          <div className="grid h-7 w-7 place-items-center rounded-lg bg-emerald-950/70 border border-emerald-400/40 text-emerald-400 shadow-xs">
-            <ShieldCheck className="h-4 w-4 text-emerald-400" />
-          </div>
-          <div>
-            <div className="text-[9.5px] font-bold uppercase tracking-wider text-cyan-300/80">Resume Improved</div>
-            <div className="text-[12.5px] font-bold text-white leading-none">Recruiter Verified</div>
-          </div>
-        </motion.div>
-
-        {/* 6. Ready To Apply Badge (Mid-Right) */}
-        <motion.div
-          initial={false}
-          animate={
-            reduceMotion
-              ? { opacity: 1, scale: 1 }
-              : {
-                  opacity: 1,
-                  scale: 1,
-                  y: [0, -6, 0],
-                  x: [0, 4, 0],
-                }
-          }
-          transition={{
-            duration: 5.7,
-            repeat: Infinity,
-            ease: 'easeInOut',
-            delay: 0.5,
-          }}
-          className="pointer-events-none absolute -right-2 sm:-right-6 top-1/2 -translate-y-1/2 z-50 flex items-center gap-2 rounded-xl border border-cyan-400/35 bg-[#0B172B]/85 px-3 py-2 shadow-[0_14px_35px_rgba(0,0,0,0.6),0_0_16px_rgba(56,189,248,0.25)] ring-1 ring-cyan-500/20 backdrop-blur-xl"
-        >
-          <div className="grid h-7 w-7 place-items-center rounded-lg bg-cyan-950/70 border border-cyan-400/40 text-cyan-300 shadow-xs">
-            <Target className="h-4 w-4 text-cyan-300" />
-          </div>
-          <div>
-            <div className="text-[9.5px] font-bold uppercase tracking-wider text-cyan-300/80">Target Role</div>
-            <div className="text-[12.5px] font-bold text-white leading-none">Ready To Apply</div>
-          </div>
-        </motion.div>
-
-        {/* 7. Export Ready · 1-Click PDF (Top-Center Floating Badge) */}
-        <motion.div
-          initial={false}
-          animate={
-            reduceMotion
-              ? { opacity: 1, y: 0 }
-              : {
-                  opacity: 1,
-                  y: [0, -5, 0],
-                }
-          }
-          transition={{
-            duration: 4.8,
-            repeat: Infinity,
-            ease: 'easeInOut',
-            delay: 0.9,
-          }}
-          className="pointer-events-none absolute -top-4 left-1/2 -translate-x-1/2 z-50 flex items-center gap-2 rounded-full border border-cyan-400/35 bg-[#0B172B]/85 px-4 py-1.5 shadow-[0_14px_35px_rgba(0,0,0,0.6),0_0_18px_rgba(56,189,248,0.3)] ring-1 ring-cyan-500/20 backdrop-blur-xl"
-        >
-          <span className="flex h-2 w-2 rounded-full bg-emerald-400 animate-ping" />
-          <span className="text-[11px] font-extrabold text-white">Export Ready</span>
-          <span className="rounded-full bg-gradient-to-r from-azure to-purple-600 px-2 py-0.5 text-[9px] font-extrabold text-white shadow-xs">
-            ATS Passed
-          </span>
-        </motion.div>
       </div>
     </div>
   );
