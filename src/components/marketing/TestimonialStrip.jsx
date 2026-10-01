@@ -9,22 +9,38 @@ import { testimonialService } from '../../services/contentService.js';
  * No placeholder testimonials are shipped — inventing them would be dishonest
  * and is explicitly out of scope.
  */
-export function TestimonialStrip() {
+export function TestimonialStrip({ tone = 'dark' }) {
   const { data } = useApi(() => testimonialService.list(), []);
   if (!data?.length) return null;
+  const dark = tone === 'dark';
 
   return (
-    <Section tone="paper">
+    <Section
+      tone={dark ? 'ink' : 'paper'}
+      seamTop={dark ? 'dark' : undefined}
+      seamBottom={dark ? 'dark' : undefined}
+    >
       <Container>
-        <SectionHeader label="In their words" title="What clients say" />
+        <SectionHeader tone={dark ? 'dark' : 'light'} label="In their words" title="What clients say" />
         <div className="mt-10 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
           {data.map((item) => (
-            <figure key={item._id} className="flex flex-col rounded-lg border border-line bg-white p-6">
+            <figure
+              key={item._id}
+              className={`flex flex-col rounded-xl p-6 ${
+                dark
+                  ? 'border border-white/10 bg-ink-800/80 text-white backdrop-blur-md'
+                  : 'border border-line bg-white'
+              }`}
+            >
               <Quote className="h-5 w-5 text-amber-500" aria-hidden />
-              <blockquote className="mt-4 flex-1 text-body text-slate-700">{item.quote}</blockquote>
-              <figcaption className="mt-5 border-t border-line pt-4">
-                <span className="block text-small font-semibold text-ink">{item.name}</span>
-                <span className="block text-caption text-slate-500">
+              <blockquote className={`mt-4 flex-1 text-body ${dark ? 'text-slate-300' : 'text-slate-700'}`}>
+                {item.quote}
+              </blockquote>
+              <figcaption className={`mt-5 border-t pt-4 ${dark ? 'border-white/10' : 'border-line'}`}>
+                <span className={`block text-small font-semibold ${dark ? 'text-white' : 'text-ink'}`}>
+                  {item.name}
+                </span>
+                <span className={`block text-caption ${dark ? 'text-slate-400' : 'text-slate-500'}`}>
                   {[item.role, item.location].filter(Boolean).join(' · ')}
                 </span>
               </figcaption>

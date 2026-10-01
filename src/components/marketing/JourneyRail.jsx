@@ -43,7 +43,7 @@ export function JourneyRail() {
   const fill = useSpring(scrollYProgress, { stiffness: 120, damping: 30, mass: 0.4 });
 
   return (
-    <Section tone="ink" seamBottom="dark" backdrop={<GlacierBackdrop tone="dark" />}>
+    <Section tone="ink" seamTop="dark" seamBottom="dark" backdrop={<GlacierBackdrop tone="dark" />}>
       <Container>
         <SectionHeader
           tone="dark"

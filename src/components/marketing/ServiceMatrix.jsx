@@ -32,10 +32,6 @@ function Tile({ pillar, tone = 'light', className, children }) {
         ? 'surface-dark rounded-lg hover:bg-ink-700'
         : sand
           ? 'rounded-lg border border-sand-400/60 bg-sand-200 transition-colors hover:bg-sand-300'
-          // On a Glacier mesh background (this section now has one), a
-          // translucent + blurred surface has real colour behind it to
-          // blur — this is genuine glass, not the same class as the
-          // universal `.tile` used on flat sections elsewhere.
           : 'group relative overflow-hidden rounded-lg border border-white/70 bg-white/60 shadow-crystal backdrop-blur-xl transition-all duration-200 hover:-translate-y-1 hover:border-frost-300 hover:shadow-crystal-lg'
         } ${className || ''}`}
     >
@@ -80,7 +76,7 @@ export function ServiceMatrix() {
   };
 
   return (
-    <Section tone="glacier" backdrop={<GlacierBackdrop dense />}>
+    <Section tone="glacier" style={{ '--seam-bottom': 'var(--seam-tone)' }} backdrop={<GlacierBackdrop dense />}>
       <Container>
         <SectionHeader
           label="What we do"
@@ -93,13 +89,13 @@ export function ServiceMatrix() {
             <ul className="mt-6 grid gap-x-8 gap-y-2.5 sm:grid-cols-2">
               {byId.career.items.map((item) => (
                 <li key={item.path} className="flex items-baseline gap-2.5 text-small text-slate-700">
-                  <span className="h-1 w-1 shrink-0 rounded-full bg-amber-500" aria-hidden />
+                  <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-amber-500" aria-hidden />
                   {item.label}
                 </li>
               ))}
               {['Interview preparation', 'Cover letters'].map((extra) => (
                 <li key={extra} className="flex items-baseline gap-2.5 text-small text-slate-700">
-                  <span className="h-1 w-1 shrink-0 rounded-full bg-amber-500" aria-hidden />
+                  <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-amber-500" aria-hidden />
                   {extra}
                 </li>
               ))}

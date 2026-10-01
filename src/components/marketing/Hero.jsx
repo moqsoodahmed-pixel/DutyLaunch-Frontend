@@ -57,19 +57,23 @@ const JOURNEYS = {
   },
 };
 
-export function Hero() {
+export function Hero({ tone = 'light' }) {
   const [tab, setTab] = useState('career');
   const journey = JOURNEYS[tab];
+  const isDark = tone === 'dark';
 
   return (
-    <section className="seam seam-tone-glacier relative overflow-hidden pb-16 pt-10 sm:pb-20 lg:pb-24 lg:pt-16">
-      <GlacierBackdrop dense />
+    <section
+      className={`seam ${isDark ? 'seam-tone-ink900 seam-top-dark seam-bottom-dark text-white' : 'seam-tone-glacier'} relative overflow-hidden pb-16 pt-10 sm:pb-20 lg:pb-24 lg:pt-16`}
+    >
+      <GlacierBackdrop tone={isDark ? 'dark' : 'light'} dense />
 
       <div
-        className="pointer-events-none absolute inset-0 opacity-[0.35]"
+        className="pointer-events-none absolute inset-0 opacity-[0.25]"
         style={{
-          backgroundImage:
-            'linear-gradient(to right, rgba(15,28,46,.05) 1px, transparent 1px), linear-gradient(to bottom, rgba(15,28,46,.05) 1px, transparent 1px)',
+          backgroundImage: isDark
+            ? 'linear-gradient(to right, rgba(255,255,255,.05) 1px, transparent 1px), linear-gradient(to bottom, rgba(255,255,255,.05) 1px, transparent 1px)'
+            : 'linear-gradient(to right, rgba(15,28,46,.05) 1px, transparent 1px), linear-gradient(to bottom, rgba(15,28,46,.05) 1px, transparent 1px)',
           backgroundSize: '72px 72px',
           maskImage: 'radial-gradient(ellipse 80% 60% at 30% 20%, #000 20%, transparent 75%)',
           WebkitMaskImage: 'radial-gradient(ellipse 80% 60% at 30% 20%, #000 20%, transparent 75%)',
@@ -84,7 +88,7 @@ export function Hero() {
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, ease }}
-            className="eyebrow"
+            className={isDark ? 'eyebrow-dark' : 'eyebrow'}
           >
             <Zap className="h-3.5 w-3.5" aria-hidden />
             Career · Education · Global mobility · Documentation
@@ -94,12 +98,12 @@ export function Hero() {
             initial={{ opacity: 0, y: 14 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.06, ease }}
-            className="mt-5 text-h1 font-extrabold leading-[1.05]"
+            className={`mt-5 text-h1 font-extrabold leading-[1.05] ${isDark ? 'text-white' : ''}`}
           >
-            Your <span className="text-azure-600">career</span>,{' '}
-            <span className="text-aurora-500">qualification</span> and{' '}
-            <span className="text-frost-600">paperwork</span>
-            <span className="-mb-[0.14em] block bg-gradient-to-r from-frost-600 via-azure to-aurora-500 bg-clip-text pb-[0.14em] text-transparent">
+            Your <span className={isDark ? 'text-frost-300' : 'text-azure-600'}>career</span>,{' '}
+            <span className={isDark ? 'text-aurora-300' : 'text-aurora-500'}>qualification</span> and{' '}
+            <span className={isDark ? 'text-azure-300' : 'text-frost-600'}>paperwork</span>
+            <span className={`-mb-[0.14em] block bg-gradient-to-r ${isDark ? 'from-frost-300 via-azure-200 to-aurora-400' : 'from-frost-600 via-azure to-aurora-500'} bg-clip-text pb-[0.14em] text-transparent`}>
               — one launchpad.
             </span>
           </motion.h1>
@@ -108,13 +112,13 @@ export function Hero() {
             initial={{ opacity: 0, y: 14 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.14, ease }}
-            className="mt-5 max-w-xl text-lead text-slate-600"
+            className={`mt-5 max-w-xl text-lead ${isDark ? 'text-slate-300' : 'text-slate-600'}`}
           >
-            One team for <strong className="font-semibold text-ink">CV writing</strong>,{' '}
-            <strong className="font-semibold text-ink">courses &amp; study abroad</strong>,{' '}
-            <strong className="font-semibold text-ink">jobs</strong>, and{' '}
-            <strong className="font-semibold text-ink">apostille &amp; attestation</strong> — serving
-            candidates across <strong className="font-semibold text-ink">India and the Gulf</strong>.
+            One team for <strong className={`font-semibold ${isDark ? 'text-white' : 'text-ink'}`}>CV writing</strong>,{' '}
+            <strong className={`font-semibold ${isDark ? 'text-white' : 'text-ink'}`}>courses &amp; study abroad</strong>,{' '}
+            <strong className={`font-semibold ${isDark ? 'text-white' : 'text-ink'}`}>jobs</strong>, and{' '}
+            <strong className={`font-semibold ${isDark ? 'text-white' : 'text-ink'}`}>apostille &amp; attestation</strong> — serving
+            candidates across <strong className={`font-semibold ${isDark ? 'text-white' : 'text-ink'}`}>India and the Gulf</strong>.
           </motion.p>
 
           {/* Four vivid gradient action tiles with dynamic glassy animation */}
@@ -159,12 +163,16 @@ export function Hero() {
             transition={{ duration: 0.6, delay: 0.3 }}
             className="mt-6 flex flex-wrap items-center gap-2"
           >
-            <span className="text-caption font-bold uppercase tracking-wider text-slate-500">Popular</span>
+            <span className={`text-caption font-bold uppercase tracking-wider ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>Popular</span>
             {POPULAR.map((p) => (
               <Link
                 key={p.to}
                 to={p.to}
-                className="rounded-full border border-white/70 bg-white/60 px-3.5 py-1.5 text-small font-semibold text-slate-700 shadow-frost-inset backdrop-blur transition-all duration-200 hover:-translate-y-0.5 hover:border-frost-400 hover:text-ink hover:shadow-crystal"
+                className={`rounded-full border px-3.5 py-1.5 text-small font-semibold shadow-frost-inset backdrop-blur transition-all duration-200 hover:-translate-y-0.5 hover:shadow-crystal ${
+                  isDark
+                    ? 'border-white/15 bg-white/10 text-slate-300 hover:border-frost-400 hover:text-white'
+                    : 'border-white/70 bg-white/60 text-slate-700 hover:border-frost-400 hover:text-ink'
+                }`}
               >
                 {p.label}
               </Link>
@@ -179,19 +187,19 @@ export function Hero() {
           transition={{ duration: 0.7, delay: 0.18, ease }}
           className="xl:col-span-5"
         >
-          <div className="glass-panel !p-5 sm:!p-6">
+          <div className={isDark ? 'rounded-2xl border border-white/10 bg-ink-800/80 p-5 sm:p-6 shadow-crystal-lg backdrop-blur-xl text-white' : 'glass-panel !p-5 sm:!p-6'}>
             <div className="flex items-center justify-between gap-3">
-              <p className="inline-flex items-center gap-2 text-caption font-bold uppercase tracking-wider text-azure">
+              <p className={`inline-flex items-center gap-2 text-caption font-bold uppercase tracking-wider ${isDark ? 'text-frost-300' : 'text-azure'}`}>
                 <Check className="h-3.5 w-3.5" aria-hidden />
                 How it works
               </p>
-              <span className="rounded-full bg-azure-50 px-2.5 py-1 text-caption font-bold text-azure-700">
+              <span className={`rounded-full px-2.5 py-1 text-caption font-bold ${isDark ? 'border border-white/15 bg-white/10 text-frost-300' : 'bg-azure-50 text-azure-700'}`}>
                 Free to start
               </span>
             </div>
 
             {/* Tab pills */}
-            <div className="mt-4 flex gap-1.5 rounded-full border border-glacier-300 bg-white/70 p-1 backdrop-blur">
+            <div className={`mt-4 flex gap-1.5 rounded-full border p-1 backdrop-blur ${isDark ? 'border-white/10 bg-white/[0.06]' : 'border-glacier-300 bg-white/70'}`}>
               {Object.entries(JOURNEYS).map(([key, j]) => (
                 <button
                   key={key}
@@ -200,7 +208,7 @@ export function Hero() {
                   aria-pressed={tab === key}
                   className={`flex-1 rounded-full px-3 py-1.5 text-caption font-bold transition-all duration-200 ${tab === key
                     ? 'bg-gradient-to-r from-frost-500 to-aurora-500 text-white shadow-crystal'
-                    : 'text-slate-600 hover:text-ink'
+                    : isDark ? 'text-slate-400 hover:text-white' : 'text-slate-600 hover:text-ink'
                     }`}
                 >
                   {j.label}
@@ -216,27 +224,35 @@ export function Hero() {
                     {i + 1}
                   </span>
                   <div className="min-w-0">
-                    <p className="text-small font-bold text-ink">{title}</p>
-                    <p className="mt-0.5 text-small text-slate-600">{body}</p>
+                    <p className={`text-small font-bold ${isDark ? 'text-white' : 'text-ink'}`}>{title}</p>
+                    <p className={`mt-0.5 text-small ${isDark ? 'text-slate-300' : 'text-slate-600'}`}>{body}</p>
                   </div>
                 </li>
               ))}
             </ol>
 
             {/* Contact chips */}
-            <div className="mt-5 flex flex-wrap gap-2 border-t border-glacier-300 pt-4">
+            <div className={`mt-5 flex flex-wrap gap-2 border-t pt-4 ${isDark ? 'border-white/10' : 'border-glacier-300'}`}>
               <a
                 href={contact.phoneHref}
-                className="inline-flex items-center gap-2 rounded-full border border-glacier-300 bg-white/70 px-3 py-1.5 text-caption font-semibold text-slate-700 backdrop-blur transition hover:border-frost-400 hover:text-ink"
+                className={`inline-flex items-center gap-2 rounded-full border px-3 py-1.5 text-caption font-semibold backdrop-blur transition ${
+                  isDark
+                    ? 'border-white/15 bg-white/10 text-slate-300 hover:border-frost-400 hover:text-white'
+                    : 'border-glacier-300 bg-white/70 text-slate-700 hover:border-frost-400 hover:text-ink'
+                }`}
               >
-                <Phone className="h-3.5 w-3.5 text-azure" aria-hidden />
+                <Phone className={`h-3.5 w-3.5 ${isDark ? 'text-frost-300' : 'text-azure'}`} aria-hidden />
                 {contact.phone}
               </a>
               <a
                 href={`mailto:${contact.email}`}
-                className="inline-flex items-center gap-2 rounded-full border border-glacier-300 bg-white/70 px-3 py-1.5 text-caption font-semibold text-slate-700 backdrop-blur transition hover:border-frost-400 hover:text-ink"
+                className={`inline-flex items-center gap-2 rounded-full border px-3 py-1.5 text-caption font-semibold backdrop-blur transition ${
+                  isDark
+                    ? 'border-white/15 bg-white/10 text-slate-300 hover:border-frost-400 hover:text-white'
+                    : 'border-glacier-300 bg-white/70 text-slate-700 hover:border-frost-400 hover:text-ink'
+                }`}
               >
-                <Mail className="h-3.5 w-3.5 text-azure" aria-hidden />
+                <Mail className={`h-3.5 w-3.5 ${isDark ? 'text-frost-300' : 'text-azure'}`} aria-hidden />
                 {contact.email}
               </a>
             </div>

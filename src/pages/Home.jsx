@@ -16,6 +16,8 @@ import { AtsTeaser } from '../components/marketing/AtsTeaser.jsx';
 import { GlobalSpotlight } from '../components/marketing/GlobalSpotlight.jsx';
 import { PricingCard } from '../components/marketing/PricingCard.jsx';
 import { BlogCard } from '../components/blog/BlogCard.jsx';
+import { TransformationHorizon } from '../components/ui/TransformationHorizon.jsx';
+import { GlacierBackdrop } from '../components/premium/GlacierBackdrop.jsx';
 import { useApi } from '../hooks/useApi.js';
 import { pricingService, blogService } from '../services/contentService.js';
 import { organizationSchema } from '../utils/seo.js';
@@ -50,11 +52,12 @@ export default function Home() {
       <OneProfile />
       <AiAssistantPreview />
       <ServiceMatrix />
+      <TransformationHorizon />
       <JourneyRail />
       <GlobalSpotlight />
       <AtsTeaser />
 
-      {/* Who it is for — a routing device rather than another card grid. */}
+      {/* Who it is for — a routing device */}
       <Section tone="white">
         <Container>
           <SectionHeader
@@ -62,10 +65,6 @@ export default function Home() {
             title="Six starting points, one process."
             lead="The work looks different depending on where you are. Pick the description that fits you and start there."
           />
-          {/* One elevated panel; rows are separated by space and hover
-              states rather than divider lines. Solid white (not glass) on
-              purpose — this is a quiet white section, and translucent glass
-              needs colour behind it to read as glass rather than grey. */}
           <RevealGroup
             as="ul"
             className="mt-10 grid gap-1.5 rounded-xl border border-glacier-300 bg-white p-2 shadow-crystal sm:p-3 lg:grid-cols-2"

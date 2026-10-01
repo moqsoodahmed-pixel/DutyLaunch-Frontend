@@ -4,6 +4,7 @@ import { Canvas, useFrame } from '@react-three/fiber';
 import { Line } from '@react-three/drei';
 import { usePrefersReducedMotion } from '../../hooks/useMediaQuery.js';
 import { isWebGLAvailable, SceneErrorBoundary } from './webgl.jsx';
+import { IndiaMapMesh } from './IndiaMapMesh.jsx';
 
 const RADIUS = 1.8;
 
@@ -127,60 +128,101 @@ function CityMarker({ city, color, size = 0.05, reduceMotion }) {
 
 function Globe() {
     const groupRef = useRef(null);
+    const cloudsRef = useRef(null);
     const reduceMotion = usePrefersReducedMotion();
-    const dots = useFibonacciSphere(1800);
 
-    // Gentle sway around the facing angle (not a full spin) so the arcs never
-    // rotate out of view behind the globe.
-    useFrame(({ clock }) => {
+    // High-resolution true-color Earth day map (NASA Blue Marble)
+    const earthTexture = useMemo(() => {
+        const loader = new THREE.TextureLoader();
+        const tex = loader.load('/images/globe/earth_day.jpg');
+        tex.colorSpace = THREE.SRGBColorSpace;
+        return tex;
+    }, []);
+
+    // Semi-transparent atmospheric cloud layer
+    const cloudsTexture = useMemo(() => {
+        const loader = new THREE.TextureLoader();
+        const tex = loader.load('/images/globe/earth_clouds.png');
+        tex.colorSpace = THREE.SRGBColorSpace;
+        return tex;
+    }, []);
+
+    // Gentle sway around the facing angle (turns India + Gulf toward the camera)
+    useFrame(({ clock }, delta) => {
         if (reduceMotion || !groupRef.current) return;
-        groupRef.current.rotation.y = FACE_REGION_Y + Math.sin(clock.elapsedTime * 0.25) * 0.18;
+        const time = clock.elapsedTime;
+        groupRef.current.rotation.y = FACE_REGION_Y + Math.sin(time * 0.22) * 0.16;
+
+        // Slow realistic cloud drift
+        if (cloudsRef.current) {
+            cloudsRef.current.rotation.y += delta * 0.012;
+        }
     });
 
     return (
         <group ref={groupRef} rotation={[TILT_X, FACE_REGION_Y, 0]}>
-            {/* Solid core so dots/lines on the far side read as "behind". */}
+            {/* 1. True Colors Earth World Map Globe */}
             <mesh>
-                <sphereGeometry args={[RADIUS * 0.985, 48, 48]} />
-                <meshBasicMaterial color="#0B1F48" transparent opacity={0.6} />
+                <sphereGeometry args={[RADIUS, 64, 64]} />
+                <meshStandardMaterial
+                    map={earthTexture}
+                    roughness={0.65}
+                    metalness={0.06}
+                />
             </mesh>
 
-            {/* Lat/long graticule — a glowing wireframe so it clearly reads as a globe. */}
-            <mesh>
-                <sphereGeometry args={[RADIUS * 0.995, 36, 24]} />
-                <meshBasicMaterial color="#4FC1E6" wireframe transparent opacity={0.14} depthWrite={false} />
-            </mesh>
-
-            {/* Data dots. */}
-            <points>
-                <bufferGeometry>
-                    <bufferAttribute attach="attributes-position" count={dots.length / 3} array={dots} itemSize={3} />
-                </bufferGeometry>
-                <pointsMaterial color="#AEE3F5" size={0.024} sizeAttenuation transparent opacity={0.85} depthWrite={false} />
-            </points>
-
-            {/* Atmosphere — two additive back-faced shells for a bright rim halo. */}
-            <mesh scale={1.14}>
+            {/* 2. Realistic Floating Cloud Layer */}
+            <mesh ref={cloudsRef} scale={1.012}>
                 <sphereGeometry args={[RADIUS, 48, 48]} />
-                <meshBasicMaterial color="#4FC1E6" transparent opacity={0.16} side={THREE.BackSide} blending={THREE.AdditiveBlending} depthWrite={false} />
-            </mesh>
-            <mesh scale={1.32}>
-                <sphereGeometry args={[RADIUS, 48, 48]} />
-                <meshBasicMaterial color="#A98CEA" transparent opacity={0.07} side={THREE.BackSide} blending={THREE.AdditiveBlending} depthWrite={false} />
+                <meshStandardMaterial
+                    map={cloudsTexture}
+                    transparent
+                    opacity={0.28}
+                    blending={THREE.NormalBlending}
+                    depthWrite={false}
+                />
             </mesh>
 
+            {/* 3. Highlighted India Map & Regional Hubs */}
+            <IndiaMapMesh radius={RADIUS} reduceMotion={reduceMotion} />
+
+            {/* 4. Atmospheric Rayleigh Scattering Limb Glow */}
+            <mesh scale={1.12}>
+                <sphereGeometry args={[RADIUS, 48, 48]} />
+                <meshBasicMaterial
+                    color="#38BDF8"
+                    transparent
+                    opacity={0.22}
+                    side={THREE.BackSide}
+                    blending={THREE.AdditiveBlending}
+                    depthWrite={false}
+                />
+            </mesh>
+            <mesh scale={1.24}>
+                <sphereGeometry args={[RADIUS, 48, 48]} />
+                <meshBasicMaterial
+                    color="#818CF8"
+                    transparent
+                    opacity={0.08}
+                    side={THREE.BackSide}
+                    blending={THREE.AdditiveBlending}
+                    depthWrite={false}
+                />
+            </mesh>
+
+            {/* 5. Global Mobility Flight Arcs from Bengaluru to Gulf hubs */}
             {DESTINATIONS.map((dest, i) => (
                 <FlightArc
                     key={dest.name}
                     from={ORIGIN}
                     to={dest}
-                    color={i === 1 ? '#C4AEF2' : '#AEE3F5'}
+                    color={i === 1 ? '#F472B6' : '#38BDF8'}
                     delay={i * 0.4}
                     reduceMotion={reduceMotion}
                 />
             ))}
 
-            <CityMarker city={ORIGIN} color="#FBE8C8" size={0.065} reduceMotion={reduceMotion} />
+            <CityMarker city={ORIGIN} color="#FBBF24" size={0.065} reduceMotion={reduceMotion} />
             {DESTINATIONS.map((dest) => (
                 <CityMarker key={dest.name} city={dest} color="#FFFFFF" reduceMotion={reduceMotion} />
             ))}
@@ -205,6 +247,10 @@ export default function GlobeScene({ className }) {
                     camera={{ position: [0, 0, 6.2], fov: 40 }}
                     style={{ pointerEvents: 'none' }}
                 >
+                    {/* Natural sun illumination & ambient fill for true earth colors */}
+                    <ambientLight intensity={1.2} />
+                    <directionalLight position={[6, 4, 7]} intensity={2.2} color="#FFFFFF" />
+                    <directionalLight position={[-6, -2, -4]} intensity={0.4} color="#3B82F6" />
                     <Globe />
                 </Canvas>
             </div>

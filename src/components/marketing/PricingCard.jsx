@@ -11,8 +11,9 @@ import { cn } from '../../utils/cn.js';
  * the same trick order-driven CV sites use to steer picks without hiding
  * the cheaper options.
  */
-export function PricingCard({ pkg, highlighted, onSelect }) {
+export function PricingCard({ pkg, highlighted, onSelect, tone = 'light' }) {
   const featured = highlighted ?? pkg.isPopular;
+  const darkTone = tone === 'dark';
 
   return (
     <article
@@ -42,7 +43,9 @@ export function PricingCard({ pkg, highlighted, onSelect }) {
           'relative flex h-full flex-col rounded-[14.5px] p-6 sm:p-7 backdrop-blur-xl',
           featured
             ? 'bg-btn-grad text-white'
-            : 'border border-white/80 bg-white/95'
+            : darkTone
+              ? 'border border-white/10 bg-ink-800/80 text-white'
+              : 'border border-white/80 bg-white/95'
         )}
       >
         {featured && (
@@ -53,24 +56,22 @@ export function PricingCard({ pkg, highlighted, onSelect }) {
         )}
 
       <div>
-        <h3 className={cn('text-h3 font-bold', featured ? 'text-white' : 'text-ink')}>{pkg.name}</h3>
-        <p className={cn('mt-1 text-small', featured ? 'text-azure-100' : 'text-slate-500')}>{pkg.experienceBand}</p>
+        <h3 className={cn('text-h3 font-bold', featured || darkTone ? 'text-white' : 'text-ink')}>{pkg.name}</h3>
+        <p className={cn('mt-1 text-small', featured ? 'text-azure-100' : darkTone ? 'text-slate-300' : 'text-slate-500')}>{pkg.experienceBand}</p>
       </div>
 
       {/* Reserves two lines so the price row lines up across all cards,
           whether the tagline wraps or not. */}
-      <p className={cn('mt-4 min-h-[3.2em] text-small', featured ? 'text-azure-100' : 'text-slate-600')}>{pkg.tagline}</p>
+      <p className={cn('mt-4 min-h-[3.2em] text-small', featured ? 'text-azure-100' : darkTone ? 'text-slate-300' : 'text-slate-600')}>{pkg.tagline}</p>
 
       <p className="mt-6 flex flex-wrap items-baseline gap-x-1.5">
-        {/* Fixed size rather than text-h1: at 4 columns the h1 size pushed
-            "one-off" onto two lines under ₹1,199 and ₹1,799. */}
-        <span className={cn('tabular text-[2.5rem] font-extrabold leading-none sm:text-[2.75rem]', featured ? 'text-white' : 'text-ink')}>
+        <span className={cn('tabular text-[2.5rem] font-extrabold leading-none sm:text-[2.75rem]', featured || darkTone ? 'text-white' : 'text-ink')}>
           {formatCurrency(pkg.price, pkg.currency || 'INR')}
         </span>
-        <span className={cn('whitespace-nowrap text-small', featured ? 'text-azure-200' : 'text-slate-500')}>one-off</span>
+        <span className={cn('whitespace-nowrap text-small', featured ? 'text-azure-200' : darkTone ? 'text-slate-400' : 'text-slate-500')}>one-off</span>
       </p>
       {/* Tax disclosure, directly below the price (consumer protection). */}
-      <p className={cn('mt-1.5 text-caption font-medium', featured ? 'text-azure-100' : 'text-slate-500')}>{PRICE_TAX_NOTE}</p>
+      <p className={cn('mt-1.5 text-caption font-medium', featured ? 'text-azure-100' : darkTone ? 'text-slate-400' : 'text-slate-500')}>{PRICE_TAX_NOTE}</p>
 
       <ul className="mt-6 flex-1 space-y-2.5">
         {pkg.features?.map((feature) => (
@@ -78,12 +79,12 @@ export function PricingCard({ pkg, highlighted, onSelect }) {
             <span
               className={cn(
                 'mt-0.5 grid h-[18px] w-[18px] shrink-0 place-items-center rounded-full',
-                featured ? 'bg-white/20' : 'bg-azure-50'
+                featured ? 'bg-white/20' : darkTone ? 'bg-white/10' : 'bg-azure-50'
               )}
             >
-              <Check className={cn('h-3 w-3', featured ? 'text-white' : 'text-azure')} strokeWidth={3} aria-hidden />
+              <Check className={cn('h-3 w-3', featured ? 'text-white' : darkTone ? 'text-frost-300' : 'text-azure')} strokeWidth={3} aria-hidden />
             </span>
-            <span className={cn('text-small', featured ? 'text-white' : 'text-slate-700')}>{feature.label}</span>
+            <span className={cn('text-small', featured || darkTone ? 'text-slate-200' : 'text-slate-700')}>{feature.label}</span>
           </li>
         ))}
       </ul>
@@ -91,14 +92,14 @@ export function PricingCard({ pkg, highlighted, onSelect }) {
       <div className="mt-7">
         <Button
           fullWidth
-          variant={featured ? 'onInk' : 'outline'}
+          variant={featured ? 'onInk' : darkTone ? 'outlineInk' : 'outline'}
           className={featured ? '!bg-white !text-azure-700 shadow-none hover:!bg-azure-50' : undefined}
           onClick={() => onSelect?.(pkg)}
           to={onSelect ? undefined : '/contact#consultation'}
         >
           Choose {pkg.name}
         </Button>
-        <p className={cn('mt-3 text-center text-caption', featured ? 'text-azure-100' : 'text-slate-500')}>
+        <p className={cn('mt-3 text-center text-caption', featured ? 'text-azure-100' : darkTone ? 'text-slate-400' : 'text-slate-500')}>
           {pkg.deliveryDays} delivery · {pkg.revisionWindow}
         </p>
       </div>

@@ -36,12 +36,10 @@ export function GlobalSpotlight() {
   const reduceMotion = usePrefersReducedMotion();
 
   return (
-    <section className="seam seam-tone-ink900 seam-top-dark relative overflow-hidden pb-section-dark pt-section text-white">
-      {/* Decorative layers, faded out toward the bottom edge (where this
-          section turns light) so no glow is cut off in a visible line. */}
+    <section className="seam seam-tone-ink900 seam-top-dark seam-bottom-dark relative overflow-hidden pb-section-dark pt-section text-white">
+      {/* Decorative ambient aurora layers */}
       <div
         className="pointer-events-none absolute inset-0"
-        style={{ maskImage: EDGE_FADE_BOTTOM, WebkitMaskImage: EDGE_FADE_BOTTOM }}
         aria-hidden
       >
         {/* Horizon glow, spilling down from where JourneyRail ends. */}
