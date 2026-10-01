@@ -89,13 +89,13 @@ export function ServiceMatrix() {
             <ul className="mt-6 grid gap-x-8 gap-y-2.5 sm:grid-cols-2">
               {byId.career.items.map((item) => (
                 <li key={item.path} className="flex items-baseline gap-2.5 text-small text-slate-700">
-                  <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-amber-500" aria-hidden />
+                  <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-azure" aria-hidden />
                   {item.label}
                 </li>
               ))}
               {['Interview preparation', 'Cover letters'].map((extra) => (
                 <li key={extra} className="flex items-baseline gap-2.5 text-small text-slate-700">
-                  <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-amber-500" aria-hidden />
+                  <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-azure" aria-hidden />
                   {extra}
                 </li>
               ))}

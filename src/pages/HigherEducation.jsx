@@ -92,7 +92,7 @@ export default function HigherEducation() {
                 key={stage.stage}
                 className="bg-ink-800 p-5 transition-colors duration-200 hover:bg-ink-700"
               >
-                <span className="tabular text-caption font-bold text-amber-500">0{i + 1}</span>
+                <span className="tabular text-caption font-bold text-azure-500">0{i + 1}</span>
                 <h3 className="mt-2 text-body font-bold text-white">{stage.stage}</h3>
                 <p className="mt-2 text-small text-slate-300">{stage.detail}</p>
               </RevealItem>
