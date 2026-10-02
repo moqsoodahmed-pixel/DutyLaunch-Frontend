@@ -130,7 +130,7 @@ export default function Pricing() {
             {visible.length > 0 && (
               <RevealGroup
                 className={cn(
-                  'grid gap-4',
+                  'grid gap-6 pt-6',
                   visible.length === 1 ? 'max-w-md' : 'md:auto-rows-fr md:grid-cols-2 xl:grid-cols-4'
                 )}
                 staggerDelay={0.07}
