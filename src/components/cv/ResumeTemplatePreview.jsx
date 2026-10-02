@@ -5,24 +5,36 @@ import { enrichTemplateData } from '../../data/resumeTemplates.js';
 /**
  * DutyLaunch Flagship Resume Template Preview Engine.
  *
- * Renders actual, ATS-compliant CV document previews for the five DutyLaunch flagship templates:
- * 1. DL Elite        — Universal Professional (Aarav N. Kapoor)
- * 2. DL Tech         — Software, Cybersecurity, AI, Engineering (Vikramaditya Singhania)
- * 3. DL Professional — Business, Finance, Operations, Strategy (Priya S. Sundaram)
- * 4. DL Executive    — Leadership, CXO, Director, Senior Management (Dr. Rajeshwar Rao, Ph.D.)
- * 5. DL Project+     — Students, Freshers, Internships, Switchers (Ananya Deshmukh)
+ * Renders actual, ATS-compliant CV document previews for the DutyLaunch flagship templates:
+ * 1. DL Elite        — Universal Professional (Aarav N. Kapoor / ATS Classic)
+ * 2. DL Tech         — Software, Systems, AI, Cloud (Marcus Vance / ATS Minimal, Vikramaditya Singhania)
+ * 3. DL Professional — Business, Finance, Operations, Strategy (Priya S. Sundaram / ATS Sales)
+ * 4. DL Executive    — Leadership, CXO, Director, Senior Management (Dr. Rajeshwar Rao, Ph.D. / ATS Executive)
+ * 5. DL Project+     — Students, Freshers, Modern Tech (Rohan S. Joshi / ATS Fresher, Ananya Deshmukh / ATS Modern)
+ * 6. DL Finance      — Investment Banking, PE, FinTech & Quant (Siddharth M. Mehta / ATS Finance)
+ * 7. DL Creative     — Product Design, UX Architecture & Creative Direction (Maya R. Chen / ATS Creative)
  *
  * Sizing & Layout Geometry:
- * Standard ISO 216 A4 dimensions: 794px × 1123px (at 96 DPI standard web resolution).
- * Scaled dynamically via CSS transform origin, maintaining exact A4 proportions
- * without layout thrashing, clipping, or lower empty space.
+ * Standard ISO 216 A4 dimensions: 794px × 1123px (standard 96 DPI web A4 proportion).
+ * Proportional typography:
+ * - Candidate Name: 30px - 32px (bold, high contrast)
+ * - Headline: 13.5px
+ * - Contact Line: 10.8px
+ * - Section Headings: 12.2px (bold uppercase, crisp rule/underline)
+ * - Roles & Project Titles: 12.8px (bold)
+ * - Companies / Metas: 11.5px - 11.8px
+ * - Bullets & Summaries: 11.2px - 11.4px with 1.5 - 1.55 line-height
+ * - Skills & Chips: 10.5px
+ *
+ * Beautifully fills the full A4 sheet from top to bottom (no empty white void at the bottom,
+ * zero stretched words or unnatural paragraph spacing, strict left alignment).
  */
 
 export const PAGE_W = 794;
 export const PAGE_H = 1123;
 
 function useFitScale(ref, deps = []) {
-  const [scale, setScale] = useState(0.28);
+  const [scale, setScale] = useState(0.35);
 
   useEffect(() => {
     const el = ref.current;
@@ -50,13 +62,13 @@ function useFitScale(ref, deps = []) {
  * Shared Building Blocks
  * ───────────────────────────────────────────────────────────────────────── */
 
-function Bullets({ items = [], size = 10, color = '#374151', gap = 3 }) {
+function Bullets({ items = [], size = 11.2, color = '#334155', gap = 4 }) {
   const clean = items.filter(Boolean);
   if (!clean.length) return null;
   return (
-    <ul style={{ margin: '3px 0 0', paddingLeft: 15 }}>
+    <ul style={{ margin: '3px 0 0', paddingLeft: 18, textAlign: 'left' }}>
       {clean.map((b, i) => (
-        <li key={i} style={{ fontSize: size, lineHeight: 1.48, color, marginBottom: gap }}>
+        <li key={i} style={{ fontSize: size, lineHeight: 1.5, color, marginBottom: gap, textAlign: 'left' }}>
           {b}
         </li>
       ))}
@@ -64,66 +76,66 @@ function Bullets({ items = [], size = 10, color = '#374151', gap = 3 }) {
   );
 }
 
-function ExperienceSection({ tpl, titleColor = '#111827', companyColor = '#4B5563', metaColor = '#6B7280', accentColor }) {
+function ExperienceSection({ tpl, titleColor = '#0F172A', companyColor = '#475569', metaColor = '#64748B', accentColor }) {
   const list = tpl.experience || [];
   if (!list.length) return null;
   return (
-    <div style={{ marginTop: 4 }}>
+    <div style={{ marginTop: 2, display: 'flex', flexDirection: 'column', gap: 12, textAlign: 'left' }}>
       {list.map((exp, i) => (
-        <div key={i} style={{ marginBottom: i === list.length - 1 ? 0 : 8 }}>
+        <div key={i}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', gap: 10 }}>
-            <span style={{ fontSize: 11, fontWeight: 700, color: titleColor }}>
+            <span style={{ fontSize: 12.8, fontWeight: 700, color: titleColor, textAlign: 'left' }}>
               {exp.title || 'Job Title'}
             </span>
-            <span style={{ fontSize: 9.5, color: metaColor, whiteSpace: 'nowrap', fontWeight: 500 }}>
+            <span style={{ fontSize: 11, color: metaColor, whiteSpace: 'nowrap', fontWeight: 600, textAlign: 'right' }}>
               {exp.dates || ''}
             </span>
           </div>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', margin: '1px 0 2px' }}>
-            <span style={{ fontSize: 10, fontWeight: 600, color: accentColor || companyColor }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', margin: '1px 0 3px' }}>
+            <span style={{ fontSize: 11.8, fontWeight: 600, color: accentColor || companyColor, textAlign: 'left' }}>
               {exp.company || ''}
             </span>
             {exp.location && (
-              <span style={{ fontSize: 9, color: '#6B7280' }}>{exp.location}</span>
+              <span style={{ fontSize: 10.5, color: '#64748B', textAlign: 'right' }}>{exp.location}</span>
             )}
           </div>
-          <Bullets items={exp.bullets} size={9.5} color="#374151" gap={2} />
+          <Bullets items={exp.bullets} size={11.2} color="#334155" gap={3.5} />
         </div>
       ))}
     </div>
   );
 }
 
-function ProjectsSection({ tpl, titleColor = '#111827', roleColor = '#4B5563' }) {
+function ProjectsSection({ tpl, titleColor = '#0F172A', roleColor = '#475569' }) {
   const list = tpl.projects || [];
   if (!list.length) return null;
   return (
-    <div style={{ marginTop: 4 }}>
+    <div style={{ marginTop: 2, display: 'flex', flexDirection: 'column', gap: 9, textAlign: 'left' }}>
       {list.map((p, i) => (
-        <div key={i} style={{ marginBottom: i === list.length - 1 ? 0 : 5 }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
-            <span style={{ fontSize: 10.5, fontWeight: 700, color: titleColor }}>{p.name}</span>
-            <span style={{ fontSize: 9, color: roleColor, fontWeight: 600 }}>{p.role}</span>
+        <div key={i}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', gap: 10 }}>
+            <span style={{ fontSize: 12.8, fontWeight: 700, color: titleColor, textAlign: 'left' }}>{p.name}</span>
+            <span style={{ fontSize: 11, color: roleColor, fontWeight: 600, textAlign: 'right' }}>{p.role}</span>
           </div>
-          <p style={{ fontSize: 9.5, color: '#374151', margin: '2px 0 0', lineHeight: 1.45 }}>{p.impact}</p>
+          <p style={{ fontSize: 11.2, color: '#334155', margin: '2px 0 0', lineHeight: 1.5, textAlign: 'left' }}>{p.impact}</p>
         </div>
       ))}
     </div>
   );
 }
 
-function EducationSection({ tpl, titleColor = '#111827', subColor = '#4B5563' }) {
+function EducationSection({ tpl, titleColor = '#0F172A', subColor = '#475569' }) {
   const list = tpl.education || [];
   if (!list.length) return null;
   return (
-    <div style={{ marginTop: 4 }}>
+    <div style={{ marginTop: 2, display: 'flex', flexDirection: 'column', gap: 8, textAlign: 'left' }}>
       {list.map((edu, i) => (
-        <div key={i} style={{ marginBottom: i === list.length - 1 ? 0 : 5 }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
-            <span style={{ fontSize: 10.5, fontWeight: 700, color: titleColor }}>{edu.degree || 'Degree / Qualification'}</span>
-            <span style={{ fontSize: 9.5, color: '#6B7280' }}>{edu.year || ''}</span>
+        <div key={i}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', gap: 10 }}>
+            <span style={{ fontSize: 12.8, fontWeight: 700, color: titleColor, textAlign: 'left' }}>{edu.degree || 'Degree / Qualification'}</span>
+            <span style={{ fontSize: 11, color: '#64748B', whiteSpace: 'nowrap', fontWeight: 600, textAlign: 'right' }}>{edu.year || ''}</span>
           </div>
-          <p style={{ fontSize: 9.5, color: subColor, margin: '1px 0 0' }}>
+          <p style={{ fontSize: 11.2, color: subColor, margin: '2px 0 0', textAlign: 'left' }}>
             {edu.institution || ''} {edu.location ? `· ${edu.location}` : ''}
           </p>
         </div>
@@ -165,15 +177,15 @@ function getContactText(tpl, fallback = 'your.email@example.com   |   +1 (555) 0
 }
 
 /* ─────────────────────────────────────────────────────────────────────────
- * 1. DL ELITE — Universal Professional
+ * 1. DL ELITE — Universal Professional (Aarav N. Kapoor, ATS Classic)
  * Authoritative serif candidate name, ink-navy vertical accent rail,
- * perfectly balanced single-column ATS hierarchy with 0 white gaps.
+ * perfectly balanced single-column ATS hierarchy with full A4 flow.
  * ───────────────────────────────────────────────────────────────────────── */
 function DLElite({ tpl }) {
   const NAVY = '#0B1F48';
   const AZURE = '#1D5DB8';
-  const TEXT = '#1A202C';
-  const MUTED = '#4A5568';
+  const TEXT = '#1E293B';
+  const MUTED = '#475569';
 
   const candidateName = getCandidateName(tpl);
   const candidateHeadline = getCandidateHeadline(tpl);
@@ -182,17 +194,18 @@ function DLElite({ tpl }) {
   const SectionHead = ({ children }) => (
     <h3
       style={{
-        fontSize: 10,
+        fontSize: 12.2,
         fontWeight: 700,
-        letterSpacing: '0.12em',
+        letterSpacing: '0.08em',
         textTransform: 'uppercase',
         color: NAVY,
-        margin: '11px 0 4px',
-        paddingBottom: 2,
-        borderBottom: `1.5px solid ${NAVY}`,
+        margin: '0 0 5px',
+        paddingBottom: 3,
+        borderBottom: `2px solid ${NAVY}`,
         display: 'flex',
         alignItems: 'center',
         gap: 6,
+        textAlign: 'left',
       }}
     >
       {children}
@@ -200,35 +213,38 @@ function DLElite({ tpl }) {
   );
 
   return (
-    <div style={{ display: 'flex', width: PAGE_W, height: PAGE_H, boxSizing: 'border-box', background: '#FFFFFF' }}>
+    <div style={{ display: 'flex', width: PAGE_W, height: PAGE_H, boxSizing: 'border-box', background: '#FFFFFF', textAlign: 'left' }}>
       {/* Decorative vertical accent bar */}
-      <div style={{ width: 6, background: NAVY, flexShrink: 0 }} />
+      <div style={{ width: 7, background: NAVY, flexShrink: 0 }} />
 
-      <div style={{ flex: 1, padding: '22px 34px 18px 28px', boxSizing: 'border-box', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+      <div style={{ flex: 1, padding: '26px 36px 24px 30px', boxSizing: 'border-box', display: 'flex', flexDirection: 'column', justifyContent: 'flex-start', gap: 14, textAlign: 'left' }}>
         {/* Header & Summary */}
         <div>
           <h1
             style={{
               fontFamily: 'Georgia, Cambria, "Times New Roman", serif',
-              fontSize: 25,
-              fontWeight: 700,
+              fontSize: 32,
+              fontWeight: 800,
               color: NAVY,
               margin: 0,
               letterSpacing: '-0.01em',
+              textAlign: 'left',
             }}
           >
             {candidateName}
           </h1>
-          <p style={{ fontSize: 11.5, fontWeight: 600, color: AZURE, margin: '2px 0 0' }}>
+          <p style={{ fontSize: 13.5, fontWeight: 600, color: AZURE, margin: '3px 0 0', textAlign: 'left' }}>
             {candidateHeadline}
           </p>
-          <p style={{ fontSize: 9, color: MUTED, margin: '3px 0 0', letterSpacing: '0.01em' }}>
+          <p style={{ fontSize: 10.8, color: MUTED, margin: '4px 0 0', letterSpacing: '0.01em', textAlign: 'left' }}>
             {contactText}
           </p>
-          <SectionHead>Professional Summary</SectionHead>
-          <p style={{ fontSize: 9.8, lineHeight: 1.5, color: TEXT, margin: 0 }}>
-            {tpl.summary}
-          </p>
+          <div style={{ marginTop: 8 }}>
+            <SectionHead>Professional Summary</SectionHead>
+            <p style={{ fontSize: 11.4, lineHeight: 1.55, color: TEXT, margin: 0, textAlign: 'left' }}>
+              {tpl.summary}
+            </p>
+          </div>
         </div>
 
         {/* Experience */}
@@ -246,37 +262,39 @@ function DLElite({ tpl }) {
         )}
 
         {/* Skills */}
-        <div>
-          <SectionHead>Core Competencies & Leadership Capabilities</SectionHead>
-          <p style={{ fontSize: 9.6, color: TEXT, lineHeight: 1.5, margin: 0 }}>
-            {tpl.skills?.join('   ·   ')}
-          </p>
-        </div>
+        {tpl.skills?.length > 0 && (
+          <div>
+            <SectionHead>Core Competencies & Leadership Capabilities</SectionHead>
+            <p style={{ fontSize: 11.2, color: TEXT, lineHeight: 1.5, margin: 0, textAlign: 'left' }}>
+              {tpl.skills.join('   ·   ')}
+            </p>
+          </div>
+        )}
 
         {/* Education & Certifications Row */}
-        <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 1fr', gap: 16 }}>
+        <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 1fr', gap: 18 }}>
           <div>
             <SectionHead>Education & Academic Honors</SectionHead>
             <EducationSection tpl={tpl} titleColor={NAVY} subColor={MUTED} />
           </div>
           <div>
             <SectionHead>Certifications & Credentials</SectionHead>
-            <Bullets items={tpl.certs || tpl.certifications} size={9} color={TEXT} gap={2} />
+            <Bullets items={tpl.certs || tpl.certifications} size={11} color={TEXT} gap={3.5} />
           </div>
         </div>
 
         {/* Achievements & Languages Footer */}
-        <div style={{ display: 'grid', gridTemplateColumns: '1.4fr 1fr', gap: 16 }}>
+        <div style={{ display: 'grid', gridTemplateColumns: '1.4fr 1fr', gap: 18 }}>
           {tpl.achievements?.length > 0 && (
             <div>
               <SectionHead>Executive Honors & Awards</SectionHead>
-              <Bullets items={tpl.achievements} size={9} color={TEXT} gap={2} />
+              <Bullets items={tpl.achievements} size={11} color={TEXT} gap={3.5} />
             </div>
           )}
           {tpl.languages?.length > 0 && (
             <div>
               <SectionHead>Languages</SectionHead>
-              <p style={{ fontSize: 9, color: TEXT, margin: '3px 0 0', lineHeight: 1.5 }}>
+              <p style={{ fontSize: 11, color: TEXT, margin: '2px 0 0', lineHeight: 1.5, textAlign: 'left' }}>
                 {tpl.languages.join('   ·   ')}
               </p>
             </div>
@@ -288,15 +306,15 @@ function DLElite({ tpl }) {
 }
 
 /* ─────────────────────────────────────────────────────────────────────────
- * 2. DL TECH — Software, Cybersecurity, AI, Engineering, Cloud
+ * 2. DL TECH — Software, Systems, AI, Cloud (Marcus Vance, Vikramaditya Singhania)
  * Frost-blue engineering top border, grouped tech badges, quantifiable metrics.
  * ───────────────────────────────────────────────────────────────────────── */
 function DLTech({ tpl }) {
-  const FROST = '#2FA3CC';
-  const INK = '#0F1C2E';
+  const FROST = '#0284C7';
+  const INK = '#0F172A';
   const MUTED = '#475569';
-  const CHIP_BG = '#F0F9FD';
-  const CHIP_BORDER = '#BAE6F7';
+  const CHIP_BG = '#F0F9FF';
+  const CHIP_BORDER = '#BAE6FD';
 
   const candidateName = getCandidateName(tpl);
   const candidateHeadline = getCandidateHeadline(tpl);
@@ -305,14 +323,15 @@ function DLTech({ tpl }) {
   const SectionHead = ({ children }) => (
     <h3
       style={{
-        fontSize: 9.5,
+        fontSize: 12.2,
         fontWeight: 700,
-        letterSpacing: '0.12em',
+        letterSpacing: '0.08em',
         textTransform: 'uppercase',
         color: FROST,
-        margin: '10px 0 4px',
-        paddingBottom: 2,
-        borderBottom: `1.5px solid ${CHIP_BORDER}`,
+        margin: '0 0 5px',
+        paddingBottom: 3,
+        borderBottom: `2px solid ${CHIP_BORDER}`,
+        textAlign: 'left',
       }}
     >
       {children}
@@ -320,53 +339,56 @@ function DLTech({ tpl }) {
   );
 
   return (
-    <div style={{ width: PAGE_W, height: PAGE_H, padding: '22px 34px 18px', boxSizing: 'border-box', background: '#FFFFFF', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+    <div style={{ width: PAGE_W, height: PAGE_H, padding: '26px 36px 24px', boxSizing: 'border-box', background: '#FFFFFF', display: 'flex', flexDirection: 'column', justifyContent: 'flex-start', gap: 14, textAlign: 'left' }}>
       {/* Top Header Border & Summary */}
       <div>
-        <div style={{ borderTop: `3.5px solid ${FROST}`, paddingTop: 8 }}>
+        <div style={{ borderTop: `4px solid ${FROST}`, paddingTop: 10 }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
             <h1
               style={{
                 fontFamily: '"Helvetica Neue", Arial, sans-serif',
-                fontSize: 25,
+                fontSize: 32,
                 fontWeight: 800,
                 color: INK,
                 margin: 0,
                 letterSpacing: '-0.02em',
+                textAlign: 'left',
               }}
             >
               {candidateName}
             </h1>
-            <span style={{ fontSize: 9, fontWeight: 700, color: FROST, letterSpacing: '0.08em', textTransform: 'uppercase' }}>
+            <span style={{ fontSize: 10.5, fontWeight: 700, color: FROST, letterSpacing: '0.08em', textTransform: 'uppercase' }}>
               ATS Engine Optimized · Cloud Native
             </span>
           </div>
-          <p style={{ fontSize: 11, fontWeight: 600, color: FROST, margin: '2px 0 0' }}>{candidateHeadline}</p>
-          <p style={{ fontSize: 8.8, color: MUTED, margin: '3px 0 0' }}>{contactText}</p>
+          <p style={{ fontSize: 13.5, fontWeight: 600, color: FROST, margin: '3px 0 0', textAlign: 'left' }}>{candidateHeadline}</p>
+          <p style={{ fontSize: 10.8, color: MUTED, margin: '4px 0 0', textAlign: 'left' }}>{contactText}</p>
         </div>
 
         {/* Tech Stack Chips Bar */}
-        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4, margin: '7px 0 5px' }}>
-          {tpl.skills?.slice(0, 16).map((s, i) => (
-            <span
-              key={i}
-              style={{
-                fontSize: 8.5,
-                fontWeight: 600,
-                color: '#166580',
-                background: CHIP_BG,
-                border: `1px solid ${CHIP_BORDER}`,
-                borderRadius: 3,
-                padding: '1px 6px',
-                whiteSpace: 'nowrap',
-              }}
-            >
-              {s}
-            </span>
-          ))}
-        </div>
+        {tpl.skills?.length > 0 && (
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 5, margin: '8px 0 8px' }}>
+            {tpl.skills.slice(0, 16).map((s, i) => (
+              <span
+                key={i}
+                style={{
+                  fontSize: 10.5,
+                  fontWeight: 600,
+                  color: '#0369A1',
+                  background: CHIP_BG,
+                  border: `1px solid ${CHIP_BORDER}`,
+                  borderRadius: 4,
+                  padding: '2px 8px',
+                  whiteSpace: 'nowrap',
+                }}
+              >
+                {s}
+              </span>
+            ))}
+          </div>
+        )}
 
-        <p style={{ fontSize: 9.6, color: '#334155', lineHeight: 1.48, margin: '0 0 2px' }}>
+        <p style={{ fontSize: 11.4, color: '#334155', lineHeight: 1.55, margin: '2px 0 0', textAlign: 'left' }}>
           {tpl.summary}
         </p>
       </div>
@@ -386,29 +408,29 @@ function DLTech({ tpl }) {
       )}
 
       {/* Education & Certs */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 1fr', gap: 16 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 1fr', gap: 18 }}>
         <div>
           <SectionHead>Education</SectionHead>
           <EducationSection tpl={tpl} titleColor={INK} subColor={MUTED} />
         </div>
         <div>
           <SectionHead>Verified Certifications</SectionHead>
-          <Bullets items={tpl.certs || tpl.certifications} size={9} color={MUTED} gap={2} />
+          <Bullets items={tpl.certs || tpl.certifications} size={11} color={MUTED} gap={3.5} />
         </div>
       </div>
 
       {/* Achievements & Languages */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1.4fr 1fr', gap: 16 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: '1.4fr 1fr', gap: 18 }}>
         {tpl.achievements?.length > 0 && (
           <div>
             <SectionHead>Patents & Honors</SectionHead>
-            <Bullets items={tpl.achievements} size={9} color={MUTED} gap={2} />
+            <Bullets items={tpl.achievements} size={11} color={MUTED} gap={3.5} />
           </div>
         )}
         {tpl.languages?.length > 0 && (
           <div>
             <SectionHead>Languages</SectionHead>
-            <p style={{ fontSize: 9, color: MUTED, margin: '3px 0 0', lineHeight: 1.45 }}>
+            <p style={{ fontSize: 11, color: MUTED, margin: '2px 0 0', lineHeight: 1.5, textAlign: 'left' }}>
               {tpl.languages.join('   ·   ')}
             </p>
           </div>
@@ -424,9 +446,9 @@ function DLTech({ tpl }) {
  * ───────────────────────────────────────────────────────────────────────── */
 function DLProfessional({ tpl }) {
   const VIOLET = '#5A38D6';
-  const VIOLET_LIGHT = '#E7DFFB';
-  const INK = '#1E1B2E';
-  const MUTED = '#545063';
+  const VIOLET_LIGHT = '#DDD6FE';
+  const INK = '#0F172A';
+  const MUTED = '#475569';
 
   const candidateName = getCandidateName(tpl);
   const candidateHeadline = getCandidateHeadline(tpl);
@@ -436,12 +458,13 @@ function DLProfessional({ tpl }) {
     <h3
       style={{
         fontFamily: 'Georgia, Cambria, "Times New Roman", serif',
-        fontSize: 10.5,
+        fontSize: 12.5,
         fontWeight: 700,
         color: VIOLET,
-        margin: '10px 0 4px',
-        paddingBottom: 2,
-        borderBottom: `1px solid ${VIOLET_LIGHT}`,
+        margin: '0 0 5px',
+        paddingBottom: 3,
+        borderBottom: `2px solid ${VIOLET_LIGHT}`,
+        textAlign: 'left',
       }}
     >
       {children}
@@ -449,29 +472,30 @@ function DLProfessional({ tpl }) {
   );
 
   return (
-    <div style={{ width: PAGE_W, height: PAGE_H, padding: '22px 34px 18px', boxSizing: 'border-box', background: '#FFFFFF', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+    <div style={{ width: PAGE_W, height: PAGE_H, padding: '26px 36px 24px', boxSizing: 'border-box', background: '#FFFFFF', display: 'flex', flexDirection: 'column', justifyContent: 'flex-start', gap: 14, textAlign: 'left' }}>
       {/* Header & Summary */}
       <div>
         <h1
           style={{
             fontFamily: 'Georgia, Cambria, "Times New Roman", serif',
-            fontSize: 25,
+            fontSize: 32,
             fontWeight: 700,
             color: INK,
             margin: 0,
+            textAlign: 'left',
           }}
         >
           {candidateName}
         </h1>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8, margin: '3px 0 0' }}>
-          <div style={{ width: 22, height: 2, background: VIOLET, flexShrink: 0 }} />
-          <p style={{ fontSize: 11, color: VIOLET, fontWeight: 600, margin: 0 }}>{candidateHeadline}</p>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, margin: '4px 0 0' }}>
+          <div style={{ width: 24, height: 2.5, background: VIOLET, flexShrink: 0 }} />
+          <p style={{ fontSize: 13.5, color: VIOLET, fontWeight: 600, margin: 0, textAlign: 'left' }}>{candidateHeadline}</p>
         </div>
-        <p style={{ fontSize: 9, color: MUTED, margin: '3px 0 0', letterSpacing: '0.01em' }}>{contactText}</p>
-        <div style={{ height: 1, background: VIOLET_LIGHT, margin: '6px 0' }} />
+        <p style={{ fontSize: 10.8, color: MUTED, margin: '4px 0 0', letterSpacing: '0.01em', textAlign: 'left' }}>{contactText}</p>
+        <div style={{ height: 1.5, background: VIOLET_LIGHT, margin: '8px 0' }} />
 
         {/* Summary */}
-        <p style={{ fontFamily: 'Georgia, serif', fontSize: 9.8, lineHeight: 1.5, color: INK, margin: 0 }}>
+        <p style={{ fontFamily: 'Georgia, serif', fontSize: 11.4, lineHeight: 1.55, color: INK, margin: 0, textAlign: 'left' }}>
           {tpl.summary}
         </p>
       </div>
@@ -491,37 +515,39 @@ function DLProfessional({ tpl }) {
       )}
 
       {/* Core Competencies */}
-      <div>
-        <SectionHead>Core Competencies & Functional Expertise</SectionHead>
-        <p style={{ fontSize: 9.6, color: INK, lineHeight: 1.5, margin: 0 }}>
-          {tpl.skills?.join('   ·   ')}
-        </p>
-      </div>
+      {tpl.skills?.length > 0 && (
+        <div>
+          <SectionHead>Core Competencies & Functional Expertise</SectionHead>
+          <p style={{ fontSize: 11.2, color: INK, lineHeight: 1.5, margin: 0, textAlign: 'left' }}>
+            {tpl.skills.join('   ·   ')}
+          </p>
+        </div>
+      )}
 
       {/* Education & Certs */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 1fr', gap: 16 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 1fr', gap: 18 }}>
         <div>
           <SectionHead>Education & Academic Honors</SectionHead>
           <EducationSection tpl={tpl} titleColor={INK} subColor={MUTED} />
         </div>
         <div>
           <SectionHead>Certifications & Licensures</SectionHead>
-          <Bullets items={tpl.certs} size={9} color={MUTED} gap={2} />
+          <Bullets items={tpl.certs} size={11} color={MUTED} gap={3.5} />
         </div>
       </div>
 
       {/* Honors & Languages */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1.4fr 1fr', gap: 16 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: '1.4fr 1fr', gap: 18 }}>
         {tpl.achievements?.length > 0 && (
           <div>
             <SectionHead>Industry Recognitions</SectionHead>
-            <Bullets items={tpl.achievements} size={9} color={MUTED} gap={2} />
+            <Bullets items={tpl.achievements} size={11} color={MUTED} gap={3.5} />
           </div>
         )}
         {tpl.languages?.length > 0 && (
           <div>
             <SectionHead>Languages</SectionHead>
-            <p style={{ fontSize: 9, color: MUTED, margin: '3px 0 0', lineHeight: 1.45 }}>
+            <p style={{ fontSize: 11, color: MUTED, margin: '2px 0 0', lineHeight: 1.5, textAlign: 'left' }}>
               {tpl.languages.join('   ·   ')}
             </p>
           </div>
@@ -532,14 +558,14 @@ function DLProfessional({ tpl }) {
 }
 
 /* ─────────────────────────────────────────────────────────────────────────
- * 4. DL EXECUTIVE — Leadership, CXO, Director, Senior Management
+ * 4. DL EXECUTIVE — Leadership, CXO, Director, Senior Management (Dr. Rajeshwar Rao)
  * Premium dark ink band header, strategic leadership, Board & P&L scale.
  * ───────────────────────────────────────────────────────────────────────── */
 function DLExecutive({ tpl }) {
-  const DARK = '#112240';
+  const DARK = '#0F172A';
   const INK = '#1E293B';
   const MUTED = '#475569';
-  const ACCENT = '#1D5DB8';
+  const ACCENT = '#2563EB';
   const RULE = '#CBD5E1';
 
   const candidateName = getCandidateName(tpl);
@@ -549,14 +575,15 @@ function DLExecutive({ tpl }) {
   const SectionHead = ({ children }) => (
     <h3
       style={{
-        fontSize: 9.5,
+        fontSize: 12.2,
         fontWeight: 700,
-        letterSpacing: '0.12em',
+        letterSpacing: '0.08em',
         textTransform: 'uppercase',
         color: DARK,
-        margin: '10px 0 4px',
-        paddingBottom: 2,
-        borderBottom: `1.5px solid ${RULE}`,
+        margin: '0 0 5px',
+        paddingBottom: 3,
+        borderBottom: `2px solid ${RULE}`,
+        textAlign: 'left',
       }}
     >
       {children}
@@ -564,29 +591,30 @@ function DLExecutive({ tpl }) {
   );
 
   return (
-    <div style={{ width: PAGE_W, height: PAGE_H, boxSizing: 'border-box', background: '#FFFFFF', display: 'flex', flexDirection: 'column' }}>
+    <div style={{ width: PAGE_W, height: PAGE_H, boxSizing: 'border-box', background: '#FFFFFF', display: 'flex', flexDirection: 'column', textAlign: 'left' }}>
       {/* Dark Header Band */}
-      <div style={{ background: DARK, padding: '22px 38px 18px' }}>
+      <div style={{ background: DARK, padding: '24px 38px 20px', textAlign: 'left' }}>
         <h1
           style={{
             fontFamily: '"Helvetica Neue", Arial, sans-serif',
-            fontSize: 25,
+            fontSize: 32,
             fontWeight: 800,
             color: '#FFFFFF',
             margin: 0,
             letterSpacing: '-0.01em',
+            textAlign: 'left',
           }}
         >
           {candidateName}
         </h1>
-        <p style={{ fontSize: 11, fontWeight: 500, color: tpl.headline ? '#93C5FD' : '#94A3B8', margin: '3px 0 0' }}>{candidateHeadline}</p>
-        <p style={{ fontSize: 8.8, color: tpl.contact?.email ? '#CBD5E1' : '#94A3B8', margin: '4px 0 0', letterSpacing: '0.02em' }}>{contactText}</p>
+        <p style={{ fontSize: 13.5, fontWeight: 500, color: tpl.headline ? '#93C5FD' : '#94A3B8', margin: '4px 0 0', textAlign: 'left' }}>{candidateHeadline}</p>
+        <p style={{ fontSize: 10.8, color: tpl.contact?.email ? '#CBD5E1' : '#94A3B8', margin: '5px 0 0', letterSpacing: '0.02em', textAlign: 'left' }}>{contactText}</p>
       </div>
 
       {/* Body */}
-      <div style={{ padding: '12px 34px 18px', flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+      <div style={{ padding: '20px 36px 24px', flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'flex-start', gap: 14, textAlign: 'left' }}>
         <div>
-          <p style={{ fontSize: 9.6, lineHeight: 1.5, color: INK, margin: '0 0 4px' }}>
+          <p style={{ fontSize: 11.4, lineHeight: 1.55, color: INK, margin: 0, textAlign: 'left' }}>
             {tpl.summary}
           </p>
         </div>
@@ -606,37 +634,39 @@ function DLExecutive({ tpl }) {
         )}
 
         {/* Strategic Competencies */}
-        <div>
-          <SectionHead>Executive Capabilities & Governance</SectionHead>
-          <p style={{ fontSize: 9.5, color: INK, lineHeight: 1.5, margin: 0 }}>
-            {tpl.skills?.join('   ·   ')}
-          </p>
-        </div>
+        {tpl.skills?.length > 0 && (
+          <div>
+            <SectionHead>Executive Capabilities & Governance</SectionHead>
+            <p style={{ fontSize: 11.2, color: INK, lineHeight: 1.5, margin: 0, textAlign: 'left' }}>
+              {tpl.skills.join('   ·   ')}
+            </p>
+          </div>
+        )}
 
         {/* Education & Certs */}
-        <div style={{ display: 'grid', gridTemplateColumns: '1.3fr 1fr', gap: 16 }}>
+        <div style={{ display: 'grid', gridTemplateColumns: '1.3fr 1fr', gap: 18 }}>
           <div>
             <SectionHead>Executive Education</SectionHead>
             <EducationSection tpl={tpl} titleColor={DARK} subColor={MUTED} />
           </div>
           <div>
             <SectionHead>Board Credentials & Fellowships</SectionHead>
-            <Bullets items={tpl.certs || tpl.certifications} size={9} color={MUTED} gap={2} />
+            <Bullets items={tpl.certs || tpl.certifications} size={11} color={MUTED} gap={3.5} />
           </div>
         </div>
 
         {/* Honors & Languages */}
-        <div style={{ display: 'grid', gridTemplateColumns: '1.4fr 1fr', gap: 16 }}>
+        <div style={{ display: 'grid', gridTemplateColumns: '1.4fr 1fr', gap: 18 }}>
           {tpl.achievements?.length > 0 && (
             <div>
               <SectionHead>Executive Recognition & Publications</SectionHead>
-              <Bullets items={tpl.achievements} size={9} color={MUTED} gap={2} />
+              <Bullets items={tpl.achievements} size={11} color={MUTED} gap={3.5} />
             </div>
           )}
           {tpl.languages?.length > 0 && (
             <div>
               <SectionHead>Languages</SectionHead>
-              <p style={{ fontSize: 9, color: MUTED, margin: '3px 0 0', lineHeight: 1.45 }}>
+              <p style={{ fontSize: 11, color: MUTED, margin: '2px 0 0', lineHeight: 1.5, textAlign: 'left' }}>
                 {tpl.languages.join('   ·   ')}
               </p>
             </div>
@@ -648,14 +678,15 @@ function DLExecutive({ tpl }) {
 }
 
 /* ─────────────────────────────────────────────────────────────────────────
- * 5. DL PROJECT+ — Students, Freshers, Internships, Career Switchers
+ * 5. DL PROJECT+ — Students, Freshers, Modern Tech (Rohan S. Joshi, Ananya Deshmukh)
  * Project-first structure with gradient header, visual sidebar (ATS DOM linear safe).
+ * Proportioned to fill the full A4 sheet with crisp typography and zero empty space.
  * ───────────────────────────────────────────────────────────────────────── */
 function DLProjectPlus({ tpl }) {
-  const GRADIENT = 'linear-gradient(135deg, #2FA3CC 0%, #5A38D6 100%)';
-  const INDIGO = '#1D5DB8';
-  const INDIGO_LIGHT = '#DCE6F5';
-  const SIDEBAR_W = 196;
+  const GRADIENT = 'linear-gradient(135deg, #0284C7 0%, #4F46E5 100%)';
+  const INDIGO = '#4F46E5';
+  const INDIGO_LIGHT = '#C7D2FE';
+  const SIDEBAR_W = 215;
 
   const candidateName = getCandidateName(tpl);
   const candidateHeadline = getCandidateHeadline(tpl);
@@ -664,12 +695,13 @@ function DLProjectPlus({ tpl }) {
   const SideLabel = ({ children }) => (
     <p
       style={{
-        fontSize: 8.5,
+        fontSize: 10.5,
         fontWeight: 700,
-        letterSpacing: '0.12em',
+        letterSpacing: '0.08em',
         textTransform: 'uppercase',
-        color: '#EAF7FC',
-        margin: '10px 0 3px',
+        color: '#E0F2FE',
+        margin: '0 0 5px',
+        textAlign: 'left',
       }}
     >
       {children}
@@ -677,87 +709,97 @@ function DLProjectPlus({ tpl }) {
   );
 
   return (
-    <div style={{ width: PAGE_W, height: PAGE_H, boxSizing: 'border-box', background: '#FFFFFF', display: 'flex', flexDirection: 'column' }}>
+    <div style={{ width: PAGE_W, height: PAGE_H, boxSizing: 'border-box', background: '#FFFFFF', display: 'flex', flexDirection: 'column', textAlign: 'left' }}>
       {/* Name banner */}
-      <div style={{ background: GRADIENT, padding: '20px 32px 16px' }}>
+      <div style={{ background: GRADIENT, padding: '22px 34px 18px', textAlign: 'left' }}>
         <h1
           style={{
             fontFamily: '"Helvetica Neue", Arial, sans-serif',
-            fontSize: 24,
+            fontSize: 30,
             fontWeight: 800,
             color: '#FFFFFF',
             margin: 0,
             letterSpacing: '-0.01em',
+            textAlign: 'left',
           }}
         >
           {candidateName}
         </h1>
-        <p style={{ fontSize: 11, color: '#EAF7FC', fontWeight: 500, margin: '2px 0 0' }}>{candidateHeadline}</p>
+        <p style={{ fontSize: 13, color: '#E0F2FE', fontWeight: 500, margin: '3px 0 0', textAlign: 'left' }}>{candidateHeadline}</p>
       </div>
 
       {/* Two-column layout: DOM order has Main first (for ATS linear reading), sidebar visually ordered */}
-      <div style={{ display: 'flex', flex: 1 }}>
+      <div style={{ display: 'flex', flex: 1, textAlign: 'left' }}>
         {/* Main Column (DOM 1st, flex order 2) */}
-        <div style={{ flex: 1, order: 2, padding: '14px 28px 20px 20px', boxSizing: 'border-box', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+        <div style={{ flex: 1, order: 2, padding: '20px 28px 24px 22px', boxSizing: 'border-box', display: 'flex', flexDirection: 'column', justifyContent: 'flex-start', gap: 15, textAlign: 'left' }}>
           <div>
-            <p style={{ fontSize: 9.6, lineHeight: 1.48, color: '#1E293B', margin: '0 0 6px' }}>
+            <p style={{ fontSize: 11.4, lineHeight: 1.55, color: '#1E293B', margin: 0, textAlign: 'left' }}>
               {tpl.summary}
             </p>
           </div>
 
-          <div>
-            <h3
-              style={{
-                fontSize: 9.5,
-                fontWeight: 700,
-                letterSpacing: '0.12em',
-                textTransform: 'uppercase',
-                color: '#5A38D6',
-                margin: '8px 0 4px',
-                paddingBottom: 2,
-                borderBottom: `1px solid ${INDIGO_LIGHT}`,
-              }}
-            >
-              Key Projects & Open Source
-            </h3>
-            <ProjectsSection tpl={tpl} titleColor="#1E293B" roleColor={INDIGO} />
-          </div>
+          {tpl.projects?.length > 0 && (
+            <div>
+              <h3
+                style={{
+                  fontSize: 12.2,
+                  fontWeight: 700,
+                  letterSpacing: '0.08em',
+                  textTransform: 'uppercase',
+                  color: INDIGO,
+                  margin: '0 0 5px',
+                  paddingBottom: 3,
+                  borderBottom: `2px solid ${INDIGO_LIGHT}`,
+                  textAlign: 'left',
+                }}
+              >
+                Key Projects & Open Source
+              </h3>
+              <ProjectsSection tpl={tpl} titleColor="#0F172A" roleColor={INDIGO} />
+            </div>
+          )}
 
-          <div>
-            <h3
-              style={{
-                fontSize: 9.5,
-                fontWeight: 700,
-                letterSpacing: '0.12em',
-                textTransform: 'uppercase',
-                color: '#5A38D6',
-                margin: '8px 0 4px',
-                paddingBottom: 2,
-                borderBottom: `1px solid ${INDIGO_LIGHT}`,
-              }}
-            >
-              Engineering Experience & Internships
-            </h3>
-            <ExperienceSection tpl={tpl} titleColor="#1E293B" companyColor="#475569" accentColor={INDIGO} />
-          </div>
+          {tpl.experience?.length > 0 && (
+            <div>
+              <h3
+                style={{
+                  fontSize: 12.2,
+                  fontWeight: 700,
+                  letterSpacing: '0.08em',
+                  textTransform: 'uppercase',
+                  color: INDIGO,
+                  margin: '0 0 5px',
+                  paddingBottom: 3,
+                  borderBottom: `2px solid ${INDIGO_LIGHT}`,
+                  textAlign: 'left',
+                }}
+              >
+                Engineering Experience & Internships
+              </h3>
+              <ExperienceSection tpl={tpl} titleColor="#0F172A" companyColor="#475569" accentColor={INDIGO} />
+            </div>
+          )}
 
-          <div>
-            <h3
-              style={{
-                fontSize: 9.5,
-                fontWeight: 700,
-                letterSpacing: '0.12em',
-                textTransform: 'uppercase',
-                color: '#5A38D6',
-                margin: '8px 0 4px',
-                paddingBottom: 2,
-                borderBottom: `1px solid ${INDIGO_LIGHT}`,
-              }}
-            >
-              Education & Academic Track
-            </h3>
-            <EducationSection tpl={tpl} titleColor="#1E293B" subColor="#475569" />
-          </div>
+          {tpl.education?.length > 0 && (
+            <div>
+              <h3
+                style={{
+                  fontSize: 12.2,
+                  fontWeight: 700,
+                  letterSpacing: '0.08em',
+                  textTransform: 'uppercase',
+                  color: INDIGO,
+                  margin: '0 0 5px',
+                  paddingBottom: 3,
+                  borderBottom: `2px solid ${INDIGO_LIGHT}`,
+                  textAlign: 'left',
+                }}
+              >
+                Education & Academic Track
+              </h3>
+              <EducationSection tpl={tpl} titleColor="#0F172A" subColor="#475569" />
+            </div>
+          )}
         </div>
 
         {/* Sidebar (DOM 2nd, flex order 1) */}
@@ -767,62 +809,70 @@ function DLProjectPlus({ tpl }) {
             flexShrink: 0,
             order: 1,
             background: GRADIENT,
-            padding: '10px 16px 20px',
+            padding: '20px 18px 24px',
             boxSizing: 'border-box',
             display: 'flex',
             flexDirection: 'column',
-            justifyContent: 'space-between',
+            justifyContent: 'flex-start',
+            gap: 16,
+            textAlign: 'left',
           }}
         >
-          <SideLabel>Contact Info</SideLabel>
-          <p style={{ fontSize: 8.8, color: '#EAF7FC', lineHeight: 1.45, margin: 0 }}>
-            {contactText.split('   |   ').map((item, i) => (
-              <span key={i} style={{ display: 'block', marginBottom: 2 }}>{item}</span>
-            ))}
-          </p>
+          <div>
+            <SideLabel>Contact Info</SideLabel>
+            <p style={{ fontSize: 10.2, color: '#E0F2FE', lineHeight: 1.5, margin: 0, textAlign: 'left' }}>
+              {contactText.split('   |   ').map((item, i) => (
+                <span key={i} style={{ display: 'block', marginBottom: 3 }}>{item}</span>
+              ))}
+            </p>
+          </div>
 
-          <SideLabel>Technical Proficiencies</SideLabel>
-          <ul style={{ margin: 0, paddingLeft: 12 }}>
-            {tpl.skills?.map((s, i) => (
-              <li key={i} style={{ fontSize: 8.6, color: '#FFFFFF', lineHeight: 1.45 }}>
-                {s}
-              </li>
-            ))}
-          </ul>
+          {tpl.skills?.length > 0 && (
+            <div>
+              <SideLabel>Technical Proficiencies</SideLabel>
+              <ul style={{ margin: 0, paddingLeft: 14, textAlign: 'left' }}>
+                {tpl.skills.map((s, i) => (
+                  <li key={i} style={{ fontSize: 10.2, color: '#FFFFFF', lineHeight: 1.5, textAlign: 'left' }}>
+                    {s}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
 
           {(tpl.certs || tpl.certifications)?.length > 0 && (
-            <>
+            <div>
               <SideLabel>Certifications</SideLabel>
-              <ul style={{ margin: 0, paddingLeft: 12 }}>
+              <ul style={{ margin: 0, paddingLeft: 14, textAlign: 'left' }}>
                 {(tpl.certs || tpl.certifications).map((c, i) => (
-                  <li key={i} style={{ fontSize: 8.2, color: '#EAF7FC', lineHeight: 1.4 }}>
+                  <li key={i} style={{ fontSize: 9.8, color: '#E0F2FE', lineHeight: 1.45, textAlign: 'left' }}>
                     {typeof c === 'string' ? c : `${c.name} — ${c.issuer}`}
                   </li>
                 ))}
               </ul>
-            </>
+            </div>
           )}
 
           {tpl.achievements?.length > 0 && (
-            <>
+            <div>
               <SideLabel>Honors & Hackathons</SideLabel>
-              <ul style={{ margin: 0, paddingLeft: 12 }}>
+              <ul style={{ margin: 0, paddingLeft: 14, textAlign: 'left' }}>
                 {tpl.achievements.map((a, i) => (
-                  <li key={i} style={{ fontSize: 8.2, color: '#EAF7FC', lineHeight: 1.4 }}>
+                  <li key={i} style={{ fontSize: 9.8, color: '#E0F2FE', lineHeight: 1.45, textAlign: 'left' }}>
                     {a}
                   </li>
                 ))}
               </ul>
-            </>
+            </div>
           )}
 
           {tpl.languages?.length > 0 && (
-            <>
+            <div>
               <SideLabel>Languages</SideLabel>
-              <p style={{ fontSize: 8.5, color: '#FFFFFF', margin: '2px 0 0', lineHeight: 1.4 }}>
+              <p style={{ fontSize: 10.2, color: '#FFFFFF', margin: 0, lineHeight: 1.45, textAlign: 'left' }}>
                 {tpl.languages.join(' · ')}
               </p>
-            </>
+            </div>
           )}
         </aside>
       </div>
@@ -831,7 +881,7 @@ function DLProjectPlus({ tpl }) {
 }
 
 /* ─────────────────────────────────────────────────────────────────────────
- * 6. DL FINANCE — Investment Banking, PE, FinTech & Quantitative
+ * 6. DL FINANCE — Investment Banking, PE, FinTech & Quantitative (Siddharth M. Mehta)
  * Emerald & slate accents, tabular hierarchy, concise deal/metric structure.
  * ───────────────────────────────────────────────────────────────────────── */
 function DLFinance({ tpl }) {
@@ -847,39 +897,42 @@ function DLFinance({ tpl }) {
   const SectionHead = ({ children }) => (
     <h3
       style={{
-        fontSize: 9.5,
+        fontSize: 12.2,
         fontWeight: 700,
-        letterSpacing: '0.12em',
+        letterSpacing: '0.08em',
         textTransform: 'uppercase',
         color: DARK,
-        margin: '10px 0 4px',
-        paddingBottom: 2,
-        borderBottom: `1.5px solid ${BORDER}`,
+        margin: '0 0 5px',
+        paddingBottom: 3,
+        borderBottom: `2px solid ${BORDER}`,
         display: 'flex',
         justifyContent: 'space-between',
         alignItems: 'center',
+        textAlign: 'left',
       }}
     >
       <span>{children}</span>
-      <span style={{ fontSize: 7.5, color: EMERALD, fontWeight: 600, letterSpacing: '0.05em' }}>ATS FISCAL</span>
+      <span style={{ fontSize: 9.5, color: EMERALD, fontWeight: 700, letterSpacing: '0.05em' }}>ATS FISCAL</span>
     </h3>
   );
 
   return (
-    <div style={{ width: PAGE_W, height: PAGE_H, padding: '22px 34px 18px', boxSizing: 'border-box', background: '#FFFFFF', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+    <div style={{ width: PAGE_W, height: PAGE_H, padding: '26px 36px 24px', boxSizing: 'border-box', background: '#FFFFFF', display: 'flex', flexDirection: 'column', justifyContent: 'flex-start', gap: 14, textAlign: 'left' }}>
       {/* Top Banner & Summary */}
       <div>
-        <div style={{ textAlign: 'center', borderBottom: `2px solid ${DARK}`, paddingBottom: 6 }}>
-          <h1 style={{ fontFamily: 'Georgia, Cambria, serif', fontSize: 24, fontWeight: 700, color: DARK, margin: 0 }}>
+        <div style={{ textAlign: 'left', borderBottom: `2px solid ${DARK}`, paddingBottom: 8 }}>
+          <h1 style={{ fontFamily: 'Georgia, Cambria, serif', fontSize: 32, fontWeight: 700, color: DARK, margin: 0, textAlign: 'left' }}>
             {candidateName}
           </h1>
-          <p style={{ fontSize: 10.5, fontWeight: 600, color: EMERALD, margin: '2px 0 0' }}>{candidateHeadline}</p>
-          <p style={{ fontSize: 8.8, color: MUTED, margin: '2px 0 0' }}>{contactText}</p>
+          <p style={{ fontSize: 13.5, fontWeight: 600, color: EMERALD, margin: '3px 0 0', textAlign: 'left' }}>{candidateHeadline}</p>
+          <p style={{ fontSize: 10.8, color: MUTED, margin: '4px 0 0', textAlign: 'left' }}>{contactText}</p>
         </div>
 
         {/* Summary */}
-        <SectionHead>Executive Financial Profile</SectionHead>
-        <p style={{ fontSize: 9.4, color: '#334155', lineHeight: 1.48, margin: 0 }}>{tpl.summary}</p>
+        <div style={{ marginTop: 8 }}>
+          <SectionHead>Executive Financial Profile</SectionHead>
+          <p style={{ fontSize: 11.4, color: '#334155', lineHeight: 1.55, margin: 0, textAlign: 'left' }}>{tpl.summary}</p>
+        </div>
       </div>
 
       {/* Experience */}
@@ -897,37 +950,39 @@ function DLFinance({ tpl }) {
       )}
 
       {/* Competencies */}
-      <div>
-        <SectionHead>Quantitative & Financial Core Competencies</SectionHead>
-        <p style={{ fontSize: 9.2, color: '#334155', lineHeight: 1.45, margin: 0 }}>
-          {tpl.skills?.join('   ·   ')}
-        </p>
-      </div>
+      {tpl.skills?.length > 0 && (
+        <div>
+          <SectionHead>Quantitative & Financial Core Competencies</SectionHead>
+          <p style={{ fontSize: 11.2, color: '#334155', lineHeight: 1.5, margin: 0, textAlign: 'left' }}>
+            {tpl.skills.join('   ·   ')}
+          </p>
+        </div>
+      )}
 
       {/* Education & Certifications Row */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 1fr', gap: 16 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 1fr', gap: 18 }}>
         <div>
           <SectionHead>Academic Credentials</SectionHead>
           <EducationSection tpl={tpl} titleColor={DARK} subColor={MUTED} />
         </div>
         <div>
           <SectionHead>Licenses & Certifications</SectionHead>
-          <Bullets items={tpl.certs || tpl.certifications} size={8.8} color={MUTED} gap={2} />
+          <Bullets items={tpl.certs || tpl.certifications} size={11} color={MUTED} gap={3.5} />
         </div>
       </div>
 
       {/* Honors & Languages */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1.4fr 1fr', gap: 16 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: '1.4fr 1fr', gap: 18 }}>
         {tpl.achievements?.length > 0 && (
           <div>
             <SectionHead>Deal Honors & Recognitions</SectionHead>
-            <Bullets items={tpl.achievements} size={8.8} color={MUTED} gap={2} />
+            <Bullets items={tpl.achievements} size={11} color={MUTED} gap={3.5} />
           </div>
         )}
         {tpl.languages?.length > 0 && (
           <div>
             <SectionHead>Languages</SectionHead>
-            <p style={{ fontSize: 9, color: MUTED, margin: '2px 0 0', lineHeight: 1.45 }}>
+            <p style={{ fontSize: 11, color: MUTED, margin: '2px 0 0', lineHeight: 1.5, textAlign: 'left' }}>
               {tpl.languages.join('   ·   ')}
             </p>
           </div>
@@ -938,13 +993,13 @@ function DLFinance({ tpl }) {
 }
 
 /* ─────────────────────────────────────────────────────────────────────────
- * 7. DL CREATIVE — Product Design, UX Architecture & Creative Direction
+ * 7. DL CREATIVE — Product Design, UX Architecture & Creative Direction (Maya R. Chen)
  * Refined geometric layout with indigo-violet accents and case study focus.
  * ───────────────────────────────────────────────────────────────────────── */
 function DLCreative({ tpl }) {
   const INDIGO = '#4F46E5';
-  const INK = '#18181B';
-  const MUTED = '#52525B';
+  const INK = '#0F172A';
+  const MUTED = '#475569';
 
   const candidateName = getCandidateName(tpl);
   const candidateHeadline = getCandidateHeadline(tpl);
@@ -953,14 +1008,15 @@ function DLCreative({ tpl }) {
   const SectionHead = ({ children }) => (
     <h3
       style={{
-        fontSize: 9.5,
+        fontSize: 12.2,
         fontWeight: 700,
-        letterSpacing: '0.1em',
+        letterSpacing: '0.08em',
         textTransform: 'uppercase',
         color: INDIGO,
-        margin: '10px 0 4px',
-        paddingBottom: 2,
-        borderBottom: '1px solid #E4E4E7',
+        margin: '0 0 5px',
+        paddingBottom: 3,
+        borderBottom: '2px solid #E2E8F0',
+        textAlign: 'left',
       }}
     >
       {children}
@@ -968,27 +1024,29 @@ function DLCreative({ tpl }) {
   );
 
   return (
-    <div style={{ width: PAGE_W, height: PAGE_H, padding: '22px 34px 18px', boxSizing: 'border-box', background: '#FFFFFF', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+    <div style={{ width: PAGE_W, height: PAGE_H, padding: '26px 36px 24px', boxSizing: 'border-box', background: '#FFFFFF', display: 'flex', flexDirection: 'column', justifyContent: 'flex-start', gap: 14, textAlign: 'left' }}>
       {/* Top Banner & Summary */}
       <div>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', borderBottom: '2px solid #F4F4F5', paddingBottom: 8 }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', borderBottom: '2px solid #E2E8F0', paddingBottom: 10 }}>
           <div>
-            <h1 style={{ fontFamily: '"Helvetica Neue", Arial, sans-serif', fontSize: 24, fontWeight: 800, color: INK, margin: 0, letterSpacing: '-0.02em' }}>
+            <h1 style={{ fontFamily: '"Helvetica Neue", Arial, sans-serif', fontSize: 32, fontWeight: 800, color: INK, margin: 0, letterSpacing: '-0.02em', textAlign: 'left' }}>
               {candidateName}
             </h1>
-            <p style={{ fontSize: 11, fontWeight: 600, color: INDIGO, margin: '2px 0 0' }}>{candidateHeadline}</p>
+            <p style={{ fontSize: 13.5, fontWeight: 600, color: INDIGO, margin: '3px 0 0', textAlign: 'left' }}>{candidateHeadline}</p>
           </div>
           <div style={{ textAlign: 'right' }}>
-            <span style={{ fontSize: 8.5, fontWeight: 700, color: '#FFFFFF', background: INDIGO, padding: '2px 8px', borderRadius: 4, textTransform: 'uppercase' }}>
+            <span style={{ fontSize: 10, fontWeight: 700, color: '#FFFFFF', background: INDIGO, padding: '3px 10px', borderRadius: 4, textTransform: 'uppercase' }}>
               Design Systems & UX
             </span>
           </div>
         </div>
-        <p style={{ fontSize: 8.8, color: MUTED, margin: '4px 0 0' }}>{contactText}</p>
+        <p style={{ fontSize: 10.8, color: MUTED, margin: '5px 0 0', textAlign: 'left' }}>{contactText}</p>
 
         {/* Summary */}
-        <SectionHead>Design Philosophy & Professional Summary</SectionHead>
-        <p style={{ fontSize: 9.4, color: '#27272A', lineHeight: 1.48, margin: 0 }}>{tpl.summary}</p>
+        <div style={{ marginTop: 8 }}>
+          <SectionHead>Design Philosophy & Professional Summary</SectionHead>
+          <p style={{ fontSize: 11.4, color: '#1E293B', lineHeight: 1.55, margin: 0, textAlign: 'left' }}>{tpl.summary}</p>
+        </div>
       </div>
 
       {/* Experience */}
@@ -1006,52 +1064,54 @@ function DLCreative({ tpl }) {
       )}
 
       {/* Skills */}
-      <div>
-        <SectionHead>Design Tooling & Systems Methodologies</SectionHead>
-        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4, margin: '3px 0' }}>
-          {tpl.skills?.slice(0, 14).map((s, i) => (
-            <span
-              key={i}
-              style={{
-                fontSize: 8.5,
-                fontWeight: 600,
-                color: INDIGO,
-                background: '#EEF2FF',
-                border: '1px solid #E0E7FF',
-                borderRadius: 3,
-                padding: '1px 6px',
-              }}
-            >
-              {s}
-            </span>
-          ))}
+      {tpl.skills?.length > 0 && (
+        <div>
+          <SectionHead>Design Tooling & Systems Methodologies</SectionHead>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 5, margin: '4px 0' }}>
+            {tpl.skills.slice(0, 16).map((s, i) => (
+              <span
+                key={i}
+                style={{
+                  fontSize: 10.5,
+                  fontWeight: 600,
+                  color: INDIGO,
+                  background: '#EEF2FF',
+                  border: '1px solid #E0E7FF',
+                  borderRadius: 4,
+                  padding: '2px 8px',
+                }}
+              >
+                {s}
+              </span>
+            ))}
+          </div>
         </div>
-      </div>
+      )}
 
       {/* Education & Certs */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 1fr', gap: 16 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 1fr', gap: 18 }}>
         <div>
           <SectionHead>Education</SectionHead>
           <EducationSection tpl={tpl} titleColor={INK} subColor={MUTED} />
         </div>
         <div>
           <SectionHead>Credentials & Honors</SectionHead>
-          <Bullets items={tpl.certs || tpl.certifications} size={8.8} color={MUTED} gap={2} />
+          <Bullets items={tpl.certs || tpl.certifications} size={11} color={MUTED} gap={3.5} />
         </div>
       </div>
 
       {/* Honors & Languages */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1.4fr 1fr', gap: 16 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: '1.4fr 1fr', gap: 18 }}>
         {tpl.achievements?.length > 0 && (
           <div>
             <SectionHead>Design Awards & Speaking</SectionHead>
-            <Bullets items={tpl.achievements} size={8.8} color={MUTED} gap={2} />
+            <Bullets items={tpl.achievements} size={11} color={MUTED} gap={3.5} />
           </div>
         )}
         {tpl.languages?.length > 0 && (
           <div>
             <SectionHead>Languages</SectionHead>
-            <p style={{ fontSize: 9, color: MUTED, margin: '2px 0 0', lineHeight: 1.45 }}>
+            <p style={{ fontSize: 11, color: MUTED, margin: '2px 0 0', lineHeight: 1.5, textAlign: 'left' }}>
               {tpl.languages.join('   ·   ')}
             </p>
           </div>
@@ -1100,8 +1160,7 @@ export function ResumeTemplatePreview({ template, className, crop = true }) {
     LAYOUT_COMPONENTS[resolved.aliasId] ||
     DLElite;
 
-  // The outer container calculates height precisely matching the scaled A4 document:
-  // Height = PAGE_H * scale, maintaining the exact 794 : 1123 aspect ratio.
+  // The outer container maintains exact A4 document ratio (794 : 1123)
   const scaledHeight = scale > 0 ? PAGE_H * scale : undefined;
 
   return (
@@ -1116,6 +1175,7 @@ export function ResumeTemplatePreview({ template, className, crop = true }) {
         width: '100%',
         aspectRatio: '794 / 1123',
         height: scaledHeight,
+        textAlign: 'left',
       }}
     >
       <div
@@ -1135,9 +1195,12 @@ export function ResumeTemplatePreview({ template, className, crop = true }) {
           WebkitBackfaceVisibility: 'hidden',
           background: '#FFFFFF',
           fontFamily: '"Helvetica Neue", Arial, sans-serif',
-          lineHeight: 1.45,
-          color: '#111827',
+          lineHeight: 1.5,
+          color: '#0F172A',
           boxSizing: 'border-box',
+          textAlign: 'left',
+          wordBreak: 'break-word',
+          overflowWrap: 'break-word',
         }}
       >
         <Layout tpl={resolved} />

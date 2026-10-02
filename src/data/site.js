@@ -166,10 +166,10 @@ export const menuGroups = [...pillars, ...navGroups];
  */
 export const primaryNav = [
   { label: 'Career+', menu: ['career-tools'] },
-  { label: 'Jobs', path: '/jobs' },
   { label: 'Upskills', menu: ['upskills'] },
   { label: 'Dubai Launch', path: '/dubai-launch' },
   { label: 'Services', menu: ['services'] },
+  { label: 'Jobs', path: '/jobs' },
 ];
 
 /**

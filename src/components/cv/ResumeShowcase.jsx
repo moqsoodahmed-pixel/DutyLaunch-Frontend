@@ -53,7 +53,10 @@ export function ResumeShowcase({ className }) {
   const reduceMotion = usePrefersReducedMotion();
   const [order, setOrder] = useState(SHOWCASE.map((_, i) => i));
   const [hoveredIdx, setHoveredIdx] = useState(null);
-  const pausedRef = useRef(false);
+  const isContainerHoveredRef = useRef(false);
+  const cooldownRef = useRef(false);
+  const justReplacedRef = useRef(null);
+  const cooldownTimerRef = useRef(null);
   const { isWindowBlurred } = useContentProtection();
 
   const anyHovered = hoveredIdx !== null;
@@ -73,15 +76,11 @@ export function ResumeShowcase({ className }) {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  useEffect(() => {
-    pausedRef.current = hoveredIdx !== null;
-  }, [hoveredIdx]);
-
-  // Periodic position swap — pauses while any card is hovered
+  // Periodic position swap — pauses whenever user cursor interacts with the hero
   useEffect(() => {
     if (reduceMotion || SHOWCASE.length < 2) return undefined;
     const id = setInterval(() => {
-      if (!pausedRef.current) {
+      if (!isContainerHoveredRef.current && hoveredIdx === null) {
         setOrder((prev) => {
           const next = [...prev];
           next.unshift(next.pop());
@@ -90,21 +89,41 @@ export function ResumeShowcase({ className }) {
       }
     }, SWAP_MS);
     return () => clearInterval(id);
-  }, [reduceMotion]);
+  }, [reduceMotion, hoveredIdx]);
+
+  useEffect(() => {
+    return () => {
+      if (cooldownTimerRef.current) clearTimeout(cooldownTimerRef.current);
+    };
+  }, []);
 
   if (!SHOWCASE.length) return null;
 
   const stageH = Math.round((CENTER_H + OFFSET_Y + 60) * (stageScale < 1 ? stageScale * 1.05 : 1));
 
-  const bringToCenter = (targetTplIdx) => {
+  const bringToCenter = (targetTplIdx, fromHover = false) => {
     setOrder((prev) => {
       if (prev[0] === targetTplIdx) return prev;
       const targetPos = prev.indexOf(targetTplIdx);
       if (targetPos === -1) return prev;
+
+      // When triggered by hover, do not swap back the card that was just displaced to this slot
+      if (fromHover && justReplacedRef.current === targetTplIdx) {
+        return prev;
+      }
+
       const next = [...prev];
       const oldCenter = next[0];
       next[0] = targetTplIdx;
       next[targetPos] = oldCenter;
+
+      justReplacedRef.current = oldCenter;
+      cooldownRef.current = true;
+      if (cooldownTimerRef.current) clearTimeout(cooldownTimerRef.current);
+      cooldownTimerRef.current = setTimeout(() => {
+        cooldownRef.current = false;
+      }, 420);
+
       return next;
     });
   };
@@ -113,6 +132,15 @@ export function ResumeShowcase({ className }) {
     <div
       data-resume-protect="true"
       onContextMenu={(e) => e.preventDefault()}
+      onMouseEnter={() => {
+        isContainerHoveredRef.current = true;
+      }}
+      onMouseLeave={() => {
+        isContainerHoveredRef.current = false;
+        setHoveredIdx(null);
+        justReplacedRef.current = null;
+        cooldownRef.current = false;
+      }}
       className={`relative select-none dl-protected-preview ${className || ''}`}
       style={{
         width: '100%',
@@ -159,10 +187,10 @@ export function ResumeShowcase({ className }) {
 
           let targetX = slot.dx;
           let targetY = slot.dy;
-          let targetRotate = slot.rotate;
-          let targetScale = isCentre ? (isHovered ? 1.08 : 1.04) : (isHovered ? 0.98 : 0.92);
+          let targetRotate = isCentre ? 0 : slot.rotate;
+          let targetScale = isCentre ? (isHovered ? 1.07 : 1.03) : (isHovered ? 0.98 : 0.92);
           let targetOpacity = 1;
-          let targetZ = isCentre ? (isHovered ? 60 : 40) : (isHovered ? 35 : slot.z);
+          let targetZ = isCentre ? (isHovered ? 60 : 45) : (isHovered ? 35 : slot.z);
 
           if (isHovered && !isCentre) {
             targetY = slot.dy - 8;
@@ -178,10 +206,17 @@ export function ResumeShowcase({ className }) {
               type="button"
               onMouseEnter={() => {
                 setHoveredIdx(tplIdx);
-                bringToCenter(tplIdx);
+                if (!cooldownRef.current && justReplacedRef.current !== tplIdx) {
+                  bringToCenter(tplIdx, true);
+                }
               }}
-              onMouseLeave={() => setHoveredIdx(null)}
-              onClick={() => bringToCenter(tplIdx)}
+              onMouseLeave={() => {
+                setHoveredIdx((cur) => (cur === tplIdx ? null : cur));
+                if (justReplacedRef.current === tplIdx) {
+                  justReplacedRef.current = null;
+                }
+              }}
+              onClick={() => bringToCenter(tplIdx, false)}
               style={{
                 position: 'absolute',
                 top: 0,
@@ -195,6 +230,10 @@ export function ResumeShowcase({ className }) {
                 background: '#FFFFFF',
                 cursor: 'pointer',
                 outline: 'none',
+                textAlign: 'left',
+                padding: 0,
+                margin: 0,
+                display: 'block',
                 willChange: 'transform, opacity',
               }}
               animate={

@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Link, useSearchParams } from 'react-router-dom';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import {
   Download,
   FileUp,
@@ -57,7 +57,8 @@ const seo = seoFor('aiResumeBuilder');
 
 export default function AiResumeBuilder() {
   const { success, error: toastError } = useToast();
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, user } = useAuth();
+  const navigate = useNavigate();
   const [consent, setConsent] = useState(false);
   const [consentError, setConsentError] = useState('');
 
@@ -105,6 +106,11 @@ export default function AiResumeBuilder() {
   const [dragOver, setDragOver] = useState(false);
 
   const loadDemoResume = () => {
+    if (!isAuthenticated) {
+      toastError('Please sign in before testing verified ATS sample resumes.');
+      navigate('/login', { state: { from: '/ai-resume-builder#upload' } });
+      return;
+    }
     const demo = TEMPLATES[0];
     setParsed({
       needsReview: [],
@@ -124,6 +130,11 @@ export default function AiResumeBuilder() {
 
   async function handleFile(file) {
     if (!file) return;
+    if (!isAuthenticated) {
+      toastError('Please sign in before uploading your resume.');
+      navigate('/login', { state: { from: '/ai-resume-builder#upload' } });
+      return;
+    }
     setError(null);
     setBusy('upload');
     try {
@@ -358,6 +369,11 @@ export default function AiResumeBuilder() {
                   <button
                     type="button"
                     onClick={() => {
+                      if (!isAuthenticated) {
+                        toastError('Please sign in before uploading or testing your resume.');
+                        navigate('/login', { state: { from: '/ai-resume-builder#upload' } });
+                        return;
+                      }
                       scrollToUpload();
                       if (consent && fileInput.current) {
                         fileInput.current.click();
@@ -496,6 +512,11 @@ export default function AiResumeBuilder() {
                     onDrop={(e) => {
                       e.preventDefault();
                       setDragOver(false);
+                      if (!isAuthenticated) {
+                        toastError('Please sign in before uploading your resume.');
+                        navigate('/login', { state: { from: '/ai-resume-builder#upload' } });
+                        return;
+                      }
                       if (!consent) {
                         setConsentError(CONSENT_REQUIRED_MESSAGE);
                         return;
@@ -504,6 +525,11 @@ export default function AiResumeBuilder() {
                       if (file) handleFile(file);
                     }}
                     onClick={() => {
+                      if (!isAuthenticated) {
+                        toastError('Please sign in before uploading your resume.');
+                        navigate('/login', { state: { from: '/ai-resume-builder#upload' } });
+                        return;
+                      }
                       if (!consent) return setConsentError(CONSENT_REQUIRED_MESSAGE);
                       return fileInput.current?.click();
                     }}
@@ -523,6 +549,21 @@ export default function AiResumeBuilder() {
                         </div>
                         <span className="text-caption text-slate-400">Extracting work experience, education and skills</span>
                       </div>
+                    ) : !isAuthenticated ? (
+                      <div className="flex flex-col items-center gap-3 py-2">
+                        <div className="grid h-16 w-16 place-items-center rounded-2xl bg-cyan-950/80 border border-cyan-400/40 text-cyan-300 shadow-crystal transition-transform duration-300 group-hover/drop:scale-110">
+                          <Lock className="h-8 w-8 text-cyan-300" aria-hidden />
+                        </div>
+                        <div>
+                          <p className="text-body font-bold text-white">Sign in to upload your resume</p>
+                          <p className="mt-1 text-small text-slate-400 max-w-xs">
+                            Create a free account or log in to upload, test, and analyze your CV.
+                          </p>
+                        </div>
+                        <span className="mt-1 inline-flex items-center gap-1.5 rounded-lg bg-gradient-to-r from-azure to-cyan-500 px-4 py-2 text-small font-bold text-white shadow-crystal hover:brightness-110">
+                          Sign in to upload & test →
+                        </span>
+                      </div>
                     ) : (
                       <>
                         <div className="grid h-16 w-16 place-items-center rounded-2xl bg-cyan-950/80 border border-cyan-400/40 text-cyan-300 shadow-crystal transition-transform duration-300 group-hover/drop:scale-110">
@@ -536,6 +577,9 @@ export default function AiResumeBuilder() {
                         </div>
 
                         <div className="flex flex-wrap items-center justify-center gap-2 pt-1">
+                          <span className="rounded-full bg-emerald-950/80 border border-emerald-500/30 px-2.5 py-0.5 text-[10px] font-bold text-emerald-300">
+                            ✓ Access Granted ({user?.name ? user.name.split(' ')[0] : 'Signed In'})
+                          </span>
                           <span className="rounded-full bg-cyan-950/80 border border-cyan-500/30 px-2.5 py-0.5 text-[10px] font-bold text-cyan-300">
                             ATS-Verified Parser
                           </span>

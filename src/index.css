@@ -425,6 +425,13 @@
   .dl-glass-btn:hover::after {
     animation: dl-glass-sweep 0.75s cubic-bezier(0.16, 1, 0.3, 1) forwards;
   }
+
+  .dl-resume-preview-box,
+  .dl-resume-a4-sheet,
+  .dl-resume-a4-sheet * {
+    text-align: left;
+    box-sizing: border-box;
+  }
 }
 
 @media print {
