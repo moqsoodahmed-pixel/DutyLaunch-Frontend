@@ -2,17 +2,18 @@ import { Link } from 'react-router-dom'
 import { contact } from '../../data/site.js'
 import { company, legalLinks } from '../../data/legal.js'
 import { GlacierBackdrop } from '../premium/GlacierBackdrop.jsx'
+import { SocialIcon } from '../ui/SocialIcon.jsx'
 import msmeBadge from '../../assets/badges/msme.png'
 import startupIndiaBadge from '../../assets/badges/startup-india.png'
 
 const WA_PATH = 'M16 2C8.268 2 2 8.268 2 16c0 2.434.658 4.714 1.806 6.68L2 30l7.52-1.774A13.93 13.93 0 0 0 16 30c7.732 0 14-6.268 14-14S23.732 2 16 2zm0 25.5a11.43 11.43 0 0 1-5.834-1.598l-.418-.248-4.333 1.022 1.044-4.224-.272-.434A11.46 11.46 0 0 1 4.5 16C4.5 9.648 9.648 4.5 16 4.5S27.5 9.648 27.5 16 22.352 27.5 16 27.5zm6.29-8.574c-.345-.172-2.04-1.006-2.355-1.12-.316-.115-.546-.172-.776.172-.23.345-.89 1.12-1.09 1.35-.2.23-.4.258-.746.086-.345-.172-1.458-.537-2.776-1.712-1.026-.916-1.719-2.047-1.92-2.392-.2-.345-.02-.532.15-.703.155-.155.345-.4.518-.603.172-.2.23-.345.345-.574.115-.23.058-.432-.029-.603-.086-.172-.776-1.87-1.063-2.56-.28-.673-.563-.581-.776-.592l-.66-.012c-.23 0-.603.086-.918.432s-1.205 1.178-1.205 2.873 1.233 3.333 1.405 3.563c.172.23 2.427 3.706 5.878 5.196.822.355 1.463.567 1.963.726.824.263 1.574.226 2.167.137.661-.099 2.04-.834 2.327-1.638.287-.805.287-1.494.2-1.638-.086-.144-.316-.23-.66-.4z'
 
 const SOCIALS = [
-  { href: 'https://www.instagram.com/dutylaunch_?stkn=ZHVnOXZ3ZW5scGdl', label: 'Instagram', path: 'M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z|M17.5 6.5h.01|M7 2h10a5 5 0 0 1 5 5v10a5 5 0 0 1-5 5H7a5 5 0 0 1-5-5V7a5 5 0 0 1 5-5z' },
-  { href: 'https://www.facebook.com/share/1Df5RbBE8N/', label: 'Facebook', path: 'M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z' },
-  { href: 'https://x.com/Dutylaunch_2025', label: 'X (Twitter)', path: 'M23 3a10.9 10.9 0 0 1-3.14 1.53 4.48 4.48 0 0 0-7.86 3v1A10.66 10.66 0 0 1 3 4s-4 9 5 13a11.64 11.64 0 0 1-7 2c9 5 20 0 20-11.5a4.5 4.5 0 0 0-.08-.83A7.72 7.72 0 0 0 23 3z' },
-  { href: 'https://www.youtube.com/@DutyLaunch_2025', label: 'YouTube', path: 'M22.54 6.42a2.78 2.78 0 0 0-1.94-2C18.88 4 12 4 12 4s-6.88 0-8.6.46a2.78 2.78 0 0 0-1.94 2A29 29 0 0 0 1 11.75a29 29 0 0 0 .46 5.33A2.78 2.78 0 0 0 3.4 19c1.72.46 8.6.46 8.6.46s6.88 0 8.6-.46a2.78 2.78 0 0 0 1.94-2 29 29 0 0 0 .46-5.25 29 29 0 0 0-.46-5.33z|M9.75 15.02 15.5 11.75 9.75 8.48Z' },
-  { href: 'https://www.linkedin.com/', label: 'LinkedIn', path: 'M6.94 8.5H3.56V20h3.38V8.5zM5.25 3a1.94 1.94 0 1 0 0 3.88A1.94 1.94 0 0 0 5.25 3zM20.45 20h-3.37v-5.6c0-1.34-.03-3.06-1.87-3.06-1.87 0-2.16 1.46-2.16 2.96V20H9.68V8.5h3.24v1.57h.05c.45-.86 1.56-1.77 3.2-1.77 3.43 0 4.06 2.26 4.06 5.2V20z' },
+  { href: 'https://www.instagram.com/dutylaunch_?stkn=ZHVnOXZ3ZW5scGdl', label: 'Instagram' },
+  { href: 'https://www.facebook.com/share/1Df5RbBE8N/', label: 'Facebook' },
+  { href: 'https://x.com/Dutylaunch_2025', label: 'X (Twitter)' },
+  { href: 'https://www.youtube.com/@DutyLaunch_2025', label: 'YouTube' },
+  { href: 'https://www.linkedin.com/', label: 'LinkedIn' },
 ]
 
 // Services mirrors the navbar. Pages that are no longer in the navbar
@@ -110,16 +111,9 @@ export function Footer() {
               DutyLaunch helps students, professionals and job seekers with career services, education guidance and global mobility support — from your CV and interviews to studying and working abroad.
             </p>
             {/* Socials */}
-            <div style={{ display: 'flex', gap: 8, marginBottom: 20 }}>
+            <div style={{ display: 'flex', gap: 10, marginBottom: 20 }}>
               {SOCIALS.map(s => (
-                <a key={s.label} href={s.href} target="_blank" rel="noopener noreferrer" aria-label={s.label}
-                  style={{ width: 34, height: 34, borderRadius: 8, background: C.chip, border: `1px solid ${C.border}`, display: 'grid', placeItems: 'center', transition: 'background .15s,transform .15s' }}
-                  onMouseEnter={e => { e.currentTarget.style.background = 'rgba(29,93,184,.14)'; e.currentTarget.style.transform = 'translateY(-2px)' }}
-                  onMouseLeave={e => { e.currentTarget.style.background = C.chip; e.currentTarget.style.transform = 'none' }}>
-                  <svg viewBox="0 0 24 24" width={15} height={15} fill="none" stroke="#1A3665" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
-                    {s.path.split('|').map((p, i) => <path key={i} d={p} />)}
-                  </svg>
-                </a>
+                <SocialIcon key={s.label} social={s} size="sm" rounded="md" />
               ))}
             </div>
             {/* Made in India — sized to match the LauncherDesk footer badge.

@@ -32,7 +32,7 @@ export default function BlogPost() {
   return (
     <>
       <Seo title={post.title} description={post.excerpt} schema={articleSchema(post)} />
-      <Section tone="paper">
+      <Section tone="paper" className="pb-0">
         <Container className="max-w-3xl">
           <Breadcrumb items={[{ label: 'Blog', to: '/blog' }, { label: post.title }]} />
           <Badge tone="azure">{post.category}</Badge>
@@ -42,10 +42,8 @@ export default function BlogPost() {
           </p>
         </Container>
       </Section>
-      <Section tone="white">
+      <Section tone="white" className="pt-8">
         <Container className="max-w-3xl">
-          {/* The model stores the article text as `content` (the page used to read
-              a non-existent `post.body`, so the article rendered blank). */}
           <ArticleBody content={post.content ?? post.body ?? ''} />
         </Container>
       </Section>
