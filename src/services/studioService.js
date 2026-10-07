@@ -77,6 +77,17 @@ export const studioService = {
   interviewDocument: (id, opts) => fetchDocument(`/studio/interview-sets/${id}/document`, opts),
   mockDocument: (id, opts) => fetchDocument(`/studio/mock/${id}/document`, opts),
 
+  /* Step 4 — AI-written target job description from the confirmed LinkedIn profile */
+  suggestJobDescription: async ({ jobTitle, company, industry, experienceLevel } = {}) =>
+    unwrap(
+      await api.post('/studio/job-description', {
+        jobTitle: jobTitle || undefined,
+        company: company || undefined,
+        industry: industry || undefined,
+        experienceLevel: experienceLevel || undefined,
+      })
+    ),
+
   /* Step 6 — cover letters */
   createCoverLetter: async (body) => unwrap(await api.post('/studio/cover-letters', body, { timeout: AI_TIMEOUT })),
   listCoverLetters: async () => unwrap(await api.get('/studio/cover-letters')),

@@ -1,6 +1,6 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Upload, FileDown, Eye, Copy, RefreshCw, Save, Trash2, ChevronDown, ChevronUp, PlayCircle, Info, CheckCircle2, AlertTriangle, FileText } from 'lucide-react';
+import { Upload, FileDown, Eye, Copy, RefreshCw, Save, Trash2, ChevronDown, ChevronUp, PlayCircle, Info, CheckCircle2, AlertTriangle, FileText, Sparkles } from 'lucide-react';
 import { Button, Input, Textarea, Select, Badge, Spinner } from '../ui/index.js';
 import { ConsentCheckbox } from '../ui/ConsentCheckbox.jsx';
 import { ProfileEditor } from './ProfileEditor.jsx';
@@ -318,6 +318,47 @@ export function ResumeStep({ studio, onDone, goTo }) {
   const [created, setCreated] = useState(null);
   const set = (k) => (e) => setForm((f) => ({ ...f, [k]: e.target.value }));
 
+  // Target job description: written by AI from the confirmed LinkedIn
+  // profile when the step opens; the user can edit it, rewrite it, or
+  // replace it with a real posting.
+  const [jdSource, setJdSource] = useState(''); // 'ai' | 'user' | ''
+  const [jdBusy, setJdBusy] = useState(false);
+  const [jdError, setJdError] = useState('');
+  const autoFilled = useRef(false);
+  const profileReady = Boolean(studio.profile?.confirmedAt);
+
+  async function writeJobDescription() {
+    setJdError('');
+    setJdBusy(true);
+    try {
+      const res = await studioService.suggestJobDescription({
+        jobTitle: form.jobTitle.trim(),
+        company: form.company.trim(),
+        industry: form.industry.trim(),
+        experienceLevel: form.level,
+      });
+      setForm((f) => ({ ...f, jobTitle: f.jobTitle.trim() ? f.jobTitle : res.jobTitle || '', jobDescription: res.description }));
+      setJdSource('ai');
+    } catch (err) {
+      setJdError(errMsg(err, 'The AI could not write a job description. Paste the job posting instead.'));
+    } finally {
+      setJdBusy(false);
+    }
+  }
+
+  useEffect(() => {
+    if (!profileReady || autoFilled.current || form.jobDescription.trim()) return;
+    autoFilled.current = true;
+    writeJobDescription();
+    // Runs once when the step opens with a confirmed profile.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [profileReady]);
+
+  const jdHint =
+    jdSource === 'ai'
+      ? 'Written by AI from your LinkedIn profile and the details above. For an exact Job Match score, paste the real job posting instead.'
+      : 'Paste the full posting, or let AI write one from your LinkedIn profile. Without a description you still get a Resume Health score, but not a Job Match score.';
+
   async function generate() {
     setError('');
     if (!form.jobTitle.trim()) return setError('Add the target job title.');
@@ -362,9 +403,29 @@ export function ResumeStep({ studio, onDone, goTo }) {
           {EXPERIENCE_LEVELS.map((l) => <option key={l.value} value={l.value}>{l.label}</option>)}
         </Select>
       </div>
-      <Textarea className="mt-4" label="Target job description" rows={7} value={form.jobDescription} onChange={set('jobDescription')} hint="Paste the full posting. Without it you still get a Resume Health score, but not a Job Match score." />
+      <Textarea
+        className="mt-4"
+        label="Target job description"
+        rows={9}
+        value={form.jobDescription}
+        onChange={(e) => {
+          setForm((f) => ({ ...f, jobDescription: e.target.value }));
+          setJdSource('user');
+        }}
+        disabled={jdBusy}
+        placeholder={jdBusy ? 'Writing a job description from your LinkedIn profile…' : 'Paste the job posting here'}
+        hint={jdHint}
+      />
+      <div className="mt-2 flex flex-wrap items-center gap-3">
+        <Button size="sm" variant="quiet" onClick={writeJobDescription} loading={jdBusy} disabled={jdBusy}>
+          <Sparkles className="h-4 w-4" aria-hidden />
+          {jdBusy ? 'Writing…' : form.jobDescription.trim() ? 'Rewrite with AI' : 'Write with AI'}
+        </Button>
+        {jdSource === 'ai' && !jdBusy && <Badge tone="azure">AI-written</Badge>}
+      </div>
+      <ErrorLine error={jdError} />
       <Input className="mt-4" label="Name this version (optional)" value={form.label} onChange={set('label')} placeholder="e.g. MERN Stack — Acme" />
-      <Button className="mt-5" onClick={generate} loading={busy === 'create'}>Generate my resume</Button>
+      <Button className="mt-5" onClick={generate} loading={busy === 'create'} disabled={jdBusy}>Generate my resume</Button>
       <ErrorLine error={error} />
 
       {created && (
