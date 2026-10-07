@@ -8,6 +8,10 @@ import { Logo } from './Logo.jsx';
 import { useLockBodyScroll } from '../../hooks/useLockBodyScroll.js';
 import { useAuth } from '../../context/AuthContext.jsx';
 import { cn } from '../../utils/cn.js';
+import { Badge } from '../ui/Badge.jsx';
+import { initials } from '../../utils/format.js';
+import { roleLabel, roleTone } from '../../utils/roles.js';
+import { homePathFor } from '../../utils/homePath.js';
 
 export function MobileMenu({ open, onClose }) {
   const [expanded, setExpanded] = useState(null);
@@ -112,9 +116,23 @@ export function MobileMenu({ open, onClose }) {
               Book a free consultation
             </Button>
             {isAuthenticated ? (
-              <Button to="/dashboard" variant="outline" fullWidth onClick={onClose}>
-                {user?.name?.split(' ')[0]}&apos;s dashboard
-              </Button>
+              <>
+                <div className="flex items-center gap-3 rounded-xl border border-line bg-glacier-100 px-3 py-3">
+                  <span className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-gradient-to-br from-azure-500 to-azure-700 text-small font-bold text-white">
+                    {initials(user?.name) || '?'}
+                  </span>
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate text-small font-bold text-ink">{user?.name}</p>
+                    <p className="truncate text-caption text-slate-500">{user?.email}</p>
+                  </div>
+                  <Badge tone={roleTone(user?.role)} className="shrink-0 !py-0.5">
+                    {roleLabel(user?.role)}
+                  </Badge>
+                </div>
+                <Button to={homePathFor(user?.role)} variant="outline" fullWidth onClick={onClose}>
+                  Go to my dashboard
+                </Button>
+              </>
             ) : (
               <Button to="/login" variant="outline" fullWidth onClick={onClose}>
                 Sign in

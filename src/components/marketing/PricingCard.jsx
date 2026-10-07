@@ -4,16 +4,25 @@ import { Badge } from '../ui/Badge.jsx';
 import { formatCurrency } from '../../utils/format.js';
 import { PRICE_TAX_NOTE } from '../../data/legal.js';
 import { cn } from '../../utils/cn.js';
+import { useRazorpayCheckout } from '../../hooks/useRazorpayCheckout.js';
 
 /**
  * proresumes.in-style package card: a plain white tile for standard bands,
  * and a brand-gradient "most popular" card that visually anchors the grid —
  * the same trick order-driven CV sites use to steer picks without hiding
  * the cheaper options.
+ *
+ * The main button opens Razorpay Checkout. `onSelect` (optional) is used by
+ * the "talk to a counsellor first" link; without it the link goes to the
+ * consultation form. If online payment is switched off on the server, the
+ * card falls back to the counsellor flow.
  */
 export function PricingCard({ pkg, highlighted, onSelect, tone = 'light' }) {
   const featured = highlighted ?? pkg.isPopular;
   const darkTone = tone === 'dark';
+  const { pay, pendingId, enabled } = useRazorpayCheckout();
+  const canPay = enabled !== false && pkg.price > 0;
+  const paying = pendingId === pkg._id;
 
   return (
     <article
@@ -94,18 +103,52 @@ export function PricingCard({ pkg, highlighted, onSelect, tone = 'light' }) {
         </ul>
 
         <div className="mt-7">
-          <Button
-            fullWidth
-            variant={featured ? 'onInk' : darkTone ? 'outlineInk' : 'outline'}
-            className={featured ? '!bg-white !text-azure-700 shadow-none hover:!bg-azure-50 group-hover:!bg-azure-50/95' : undefined}
-            onClick={() => onSelect?.(pkg)}
-            to={onSelect ? undefined : '/contact#consultation'}
-          >
-            Choose {pkg.name}
-          </Button>
+          {canPay ? (
+            <Button
+              fullWidth
+              variant={featured ? 'onInk' : darkTone ? 'outlineInk' : 'outline'}
+              className={featured ? '!bg-white !text-azure-700 shadow-none hover:!bg-azure-50 group-hover:!bg-azure-50/95' : undefined}
+              onClick={() => pay({ itemType: 'cv-package', itemId: pkg._id })}
+              loading={paying}
+              disabled={enabled === null || Boolean(pendingId)}
+            >
+              {paying ? 'Opening payment…' : `Buy ${pkg.name}`}
+            </Button>
+          ) : (
+            <Button
+              fullWidth
+              variant={featured ? 'onInk' : darkTone ? 'outlineInk' : 'outline'}
+              className={featured ? '!bg-white !text-azure-700 shadow-none hover:!bg-azure-50 group-hover:!bg-azure-50/95' : undefined}
+              onClick={() => onSelect?.(pkg)}
+              to={onSelect ? undefined : '/contact#consultation'}
+            >
+              Choose {pkg.name}
+            </Button>
+          )}
           <p className={cn('mt-3 text-center text-caption', featured ? 'text-azure-100' : darkTone ? 'text-slate-400' : 'text-slate-500')}>
             {pkg.deliveryDays} delivery · {pkg.revisionWindow}
           </p>
+          {canPay && (
+            <p className={cn('mt-1.5 text-center text-caption', featured ? 'text-azure-100' : darkTone ? 'text-slate-400' : 'text-slate-500')}>
+              Secure payment by Razorpay.{' '}
+              {onSelect ? (
+                <button
+                  type="button"
+                  onClick={() => onSelect(pkg)}
+                  className={cn('font-semibold underline underline-offset-2', featured || darkTone ? 'text-white' : 'text-azure-700')}
+                >
+                  Talk to a counsellor first
+                </button>
+              ) : (
+                <a
+                  href="/contact#consultation"
+                  className={cn('font-semibold underline underline-offset-2', featured || darkTone ? 'text-white' : 'text-azure-700')}
+                >
+                  Talk to a counsellor first
+                </a>
+              )}
+            </p>
+          )}
         </div>
       </div>
     </article>

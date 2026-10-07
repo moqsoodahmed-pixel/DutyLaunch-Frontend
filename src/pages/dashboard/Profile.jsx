@@ -10,9 +10,35 @@ import { useToast } from '../../context/ToastContext.jsx';
 import { profileService } from '../../services/contentService.js';
 import { ConsentCheckbox } from '../../components/ui/ConsentCheckbox.jsx';
 import { CONSENT_REQUIRED_MESSAGE } from '../../data/legal.js';
-import { formatDate } from '../../utils/format.js';
+import { formatDate, initials } from '../../utils/format.js';
+import { Badge } from '../../components/ui/Badge.jsx';
+import { roleLabel, roleTone } from '../../utils/roles.js';
 
 const MAX_MB = 5;
+
+/** Who is signed in: name, email, account type and membership date. */
+function AccountSummary() {
+  const { user } = useAuth();
+  if (!user) return null;
+  return (
+    <div className="mb-6 flex flex-col gap-4 rounded-lg border border-line bg-white p-5 sm:flex-row sm:items-center">
+      <span className="grid h-14 w-14 shrink-0 place-items-center rounded-full bg-gradient-to-br from-azure-500 to-azure-700 text-h3 font-bold text-white">
+        {initials(user.name) || '?'}
+      </span>
+      <div className="min-w-0 flex-1">
+        <div className="flex flex-wrap items-center gap-2">
+          <h2 className="truncate text-h3 font-bold text-ink">{user.name}</h2>
+          <Badge tone={roleTone(user.role)}>{roleLabel(user.role)} account</Badge>
+        </div>
+        <p className="mt-0.5 truncate text-small text-slate-600">{user.email}</p>
+        {user.profile?.headline && <p className="mt-0.5 truncate text-small text-slate-500">{user.profile.headline}</p>}
+      </div>
+      {user.createdAt && (
+        <p className="text-caption text-slate-500 sm:text-right">Member since {formatDate(user.createdAt, { month: 'long', year: 'numeric' })}</p>
+      )}
+    </div>
+  );
+}
 
 function ResumeCard() {
   const { user, setUser } = useAuth();
@@ -174,6 +200,8 @@ export default function Profile() {
   return (
     <>
       <PanelHeader title="Profile" description="Kept private except for what you choose to share when you apply." />
+
+      <AccountSummary />
 
       <div className="grid gap-6 lg:grid-cols-12">
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-5 rounded-lg border border-line bg-white p-5 lg:col-span-8" noValidate>

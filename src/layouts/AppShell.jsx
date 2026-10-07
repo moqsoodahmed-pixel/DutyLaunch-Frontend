@@ -9,6 +9,7 @@ import { useAuth } from '../context/AuthContext.jsx';
 import { useToast } from '../context/ToastContext.jsx';
 import { useLockBodyScroll } from '../hooks/useLockBodyScroll.js';
 import { initials } from '../utils/format.js';
+import { roleLabel } from '../utils/roles.js';
 import { cn } from '../utils/cn.js';
 
 function SidebarNav({ groups, onNavigate }) {
@@ -79,7 +80,7 @@ export default function AppShell({ groups, title }) {
         </span>
         <div className="min-w-0 flex-1">
           <p className="truncate text-small font-semibold text-ink">{user?.name}</p>
-          <p className="truncate text-caption capitalize text-slate-500">{user?.role}</p>
+          <p className="truncate text-caption text-slate-500">{roleLabel(user?.role)} account</p>
         </div>
       </div>
       <div className="mt-3 flex gap-2">

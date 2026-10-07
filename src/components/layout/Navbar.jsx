@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
-import { Link, NavLink, useLocation } from 'react-router-dom';
-import { ChevronDown, Menu, Phone, Search, UserRound } from 'lucide-react';
+import { NavLink, useLocation } from 'react-router-dom';
+import { ChevronDown, Menu, Phone, Search } from 'lucide-react';
 import { primaryNav, primaryCta } from '../../data/site.js';
 import { Button } from '../ui/Button.jsx';
 import { Logo } from './Logo.jsx';
@@ -8,9 +8,8 @@ import { MegaMenu } from './MegaMenu.jsx';
 import { MobileMenu } from './MobileMenu.jsx';
 import { SearchModal } from './SearchModal.jsx';
 import { ContactMenu } from './ContactMenu.jsx';
-import { useAuth } from '../../context/AuthContext.jsx';
+import { ProfileMenu } from './ProfileMenu.jsx';
 import { cn } from '../../utils/cn.js';
-import { homePathFor } from '../../utils/homePath.js';
 
 /* Shared style for the round glass icon buttons on the right of the pill —
    with smooth lift, scale 1.04, neon glow, and 250ms transitions matching Analyze button colors. */
@@ -25,7 +24,6 @@ export function Navbar() {
   const [menuAnchor, setMenuAnchor] = useState(0);
   const [scrollY, setScrollY] = useState(0);
   const [scrolled, setScrolled] = useState(false);
-  const { isAuthenticated, user } = useAuth();
   const location = useLocation();
   const navRef = useRef(null);
   const contactRef = useRef(null);
@@ -131,10 +129,6 @@ export function Navbar() {
   const handleDropdownLeave = () => {
     handleMenuLeave();
   };
-
-  const dashboardPath = homePathFor(user?.role);
-  const accountTo = isAuthenticated ? dashboardPath : '/login';
-  const accountLabel = isAuthenticated ? (user?.name?.split(' ')[0] || 'Account') : 'Sign in';
 
   return (
     <>
@@ -300,20 +294,13 @@ export function Navbar() {
                 {contactOpen && <ContactMenu onClose={() => setContactOpen(false)} />}
               </div>
 
-              <Link
-                to={accountTo}
-                aria-label={accountLabel}
-                className={cn(
+              <ProfileMenu
+                dark={isDarkNavbar}
+                iconClassName={cn(
                   iconBtn,
-                  isDarkNavbar && 'border-cyan-400/60 bg-slate-900/90 text-cyan-200 shadow-[0_0_15px_rgba(56,189,248,0.35)] hover:text-white hover:border-cyan-300 hover:bg-cyan-950/80 hover:shadow-[0_0_24px_rgba(56,189,248,0.8),0_0_35px_rgba(169,140,234,0.5)]',
-                  'relative hidden xs:grid'
+                  isDarkNavbar && 'border-cyan-400/60 bg-slate-900/90 text-cyan-200 shadow-[0_0_15px_rgba(56,189,248,0.35)] hover:text-white hover:border-cyan-300 hover:bg-cyan-950/80 hover:shadow-[0_0_24px_rgba(56,189,248,0.8),0_0_35px_rgba(169,140,234,0.5)]'
                 )}
-              >
-                <UserRound className="h-4.5 w-4.5" aria-hidden />
-                {isAuthenticated && (
-                  <span className="absolute -right-0.5 -top-0.5 h-2.5 w-2.5 rounded-full border-2 border-white bg-success" aria-hidden />
-                )}
-              </Link>
+              />
 
               {/* Official Color Reference: Analyze My Resume Free Button */}
               <Button

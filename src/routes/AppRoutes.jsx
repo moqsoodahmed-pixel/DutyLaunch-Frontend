@@ -62,6 +62,7 @@ const ForgotPassword = lazyWithReload(() => import('../pages/auth/ForgotPassword
 const Dashboard = lazyWithReload(() => import('../pages/dashboard/Dashboard.jsx'));
 const Assistant = lazyWithReload(() => import('../pages/dashboard/Assistant.jsx'));
 const Profile = lazyWithReload(() => import('../pages/dashboard/Profile.jsx'));
+const Payments = lazyWithReload(() => import('../pages/dashboard/Payments.jsx'));
 const Applications = lazyWithReload(() => import('../pages/dashboard/Applications.jsx'));
 const SavedJobs = lazyWithReload(() => import('../pages/dashboard/SavedJobs.jsx'));
 const MyResumes = lazyWithReload(() => import('../pages/dashboard/MyResumes.jsx'));
@@ -163,6 +164,7 @@ export function AppRoutes() {
               below. */}
             <Route element={<ProtectedRoute roles={['user', 'employer', 'institute']} />}>
               <Route element={<DashboardLayout />}>
+                <Route path="payments" element={<Payments />} />
                 <Route element={<ProtectedRoute roles={['user', 'employer']} />}>
                   <Route path="dashboard" element={<Dashboard />} />
                   <Route path="profile" element={<Profile />} />

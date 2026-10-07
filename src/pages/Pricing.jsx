@@ -21,12 +21,12 @@ import { cn } from '../utils/cn.js';
 const TRUST_POINTS = [
   { icon: UserCheck, label: 'Written by career writers, not templates' },
   { icon: FileCheck2, label: 'ATS-checked before delivery' },
-  { icon: ShieldCheck, label: 'Pay only after the brief is confirmed' },
+  { icon: ShieldCheck, label: 'Secure online payment by Razorpay' },
   { icon: Zap, label: '2–3 day turnaround' },
 ];
 
 const PROCESS = [
-  { step: '1', title: 'Choose a bundle', body: 'Pick the band that matches your experience — or ask us and we will place you.' },
+  { step: '1', title: 'Choose and pay', body: 'Pick the band that matches your experience and pay securely online — or ask us and we will place you.' },
   { step: '2', title: 'Share your details', body: 'Send your current CV or a quick brief. A counsellor confirms scope within a day.' },
   { step: '3', title: 'We write & review', body: 'A career writer rewrites and formats it, then it is run through an ATS check.' },
   { step: '4', title: 'Revise & receive', body: 'You get the final files plus a month of revisions if anything needs a tweak.' },
@@ -165,7 +165,7 @@ export default function Pricing() {
             <SectionHeader
               label="How it works"
               title="From payment to a finished CV in four steps."
-              lead="No account needed to start — just choose a bundle and a counsellor takes it from there."
+              lead="Sign in, choose a bundle and pay securely. A counsellor contacts you within one working day to start your brief."
             />
           </Reveal>
           <RevealGroup className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-4" staggerDelay={0.08}>

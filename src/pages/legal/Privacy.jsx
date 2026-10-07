@@ -89,6 +89,14 @@ export default function Privacy() {
         providers, do not use the AI tools; you can still edit your documents manually.
       </p>
 
+      <h2>Payments</h2>
+      <p>
+        Online payments are processed by <strong>Razorpay Software Private Limited</strong> (India). Your card, UPI,
+        net-banking or wallet details are entered on Razorpay&apos;s secure checkout and are never seen or stored by
+        DutyLaunch. We keep a record of what you bought, the amount, the date and the Razorpay payment reference so we
+        can deliver the service, issue receipts and handle refunds.
+      </p>
+
       <h2>Cookies</h2>
       <p>
         We use a small number of strictly necessary cookies to keep you signed in. We do not currently run
@@ -129,7 +137,7 @@ export default function Privacy() {
         Questions about this policy can be sent to <a href={`mailto:${contact.supportEmail}`}>{contact.supportEmail}</a>.
       </p>
       {/* TODO (counsel): review the AI provider list above, and name the
-          remaining data processors (hosting, email, payment gateway) and a
+          remaining data processors (hosting, email) and a
           named grievance contact person once finalised. */}
     </LegalPage>
   );

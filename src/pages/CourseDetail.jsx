@@ -12,10 +12,13 @@ import { CTASection } from '../components/marketing/CTASection.jsx';
 import { useApi } from '../hooks/useApi.js';
 import { courseService } from '../services/contentService.js';
 import { formatCurrency } from '../utils/format.js';
+import { useRazorpayCheckout } from '../hooks/useRazorpayCheckout.js';
+import { PRICE_TAX_NOTE } from '../data/legal.js';
 
 export default function CourseDetail() {
   const { slug } = useParams();
   const { data, loading, error, refetch } = useApi(() => courseService.get(slug), [slug]);
+  const { pay, pendingId, enabled } = useRazorpayCheckout();
 
   if (loading) return <LoadingBlock label="Loading course" className="min-h-[60vh]" />;
   if (error) {
@@ -27,8 +30,10 @@ export default function CourseDetail() {
   }
 
   const { course, related } = data;
-  const price =
-    course.priceOnRequest || course.price == null ? 'Price on request' : formatCurrency(course.price, course.currency);
+  const fixedPrice = !course.priceOnRequest && course.price > 0;
+  const price = fixedPrice ? formatCurrency(course.price, course.currency) : 'Price on request';
+  const canPay = fixedPrice && enabled !== false && Boolean(course._id);
+  const paying = pendingId === course._id;
 
   return (
     <>
@@ -51,6 +56,7 @@ export default function CourseDetail() {
             <aside className="lg:col-span-4 lg:col-start-9">
               <div className="tile p-6">
                 <p className="text-h2 font-extrabold text-ink">{price}</p>
+                {fixedPrice && <p className="mt-1 text-caption font-medium text-slate-500">{PRICE_TAX_NOTE}</p>}
                 <dl className="mt-5 space-y-3 border-t border-line pt-5 text-small">
                   {course.duration && (
                     <div className="flex items-center gap-2.5 text-slate-600">
@@ -70,12 +76,34 @@ export default function CourseDetail() {
                     <dd>{course.level}</dd>
                   </div>
                 </dl>
-                <Button to="/contact#consultation" fullWidth className="mt-6">
-                  Enquire about this course
-                </Button>
-                <p className="mt-3 text-center text-caption text-slate-500">
-                  Enrolment is confirmed by a counsellor. Nothing is charged automatically.
-                </p>
+                {canPay ? (
+                  <>
+                    <Button
+                      fullWidth
+                      className="mt-6"
+                      onClick={() => pay({ itemType: 'course', itemId: course._id })}
+                      loading={paying}
+                      disabled={enabled === null || Boolean(pendingId)}
+                    >
+                      {paying ? 'Opening payment…' : 'Enrol and pay'}
+                    </Button>
+                    <Button to="/contact#consultation" variant="quiet" fullWidth className="mt-3">
+                      Ask a question first
+                    </Button>
+                    <p className="mt-3 text-center text-caption text-slate-500">
+                      Secure payment by Razorpay. A counsellor confirms your batch after payment.
+                    </p>
+                  </>
+                ) : (
+                  <>
+                    <Button to="/contact#consultation" fullWidth className="mt-6">
+                      Enquire about this course
+                    </Button>
+                    <p className="mt-3 text-center text-caption text-slate-500">
+                      Enrolment is confirmed by a counsellor. Nothing is charged automatically.
+                    </p>
+                  </>
+                )}
               </div>
             </aside>
           </div>

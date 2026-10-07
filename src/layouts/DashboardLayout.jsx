@@ -12,7 +12,10 @@ export default function DashboardLayout() {
         groups={[
           {
             title: 'Partner account',
-            items: [{ to: '/partner', label: 'Partner profile', icon: 'Building2', end: true }],
+            items: [
+              { to: '/partner', label: 'Partner profile', icon: 'Building2', end: true },
+              { to: '/payments', label: 'My payments', icon: 'CreditCard' },
+            ],
           },
         ]}
       />
@@ -25,6 +28,7 @@ export default function DashboardLayout() {
       items: [
         { to: '/dashboard', label: 'Overview', icon: 'LayoutDashboard', end: true },
         { to: '/profile', label: 'Profile & resume', icon: 'UserRound' },
+        { to: '/payments', label: 'My payments', icon: 'CreditCard' },
       ],
     },
     isEmployer
