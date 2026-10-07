@@ -64,10 +64,29 @@ export default function Privacy() {
 
       <h2>AI-assisted processing</h2>
       <p>
-        Some career tools (resume rewriting, cover letters, LinkedIn and interview preparation) may send the text of
-        your resume and the job description to an AI model provider to generate suggestions. Only the text needed for
-        that request is sent. We do not use your data to train AI models unless you separately opt in from your
-        dashboard, and that option is off by default.
+        Some career tools (resume rewriting, cover letters, LinkedIn and interview preparation, and mock interviews)
+        send the text of your resume and the job description to an AI model provider to generate suggestions. Only the
+        text needed for that request is sent, and it is sent from our servers, never directly from your browser.
+      </p>
+      <p>We currently use the following AI providers:</p>
+      <ul>
+        <li>
+          <strong>Groq, Inc.</strong> (United States): resume rewriting, LinkedIn suggestions, mock interviews and the
+          AI Career Assistant;
+        </li>
+        <li>
+          <strong>Mistral AI</strong> (France): cover letters;
+        </li>
+        <li>
+          <strong>Google LLC, Gemini API</strong> (United States): interview questions and answers.
+        </li>
+      </ul>
+      <p>
+        If one provider is temporarily unavailable, your request may be handled by another provider on this list.
+        Some of these providers may retain or use the content they receive to operate and improve their services,
+        under their own terms. DutyLaunch itself does not use your data to train AI models unless you separately opt
+        in from your dashboard, and that option is off by default. If you do not want your resume processed by these
+        providers, do not use the AI tools; you can still edit your documents manually.
       </p>
 
       <h2>Cookies</h2>
@@ -109,9 +128,9 @@ export default function Privacy() {
       <p>
         Questions about this policy can be sent to <a href={`mailto:${contact.supportEmail}`}>{contact.supportEmail}</a>.
       </p>
-      {/* TODO (counsel): name the data processors (hosting, email, payment
-          gateway, AI provider) and a named grievance contact person once
-          finalised. Not listed because they are not confirmed. */}
+      {/* TODO (counsel): review the AI provider list above, and name the
+          remaining data processors (hosting, email, payment gateway) and a
+          named grievance contact person once finalised. */}
     </LegalPage>
   );
 }
