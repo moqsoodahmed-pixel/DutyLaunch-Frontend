@@ -64,6 +64,16 @@ export const studioService = {
     if (linkedinUrl) form.append('linkedinUrl', linkedinUrl);
     return unwrap(await postForm('/studio/import', form, onProgress));
   },
+  /** LinkedIn "Save to PDF" export (main source) and/or a CV (optional). */
+  importFiles: async ({ linkedinFile, cvFile }, { consent, mode = 'replace', linkedinUrl } = {}, onProgress) => {
+    const form = new FormData();
+    if (linkedinFile) form.append('linkedin', linkedinFile);
+    if (cvFile) form.append('cv', cvFile);
+    form.append('consent', consent ? 'true' : 'false');
+    form.append('mode', mode);
+    if (linkedinUrl) form.append('linkedinUrl', linkedinUrl);
+    return unwrap(await postForm('/studio/import', form, onProgress));
+  },
   setLinkedInUrl: async (url) => unwrap(await api.put('/studio/linkedin-url', { url })),
   startManual: async (resume, { consent }) => unwrap(await api.post('/studio/manual', { resume, consent: consent ? 'true' : 'false' })),
 

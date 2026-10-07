@@ -74,9 +74,28 @@ function VersionSelect({ versions, value, onChange, allowMaster = true }) {
  * Step 1 — Import
  * ------------------------------------------------------------------ */
 
+const SOURCE_TEXT = {
+  'linkedin-pdf+resume': 'your LinkedIn PDF and CV',
+  'linkedin-pdf': 'your LinkedIn PDF',
+  manual: 'manual entry',
+  resume: 'your CV',
+};
+
+function FileDrop({ file, onChange, title, caption }) {
+  return (
+    <label className="flex cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed border-line bg-paper px-4 py-6 text-center hover:border-azure-300">
+      <Upload className="h-6 w-6 text-azure" aria-hidden />
+      <span className="mt-2 text-small font-semibold text-ink">{file ? file.name : title}</span>
+      <span className="text-caption text-slate-500">{caption}</span>
+      <input type="file" accept=".pdf,.docx,.doc,.txt" className="sr-only" onChange={(e) => onChange(e.target.files?.[0] || null)} />
+    </label>
+  );
+}
+
 export function ImportStep({ studio, onDone, goTo }) {
   const { success } = useToast();
-  const [file, setFile] = useState(null);
+  const [linkedinFile, setLinkedinFile] = useState(null);
+  const [cvFile, setCvFile] = useState(null);
   const [consent, setConsent] = useState(false);
   const [mode, setMode] = useState('replace');
   const [url, setUrl] = useState(studio.profile?.linkedinUrl || '');
@@ -88,13 +107,13 @@ export function ImportStep({ studio, onDone, goTo }) {
 
   async function upload() {
     setError('');
-    if (!file) return setError('Choose your LinkedIn PDF or CV first.');
+    if (!linkedinFile && !cvFile) return setError('Choose your LinkedIn profile PDF (and your CV, if you have one).');
     if (!consent) return setError('Please tick the consent box to continue.');
     setBusy('upload');
     try {
-      const res = await studioService.importFile(file, { consent, mode: hasProfile ? mode : 'replace', linkedinUrl: url.trim() || undefined });
+      const res = await studioService.importFiles({ linkedinFile, cvFile }, { consent, mode: hasProfile ? mode : 'replace', linkedinUrl: url.trim() || undefined });
       setReport(res.report);
-      success(res.report.source === 'linkedin-pdf' ? 'LinkedIn profile imported.' : 'CV imported.');
+      success(`Imported from ${SOURCE_TEXT[res.report.source] || 'your file'}.`);
       // Stay here so the candidate can read what was (and was not) imported.
       onDone('import');
     } catch (err) {
@@ -136,18 +155,23 @@ export function ImportStep({ studio, onDone, goTo }) {
 
   const statusTone = { imported: 'ok', partial: 'warn', 'manual-needed': 'warn' };
   const shown = report || (studio.profile?.importStatus && { status: studio.profile.importStatus, source: studio.profile.importSource });
+  const importLabel = linkedinFile && cvFile ? 'Import LinkedIn + CV' : linkedinFile ? 'Import LinkedIn profile' : cvFile ? 'Import CV' : 'Import';
 
   return (
-    <Panel title="Import your LinkedIn profile" lead="Upload the PDF LinkedIn creates for you, or your existing CV. You can continue without connecting LinkedIn.">
+    <Panel
+      title="Import your LinkedIn profile"
+      lead="Your profile is built from your LinkedIn PDF. Adding your CV is optional — if you do, it only fills in what LinkedIn is missing, such as extra jobs, achievement bullet points and skills."
+    >
       {shown && (
         <div className="mb-5">
           <Note tone={statusTone[shown.status] || 'info'}>
             <strong>
               {shown.status === 'imported' ? 'Imported' : shown.status === 'partial' ? 'Partially imported' : 'Needs manual input'}
             </strong>{' '}
-            from {shown.source === 'linkedin-pdf' ? 'your LinkedIn PDF' : shown.source === 'manual' ? 'manual entry' : 'your CV'}.{' '}
+            from {SOURCE_TEXT[shown.source] || 'your CV'}.{' '}
             {report?.note}
             {report?.missing?.length > 0 && <> Not found: {report.missing.join(', ')}.</>}
+            {report?.warnings?.length > 0 && <span className="mt-1 block">{report.warnings.join(' ')}</span>}
             {report && (
               <div className="mt-3"><Button size="sm" onClick={() => goTo('review')}>Review my profile →</Button></div>
             )}
@@ -157,40 +181,44 @@ export function ImportStep({ studio, onDone, goTo }) {
 
       <div className="grid gap-6 lg:grid-cols-2">
         <div className="space-y-4">
-          <h3 className="text-small font-bold text-ink">Upload a LinkedIn PDF or CV</h3>
-          <ol className="list-decimal space-y-1 pl-5 text-caption text-slate-600">
-            <li>On LinkedIn, open your profile.</li>
-            <li>Click <strong>More</strong> → <strong>Save to PDF</strong>.</li>
-            <li>Upload that file here. A PDF or DOCX of your CV also works.</li>
-          </ol>
-          <label className="flex cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed border-line bg-paper px-4 py-7 text-center hover:border-azure-300">
-            <Upload className="h-6 w-6 text-azure" aria-hidden />
-            <span className="mt-2 text-small font-semibold text-ink">{file ? file.name : 'Choose a PDF or DOCX'}</span>
-            <span className="text-caption text-slate-500">Text-based files only · max 5 MB</span>
-            <input type="file" accept=".pdf,.docx,.doc,.txt" className="sr-only" onChange={(e) => setFile(e.target.files?.[0] || null)} />
-          </label>
+          <div>
+            <h3 className="text-small font-bold text-ink">1. LinkedIn profile PDF <span className="font-medium text-azure">(main source)</span></h3>
+            <ol className="mt-1.5 list-decimal space-y-1 pl-5 text-caption text-slate-600">
+              <li>On LinkedIn, open your profile.</li>
+              <li>Click <strong>More</strong> → <strong>Save to PDF</strong>.</li>
+              <li>Upload that file here.</li>
+            </ol>
+          </div>
+          <FileDrop file={linkedinFile} onChange={setLinkedinFile} title="Choose your LinkedIn PDF" caption="The PDF from LinkedIn · max 5 MB" />
+
+          <div>
+            <h3 className="text-small font-bold text-ink">2. Your CV <span className="font-medium text-slate-500">(optional)</span></h3>
+            <p className="mt-1 text-caption text-slate-600">No CV? No problem — your resume is built from your LinkedIn profile. If you add one, it fills in what LinkedIn is missing.</p>
+          </div>
+          <FileDrop file={cvFile} onChange={setCvFile} title="Choose your CV (optional)" caption="PDF or DOCX · text-based · max 5 MB" />
+
           {hasProfile && (
             <fieldset className="space-y-1.5 text-small">
               <legend className="font-semibold text-ink">You already have a profile</legend>
               <label className="flex items-center gap-2"><input type="radio" checked={mode === 'merge'} onChange={() => setMode('merge')} /> Add anything new to my profile (nothing I reviewed is overwritten)</label>
-              <label className="flex items-center gap-2"><input type="radio" checked={mode === 'replace'} onChange={() => setMode('replace')} /> Replace my profile with this file</label>
+              <label className="flex items-center gap-2"><input type="radio" checked={mode === 'replace'} onChange={() => setMode('replace')} /> Replace my profile with these files</label>
             </fieldset>
           )}
           <ConsentCheckbox checked={consent} onChange={(e) => setConsent(e.target.checked)} />
-          <Button onClick={upload} loading={busy === 'upload'}>Import file</Button>
+          <Button onClick={upload} loading={busy === 'upload'}>{importLabel}</Button>
         </div>
 
         <div className="space-y-5">
           <div>
             <h3 className="text-small font-bold text-ink">LinkedIn profile URL (optional)</h3>
-            <p className="mt-1 text-caption text-slate-600">Saved as a link on your profile. A URL alone does not let us read your LinkedIn data.</p>
+            <p className="mt-1 text-caption text-slate-600">Saved as a link on your profile. A URL alone does not let us read your LinkedIn data — upload the PDF for that.</p>
             <div className="mt-2 flex gap-2">
               <Input aria-label="LinkedIn profile URL" placeholder="linkedin.com/in/your-name" value={url} onChange={(e) => setUrl(e.target.value)} className="flex-1" />
               <Button variant="quiet" onClick={saveUrl} loading={busy === 'url'} disabled={!url.trim()}>Save</Button>
             </div>
           </div>
           <div className="rounded-lg bg-paper p-4 text-caption text-slate-600">
-            <strong className="text-ink">Direct “Connect LinkedIn” import</strong> is not available: it requires LinkedIn API partner approval. We never scrape LinkedIn or ask for your LinkedIn password.
+            <strong className="text-ink">Why a PDF and not “Connect LinkedIn”?</strong> Reading a LinkedIn profile directly requires LinkedIn API partner approval. We never scrape LinkedIn or ask for your LinkedIn password. The PDF LinkedIn gives you contains the same profile data.
           </div>
           {!hasProfile && (
             <div>
@@ -356,8 +384,8 @@ export function ResumeStep({ studio, onDone, goTo }) {
 
   const jdHint =
     jdSource === 'ai'
-      ? 'Written by AI from your LinkedIn profile and the details above. For an exact Job Match score, paste the real job posting instead.'
-      : 'Paste the full posting, or let AI write one from your LinkedIn profile. Without a description you still get a Resume Health score, but not a Job Match score.';
+      ? 'Written by AI from your profile and the details above. For an exact Job Match score, paste the real job posting instead.'
+      : 'Paste the full posting, or let AI write one from your profile. Without a description you still get a Resume Health score, but not a Job Match score.';
 
   async function generate() {
     setError('');
@@ -413,7 +441,7 @@ export function ResumeStep({ studio, onDone, goTo }) {
           setJdSource('user');
         }}
         disabled={jdBusy}
-        placeholder={jdBusy ? 'Writing a job description from your LinkedIn profile…' : 'Paste the job posting here'}
+        placeholder={jdBusy ? 'Writing a job description from your profile…' : 'Paste the job posting here'}
         hint={jdHint}
       />
       <div className="mt-2 flex flex-wrap items-center gap-3">
