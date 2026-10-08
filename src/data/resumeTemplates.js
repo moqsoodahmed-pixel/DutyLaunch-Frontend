@@ -5,7 +5,7 @@
  * scoring 95%+ on structure, achievement strength, readability, and completeness.
  *
  * Real, verified professional profiles across key global industries:
- * 1. DL Elite / ATS Classic       — Universal Operations & Enterprise Strategy (Aarav N. Kapoor) [98% ATS]
+ * 1. DL Elite / ATS Classic       — Universal Operations & Enterprise Strategy (Meera R. Iyer) [98% ATS]
  * 2. DL Tech / ATS Technology     — Staff Distributed Systems & Cloud Architect (Vikramaditya Singhania) [97% ATS]
  * 3. DL Professional / ATS Sales  — VP Corporate Finance & Commercial Operations (Priya S. Sundaram) [96% ATS]
  * 4. DL Executive / ATS Executive — Chief Executive Officer & Global Operations Officer (Dr. Rajeshwar Rao, Ph.D.) [96% ATS]
@@ -127,13 +127,13 @@ export const TEMPLATES = [
   /* ══════════════════════════════════════════════════════════════════
    * 1 — DL ELITE / ATS CLASSIC | Universal Operations & Strategy
    * ATS Score: 98% (Structure: 100%, Achievement: 97%, Skills: 90%)
-   * Persona: Aarav N. Kapoor — Senior Director of Global Operations
+   * Persona: Meera R. Iyer — Senior Director of Global Operations
    * ══════════════════════════════════════════════════════════════════ */
   {
     id: 'dl-elite',
     aliasId: 'ats-classic',
     name: 'ATS Classic',
-    personName: 'Aarav N. Kapoor',
+    personName: 'Meera R. Iyer',
     role: 'Universal Operations Director',
     tagline: 'Universal',
     targetRoles: 'Universal (All Industries & Seniorities)',
@@ -147,11 +147,11 @@ export const TEMPLATES = [
     badge: 'Universal Standard',
     headline: 'Senior Director of Global Operations & Enterprise Strategy | $120M+ P&L',
     contact: {
-      email: 'aarav.kapoor@executive-advisory.com',
-      phone: '+1 (415) 890-4219',
-      location: 'San Francisco, CA',
-      linkedin: 'linkedin.com/in/aaravnkapoor',
-      website: 'aaravkapoor.com',
+      email: 'meera.iyer@executive-advisory.com',
+      phone: '+91 98765 43210',
+      location: 'Bengaluru, India',
+      linkedin: 'linkedin.com/in/meerariyer',
+      website: 'meerariyer.com',
     },
     summary:
       'Accomplished Operations and Corporate Strategy Director with 14+ years spearheading large-scale digital transformations, cross-functional organizational restructuring, and multinational business scaling. Managed $120M+ P&L portfolios, accelerated product delivery velocity by 34%, and orchestrated post-merger integrations across Fortune 100 enterprise environments.',

@@ -6,7 +6,7 @@ import { enrichTemplateData } from '../../data/resumeTemplates.js';
  * DutyLaunch Flagship Resume Template Preview Engine.
  *
  * Renders actual, ATS-compliant CV document previews for the DutyLaunch flagship templates:
- * 1. DL Elite        — Universal Professional (Aarav N. Kapoor / ATS Classic)
+ * 1. DL Elite        — Universal Professional (Meera R. Iyer / ATS Classic)
  * 2. DL Tech         — Software, Systems, AI, Cloud (Marcus Vance / ATS Minimal, Vikramaditya Singhania)
  * 3. DL Professional — Business, Finance, Operations, Strategy (Priya S. Sundaram / ATS Sales)
  * 4. DL Executive    — Leadership, CXO, Director, Senior Management (Dr. Rajeshwar Rao, Ph.D. / ATS Executive)
@@ -177,7 +177,7 @@ function getContactText(tpl, fallback = 'your.email@example.com   |   +1 (555) 0
 }
 
 /* ─────────────────────────────────────────────────────────────────────────
- * 1. DL ELITE — Universal Professional (Aarav N. Kapoor, ATS Classic)
+ * 1. DL ELITE — Universal Professional (Meera R. Iyer, ATS Classic)
  * Authoritative serif candidate name, ink-navy vertical accent rail,
  * perfectly balanced single-column ATS hierarchy with full A4 flow.
  * ───────────────────────────────────────────────────────────────────────── */

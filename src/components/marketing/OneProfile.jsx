@@ -54,16 +54,16 @@ export function OneProfile() {
             <div className="relative mx-auto max-w-md rounded-2xl border border-white/10 bg-ink-800/80 p-5 shadow-crystal-lg backdrop-blur-xl transition-transform duration-300 hover:-translate-y-1 sm:p-6 text-white">
               <div className="flex items-center gap-4">
                 <span className="grid h-14 w-14 shrink-0 place-items-center rounded-full bg-gradient-to-br from-frost-500 via-azure-500 to-aurora-500 text-lead font-extrabold text-white shadow-crystal">
-                  AS
+                  DS
                 </span>
                 <div className="min-w-0 flex-1">
-                  <p className="truncate text-body font-bold text-white">Ananya Sharma</p>
-                  <p className="truncate text-small text-slate-400">Operations Manager · Bengaluru</p>
+                  <p className="truncate text-body font-bold text-white">Devika R. Shah</p>
+                  <p className="truncate text-small text-slate-400">Product Marketing Manager · Mumbai</p>
                 </div>
-                <ProgressRing value={82} size={56} strokeWidth={6} sublabel="" tone="dark" />
+                <ProgressRing value={88} size={56} strokeWidth={6} sublabel="" tone="dark" />
               </div>
               <div className="mt-5 flex flex-wrap gap-1.5">
-                {['Operations', 'Team Management', 'Excel', 'Vendor Management'].map((s) => (
+                {['Marketing Strategy', 'Content Marketing', 'SEO', 'Analytics'].map((s) => (
                   <span
                     key={s}
                     className="rounded-full border border-white/15 bg-white/10 px-2.5 py-1 text-caption font-semibold text-frost-300 backdrop-blur-xs"
@@ -74,15 +74,15 @@ export function OneProfile() {
               </div>
               <div className="mt-5 grid grid-cols-3 gap-3 border-t border-white/10 pt-5 text-center">
                 <div>
-                  <p className="tabular text-body font-extrabold text-white">7</p>
+                  <p className="tabular text-body font-extrabold text-white">6</p>
                   <p className="text-caption text-slate-400">Years exp.</p>
                 </div>
                 <div>
-                  <p className="tabular text-body font-extrabold text-white">12</p>
+                  <p className="tabular text-body font-extrabold text-white">15</p>
                   <p className="text-caption text-slate-400">Applications</p>
                 </div>
                 <div>
-                  <p className="tabular text-body font-extrabold text-white">86%</p>
+                  <p className="tabular text-body font-extrabold text-white">91%</p>
                   <p className="text-caption text-slate-400">Top match</p>
                 </div>
               </div>
