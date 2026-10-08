@@ -290,6 +290,17 @@ export default function ResumeWizard() {
   const [uploadBannerOpen, setUploadBannerOpen] = useState(fromUpload);
   const topRef = useRef(null);
 
+  // "fresh=1" means "start empty" — only for the visit that asked for it.
+  // Remove it from the address straight away, otherwise reloading the page
+  // would wipe everything typed since.
+  useEffect(() => {
+    if (params.get('fresh') !== '1') return;
+    const url = new URL(window.location.href);
+    url.searchParams.delete('fresh');
+    window.history.replaceState(window.history.state, '', `${url.pathname}${url.search}${url.hash}`);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   // Keep the draft in this browser.
   useEffect(() => {
     try {
@@ -328,6 +339,75 @@ export default function ResumeWizard() {
   };
   const next = () => go(STEPS[Math.min(stepIndex + 1, STEPS.length - 1)].id);
   const back = () => go(STEPS[Math.max(stepIndex - 1, 0)].id);
+
+  // India's DPDP Act 2023 means the consent box below must never be
+  // pre-ticked and must always be a real, explicit choice (see
+  // ConsentCheckbox.jsx) — so none of this skips or auto-checks consent.
+  // What it DOES remove is busywork once consent is given: ticking the box
+  // saves immediately (no separate button press needed), and from then on
+  // further edits on this page quietly keep that saved copy up to date —
+  // the same data, under the same consent, instead of going stale the
+  // moment the person goes back to fix a typo. That saved copy is exactly
+  // what the Cover Letter and Interview Prep tools read from, which is why
+  // this is what makes resume data show up there automatically.
+  // Consent is asked ONCE, on the first step, and remembered with this
+  // draft — so every step after that saves to the database as you go.
+  const [consent, setConsent] = useState(() => Boolean(w.saveConsent));
+  const [lastSavedAt, setLastSavedAt] = useState(null);
+  const [saving, setSaving] = useState(false);
+  const [saved, setSaved] = useState(false);
+  const [overflowsPage, setOverflowsPage] = useState(false);
+  const lastSavedRef = useRef(null);
+  async function saveProfile(opts = {}) {
+    const { silent = false } = opts;
+    // consentGiven: the box was ticked in this same click (state not updated yet).
+    const hasConsent = opts.consentGiven ?? consent;
+    if (!hasConsent) return silent ? undefined : toast.error('Please tick the consent box first.');
+    const resume = wizardToResume(w);
+    if (!resume.personal.name) return silent ? undefined : toast.error('Add your name on the Heading step first.');
+    setSaving(true);
+    try {
+      // First save creates/replaces the profile; after that one request
+      // keeps it in sync.
+      if (saved) {
+        await studioService.confirm(resume);
+      } else {
+        await studioService.startManual(resume, { consent: hasConsent, mode: 'replace' });
+        await studioService.confirm();
+      }
+      lastSavedRef.current = JSON.stringify(w);
+      setSaved(true);
+      setLastSavedAt(new Date());
+      if (!silent) toast.success('Saved to your profile.');
+    } catch (err) {
+      if (!silent) toast.error(errMsg(err, 'Could not save your profile. Try again.'));
+    } finally {
+      setSaving(false);
+    }
+    return undefined;
+  }
+
+  // Tick the box → save right away, instead of needing a second click.
+  const handleConsentChange = (e) => {
+    const checked = e.target.checked;
+    setConsent(checked);
+    set({ saveConsent: checked });
+    if (checked) saveProfile({ consentGiven: true, silent: !w.personal.firstName.trim() });
+  };
+
+  // After the first save, keep it fresh: if the person goes back and
+  // changes something, resync quietly a couple of seconds after they stop
+  // typing (debounced, so it doesn't fire on every keystroke).
+  // Once consent is given: save (debounced) whenever anything changes, on
+  // every step — including the first save after a page reload.
+  useEffect(() => {
+    if (!consent) return undefined;
+    const snapshot = JSON.stringify(w);
+    if (snapshot === lastSavedRef.current) return undefined;
+    const t = setTimeout(() => saveProfile({ silent: true }), 2000);
+    return () => clearTimeout(t);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [w, saved, consent]);
 
   // "Preview" lets you peek at the template at any time, but it must never
   // unlock steps you haven't reached yet — that was the old bug: clicking
@@ -423,9 +503,21 @@ export default function ResumeWizard() {
   const heading = (
     <>
       <StepTitle title="What's the best way for employers to contact you?" lead="We suggest including an email and phone number." />
-      <div className="mb-4 flex gap-2 rounded-lg bg-azure-50 p-3 text-caption text-azure-700">
-        <Lightbulb className="mt-0.5 h-4 w-4 shrink-0" aria-hidden />
-        <p>Good to know: once you save this resume on the last step, your details also fill in automatically for Cover Letter and Interview Prep — you won't need to retype anything there.</p>
+      <div className={cn('mb-5 rounded-xl border p-4', consent ? 'border-emerald-200 bg-emerald-50' : 'border-azure-200 bg-azure-50')}>
+        <p className="flex items-center gap-2 text-small font-bold text-ink">
+          <Lightbulb className="h-4 w-4 shrink-0 text-azure" aria-hidden /> Save to my DutyLaunch account
+        </p>
+        <p className="mt-1 text-caption text-slate-600">
+          Tick once and everything you enter is saved to your account as you go — and used to write your Cover letter and Interview prep automatically.
+        </p>
+        <div className="mt-3">
+          <ConsentCheckbox checked={consent} onChange={handleConsentChange} />
+        </div>
+        {consent && (
+          <p className="mt-2 text-caption font-semibold text-emerald-800" aria-live="polite">
+            {saving ? 'Saving…' : saved ? `✓ Saved to your account${lastSavedAt ? ` at ${lastSavedAt.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}` : ''}` : w.personal.firstName.trim() ? 'Will save in a moment…' : 'Add your first name to start saving.'}
+          </p>
+        )}
       </div>
       <p className="mb-4 text-caption text-slate-500">
         <span className="text-danger">*</span> indicates a required field
@@ -914,59 +1006,6 @@ export default function ResumeWizard() {
   );
 
   // --- 8. Download ---
-  // India's DPDP Act 2023 means the consent box below must never be
-  // pre-ticked and must always be a real, explicit choice (see
-  // ConsentCheckbox.jsx) — so none of this skips or auto-checks consent.
-  // What it DOES remove is busywork once consent is given: ticking the box
-  // saves immediately (no separate button press needed), and from then on
-  // further edits on this page quietly keep that saved copy up to date —
-  // the same data, under the same consent, instead of going stale the
-  // moment the person goes back to fix a typo. That saved copy is exactly
-  // what the Cover Letter and Interview Prep tools read from, which is why
-  // this is what makes resume data show up there automatically.
-  const [consent, setConsent] = useState(false);
-  const [saving, setSaving] = useState(false);
-  const [saved, setSaved] = useState(false);
-  const [overflowsPage, setOverflowsPage] = useState(false);
-  const lastSavedRef = useRef(null);
-  async function saveProfile(opts = {}) {
-    const { silent = false } = opts;
-    if (!consent) return silent ? undefined : toast.error('Please tick the consent box first.');
-    const resume = wizardToResume(w);
-    if (!resume.personal.name) return silent ? undefined : toast.error('Add your name on the Heading step first.');
-    setSaving(true);
-    try {
-      await studioService.startManual(resume, { consent, mode: 'replace' });
-      await studioService.confirm();
-      lastSavedRef.current = JSON.stringify(w);
-      setSaved(true);
-      if (!silent) toast.success('Saved to your profile.');
-    } catch (err) {
-      if (!silent) toast.error(errMsg(err, 'Could not save your profile. Try again.'));
-    } finally {
-      setSaving(false);
-    }
-    return undefined;
-  }
-
-  // Tick the box → save right away, instead of needing a second click.
-  const handleConsentChange = (e) => {
-    const checked = e.target.checked;
-    setConsent(checked);
-    if (checked && !saved) saveProfile();
-  };
-
-  // After the first save, keep it fresh: if the person goes back and
-  // changes something, resync quietly a couple of seconds after they stop
-  // typing (debounced, so it doesn't fire on every keystroke).
-  useEffect(() => {
-    if (!saved || !consent) return undefined;
-    const snapshot = JSON.stringify(w);
-    if (snapshot === lastSavedRef.current) return undefined;
-    const t = setTimeout(() => saveProfile({ silent: true }), 2000);
-    return () => clearTimeout(t);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [w, saved, consent]);
   const fullName = [w.personal.firstName, w.personal.surname].filter(Boolean).join(' ');
   const placeholders = (() => {
     const found = new Set();
@@ -1098,6 +1137,9 @@ export default function ResumeWizard() {
             </div>
             <span className="text-caption font-bold">{percent}%</span>
           </div>
+          <p className="mt-3 text-caption text-azure-100" aria-live="polite">
+            {!consent ? 'Not saved to your account yet' : saving ? 'Saving…' : saved ? '✓ Saved to your account' : 'Saving soon…'}
+          </p>
         </div>
         <div className="mt-auto space-y-2 pt-8 text-caption">
           <Link to="/resume-builder" className="block text-azure-100 hover:text-white">← Back to dashboard</Link>

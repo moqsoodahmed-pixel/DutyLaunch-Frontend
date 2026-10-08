@@ -669,7 +669,19 @@ export function AtsStep({ onDone, refreshKey }) {
 
 export function CoverLetterStep({ onDone, refreshKey }) {
   const { success } = useToast();
-  const versions = useVersions(refreshKey);
+  // The letter is written ONLY from the resume saved in the Resume Builder
+  // (the career profile) — never from an older uploaded resume version.
+  const [profile, setProfile] = useState(null); // null = loading, false = none
+  useEffect(() => {
+    let active = true;
+    careerService
+      .getProfile()
+      .then((res) => active && setProfile(res?.exists && res.master ? res.master : false))
+      .catch(() => active && setProfile(false));
+    return () => {
+      active = false;
+    };
+  }, [refreshKey]);
   const [form, setForm] = useState({ versionId: '', jobTitle: '', company: '', jobDescription: '', tone: 'professional' });
   const [letter, setLetter] = useState(null);
   const [content, setContent] = useState('');
@@ -687,36 +699,16 @@ export function CoverLetterStep({ onDone, refreshKey }) {
   const autoRanFor = useRef(null); // which versionId we already auto-generated for, so it only ever fires once
   const set = (k) => (e) => setForm((f) => ({ ...f, [k]: e.target.value }));
 
-  // Fill Job title / Company / Job description straight from the chosen
-  // resume's saved target (the job it was written for in earlier steps),
-  // so the person never has to re-type what the system already knows.
-  const fillFromVersion = (v, f) => ({
-    ...f,
-    versionId: v.id,
-    jobTitle: v.target?.jobTitle || f.jobTitle,
-    company: v.target?.company || f.company,
-    jobDescription: v.target?.jobDescription || f.jobDescription,
-  });
-
-  // First load: pick the most relevant resume automatically.
+  // Pre-fill the job title with the profession from the saved resume, and
+  // draft the letter straight away (once) — the AI has everything it needs.
   useEffect(() => {
-    if (versions?.length && !form.versionId) {
-      setForm((f) => fillFromVersion(versions[0], f));
-      if (versions[0].target?.jobTitle || versions[0].target?.jobDescription) {
-        setJustFetched(true);
-      }
+    const headline = profile?.personal?.headline?.trim();
+    if (!profile || form.jobTitle) return;
+    if (headline) {
+      setForm((f) => ({ ...f, jobTitle: headline }));
+      setJustFetched(true);
     }
-  }, [versions]); // eslint-disable-line react-hooks/exhaustive-deps
-
-  // Switching "Resume to use" re-fetches that resume's job details too.
-  const chooseVersion = (id) => {
-    const v = versions?.find((x) => x.id === id);
-    setLetter(null);
-    setContent('');
-    autoRanFor.current = null;
-    setForm((f) => (v ? fillFromVersion(v, { ...f, jobTitle: '', company: '', jobDescription: '' }) : { ...f, versionId: id }));
-    if (v?.target?.jobTitle || v?.target?.jobDescription) setJustFetched(true);
-  };
+  }, [profile]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const act = async (key, fn, msg) => {
     setError('');
@@ -736,10 +728,17 @@ export function CoverLetterStep({ onDone, refreshKey }) {
   const canGenerate = Boolean(form.jobTitle.trim() || form.jobDescription.trim());
 
   const generate = () => act('create', async () => {
-    const res = await studioService.createCoverLetter({ ...form, versionId: form.versionId || undefined });
+    const res = await studioService.createCoverLetter({ ...form, versionId: undefined, jobDescription: form.jobDescription.trim() || undefined });
     setLetter(res.coverLetter);
     setContent(res.coverLetter.content);
-    setNote(res.engineNote || '');
+    // With only a job title, the AI wrote a typical job description from the
+    // saved resume first — show it, so it can be checked or replaced.
+    if (res.jobDescriptionSource === 'ai' && res.coverLetter.jobDescription) {
+      setForm((f) => ({ ...f, jobDescription: res.coverLetter.jobDescription }));
+      setNote('No job description was given, so AI wrote a typical one for this role from your saved resume. Paste the real job posting above and generate again for a closer match.');
+    } else {
+      setNote(res.engineNote || '');
+    }
     onDone();
   }, 'Cover letter drafted.');
 
@@ -748,8 +747,8 @@ export function CoverLetterStep({ onDone, refreshKey }) {
   // have — this runs at most once per resume, and never overrides a letter
   // the person is already editing.
   useEffect(() => {
-    if (!justFetched || !canGenerate || letter || busy || autoRanFor.current === form.versionId) return;
-    autoRanFor.current = form.versionId;
+    if (!justFetched || !canGenerate || letter || busy || autoRanFor.current === 'profile') return;
+    autoRanFor.current = 'profile';
     setJustFetched(false);
     generate();
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -817,21 +816,48 @@ export function CoverLetterStep({ onDone, refreshKey }) {
 
       {view === 'write' && (
       <>
+      {profile === null && <Spinner />}
+      {profile === false && (
+        <Note tone="warn">
+          Build your resume first: open <strong>Resume builder</strong>, fill it in and tick “Save to my DutyLaunch account”. Your cover letter is written from that saved resume.
+        </Note>
+      )}
+      {profile && (
+        <div className="mb-5 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-line bg-paper p-4">
+          <div>
+            <p className="text-caption font-semibold uppercase tracking-wide text-slate-500">Writing from your saved resume</p>
+            <p className="text-small font-bold text-ink">
+              {profile.personal?.name || 'Your resume'}
+              {profile.personal?.headline ? ` · ${profile.personal.headline}` : ''}
+            </p>
+            <p className="text-caption text-slate-600">
+              {(profile.experience || []).length} job(s) · {(profile.education || []).length} education · {Object.values(profile.skills || {}).flat().length} skills
+            </p>
+          </div>
+          <a href="/resume-builder/wizard" className="text-small font-semibold text-azure hover:underline">Edit in Resume Builder →</a>
+        </div>
+      )}
       <div className="grid gap-4 sm:grid-cols-2">
-        <VersionSelect versions={versions} value={form.versionId} onChange={chooseVersion} />
         <Select label="Tone" value={form.tone} onChange={set('tone')}>{COVER_LETTER_TONES.map((t) => <option key={t.value} value={t.value}>{t.label}</option>)}</Select>
         <Input label="Job title" value={form.jobTitle} onChange={set('jobTitle')} />
         <Input label="Company name" value={form.company} onChange={set('company')} />
       </div>
-      <Textarea className="mt-4" label="Job description" rows={5} value={form.jobDescription} onChange={set('jobDescription')} required />
+      <Textarea
+        className="mt-4"
+        label="Job description (optional)"
+        rows={5}
+        value={form.jobDescription}
+        onChange={set('jobDescription')}
+        hint="Paste the job posting for the best match. Leave it empty and AI writes a typical one for this job title from your resume."
+      />
       {busy === 'create' && !letter ? (
         <Note tone="info">We found the job details from your resume and are writing your letter now — no need to click anything.</Note>
       ) : (
         <>
-          <Button className="mt-4" onClick={generate} loading={busy === 'create'} disabled={!canGenerate}>
+          <Button className="mt-4" onClick={generate} loading={busy === 'create'} disabled={!canGenerate || !profile}>
             {letter ? 'Generate a new letter' : 'Generate cover letter'}
           </Button>
-          {!canGenerate && <p className="mt-2 text-caption text-slate-500">Add a job title or paste the job description above first.</p>}
+          {!canGenerate && <p className="mt-2 text-caption text-slate-500">Add the job title you are applying for (or paste the job description) first.</p>}
         </>
       )}
       <ErrorLine error={error} />
