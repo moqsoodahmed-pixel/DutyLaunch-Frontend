@@ -677,6 +677,13 @@ export function CoverLetterStep({ onDone, refreshKey }) {
   const [error, setError] = useState('');
   const [note, setNote] = useState('');
   const [justFetched, setJustFetched] = useState(false);
+  // Two sections: write/edit the letter, then choose its design and download.
+  const [view, setView] = useState('write');
+  const panelTop = useRef(null);
+  const openView = (v) => {
+    setView(v);
+    panelTop.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  };
   const autoRanFor = useRef(null); // which versionId we already auto-generated for, so it only ever fires once
   const set = (k) => (e) => setForm((f) => ({ ...f, [k]: e.target.value }));
 
@@ -773,7 +780,43 @@ export function CoverLetterStep({ onDone, refreshKey }) {
   const paragraphs = content.split(/\n{2,}/);
 
   return (
-    <Panel title="Generate your cover letter" lead="Tailored to one job, using only your verified experience. It never invents facts about the company or you.">
+    <Panel
+      title={view === 'design' ? 'Choose a design' : 'Generate your cover letter'}
+      lead={view === 'design' ? 'Your letter is already filled in. Pick a template, then download it as a PDF.' : 'Tailored to one job, using only your verified experience. It never invents facts about the company or you.'}
+    >
+      <div ref={panelTop} role="tablist" aria-label="Cover letter sections" className="-mt-1 mb-6 grid gap-2 sm:grid-cols-2">
+        {[
+          { id: 'write', label: 'Write & edit', note: 'Job details and your letter' },
+          { id: 'design', label: 'Choose design & download', note: letter ? '12 templates · PDF' : 'Generate a letter first' },
+        ].map((t, i) => {
+          const on = view === t.id;
+          const locked = t.id === 'design' && !letter;
+          return (
+            <button
+              key={t.id}
+              type="button"
+              role="tab"
+              aria-selected={on}
+              disabled={locked}
+              onClick={() => openView(t.id)}
+              className={cn(
+                'flex items-center gap-3 rounded-xl border-2 px-4 py-3 text-left transition-colors',
+                on ? 'border-azure bg-azure-50' : 'border-line bg-white hover:border-azure-300',
+                locked && 'cursor-not-allowed opacity-50 hover:border-line'
+              )}
+            >
+              <span className={cn('grid h-8 w-8 shrink-0 place-items-center rounded-full text-small font-bold', on ? 'bg-azure text-white' : 'bg-paper text-slate-600')}>{i + 1}</span>
+              <span>
+                <span className="block text-small font-bold text-ink">{t.label}</span>
+                <span className="block text-caption text-slate-500">{t.note}</span>
+              </span>
+            </button>
+          );
+        })}
+      </div>
+
+      {view === 'write' && (
+      <>
       <div className="grid gap-4 sm:grid-cols-2">
         <VersionSelect versions={versions} value={form.versionId} onChange={chooseVersion} />
         <Select label="Tone" value={form.tone} onChange={set('tone')}>{COVER_LETTER_TONES.map((t) => <option key={t.value} value={t.value}>{t.label}</option>)}</Select>
@@ -819,7 +862,22 @@ export function CoverLetterStep({ onDone, refreshKey }) {
           </div>
         </div>
       )}
-      {letter && <CoverLetterDesigner content={content} company={form.company || letter.company} jobTitle={form.jobTitle || letter.jobTitle} />}
+      {letter && (
+        <div className="mt-8 flex justify-end border-t border-line pt-5">
+          <Button size="lg" onClick={() => openView('design')}>Next: Choose a design →</Button>
+        </div>
+      )}
+      </>
+      )}
+
+      {view === 'design' && letter && (
+        <>
+          <CoverLetterDesigner content={content} company={form.company || letter.company} jobTitle={form.jobTitle || letter.jobTitle} />
+          <div className="mt-6 border-t border-line pt-5">
+            <Button variant="outline" onClick={() => openView('write')}>← Back to editing</Button>
+          </div>
+        </>
+      )}
     </Panel>
   );
 }

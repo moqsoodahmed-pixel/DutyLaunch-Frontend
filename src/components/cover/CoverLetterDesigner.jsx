@@ -63,17 +63,16 @@ export function CoverLetterDesigner({ content, company, jobTitle }) {
   );
 
   const current = COVER_TEMPLATES.find((t) => t.id === template) || COVER_TEMPLATES[0];
+  // Leftover placeholders such as "[Your Name]" or "[Company]".
+  const placeholders = [...new Set(String(content || '').match(/\[[^\][\n]{2,40}\]/g) || [])];
   const download = () => printResumeSheet(`Cover_Letter_${(company || data.name || 'DutyLaunch').replace(/[^\w-]+/g, '_')}`);
 
   return (
-    <section className="mt-8 border-t border-line pt-6" aria-labelledby="cl-design-heading">
+    <section aria-label="Cover letter design">
       <div className="flex flex-wrap items-end justify-between gap-3">
-        <div>
-          <h3 id="cl-design-heading" className="text-h4 font-bold text-ink">
-            Choose a design
-          </h3>
-          <p className="text-small text-slate-600">Your letter is already filled in. Pick a template, then download it as a PDF.</p>
-        </div>
+        <p className="text-small text-slate-600">
+          Pick a template on the left — the preview on the right shows your letter exactly as it will download.
+        </p>
         <Input
           className="w-full sm:w-64"
           label="Hiring manager's name (optional)"
@@ -82,6 +81,12 @@ export function CoverLetterDesigner({ content, company, jobTitle }) {
           onChange={(e) => setHiringManager(e.target.value)}
         />
       </div>
+
+      {placeholders.length > 0 && (
+        <p role="alert" className="mt-4 rounded-lg border border-amber-300 bg-amber-50 p-3 text-small text-amber-900">
+          <strong>Your letter still has text to replace:</strong> {placeholders.slice(0, 4).join(', ')}. Go back to <strong>Write &amp; edit</strong> and replace it before downloading.
+        </p>
+      )}
 
       <div className="mt-5 grid gap-6 lg:grid-cols-[1fr_minmax(0,26rem)]">
         <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 xl:grid-cols-4" role="radiogroup" aria-label="Cover letter templates">
