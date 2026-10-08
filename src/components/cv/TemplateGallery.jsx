@@ -116,7 +116,7 @@ export function PaymentRequiredModal({ tpl, open, onClose, onUnlockSuccess }) {
             type="button"
             onClick={() => {
               onClose();
-              navigate('/resume-builder/editor?template=dl-elite');
+              navigate('/resume-builder?template=dl-elite');
             }}
             className="cursor-pointer rounded-xl border border-slate-200 px-4 py-3 text-small font-semibold text-slate-600 transition-colors hover:bg-slate-100"
           >
@@ -155,7 +155,7 @@ export function TemplateCard({ tpl, selected, onSelect, onOpen, className, tone 
       return;
     }
     onSelect?.(tpl.id);
-    navigate(`/resume-builder/editor?template=${tpl.id}`);
+    navigate(`/resume-builder?template=${tpl.id}`);
   };
 
   const handleCardClick = () => {
@@ -270,7 +270,7 @@ export function TemplateCard({ tpl, selected, onSelect, onOpen, className, tone 
         onClose={() => setPaymentModalOpen(false)}
         onUnlockSuccess={(unlockedTpl) => {
           onSelect?.(unlockedTpl.id);
-          navigate(`/resume-builder/editor?template=${unlockedTpl.id}`);
+          navigate(`/resume-builder?template=${unlockedTpl.id}`);
         }}
       />
     </>
@@ -540,7 +540,7 @@ export function TemplateGallery({
               </div>
               <div className="flex flex-col gap-3 sm:flex-row">
                 {isAccessible ? (
-                  <Button to={`/resume-builder/editor?template=${preview.id}`} variant="premium" fullWidth>
+                  <Button to={`/resume-builder?template=${preview.id}`} variant="premium" fullWidth>
                     Use {preview.name} in Builder
                   </Button>
                 ) : (

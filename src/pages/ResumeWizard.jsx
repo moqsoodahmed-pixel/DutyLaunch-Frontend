@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { Link, useNavigate, useSearchParams } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import { ArrowLeft, Check, Plus, Search, Sparkles, Trash2, Pencil, Lock, Download, X, Lightbulb } from 'lucide-react';
 import { Button, Input, Select, Textarea, Badge, Spinner } from '../components/ui/index.js';
 import { ConsentCheckbox } from '../components/ui/ConsentCheckbox.jsx';
@@ -11,6 +11,7 @@ import { useContentProtection } from '../hooks/useContentProtection.js';
 import { useAuth } from '../context/AuthContext.jsx';
 import { useToast } from '../context/ToastContext.jsx';
 import { studioService, errMsg } from '../services/studioService.js';
+import { careerService } from '../services/careerService.js';
 import { TEMPLATES } from '../data/resumeTemplates.js';
 import { ROLE_EXAMPLES, POPULAR_TITLES, findRoleExamples, DEGREES, LANGUAGE_LEVELS, CERTIFICATION_PATTERNS, EXTRA_SECTIONS } from '../data/resumeExamples.js';
 import { emptyWizard, emptyJob, emptySchool, resumeToWizard, wizardToResume, wizardToBuilder, completeness } from '../utils/wizardResume.js';
@@ -38,6 +39,13 @@ const STEPS = [
 ];
 
 export const draftKey = (userId) => `dl_resume_wizard_${userId || 'guest'}`;
+
+/** "Srinivas Sutar" → { firstName: 'Srinivas', surname: 'Sutar' } */
+const splitName = (full = '') => {
+  const [firstName = '', ...rest] = String(full).trim().split(/\s+/);
+  return { firstName, surname: rest.join(' ') };
+};
+const sameName = (a, b) => String(a || '').toLowerCase().replace(/[^a-z\s]/g, ' ').replace(/\s+/g, ' ').trim() === String(b || '').toLowerCase().replace(/[^a-z\s]/g, ' ').replace(/\s+/g, ' ').trim();
 
 /* Which filling steps already have what they need (used after an upload,
    so we only ask for what the resume file was missing). */
@@ -254,7 +262,6 @@ function MiniPreview({ templateId, builderState, onChange }) {
 export default function ResumeWizard() {
   const { user } = useAuth();
   const toast = useToast();
-  const navigate = useNavigate();
   const [params] = useSearchParams();
   const key = draftKey(user?.id || user?._id);
 
@@ -288,6 +295,13 @@ export default function ResumeWizard() {
   const [maxStep, setMaxStep] = useState(() => (fromUpload ? STEPS.findIndex((x) => x.id === 'template') : 0));
   const [showErrors, setShowErrors] = useState(() => fromUpload && !filledSteps(w).heading);
   const [uploadBannerOpen, setUploadBannerOpen] = useState(fromUpload);
+  // The resume saved in the database loads by default (all steps done), and
+  // the name is locked to the account: one account = one person's resume.
+  const [profileLoading, setProfileLoading] = useState(true);
+  const [loadedFromProfile, setLoadedFromProfile] = useState(false);
+  const [lockedName, setLockedName] = useState('');
+  const [nameReplaced, setNameReplaced] = useState(false);
+  const prefilled = fromUpload || loadedFromProfile;
   const topRef = useRef(null);
 
   // "fresh=1" means "start empty" — only for the visit that asked for it.
@@ -377,6 +391,7 @@ export default function ResumeWizard() {
       }
       lastSavedRef.current = JSON.stringify(w);
       setSaved(true);
+      if (!lockedName) setLockedName(resume.personal.name);
       setLastSavedAt(new Date());
       if (!silent) toast.success('Saved to your profile.');
     } catch (err) {
@@ -398,6 +413,51 @@ export default function ResumeWizard() {
   // After the first save, keep it fresh: if the person goes back and
   // changes something, resync quietly a couple of seconds after they stop
   // typing (debounced, so it doesn't fire on every keystroke).
+  // On open: load the saved resume from the database (unless this visit is
+  // a fresh upload, which only takes the locked name from the account).
+  useEffect(() => {
+    let active = true;
+    careerService
+      .getProfile()
+      .then((res) => {
+        if (!active) return;
+        const master = res?.exists ? res.master : null;
+        const locked = (res?.identityName || master?.personal?.name || '').trim();
+        if (locked) setLockedName(locked);
+        if (fromUpload) {
+          if (locked) {
+            setW((prev) => {
+              const uploaded = [prev.personal.firstName, prev.personal.surname].filter(Boolean).join(' ');
+              if (uploaded && !sameName(uploaded, locked)) setNameReplaced(true);
+              return { ...prev, personal: { ...prev.personal, ...splitName(locked) } };
+            });
+          }
+          return;
+        }
+        if (master?.personal?.name) {
+          setW((prev) => {
+            const loaded = { ...emptyWizard(), ...resumeToWizard(master), templateId: prev.templateId || 'dl-elite', saveConsent: true };
+            lastSavedRef.current = JSON.stringify(loaded);
+            return loaded;
+          });
+          setConsent(true);
+          setSaved(true);
+          setLoadedFromProfile(true);
+          setUploadBannerOpen(true);
+          setMaxStep(STEPS.length - 1);
+          setStep('download');
+        } else if (locked) {
+          setW((prev) => ({ ...prev, personal: { ...prev.personal, ...splitName(locked) } }));
+        }
+      })
+      .catch(() => {})
+      .finally(() => active && setProfileLoading(false));
+    return () => {
+      active = false;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   // Once consent is given: save (debounced) whenever anything changes, on
   // every step — including the first save after a page reload.
   useEffect(() => {
@@ -523,8 +583,13 @@ export default function ResumeWizard() {
         <span className="text-danger">*</span> indicates a required field
       </p>
       <div className="grid gap-4 sm:grid-cols-2">
-        <Input label="First name" required value={w.personal.firstName} onChange={setPersonal('firstName')} placeholder="e.g. Srinivas" error={showErrors && !w.personal.firstName.trim() ? 'Enter your first name' : undefined} />
-        <Input label="Surname" value={w.personal.surname} onChange={setPersonal('surname')} placeholder="e.g. Sutar" />
+        <Input label="First name" required value={w.personal.firstName} onChange={setPersonal('firstName')} placeholder="e.g. Srinivas" disabled={Boolean(lockedName)} hint={lockedName ? '🔒 Locked to your account' : undefined} error={showErrors && !w.personal.firstName.trim() ? 'Enter your first name' : undefined} />
+        <Input label="Surname" value={w.personal.surname} onChange={setPersonal('surname')} placeholder="e.g. Sutar" disabled={Boolean(lockedName)} hint={lockedName ? '🔒 Locked to your account' : undefined} />
+        {lockedName && (
+          <p className="-mt-2 text-caption text-slate-500 sm:col-span-2">
+            Your name is fixed to your DutyLaunch account — each account builds one person's resume. Everything else (profession, contact details, jobs, skills, summary) can be changed for each job you apply to. Need your name corrected? Contact support.
+          </p>
+        )}
         <Input className="sm:col-span-2" label="Profession" value={w.personal.profession} onChange={setPersonal('profession')} placeholder="e.g. Web Developer" hint="The job you have or want. It appears under your name." />
         <Input label="City" value={w.personal.city} onChange={setPersonal('city')} placeholder="e.g. Bengaluru" />
         <div className="grid grid-cols-2 gap-3">
@@ -1051,20 +1116,6 @@ export default function ResumeWizard() {
           <Button variant="outline" fullWidth onClick={() => go('template')}>
             Change template
           </Button>
-          <Button
-            variant="quiet"
-            fullWidth
-            onClick={() => {
-              try {
-                sessionStorage.setItem(BUILDER_IMPORT_KEY, JSON.stringify(wizardToResume(w)));
-              } catch {
-                /* ignore */
-              }
-              navigate(`/resume-builder/editor?template=${w.templateId}`);
-            }}
-          >
-            Fine-tune colours & fonts
-          </Button>
 
           <div className="rounded-xl border border-line bg-paper p-4">
             <p className="text-small font-bold text-ink">Use this resume for your cover letter and interview prep</p>
@@ -1093,6 +1144,16 @@ export default function ResumeWizard() {
   );
 
   const screens = { heading, work, education, skills, summary, extras, template, download };
+
+  if (profileLoading && !fromUpload) {
+    return (
+      <div className="grid min-h-screen place-items-center bg-paper" role="status" aria-live="polite">
+        <div className="flex items-center gap-3 text-small font-semibold text-slate-600">
+          <Spinner className="h-5 w-5" /> Loading your saved resume…
+        </div>
+      </div>
+    );
+  }
   const showMini = ['heading', 'extras'].includes(step);
 
   return (
@@ -1105,7 +1166,7 @@ export default function ResumeWizard() {
           {STEPS.map((s, i) => {
             // After an upload: a filling step is ticked when its data is
             // there; optional steps (Anything else…) only once passed.
-            const done = fromUpload
+            const done = prefilled
               ? FILL_STEPS.includes(s.id)
                 ? filled[s.id] && s.id !== step
                 : i < stepIndex
@@ -1147,8 +1208,11 @@ export default function ResumeWizard() {
             type="button"
             className="block text-azure-200 hover:text-white"
             onClick={() => {
-              if (window.confirm('Start over? Everything you entered will be cleared.')) {
-                setW(emptyWizard());
+              if (window.confirm(lockedName ? 'Start over? Everything except your name will be cleared.' : 'Start over? Everything you entered will be cleared.')) {
+                setW(() => {
+                  const fresh = emptyWizard();
+                  return lockedName ? { ...fresh, personal: { ...fresh.personal, ...splitName(lockedName) }, saveConsent: Boolean(consent) } : fresh;
+                });
                 setEditingJob(null);
                 setEditingSchool(null);
                 setMaxStep(0);
@@ -1172,7 +1236,25 @@ export default function ResumeWizard() {
         <div ref={topRef} className="mx-auto flex max-w-6xl gap-8 px-4 py-8 sm:px-8">
           <div className="min-w-0 flex-1">
             {step === 'work' && freshersHint}
-            {uploadBannerOpen && FILL_STEPS.concat('extras', 'template').includes(step) && (
+            {nameReplaced && (
+              <p role="alert" className="mb-4 rounded-xl border border-amber-300 bg-amber-50 p-3 text-small text-amber-900">
+                The uploaded resume has a different name. Your account's resumes always use <strong>{lockedName}</strong>, so that name is kept — everything else was filled in from the file.
+              </p>
+            )}
+            {loadedFromProfile && uploadBannerOpen && (
+              <div className="mb-6 flex items-start justify-between gap-3 rounded-xl border border-emerald-200 bg-emerald-50 p-4">
+                <div>
+                  <p className="text-small font-bold text-emerald-900">Your saved resume is loaded — all steps are done.</p>
+                  <p className="mt-0.5 text-caption text-emerald-800">
+                    Open any step to tailor it for a new job role (profession, summary, skills, jobs…). Changes save automatically. Your name stays fixed to your account.
+                  </p>
+                </div>
+                <button type="button" aria-label="Hide this message" onClick={() => setUploadBannerOpen(false)} className="text-emerald-700 hover:text-emerald-900">
+                  <X className="h-4 w-4" />
+                </button>
+              </div>
+            )}
+            {!loadedFromProfile && uploadBannerOpen && FILL_STEPS.concat('extras', 'template').includes(step) && (
               <div className="mb-6 rounded-xl border border-emerald-200 bg-emerald-50 p-4">
                 <div className="flex items-start justify-between gap-3">
                   <div>

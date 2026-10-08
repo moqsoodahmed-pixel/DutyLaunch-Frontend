@@ -93,18 +93,23 @@ export function wizardToResume(w) {
 }
 
 /** Backend resume schema (e.g. an uploaded CV) → wizard. */
+const COUNTRIES = /^(india|uae|united arab emirates|dubai|usa|united states|uk|united kingdom|canada|australia|singapore|qatar|saudi arabia|oman|kuwait|bahrain|germany|new zealand)$/i;
+
 export function resumeToWizard(r = {}) {
   const w = emptyWizard();
   const p = r.personal || {};
   const [first, ...rest] = t(p.name).split(/\s+/);
-  const loc = t(p.location).split(',').map((s) => s.trim()).filter(Boolean);
+  const loc = t(p.location).split(',').map((s) => s.trim().replace(/\s*\b\d{6}\b/, '').trim()).filter(Boolean);
+  // A location that is only a country ("India") has no city.
+  if (loc.length === 1 && COUNTRIES.test(loc[0])) loc.unshift('');
   w.personal = {
     ...w.personal,
     firstName: first || '',
     surname: rest.join(' '),
     profession: t(p.headline),
-    city: loc[0] || '',
-    country: loc.length > 1 ? loc[loc.length - 1].replace(/\s*\d{5,6}$/, '') : w.personal.country,
+    // Everything before the country stays with the city ("Mysuru, Karnataka").
+    city: loc.length > 1 ? loc.slice(0, -1).filter(Boolean).join(', ') : loc[0] || '',
+    country: loc.length > 1 ? loc[loc.length - 1] : w.personal.country,
     pinCode: (t(p.location).match(/\b\d{6}\b/) || [''])[0],
     phone: t(p.phone),
     email: t(p.email),

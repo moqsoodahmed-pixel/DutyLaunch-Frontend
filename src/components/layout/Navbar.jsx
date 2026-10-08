@@ -31,7 +31,6 @@ export function Navbar() {
   const closeTimeoutRef = useRef(null);
 
   const isBuilderPage =
-    location.pathname.startsWith('/resume-builder/editor') ||
     location.pathname.startsWith('/cv-builder') ||
     location.pathname.startsWith('/resume-checker');
 

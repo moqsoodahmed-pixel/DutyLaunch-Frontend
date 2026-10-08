@@ -16,7 +16,6 @@ const Home = lazyWithReload(() => import('../pages/Home.jsx'));
 const About = lazyWithReload(() => import('../pages/About.jsx'));
 const CareerServices = lazyWithReload(() => import('../pages/CareerServices.jsx'));
 const Pricing = lazyWithReload(() => import('../pages/Pricing.jsx'));
-const CvBuilder = lazyWithReload(() => import('../pages/CvBuilder.jsx'));
 const CvTemplates = lazyWithReload(() => import('../pages/CvTemplates.jsx'));
 const Upskills = lazyWithReload(() => import('../pages/Upskills.jsx'));
 const HigherEducation = lazyWithReload(() => import('../pages/HigherEducation.jsx'));
@@ -113,10 +112,10 @@ export function AppRoutes() {
               <Route path="pricing" element={<Pricing />} />
               {/* Resume Builder: signed-in candidates only. Old public
                   addresses redirect (keeping ?template=…). */}
-              <Route element={<ProtectedRoute roles={['user']} />}>
-                <Route path="resume-builder/editor" element={<CvBuilder />} />
-              </Route>
-              <Route path="cv-builder" element={<RedirectKeepQuery to="/resume-builder/editor" />} />
+              {/* The old stand-alone editor is gone: the Resume Builder lives
+                  only in the candidate area. Old links land there instead. */}
+              <Route path="resume-builder/editor" element={<RedirectKeepQuery to="/resume-builder" />} />
+              <Route path="cv-builder" element={<RedirectKeepQuery to="/resume-builder" />} />
               <Route path="cv-templates" element={<CvTemplates />} />
               <Route path="upskills" element={<Upskills />} />
               <Route path="higher-education" element={<HigherEducation />} />
