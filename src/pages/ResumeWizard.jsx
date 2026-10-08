@@ -39,6 +39,24 @@ const STEPS = [
 
 export const draftKey = (userId) => `dl_resume_wizard_${userId || 'guest'}`;
 
+/* Which filling steps already have what they need (used after an upload,
+   so we only ask for what the resume file was missing). */
+const FILL_STEPS = ['heading', 'work', 'education', 'skills', 'summary'];
+export function filledSteps(w) {
+  const p = w.personal || {};
+  return {
+    heading: Boolean(p.firstName?.trim() && (p.email?.trim() || p.phone?.trim())),
+    work: Boolean(w.noExperience || (w.experience || []).some((j) => j.title?.trim())),
+    education: (w.education || []).some((e) => e.degree?.trim() || e.institution?.trim()),
+    skills: (w.skills || []).filter((x) => x?.trim()).length >= 3,
+    summary: (w.summary || '').trim().length > 30,
+  };
+}
+function firstMissingStep(w) {
+  const f = filledSteps(w);
+  return FILL_STEPS.find((id) => !f[id]) || 'template';
+}
+
 function previewData(templateId, builderState) {
   const base = TEMPLATES.find((t) => t.id === templateId) || TEMPLATES[0];
   return { ...buildTemplateData(base, builderState, { useSamples: false }), id: base.id, layout: base.id, name: base.name };
@@ -240,6 +258,16 @@ export default function ResumeWizard() {
   const [params] = useSearchParams();
   const key = draftKey(user?.id || user?._id);
 
+  // Opened right after "Upload my resume"? (read before the draft below
+  // consumes the hand-off). Then we only ask for what the file was missing.
+  const [fromUpload] = useState(() => {
+    try {
+      return Boolean(sessionStorage.getItem(BUILDER_IMPORT_KEY));
+    } catch {
+      return false;
+    }
+  });
+
   const [w, setW] = useState(() => {
     try {
       const imported = sessionStorage.getItem(BUILDER_IMPORT_KEY);
@@ -255,9 +283,11 @@ export default function ResumeWizard() {
     }
     return emptyWizard();
   });
-  const [step, setStep] = useState('heading');
-  const [maxStep, setMaxStep] = useState(0);
-  const [showErrors, setShowErrors] = useState(false);
+  const [step, setStep] = useState(() => (fromUpload ? firstMissingStep(w) : 'heading'));
+  // After an upload every filling step is reachable, up to Choose template.
+  const [maxStep, setMaxStep] = useState(() => (fromUpload ? STEPS.findIndex((x) => x.id === 'template') : 0));
+  const [showErrors, setShowErrors] = useState(() => fromUpload && !filledSteps(w).heading);
+  const [uploadBannerOpen, setUploadBannerOpen] = useState(fromUpload);
   const topRef = useRef(null);
 
   // Keep the draft in this browser.
@@ -275,6 +305,7 @@ export default function ResumeWizard() {
 
   const builderState = useMemo(() => wizardToBuilder(w), [w]);
   const percent = completeness(w);
+  const filled = filledSteps(w);
   const stepIndex = STEPS.findIndex((s) => s.id === step);
 
   // Required for the Heading step to count as "done" — declared up here
@@ -1033,7 +1064,13 @@ export default function ResumeWizard() {
         <Logo tone="light" height={30} />
         <ol className="mt-10 space-y-1">
           {STEPS.map((s, i) => {
-            const done = i < stepIndex || (i <= maxStep && i !== stepIndex && i < maxStep);
+            // After an upload: a filling step is ticked when its data is
+            // there; optional steps (Anything else…) only once passed.
+            const done = fromUpload
+              ? FILL_STEPS.includes(s.id)
+                ? filled[s.id] && s.id !== step
+                : i < stepIndex
+              : i < stepIndex || (i <= maxStep && i !== stepIndex && i < maxStep);
             const active = s.id === step;
             const reachable = i <= maxStep;
             return (
@@ -1093,6 +1130,43 @@ export default function ResumeWizard() {
         <div ref={topRef} className="mx-auto flex max-w-6xl gap-8 px-4 py-8 sm:px-8">
           <div className="min-w-0 flex-1">
             {step === 'work' && freshersHint}
+            {uploadBannerOpen && FILL_STEPS.concat('extras', 'template').includes(step) && (
+              <div className="mb-6 rounded-xl border border-emerald-200 bg-emerald-50 p-4">
+                <div className="flex items-start justify-between gap-3">
+                  <div>
+                    <p className="text-small font-bold text-emerald-900">
+                      {FILL_STEPS.every((id) => filled[id])
+                        ? 'We filled in everything from your resume. Just pick a template!'
+                        : 'We filled in your resume from your file. Only fill in what is missing.'}
+                    </p>
+                    <p className="mt-0.5 text-caption text-emerald-800">You can still open any step to check or change it.</p>
+                  </div>
+                  <button type="button" aria-label="Hide this message" onClick={() => setUploadBannerOpen(false)} className="text-emerald-700 hover:text-emerald-900">
+                    <X className="h-4 w-4" />
+                  </button>
+                </div>
+                <div className="mt-3 flex flex-wrap gap-2">
+                  {FILL_STEPS.map((id) => {
+                    const label = STEPS.find((x) => x.id === id)?.label;
+                    return (
+                      <button
+                        key={id}
+                        type="button"
+                        onClick={() => go(id)}
+                        className={cn(
+                          'inline-flex items-center gap-1 rounded-full px-3 py-1 text-caption font-semibold',
+                          filled[id] ? 'bg-white text-emerald-800 hover:bg-emerald-100' : 'bg-amber-100 text-amber-900 hover:bg-amber-200'
+                        )}
+                      >
+                        {filled[id] ? <Check className="h-3.5 w-3.5" aria-hidden /> : <span aria-hidden>•</span>}
+                        {label}
+                        {!filled[id] && ' — missing'}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
             {screens[step]}
           </div>
           {showMini && <MiniPreview templateId={w.templateId} builderState={builderState} onChange={handlePreview} />}
