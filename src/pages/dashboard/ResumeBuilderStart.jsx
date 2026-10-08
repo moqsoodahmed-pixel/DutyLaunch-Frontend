@@ -16,7 +16,7 @@ const CHOICES = [
     icon: FileUp,
     title: 'Yes, upload from my resume',
     body: 'We read your existing resume and fill in the builder for you. Just review, edit and update it.',
-    badge: 'Recommended to save you time',
+    badge: 'Speed up your resume',
   },
   {
     id: 'scratch',
@@ -131,6 +131,7 @@ export default function ResumeBuilderStart() {
           <div className="text-center">
             <h2 className="text-h2 font-extrabold text-ink">Are you uploading an existing resume?</h2>
             <p className="mt-2 text-body text-slate-600">Just review, edit and update it with new information.</p>
+            <p className="mt-3 text-caption text-slate-500">Takes about 5 minutes. Pick one option below, then press Next — you can't lose your progress, it saves automatically.</p>
           </div>
 
           <div role="radiogroup" aria-label="How do you want to start?" className="mt-8 grid gap-5 md:grid-cols-2">

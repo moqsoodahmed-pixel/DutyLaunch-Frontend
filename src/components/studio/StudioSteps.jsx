@@ -194,7 +194,7 @@ export function ImportStep({ studio, onDone, goTo }) {
           <p className="mt-1 text-center text-small text-slate-600">Just review, edit and update it with new information.</p>
           <div role="radiogroup" aria-label="How do you want to start?" className="mt-6 grid gap-4 md:grid-cols-2">
             {[
-              { id: 'upload', icon: FileUp, title: 'Yes, upload my LinkedIn or resume', body: 'We read your LinkedIn PDF and/or CV and fill in your profile. You review and confirm it.', badge: 'Recommended to save you time' },
+              { id: 'upload', icon: FileUp, title: 'Yes, upload my LinkedIn or resume', body: 'We read your LinkedIn PDF and/or CV and fill in your profile. You review and confirm it.', badge: 'Speed up your resume' },
               { id: 'scratch', icon: PencilLine, title: 'No, start from scratch', body: 'Enter your details yourself — contact, experience, education and skills — on the next step.' },
             ].map(({ id, icon: Icon, title, body, badge }) => {
               const selected = startChoice === id;
@@ -675,14 +675,40 @@ export function CoverLetterStep({ onDone, refreshKey }) {
   const [busy, setBusy] = useState('');
   const [error, setError] = useState('');
   const [note, setNote] = useState('');
+  const [justFetched, setJustFetched] = useState(false);
+  const autoRanFor = useRef(null); // which versionId we already auto-generated for, so it only ever fires once
   const set = (k) => (e) => setForm((f) => ({ ...f, [k]: e.target.value }));
 
+  // Fill Job title / Company / Job description straight from the chosen
+  // resume's saved target (the job it was written for in earlier steps),
+  // so the person never has to re-type what the system already knows.
+  const fillFromVersion = (v, f) => ({
+    ...f,
+    versionId: v.id,
+    jobTitle: v.target?.jobTitle || f.jobTitle,
+    company: v.target?.company || f.company,
+    jobDescription: v.target?.jobDescription || f.jobDescription,
+  });
+
+  // First load: pick the most relevant resume automatically.
   useEffect(() => {
     if (versions?.length && !form.versionId) {
-      const v = versions[0];
-      setForm((f) => ({ ...f, versionId: v.id, jobTitle: f.jobTitle || v.target?.jobTitle || '', company: f.company || v.target?.company || '', jobDescription: f.jobDescription || v.target?.jobDescription || '' }));
+      setForm((f) => fillFromVersion(versions[0], f));
+      if (versions[0].target?.jobTitle || versions[0].target?.jobDescription) {
+        setJustFetched(true);
+      }
     }
   }, [versions]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Switching "Resume to use" re-fetches that resume's job details too.
+  const chooseVersion = (id) => {
+    const v = versions?.find((x) => x.id === id);
+    setLetter(null);
+    setContent('');
+    autoRanFor.current = null;
+    setForm((f) => (v ? fillFromVersion(v, { ...f, jobTitle: '', company: '', jobDescription: '' }) : { ...f, versionId: id }));
+    if (v?.target?.jobTitle || v?.target?.jobDescription) setJustFetched(true);
+  };
 
   const act = async (key, fn, msg) => {
     setError('');
@@ -699,6 +725,8 @@ export function CoverLetterStep({ onDone, refreshKey }) {
     }
   };
 
+  const canGenerate = Boolean(form.jobTitle.trim() || form.jobDescription.trim());
+
   const generate = () => act('create', async () => {
     const res = await studioService.createCoverLetter({ ...form, versionId: form.versionId || undefined });
     setLetter(res.coverLetter);
@@ -706,6 +734,18 @@ export function CoverLetterStep({ onDone, refreshKey }) {
     setNote(res.engineNote || '');
     onDone();
   }, 'Cover letter drafted.');
+
+  // Once we've auto-fetched enough to work with, draft the letter right
+  // away instead of making the person press Generate for data we already
+  // have — this runs at most once per resume, and never overrides a letter
+  // the person is already editing.
+  useEffect(() => {
+    if (!justFetched || !canGenerate || letter || busy || autoRanFor.current === form.versionId) return;
+    autoRanFor.current = form.versionId;
+    setJustFetched(false);
+    generate();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [justFetched, canGenerate, letter, busy, form.versionId]);
 
   const save = () => act('save', async () => { setLetter(await studioService.updateCoverLetter(letter._id, { content })); }, 'Cover letter saved.');
   const regen = (i) => act(`p${i}`, async () => {
@@ -734,13 +774,22 @@ export function CoverLetterStep({ onDone, refreshKey }) {
   return (
     <Panel title="Generate your cover letter" lead="Tailored to one job, using only your verified experience. It never invents facts about the company or you.">
       <div className="grid gap-4 sm:grid-cols-2">
-        <VersionSelect versions={versions} value={form.versionId} onChange={(v) => setForm((f) => ({ ...f, versionId: v }))} />
+        <VersionSelect versions={versions} value={form.versionId} onChange={chooseVersion} />
         <Select label="Tone" value={form.tone} onChange={set('tone')}>{COVER_LETTER_TONES.map((t) => <option key={t.value} value={t.value}>{t.label}</option>)}</Select>
         <Input label="Job title" value={form.jobTitle} onChange={set('jobTitle')} />
         <Input label="Company name" value={form.company} onChange={set('company')} />
       </div>
       <Textarea className="mt-4" label="Job description" rows={5} value={form.jobDescription} onChange={set('jobDescription')} required />
-      <Button className="mt-4" onClick={generate} loading={busy === 'create'}>{letter ? 'Generate a new letter' : 'Generate cover letter'}</Button>
+      {busy === 'create' && !letter ? (
+        <Note tone="info">We found the job details from your resume and are writing your letter now — no need to click anything.</Note>
+      ) : (
+        <>
+          <Button className="mt-4" onClick={generate} loading={busy === 'create'} disabled={!canGenerate}>
+            {letter ? 'Generate a new letter' : 'Generate cover letter'}
+          </Button>
+          {!canGenerate && <p className="mt-2 text-caption text-slate-500">Add a job title or paste the job description above first.</p>}
+        </>
+      )}
       <ErrorLine error={error} />
 
       {letter && (

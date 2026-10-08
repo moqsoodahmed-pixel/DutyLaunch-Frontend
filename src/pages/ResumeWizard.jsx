@@ -68,12 +68,18 @@ function StepTitle({ title, lead, onBack, tips }) {
   );
 }
 
-function NavRow({ onPreview, nextLabel, onNext, nextDisabled, extra }) {
+function NavRow({ onPreview, previewLocked, nextLabel, onNext, nextDisabled, extra }) {
   return (
     <div className="mt-8 flex flex-wrap items-center justify-end gap-3">
       {extra}
       {onPreview && (
-        <Button variant="outline" onClick={onPreview}>
+        <Button
+          variant="outline"
+          onClick={onPreview}
+          title={previewLocked ? 'Add your name and an email or phone number first' : 'See how your resume looks so far'}
+          className={previewLocked ? 'opacity-60' : undefined}
+        >
+          {previewLocked && <Lock className="h-3.5 w-3.5" aria-hidden />}
           Preview
         </Button>
       )}
@@ -271,15 +277,55 @@ export default function ResumeWizard() {
   const percent = completeness(w);
   const stepIndex = STEPS.findIndex((s) => s.id === step);
 
+  // Where "Preview" was opened from, so its Back button returns there
+  // instead of falling through to the generic previous-step logic (see
+  // handlePreview below for why this exists).
+  const [previewOrigin, setPreviewOrigin] = useState(null);
+
   const go = (id) => {
     const i = STEPS.findIndex((s) => s.id === id);
     setStep(id);
     setMaxStep((m) => Math.max(m, i));
     setShowErrors(false);
+    setPreviewOrigin(null); // any real, unlocking navigation cancels "peek" mode
     topRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   };
   const next = () => go(STEPS[Math.min(stepIndex + 1, STEPS.length - 1)].id);
   const back = () => go(STEPS[Math.max(stepIndex - 1, 0)].id);
+
+  // "Preview" lets you peek at the template at any time, but it must never
+  // unlock steps you haven't reached yet — that was the old bug: clicking
+  // Preview jumped straight to the template step and, because `go()` always
+  // pushes maxStep forward, every step in between lit up as "done" in the
+  // sidebar even though the person never filled them in. So Preview:
+  //   1. requires the Heading step (name + a way to contact you) first —
+  //      without that there's nothing to show anyway, and
+  //   2. only *looks* at the template screen; it deliberately does NOT call
+  //      go()/bump maxStep, so the sidebar stays locked exactly where the
+  //      person actually left off, and remembers previewOrigin so its Back
+  //      button returns to the exact step the person previewed from.
+  const previewReady = Boolean(headingValid);
+  const handlePreview = () => {
+    if (!previewReady) {
+      setShowErrors(true);
+      toast.error('Add your name and an email or phone number first — then you can preview your resume.');
+      return;
+    }
+    setPreviewOrigin(step);
+    setStep('template');
+    setShowErrors(false);
+    topRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  };
+  const leavePreview = () => {
+    if (previewOrigin) {
+      const origin = previewOrigin;
+      setPreviewOrigin(null);
+      setStep(origin);
+      topRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    } else {
+      back();
+    }
+  };
 
   /* ----- example suggestions (built-in + AI) ----- */
   const profession = w.personal.profession || w.experience[0]?.title || '';
@@ -375,7 +421,7 @@ export default function ResumeWizard() {
         </div>
       </div>
       <NavRow
-        onPreview={() => go('template')}
+        onPreview={handlePreview} previewLocked={!previewReady}
         nextLabel="Next: Work history"
         onNext={() => {
           if (!headingValid) return setShowErrors(true);
@@ -447,7 +493,7 @@ export default function ResumeWizard() {
         </div>
       </div>
       <NavRow
-        onPreview={() => go('template')}
+        onPreview={handlePreview} previewLocked={!previewReady}
         nextLabel="Save this job"
         onNext={() => {
           if (!job.title.trim()) return toast.error('Add a job title first.');
@@ -504,7 +550,7 @@ export default function ResumeWizard() {
           )}
         </div>
       )}
-      <NavRow onPreview={() => go('template')} nextLabel="Next: Education" onNext={next} />
+      <NavRow onPreview={handlePreview} previewLocked={!previewReady} nextLabel="Next: Education" onNext={next} />
     </>
   );
 
@@ -552,7 +598,7 @@ export default function ResumeWizard() {
         </label>
       </div>
       <NavRow
-        onPreview={() => go('template')}
+        onPreview={handlePreview} previewLocked={!previewReady}
         nextLabel="Save education"
         onNext={() => {
           if (!school.institution.trim() && !school.degree) return toast.error('Add the school or qualification.');
@@ -585,7 +631,7 @@ export default function ResumeWizard() {
       <Button className="mt-4" variant="outline" onClick={startNewSchool}>
         <Plus className="h-4 w-4" aria-hidden /> Add more education
       </Button>
-      <NavRow onPreview={() => go('template')} nextLabel="Next: Skills" onNext={next} />
+      <NavRow onPreview={handlePreview} previewLocked={!previewReady} nextLabel="Next: Skills" onNext={next} />
     </>
   );
 
@@ -636,7 +682,7 @@ export default function ResumeWizard() {
           </form>
         </div>
       </div>
-      <NavRow onPreview={() => go('template')} nextLabel="Next: Summary" onNext={next} />
+      <NavRow onPreview={handlePreview} previewLocked={!previewReady} nextLabel="Next: Summary" onNext={next} />
     </>
   );
 
@@ -668,7 +714,7 @@ export default function ResumeWizard() {
           <Textarea className="mt-4" label="Your summary" rows={8} value={w.summary} onChange={(e) => set({ summary: e.target.value })} placeholder="e.g. Web developer skilled in React and Node.js who builds fast, responsive websites…" />
         </div>
       </div>
-      <NavRow onPreview={() => go('template')} nextLabel="Next: Anything else" onNext={next} />
+      <NavRow onPreview={handlePreview} previewLocked={!previewReady} nextLabel="Next: Anything else" onNext={next} />
     </>
   );
 
@@ -785,14 +831,14 @@ export default function ResumeWizard() {
         )}
         {x.on.additional && <Textarea label="Additional information" rows={4} value={x.additional} onChange={(e) => setExtras({ additional: e.target.value })} placeholder="e.g. Willing to relocate · Two-wheeler licence" />}
       </div>
-      <NavRow onPreview={() => go('template')} nextLabel="Next: Choose template" onNext={next} />
+      <NavRow onPreview={handlePreview} previewLocked={!previewReady} nextLabel="Next: Choose template" onNext={next} />
     </>
   );
 
   // --- 7. Template ---
   const template = (
     <>
-      <StepTitle title="Choose a template" lead="Your details are already filled in. Free templates are ready to use; paid templates unlock after a one-time payment." onBack={back} />
+      <StepTitle title="Choose a template" lead="Your details are already filled in. Free templates are ready to use; paid templates unlock after a one-time payment." onBack={leavePreview} />
       <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
         {TEMPLATES.map((tpl) => {
           const paid = getTemplatePricing(tpl).isPremium;
@@ -1002,7 +1048,7 @@ export default function ResumeWizard() {
             {step === 'work' && freshersHint}
             {screens[step]}
           </div>
-          {showMini && <MiniPreview templateId={w.templateId} builderState={builderState} onChange={() => go('template')} />}
+          {showMini && <MiniPreview templateId={w.templateId} builderState={builderState} onChange={handlePreview} />}
         </div>
       </main>
 
