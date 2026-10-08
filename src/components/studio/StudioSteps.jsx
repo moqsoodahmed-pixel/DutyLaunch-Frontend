@@ -9,6 +9,7 @@ import { careerService } from '../../services/careerService.js';
 import { studioService, COVER_LETTER_TONES, EXPERIENCE_LEVELS, errMsg } from '../../services/studioService.js';
 import { useToast } from '../../context/ToastContext.jsx';
 import { useAuth } from '../../context/AuthContext.jsx';
+import { CoverLetterDesigner } from '../cover/CoverLetterDesigner.jsx';
 import { cn } from '../../utils/cn.js';
 
 /* ------------------------------------------------------------------ *
@@ -818,6 +819,7 @@ export function CoverLetterStep({ onDone, refreshKey }) {
           </div>
         </div>
       )}
+      {letter && <CoverLetterDesigner content={content} company={form.company || letter.company} jobTitle={form.jobTitle || letter.jobTitle} />}
     </Panel>
   );
 }
