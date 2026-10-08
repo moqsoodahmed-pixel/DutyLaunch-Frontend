@@ -14,7 +14,7 @@ const ease = [0.16, 0.84, 0.44, 1];
    multi-CTA grid, mapped to DutyLaunch's real primary journeys and routes. */
 const ACTIONS = [
   { to: '/resume-checker', label: 'Resume Checker', sub: 'Free Resume Health score', icon: ScanSearch, badge: 'FREE', grad: 'from-azure-500 to-azure-700' },
-  { to: '/ai-resume-builder', label: 'AI Resume Builder', sub: 'Matched to a job description', icon: Zap, badge: 'AI', grad: 'from-aurora-500 to-violet-600' },
+  { to: '/resume-builder', label: 'Resume Builder', sub: 'Upload yours or start from scratch', icon: Zap, grad: 'from-aurora-500 to-violet-600' },
   { to: '/dubai-launch', label: 'Dubai Launch', sub: 'Jobs & relocation in the Gulf', icon: Plane, grad: 'from-frost-500 to-frost-600' },
   { to: '/appostle-services', label: 'Apostille & Attestation', sub: 'Documents, legalised & tracked', icon: FileCheck2, grad: 'from-ink-600 to-ink-800' },
 ];

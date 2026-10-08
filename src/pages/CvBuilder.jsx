@@ -30,12 +30,18 @@ import {
   Zap,
   TrendingUp,
   FileSpreadsheet,
+  Lock,
 } from 'lucide-react';
 import { Seo } from '../components/ui/Seo.jsx';
 import { Button } from '../components/ui/Button.jsx';
 import { TEMPLATES } from '../data/resumeTemplates.js';
 import { ResumeTemplatePreview, PAGE_W } from '../components/cv/ResumeTemplatePreview.jsx';
 import { cn } from '../utils/cn.js';
+import { getTemplatePricing, PaymentRequiredModal } from '../components/cv/TemplateGallery.jsx';
+import { useContentProtection } from '../hooks/useContentProtection.js';
+import { resumeToBuilder, BUILDER_IMPORT_KEY } from '../utils/resumeToBuilder.js';
+import { printResumeSheet } from '../utils/printResume.js';
+import { buildTemplateData } from '../utils/templateData.js';
 
 // Curated Recommended Skills by Template / Industry
 const RECOMMENDED_SKILLS = {
@@ -323,6 +329,70 @@ export default function CvBuilder() {
   const [achievements, setAchievements] = useState([]);
   const [customSections, setCustomSections] = useState([]);
 
+  // Paid templates: usable only after a server-verified payment.
+  const { isUnlocked, isReady: ownershipReady } = useContentProtection({ enabled: false });
+  const [lockedTpl, setLockedTpl] = useState(null);
+  const isLocked = (id) => getTemplatePricing({ id }).isPremium && !isUnlocked(id);
+  const chooseTemplate = (id) => {
+    if (isLocked(id)) {
+      setLockedTpl(TEMPLATES.find((t) => t.id === id) || null);
+      return;
+    }
+    setTemplateId(id);
+    setSearchParams((prev) => {
+      const next = new URLSearchParams(prev);
+      next.set('template', id);
+      return next;
+    });
+  };
+
+  const chooseTemplateAfterUnlock = (id) => {
+    setLockedTpl(null);
+    setTemplateId(id);
+    setSearchParams((prev) => {
+      const next = new URLSearchParams(prev);
+      next.set('template', id);
+      return next;
+    });
+  };
+
+  // A paid template opened from a link: fall back to the free template and
+  // offer to unlock it, once we know what this user owns.
+  useEffect(() => {
+    if (!ownershipReady || !isLocked(templateId)) return;
+    setLockedTpl(TEMPLATES.find((t) => t.id === templateId) || null);
+    setTemplateId('dl-elite');
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [ownershipReady, templateId]);
+
+  // "Yes, upload from my resume": the start page leaves the parsed resume
+  // here for this tab; fill the form once and clear it.
+  useEffect(() => {
+    let data = null;
+    try {
+      const raw = sessionStorage.getItem(BUILDER_IMPORT_KEY);
+      if (raw) {
+        sessionStorage.removeItem(BUILDER_IMPORT_KEY);
+        data = resumeToBuilder(JSON.parse(raw));
+      }
+    } catch {
+      data = null;
+    }
+    if (!data) return;
+    setPersonalInfo(data.personalInfo);
+    setSocialLinks(data.socialLinks);
+    setSummary(data.summary);
+    setExperience(data.experience);
+    setEducation(data.education);
+    setProjects(data.projects);
+    setSkills(data.skills);
+    setCertifications(data.certifications);
+    setLanguages(data.languages);
+    setAwards(data.awards);
+    setAchievements(data.achievements);
+    setCustomSections(data.customSections);
+  }, []);
+
   // Skill input temp state
   const [newSkillText, setNewSkillText] = useState('');
   const [activeSkillCategory, setActiveSkillCategory] = useState('hard');
@@ -352,91 +422,17 @@ export default function CvBuilder() {
   // Preview zoom factor
   const [previewZoom, setPreviewZoom] = useState('fit');
 
-  // Handle print with high-precision isolated 1-page A4 export
-  const handlePrint = () => {
-    try {
-      const sheet = document.querySelector('[data-resume-sheet="true"]');
-      if (sheet) {
-        let frame = document.getElementById('cv-dedicated-print-frame');
-        if (frame) frame.remove();
-
-        frame = document.createElement('iframe');
-        frame.id = 'cv-dedicated-print-frame';
-        frame.style.position = 'fixed';
-        frame.style.right = '0';
-        frame.style.bottom = '0';
-        frame.style.width = '0';
-        frame.style.height = '0';
-        frame.style.border = 'none';
-        frame.style.visibility = 'hidden';
-        document.body.appendChild(frame);
-
-        const frameDoc = frame.contentWindow.document;
-        frameDoc.open();
-        frameDoc.write(`<!DOCTYPE html>
-<html>
-<head>
-  <meta charset="utf-8">
-  <title>${liveTemplateData.personName || 'DutyLaunch_Resume'} - ATS Resume</title>
-  <style>
-    @page {
-      size: A4 portrait;
-      margin: 0mm !important;
+  // Downloads are blocked while a paid template is not unlocked.
+  const handleDownload = () => {
+    if (isLocked(templateId)) {
+      setLockedTpl(TEMPLATES.find((t) => t.id === templateId) || null);
+      return;
     }
-    *, *::before, *::after {
-      box-sizing: border-box !important;
-      -webkit-print-color-adjust: exact !important;
-      print-color-adjust: exact !important;
-      color-adjust: exact !important;
-    }
-    html, body {
-      margin: 0 !important;
-      padding: 0 !important;
-      background: #ffffff !important;
-      width: 210mm !important;
-      height: 297mm !important;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-      overflow: hidden !important;
-    }
-    .print-container {
-      width: 210mm !important;
-      height: 297mm !important;
-      min-height: 297mm !important;
-      max-height: 297mm !important;
-      margin: 0 auto !important;
-      padding: 0 !important;
-      background: #ffffff !important;
-      overflow: hidden !important;
-    }
-    .print-container > div {
-      transform: none !important;
-      width: 210mm !important;
-      height: 297mm !important;
-      min-height: 297mm !important;
-      max-height: 297mm !important;
-      margin: 0 !important;
-    }
-  </style>
-</head>
-<body>
-  <div class="print-container">
-    ${sheet.outerHTML}
-  </div>
-</body>
-</html>`);
-        frameDoc.close();
-
-        setTimeout(() => {
-          frame.contentWindow.focus();
-          frame.contentWindow.print();
-        }, 300);
-        return;
-      }
-    } catch (e) {
-      console.warn('Iframe print error, falling back to window.print():', e);
-    }
-    window.print();
+    handlePrint();
   };
+
+  // Handle print with high-precision isolated 1-page A4 export
+  const handlePrint = () => printResumeSheet(liveTemplateData.personName);
 
   // Explicit action to load demo data
   const handleLoadDemo = () => {
@@ -520,90 +516,14 @@ export default function CvBuilder() {
     const hasUserAchievements = achievements && achievements.length > 0;
 
     return {
-      ...baseTpl,
+      ...buildTemplateData(
+        baseTpl,
+        { personalInfo, socialLinks, summary, experience, education, projects, skills, certifications, languages, awards, achievements, customSections },
+        { style: { colorTheme, fontFamily, spacing, margins, lineHeight } }
+      ),
       id: templateId,
       layout: templateId,
       name: baseTpl.name,
-      // Name: if user typed name, use user's name; otherwise show template sample name
-      personName: personalInfo.fullName?.trim() ? personalInfo.fullName : (baseTpl.personName || baseTpl.name),
-      // Headline / Title: if user typed title, use user's title; otherwise template sample headline
-      headline: personalInfo.title?.trim() ? personalInfo.title : baseTpl.headline,
-      // Contact: if user provided, use user's info; otherwise template sample
-      contact: {
-        email: personalInfo.email?.trim() ? personalInfo.email : baseTpl.contact?.email,
-        phone: personalInfo.phone?.trim() ? personalInfo.phone : baseTpl.contact?.phone,
-        location: personalInfo.location?.trim() ? personalInfo.location : baseTpl.contact?.location,
-        linkedin: socialLinks.linkedin?.trim() ? socialLinks.linkedin : baseTpl.contact?.linkedin,
-        github: socialLinks.github?.trim() ? socialLinks.github : baseTpl.contact?.github,
-        website: (personalInfo.website || socialLinks.portfolio)?.trim()
-          ? (personalInfo.website || socialLinks.portfolio)
-          : baseTpl.contact?.website,
-      },
-      // Summary: if user provided summary, use user's summary; otherwise template sample summary
-      summary: summary?.trim() ? summary : baseTpl.summary,
-      // Experience: if user added roles, render user's roles; otherwise show template sample experience
-      experience: hasUserExperience
-        ? experience.map((exp) => ({
-            title: exp.title || 'Job Title',
-            company: exp.company || 'Company Name',
-            location: exp.location || '',
-            dates: exp.dates || '',
-            bullets: (exp.bullets || []).filter(Boolean),
-          }))
-        : baseTpl.experience,
-      // Education: if user added degrees, render user's education; otherwise show template sample education
-      education: hasUserEducation
-        ? education.map((edu) => ({
-            degree: edu.degree || 'Degree / Qualification',
-            institution: edu.institution || 'University / Institution',
-            location: edu.location || '',
-            year: edu.year || '',
-            honors: edu.honors || '',
-          }))
-        : baseTpl.education,
-      // Projects: if user added projects, use user's; otherwise template sample
-      projects: hasUserProjects
-        ? projects.map((p) => ({
-            name: p.name || 'Project Name',
-            role: p.role || '',
-            impact: p.impact || '',
-            link: p.link || '',
-          }))
-        : baseTpl.projects,
-      // Skills: if user added skills, use user's skills; otherwise template sample skills
-      skills: hasUserSkills ? userSkillsList : baseTpl.skills,
-      // Certifications
-      certs: hasUserCerts
-        ? certifications.map((c) => (typeof c === 'string' ? c : `${c.name} — ${c.issuer} (${c.year})`))
-        : (baseTpl.certs || baseTpl.certifications || []),
-      certifications: hasUserCerts
-        ? certifications.map((c) => (typeof c === 'string' ? c : `${c.name} — ${c.issuer} (${c.year})`))
-        : (baseTpl.certifications || baseTpl.certs || []),
-      // Languages
-      languages: hasUserLanguages && languages.some((l) => (typeof l === 'string' ? l.trim() : l?.name?.trim()))
-        ? languages
-            .map((l) => {
-              if (typeof l === 'string') return l.trim();
-              if (!l?.name?.trim()) return '';
-              return l.level?.trim() ? `${l.name.trim()} (${l.level.trim()})` : l.name.trim();
-            })
-            .filter(Boolean)
-        : (baseTpl.languages || []),
-      // Awards / Achievements
-      awards: hasUserAwards
-        ? awards.map((a) => (typeof a === 'string' ? a : `${a.title} — ${a.issuer} (${a.year}): ${a.description}`))
-        : (baseTpl.awards || []),
-      achievements: hasUserAchievements
-        ? achievements.map((a) => (typeof a === 'string' ? a : `${a.title} — ${a.issuer} (${a.year})`))
-        : (baseTpl.achievements || []),
-      customSections,
-      colorTheme,
-      fontFamily,
-      spacing,
-      margins,
-      lineHeight,
-      showPhoto: personalInfo.showPhoto,
-      profileImage: personalInfo.profileImage,
     };
   }, [
     templateId,
@@ -661,7 +581,7 @@ export default function CvBuilder() {
   return (
     <>
       <Seo
-        title="Live ATS Resume Builder · DutyLaunch"
+        title="Resume Builder · DutyLaunch"
         description="Build an ATS-optimized professional resume in real-time. Split layout with live A4 document preview, instant styling, 5 flagship templates, and strict recruiter compliance."
       />
 
@@ -756,10 +676,10 @@ export default function CvBuilder() {
         <div className="mx-auto flex max-w-[96rem] flex-wrap items-center justify-between gap-3 px-4 py-3 sm:px-6">
           <div className="flex items-center gap-3">
             <Link
-              to="/cv-templates"
+              to="/resume-builder"
               className="inline-flex items-center gap-1.5 text-small font-semibold text-slate-600 transition-all duration-[250ms] hover:text-azure hover:-translate-y-0.5"
             >
-              ← Back to Templates
+              ← Back to Resume Builder
             </Link>
             <span className="text-slate-300">|</span>
             <div className="flex items-center gap-2">
@@ -810,7 +730,7 @@ export default function CvBuilder() {
             <Button
               variant="premium"
               size="sm"
-              onClick={handlePrint}
+              onClick={handleDownload}
               className="!rounded-lg shadow-[0_4px_16px_-2px_rgba(79,193,230,0.5)] transition-all duration-[250ms] hover:scale-[1.04] hover:-translate-y-0.5"
             >
               <Printer className="mr-1.5 h-3.5 w-3.5" />
@@ -872,10 +792,7 @@ export default function CvBuilder() {
                         return (
                           <div
                             key={tpl.id}
-                            onClick={() => {
-                              setTemplateId(tpl.id);
-                              setSearchParams({ template: tpl.id });
-                            }}
+                            onClick={() => chooseTemplate(tpl.id)}
                             className={cn(
                               'group relative flex flex-col justify-between rounded-xl border p-3 cursor-pointer transition-all duration-[250ms] bg-white text-left',
                               isSelected
@@ -894,7 +811,15 @@ export default function CvBuilder() {
                             <p className="mt-1 text-[11px] text-slate-500 line-clamp-1">{tpl.tagline}</p>
                             <div className="mt-2.5 flex items-center justify-between border-t border-slate-100 pt-2 text-[10.5px]">
                               <span className="text-slate-600 font-medium">{tpl.role}</span>
-                              <span className="font-semibold text-azure">Use Template →</span>
+                              {!getTemplatePricing(tpl).isPremium ? (
+                                <span className="font-semibold text-emerald-700">Free · Use →</span>
+                              ) : isUnlocked(tpl.id) ? (
+                                <span className="font-semibold text-azure">Unlocked · Use →</span>
+                              ) : (
+                                <span className="inline-flex shrink-0 items-center gap-1 whitespace-nowrap font-semibold text-amber-700">
+                                  <Lock className="h-3 w-3" aria-hidden /> Paid · Unlock
+                                </span>
+                              )}
                             </div>
                           </div>
                         );
@@ -2415,7 +2340,7 @@ export default function CvBuilder() {
 
                   <button
                     type="button"
-                    onClick={handlePrint}
+                    onClick={handleDownload}
                     className="inline-flex items-center gap-1 rounded-lg border border-azure-300 bg-azure-50 px-2.5 py-1 text-caption font-bold text-azure transition-all duration-[250ms] hover:bg-azure hover:text-white cursor-pointer"
                   >
                     <Printer className="h-3 w-3" />
@@ -2455,7 +2380,7 @@ export default function CvBuilder() {
                 <Button
                   variant="premium"
                   size="sm"
-                  onClick={handlePrint}
+                  onClick={handleDownload}
                   className="transition-all duration-[250ms] hover:scale-[1.04]"
                 >
                   Download PDF
@@ -2465,6 +2390,12 @@ export default function CvBuilder() {
           </div>
         </div>
       </main>
+      <PaymentRequiredModal
+        tpl={lockedTpl}
+        open={Boolean(lockedTpl)}
+        onClose={() => setLockedTpl(null)}
+        onUnlockSuccess={(tpl) => chooseTemplateAfterUnlock(tpl.id)}
+      />
     </>
   );
 }

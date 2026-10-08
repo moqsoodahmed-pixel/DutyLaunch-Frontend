@@ -75,7 +75,8 @@ export const studioService = {
     return unwrap(await postForm('/studio/import', form, onProgress));
   },
   setLinkedInUrl: async (url) => unwrap(await api.put('/studio/linkedin-url', { url })),
-  startManual: async (resume, { consent }) => unwrap(await api.post('/studio/manual', { resume, consent: consent ? 'true' : 'false' })),
+  startManual: async (resume, { consent, mode } = {}) =>
+    unwrap(await api.post('/studio/manual', { resume, consent: consent ? 'true' : 'false', ...(mode ? { mode } : {}) })),
 
   /* Step 2 — review */
   confirm: async (resume) => unwrap(await api.post('/studio/confirm', resume ? { resume } : {})),
@@ -97,6 +98,10 @@ export const studioService = {
         experienceLevel: experienceLevel || undefined,
       })
     ),
+
+  /* Resume Builder wizard — example bullets / skills / summaries for a job title */
+  suggestions: async ({ kind, jobTitle, experienceLevel, details } = {}) =>
+    unwrap(await api.post('/studio/suggestions', { kind, jobTitle: jobTitle || undefined, experienceLevel, details }, { timeout: AI_TIMEOUT })),
 
   /* Step 6 — cover letters */
   createCoverLetter: async (body) => unwrap(await api.post('/studio/cover-letters', body, { timeout: AI_TIMEOUT })),

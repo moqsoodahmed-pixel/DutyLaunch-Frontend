@@ -297,63 +297,48 @@ function EmployerOverview() {
 }
 
 
-/* AI Career Studio summary — every figure comes from GET /api/studio. */
-const QUICK_ACTIONS = [
-  { step: 'resume', label: 'Build my resume' },
-  { step: 'ats', label: 'Check ATS score' },
-  { step: 'cover-letter', label: 'Generate cover letter' },
-  { step: 'interview', label: 'Prepare for interview' },
-  { step: 'review', label: 'Complete my profile' },
+/* Career tools — the counts come from GET /api/studio. */
+const TOOLS = [
+  { to: '/resume-builder', label: 'Build my resume', note: 'Upload yours or start from scratch' },
+  { to: '/cover-letter', label: 'Write a cover letter', note: 'Matched to a job you want' },
+  { to: '/interview-prep', label: 'Prepare for interviews', note: 'Top 10 questions with answers' },
+  { to: '/mock-interview', label: 'Practise a mock interview', note: 'Answer and get feedback' },
 ];
 
 function StudioCard() {
-  const { data: studio, loading, error } = useApi(() => studioService.get(), []);
-  if (loading) return <LoadingBlock label="Loading your career studio" />;
-  if (error || !studio) return null;
-
-  if (!studio.profile) {
-    return (
-      <div className="rounded-xl border border-azure-200 bg-azure-50 p-6">
-        <div className="flex flex-wrap items-center justify-between gap-4">
-          <div className="max-w-prose">
-            <p className="flex items-center gap-2 text-small font-bold text-ink"><Sparkles className="h-4 w-4 text-azure" aria-hidden /> AI Career Studio</p>
-            <p className="mt-1 text-small text-slate-700">Import your LinkedIn PDF or CV once, confirm it, and create your resume, cover letter and interview preparation from the same verified profile.</p>
-          </div>
-          <Button to="/career-studio">Get started</Button>
-        </div>
-      </div>
-    );
-  }
-
-  const next = studio.steps.find((s) => s.state !== 'completed');
-  const d = studio.documents;
-  const mocksDone = d.mockInterviews.filter((m) => m.status === 'completed').length;
+  const { data: studio, loading } = useApi(() => studioService.get(), []);
+  if (loading) return <LoadingBlock label="Loading your career tools" />;
+  const d = studio?.documents;
   return (
     <div className="rounded-xl border border-line bg-white p-6">
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
-          <p className="flex items-center gap-2 text-small font-bold text-ink"><Sparkles className="h-4 w-4 text-azure" aria-hidden /> AI Career Studio</p>
-          <p className="mt-1 text-caption text-slate-500">Phase 1 · {studio.completed} of {studio.steps.length} steps complete</p>
-          <Progress value={studio.completed} max={studio.steps.length} className="mt-2 w-56" />
+          <p className="flex items-center gap-2 text-small font-bold text-ink"><Sparkles className="h-4 w-4 text-azure" aria-hidden /> Your career tools</p>
+          <p className="mt-1 text-caption text-slate-500">
+            {studio?.profile ? 'Your saved resume powers your cover letters and interview prep.' : 'Start with your resume — everything else is built from it.'}
+          </p>
         </div>
-        {next ? <Button to={`/career-studio?step=${next.id}`} size="sm">Next: {next.label}</Button> : <Button to="/mock-interview" size="sm" variant="secondary">Practise a mock interview</Button>}
+        <Button to="/resume-builder" size="sm">{studio?.profile ? 'Open Resume Builder' : 'Build my resume'}</Button>
       </div>
-      <div className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
-        {[
-          ['Resume Health', studio.latestResume?.health ?? '—'],
-          ['Job Match', studio.latestResume?.match != null ? `${studio.latestResume.match}%` : '—'],
-          ['Resumes', d.resumes.length],
-          ['Cover letters', d.coverLetters.length],
-          ['Question sets', d.interviewSets.length],
-          ['Mock interviews', mocksDone],
-        ].map(([label, value]) => (
-          <div key={label} className="rounded-lg bg-paper p-3"><p className="text-h4 font-extrabold tabular-nums text-ink">{value}</p><p className="text-caption text-slate-500">{label}</p></div>
+      <div className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+        {TOOLS.map((t) => (
+          <Link key={t.to} to={t.to} className="rounded-lg border border-line bg-paper p-4 transition-colors hover:border-azure-300">
+            <p className="text-small font-bold text-ink">{t.label}</p>
+            <p className="mt-0.5 text-caption text-slate-500">{t.note}</p>
+          </Link>
         ))}
       </div>
-      {studio.latestResume && <p className="mt-3 text-caption text-slate-500">Latest resume: {studio.latestResume.label} · updated {relativeTime(studio.latestResume.updatedAt)}. Scores are DutyLaunch estimates, not employer ATS results.</p>}
-      <div className="mt-4 flex flex-wrap gap-2">
-        {QUICK_ACTIONS.map((a) => <Button key={a.step} to={`/career-studio?step=${a.step}`} size="sm" variant="quiet">{a.label}</Button>)}
-      </div>
+      {d && (
+        <div className="mt-4 grid grid-cols-3 gap-3">
+          {[
+            ['Cover letters', d.coverLetters.length],
+            ['Question sets', d.interviewSets.length],
+            ['Mock interviews', d.mockInterviews.filter((m) => m.status === 'completed').length],
+          ].map(([label, value]) => (
+            <div key={label} className="rounded-lg bg-paper p-3"><p className="text-h4 font-extrabold tabular-nums text-ink">{value}</p><p className="text-caption text-slate-500">{label}</p></div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }

@@ -15,6 +15,8 @@ import { cn } from '../../utils/cn.js';
 import { easing } from '../../utils/motion.js';
 import { usePrefersReducedMotion } from '../../hooks/useMediaQuery.js';
 import { useContentProtection } from '../../hooks/useContentProtection.js';
+import { useRazorpayCheckout } from '../../hooks/useRazorpayCheckout.js';
+import { formatCurrency } from '../../utils/format.js';
 
 const LAYOUT_LABEL = Object.fromEntries(LAYOUTS.map((l) => [l.value, l.label]));
 
@@ -35,30 +37,31 @@ export function getTemplatePricing(tpl) {
  * Explicitly states that payment is required before granting access to edit, use, or export.
  */
 export function PaymentRequiredModal({ tpl, open, onClose, onUnlockSuccess }) {
-  const [processing, setProcessing] = useState(false);
   const { unlock } = useContentProtection();
+  const { pay, pendingId, config } = useRazorpayCheckout();
   const navigate = useNavigate();
 
   if (!open || !tpl) return null;
 
-  const handlePay = () => {
-    setProcessing(true);
-    setTimeout(() => {
-      unlock(tpl.id);
-      setProcessing(false);
-      onUnlockSuccess?.(tpl);
-      onClose();
-    }, 450);
-  };
+  const price = config?.templates?.price;
+  const gst = config?.gst?.exclusive ? config.gst.rate : 0;
+  const processing = pendingId === tpl.id;
+
+  // Real Razorpay checkout. The template unlocks only after the server has
+  // verified the payment, and stays unlocked on this account.
+  const handlePay = () =>
+    pay({
+      itemType: 'template',
+      itemId: tpl.id,
+      onSuccess: async () => {
+        await unlock();
+        onUnlockSuccess?.(tpl);
+        onClose();
+      },
+    });
 
   return (
-    <Modal
-      open={open}
-      onClose={onClose}
-      title={`Payment Required: ${tpl.name}`}
-      description="Paid Executive ATS Resume Template"
-      size="md"
-    >
+    <Modal open={open} onClose={onClose} title={`Unlock ${tpl.name}`} description="Paid resume template" size="md">
       <div className="space-y-4 pt-1">
         <div className="relative overflow-hidden rounded-xl border border-amber-400/40 bg-gradient-to-br from-amber-500/15 via-orange-500/10 to-slate-900/60 p-4">
           <div className="flex items-center gap-3.5">
@@ -66,30 +69,37 @@ export function PaymentRequiredModal({ tpl, open, onClose, onUnlockSuccess }) {
               <Lock className="h-6 w-6" />
             </div>
             <div>
-              <span className="inline-block rounded-full bg-amber-500/25 border border-amber-400/40 px-2 py-0.5 text-[10px] font-extrabold uppercase tracking-wider text-amber-700 dark:text-amber-300">
-                Paid Template — Access Restricted
+              <span className="inline-block rounded-full border border-amber-400/40 bg-amber-500/25 px-2 py-0.5 text-[10px] font-extrabold uppercase tracking-wider text-amber-700">
+                Paid template
               </span>
-              <h3 className="text-base font-extrabold text-ink">{tpl.role}</h3>
-              <p className="text-caption text-slate-500">Requires purchase before use in builder or export</p>
+              <h3 className="text-base font-extrabold text-ink">{tpl.name}</h3>
+              <p className="text-caption text-slate-500">
+                {price ? (
+                  <>
+                    <strong className="text-ink">{formatCurrency(price)}</strong>
+                    {gst ? ` + ${gst}% GST` : ''} · one-time payment
+                  </>
+                ) : (
+                  'One-time payment'
+                )}
+              </p>
             </div>
           </div>
         </div>
 
-        <div className="rounded-xl border border-slate-200/90 bg-slate-50/80 p-3.5 space-y-2 text-small text-slate-700">
-          <p className="font-semibold text-ink text-[13px]">
-            To access and build your resume with this template, please complete payment:
-          </p>
+        <div className="space-y-2 rounded-xl border border-slate-200/90 bg-slate-50/80 p-3.5 text-small text-slate-700">
+          <p className="text-[13px] font-semibold text-ink">After payment you can:</p>
           <div className="flex items-center gap-2 text-caption">
-            <Check className="h-4 w-4 text-emerald-500 shrink-0" />
-            <span>Full unlimited editing in CV Builder & AI Match Engine</span>
+            <Check className="h-4 w-4 shrink-0 text-emerald-500" />
+            <span>Build your resume with this template in the Resume Builder</span>
           </div>
           <div className="flex items-center gap-2 text-caption">
-            <Check className="h-4 w-4 text-emerald-500 shrink-0" />
-            <span>Guaranteed 98%+ ATS parser compliance score</span>
+            <Check className="h-4 w-4 shrink-0 text-emerald-500" />
+            <span>Download it as a PDF whenever you need</span>
           </div>
           <div className="flex items-center gap-2 text-caption">
-            <Check className="h-4 w-4 text-emerald-500 shrink-0" />
-            <span>Instant high-resolution PDF and Word export</span>
+            <Check className="h-4 w-4 shrink-0 text-emerald-500" />
+            <span>Keep it unlocked on your account — no repeat payments</span>
           </div>
         </div>
 
@@ -98,21 +108,22 @@ export function PaymentRequiredModal({ tpl, open, onClose, onUnlockSuccess }) {
             type="button"
             disabled={processing}
             onClick={handlePay}
-            className="flex-1 rounded-xl bg-gradient-to-r from-amber-500 via-orange-500 to-amber-600 px-5 py-3 text-body font-bold text-white shadow-lg shadow-orange-500/25 transition-all hover:brightness-110 active:scale-95 disabled:opacity-50 cursor-pointer"
+            className="flex-1 cursor-pointer rounded-xl bg-gradient-to-r from-amber-500 via-orange-500 to-amber-600 px-5 py-3 text-body font-bold text-white shadow-lg shadow-orange-500/25 transition-all hover:brightness-110 active:scale-95 disabled:opacity-50"
           >
-            {processing ? 'Processing Payment…' : 'Pay & Access Template'}
+            {processing ? 'Opening payment…' : price ? `Pay ${formatCurrency(price)}${gst ? ' + GST' : ''}` : 'Pay & unlock'}
           </button>
           <button
             type="button"
             onClick={() => {
               onClose();
-              navigate('/pricing');
+              navigate('/resume-builder/editor?template=dl-elite');
             }}
-            className="rounded-xl border border-slate-200 px-4 py-3 text-small font-semibold text-slate-600 hover:bg-slate-100 transition-colors cursor-pointer"
+            className="cursor-pointer rounded-xl border border-slate-200 px-4 py-3 text-small font-semibold text-slate-600 transition-colors hover:bg-slate-100"
           >
-            View Pricing Plans
+            Use a free template
           </button>
         </div>
+        <p className="text-center text-caption text-slate-500">Secure payment by Razorpay.</p>
       </div>
     </Modal>
   );
@@ -144,7 +155,7 @@ export function TemplateCard({ tpl, selected, onSelect, onOpen, className, tone 
       return;
     }
     onSelect?.(tpl.id);
-    navigate(`/cv-builder?template=${tpl.id}`);
+    navigate(`/resume-builder/editor?template=${tpl.id}`);
   };
 
   const handleCardClick = () => {
@@ -259,7 +270,7 @@ export function TemplateCard({ tpl, selected, onSelect, onOpen, className, tone 
         onClose={() => setPaymentModalOpen(false)}
         onUnlockSuccess={(unlockedTpl) => {
           onSelect?.(unlockedTpl.id);
-          navigate(`/cv-builder?template=${unlockedTpl.id}`);
+          navigate(`/resume-builder/editor?template=${unlockedTpl.id}`);
         }}
       />
     </>
@@ -378,7 +389,7 @@ export function TemplateGallery({
   title = 'DutyLaunch Flagship ATS Templates',
   label = 'Engineered for Every Career Stage',
   lead,
-  cta = { label: 'Start AI Resume Builder', to: '/ai-resume-builder' },
+  cta = { label: 'Start Resume Builder', to: '/resume-builder' },
   tone = 'white',
   limit,
 }) {
@@ -495,7 +506,7 @@ export function TemplateGallery({
             <div>
               <h4 className="font-bold text-ink">Ready to generate your ATS-optimized CV?</h4>
               <p className="mt-1 max-w-prose text-small text-slate-600">
-                Switch templates anytime in the AI Resume Builder with one click.
+                Switch templates anytime in the Resume Builder with one click.
               </p>
             </div>
             <Button to={cta.to} variant="premium" className="shrink-0">
@@ -529,7 +540,7 @@ export function TemplateGallery({
               </div>
               <div className="flex flex-col gap-3 sm:flex-row">
                 {isAccessible ? (
-                  <Button to={`/cv-builder?template=${preview.id}`} variant="premium" fullWidth>
+                  <Button to={`/resume-builder/editor?template=${preview.id}`} variant="premium" fullWidth>
                     Use {preview.name} in Builder
                   </Button>
                 ) : (

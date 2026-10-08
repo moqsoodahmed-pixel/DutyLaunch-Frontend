@@ -1,7 +1,7 @@
 import { Suspense } from 'react';
 import { PageFallback } from '../components/ui/PageFallback.jsx';
 import { ChunkErrorBoundary } from '../components/ui/ChunkErrorBoundary.jsx';
-import { Routes, Route, Navigate } from 'react-router-dom';
+import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { ProtectedRoute, GuestRoute } from './ProtectedRoute.jsx';
 import { ScrollToTop } from './ScrollToTop.jsx';
 
@@ -31,7 +31,6 @@ const AdminResumeChecks = lazyWithReload(() => import('../pages/admin/AdminResum
 const DubaiPackage = lazyWithReload(() => import('../pages/DubaiPackage.jsx'));
 const Documentation = lazyWithReload(() => import('../pages/Documentation.jsx'));
 const AtsResumeChecker = lazyWithReload(() => import('../pages/AtsResumeChecker.jsx'));
-const AiResumeBuilder = lazyWithReload(() => import('../pages/AiResumeBuilder.jsx'));
 const Partners = lazyWithReload(() => import('../pages/Partners.jsx'));
 const LinkedInOptimizer = lazyWithReload(() => import('../pages/career-tools/LinkedInOptimizer.jsx'));
 const CoverLetter = lazyWithReload(() => import('../pages/career-tools/CoverLetter.jsx'));
@@ -54,7 +53,6 @@ const Disclaimers = lazyWithReload(() => import('../pages/legal/Disclaimers.jsx'
 /* Auth */
 const Login = lazyWithReload(() => import('../pages/auth/Login.jsx'));
 const Register = lazyWithReload(() => import('../pages/auth/Register.jsx'));
-const CareerStudio = lazyWithReload(() => import('../pages/dashboard/CareerStudio.jsx'));
 const MockInterview = lazyWithReload(() => import('../pages/dashboard/MockInterview.jsx'));
 const ForgotPassword = lazyWithReload(() => import('../pages/auth/ForgotPassword.jsx'));
 
@@ -63,6 +61,10 @@ const Dashboard = lazyWithReload(() => import('../pages/dashboard/Dashboard.jsx'
 const Assistant = lazyWithReload(() => import('../pages/dashboard/Assistant.jsx'));
 const Profile = lazyWithReload(() => import('../pages/dashboard/Profile.jsx'));
 const Payments = lazyWithReload(() => import('../pages/dashboard/Payments.jsx'));
+const ResumeBuilderStart = lazyWithReload(() => import('../pages/dashboard/ResumeBuilderStart.jsx'));
+const ResumeWizard = lazyWithReload(() => import('../pages/ResumeWizard.jsx'));
+const CoverLetterTool = lazyWithReload(() => import('../pages/dashboard/CoverLetter.jsx'));
+const InterviewPrepTool = lazyWithReload(() => import('../pages/dashboard/InterviewPrep.jsx'));
 const Applications = lazyWithReload(() => import('../pages/dashboard/Applications.jsx'));
 const SavedJobs = lazyWithReload(() => import('../pages/dashboard/SavedJobs.jsx'));
 const MyResumes = lazyWithReload(() => import('../pages/dashboard/MyResumes.jsx'));
@@ -83,6 +85,12 @@ const AdminMessages = lazyWithReload(() => import('../pages/admin/AdminMessages.
 const AdminTestimonials = lazyWithReload(() => import('../pages/admin/AdminTestimonials.jsx'));
 
 
+/** Redirect that keeps the query string, e.g. /cv-builder?template=x. */
+function RedirectKeepQuery({ to }) {
+  const { search } = useLocation();
+  return <Navigate to={`${to}${search}`} replace />;
+}
+
 export function AppRoutes() {
   return (
     <>
@@ -93,12 +101,22 @@ export function AppRoutes() {
       <ChunkErrorBoundary>
         <Suspense fallback={<PageFallback />}>
           <Routes>
+            {/* Guided Resume Builder: full-screen, candidates only. */}
+            <Route element={<ProtectedRoute roles={['user']} />}>
+              <Route path="resume-builder/wizard" element={<ResumeWizard />} />
+            </Route>
+
             <Route element={<PublicLayout />}>
               <Route index element={<Home />} />
               <Route path="about" element={<About />} />
               <Route path="career-services" element={<CareerServices />} />
               <Route path="pricing" element={<Pricing />} />
-              <Route path="cv-builder" element={<CvBuilder />} />
+              {/* Resume Builder: signed-in candidates only. Old public
+                  addresses redirect (keeping ?template=…). */}
+              <Route element={<ProtectedRoute roles={['user']} />}>
+                <Route path="resume-builder/editor" element={<CvBuilder />} />
+              </Route>
+              <Route path="cv-builder" element={<RedirectKeepQuery to="/resume-builder/editor" />} />
               <Route path="cv-templates" element={<CvTemplates />} />
               <Route path="upskills" element={<Upskills />} />
               <Route path="higher-education" element={<HigherEducation />} />
@@ -108,7 +126,7 @@ export function AppRoutes() {
               <Route path="professional-courses" element={<ProfessionalCourses />} />
               <Route path="professional-courses/:slug" element={<ProgrammeDetail track="courses" />} />
               {/* --- Career Tools, at their SEO URLs -------------------- */}
-              <Route path="ai-resume-builder" element={<AiResumeBuilder />} />
+              <Route path="ai-resume-builder" element={<Navigate to="/resume-builder" replace />} />
               <Route path="resume-checker" element={<AtsResumeChecker />} />
               <Route path="linkedin-optimization" element={<LinkedInOptimizer />} />
               <Route path="cover-letter-generator" element={<CoverLetter />} />
@@ -177,7 +195,10 @@ export function AppRoutes() {
                   <Route path="saved-jobs" element={<SavedJobs />} />
                   <Route path="my-resumes" element={<MyResumes />} />
                   <Route path="assistant" element={<Assistant />} />
-                  <Route path="career-studio" element={<CareerStudio />} />
+                  <Route path="career-studio" element={<Navigate to="/resume-builder" replace />} />
+                  <Route path="cover-letter" element={<CoverLetterTool />} />
+                  <Route path="interview-prep" element={<InterviewPrepTool />} />
+                  <Route path="resume-builder" element={<ResumeBuilderStart />} />
                   <Route path="mock-interview" element={<MockInterview />} />
                 </Route>
                 <Route element={<ProtectedRoute roles={['employer']} />}>

@@ -17,4 +17,6 @@ export const paymentService = {
     }),
   failed: ({ orderId, reason }) => api.post('/payments/failed', { razorpay_order_id: orderId, reason }),
   mine: () => api.get('/payments/mine'),
+  /** Paid templates the signed-in user owns: { templates: [...] }. */
+  entitlements: () => api.get('/payments/entitlements'),
 };

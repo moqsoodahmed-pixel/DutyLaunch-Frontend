@@ -54,10 +54,11 @@ export const careerService = {
    */
   /* `consent` must come from the user ticking the DPDP checkbox; the
      server rejects the upload without it. */
-  async parseFile(file, onProgress, { consent } = {}) {
+  async parseFile(file, onProgress, { consent, purpose } = {}) {
     const form = new FormData();
     form.append('resume', file);
     form.append('consent', consent ? 'true' : 'false');
+    if (purpose) form.append('purpose', purpose);
     const res = await postForm('/career/resume/parse', form, onProgress);
     return unwrap(res);
   },

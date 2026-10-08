@@ -100,11 +100,11 @@ export const pillars = [
   {
     id: 'career-tools',
     label: 'Career+',
-    path: '/ai-resume-builder',
+    path: '/resume-builder',
     icon: 'LogoMark',
     summary: 'Everything that turns your experience into a stronger application.',
     items: [
-      { label: 'AI Resume Builder', path: '/ai-resume-builder', description: 'Build a resume matched to a job description' },
+      { label: 'Resume Builder', path: '/resume-builder', description: 'Upload your resume or start from scratch (sign in)' },
       { label: 'LinkedIn Optimization', path: '/linkedin-optimization', description: 'Headline, About and keyword review' },
       { label: 'Cover Letter Generator', path: '/cover-letter-generator', description: 'A draft built from your own evidence' },
       { label: 'Interview Preparation', path: '/interview-preparation', description: 'Questions from the job and your resume' },

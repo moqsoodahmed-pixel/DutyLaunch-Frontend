@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Upload, FileDown, Eye, Copy, RefreshCw, Save, Trash2, ChevronDown, ChevronUp, PlayCircle, Info, CheckCircle2, AlertTriangle, FileText, Sparkles } from 'lucide-react';
+import { Upload, FileDown, Eye, Copy, RefreshCw, Save, Trash2, ChevronDown, ChevronUp, PlayCircle, Info, CheckCircle2, AlertTriangle, FileText, Sparkles, FileUp, PencilLine, Check } from 'lucide-react';
 import { Button, Input, Textarea, Select, Badge, Spinner } from '../ui/index.js';
 import { ConsentCheckbox } from '../ui/ConsentCheckbox.jsx';
 import { ProfileEditor } from './ProfileEditor.jsx';
@@ -8,6 +8,7 @@ import { ResumeHealthReport, JobMatchPanel, KeywordTable, RecommendationList, Pr
 import { careerService } from '../../services/careerService.js';
 import { studioService, COVER_LETTER_TONES, EXPERIENCE_LEVELS, errMsg } from '../../services/studioService.js';
 import { useToast } from '../../context/ToastContext.jsx';
+import { useAuth } from '../../context/AuthContext.jsx';
 import { cn } from '../../utils/cn.js';
 
 /* ------------------------------------------------------------------ *
@@ -102,8 +103,13 @@ export function ImportStep({ studio, onDone, goTo }) {
   const [busy, setBusy] = useState('');
   const [error, setError] = useState('');
   const [report, setReport] = useState(null);
-  const [manual, setManual] = useState({ name: '', headline: '' });
+  const { user } = useAuth();
+  const [manual, setManual] = useState({ name: user?.name || '', headline: '' });
   const hasProfile = Boolean(studio.profile);
+  // "Are you uploading an existing resume?" — chosen first, like a guided
+  // resume builder: upload (LinkedIn PDF and/or CV) or start from scratch.
+  const [startChoice, setStartChoice] = useState('upload');
+  const [stage, setStage] = useState('choose'); // 'choose' | 'upload' | 'scratch'
 
   async function upload() {
     setError('');
@@ -143,8 +149,11 @@ export function ImportStep({ studio, onDone, goTo }) {
     if (!consent) return setError('Please tick the consent box to continue.');
     setBusy('manual');
     try {
-      await studioService.startManual({ personal: { name: manual.name.trim(), headline: manual.headline.trim() } }, { consent });
-      success('Profile started. Add your details on the review step.');
+      await studioService.startManual(
+        { personal: { name: manual.name.trim(), headline: manual.headline.trim() } },
+        { consent, mode: hasProfile ? 'replace' : undefined }
+      );
+      success('Profile started. Fill in every section on the review step.');
       onDone('review');
     } catch (err) {
       setError(errMsg(err, 'Could not start a profile.'));
@@ -179,9 +188,73 @@ export function ImportStep({ studio, onDone, goTo }) {
         </div>
       )}
 
+      {stage === 'choose' && (
+        <div>
+          <h3 className="text-center text-h3 font-bold text-ink">Are you uploading an existing resume?</h3>
+          <p className="mt-1 text-center text-small text-slate-600">Just review, edit and update it with new information.</p>
+          <div role="radiogroup" aria-label="How do you want to start?" className="mt-6 grid gap-4 md:grid-cols-2">
+            {[
+              { id: 'upload', icon: FileUp, title: 'Yes, upload my LinkedIn or resume', body: 'We read your LinkedIn PDF and/or CV and fill in your profile. You review and confirm it.', badge: 'Recommended to save you time' },
+              { id: 'scratch', icon: PencilLine, title: 'No, start from scratch', body: 'Enter your details yourself — contact, experience, education and skills — on the next step.' },
+            ].map(({ id, icon: Icon, title, body, badge }) => {
+              const selected = startChoice === id;
+              return (
+                <button
+                  key={id}
+                  type="button"
+                  role="radio"
+                  aria-checked={selected}
+                  onClick={() => setStartChoice(id)}
+                  className={cn(
+                    'relative flex flex-col items-center rounded-xl border-2 bg-white px-5 pb-6 pt-8 text-center transition-all focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-azure',
+                    selected ? 'border-azure shadow-crystal' : 'border-line hover:border-azure-300'
+                  )}
+                >
+                  {badge && (
+                    <span className="absolute -top-3 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-md bg-rose-100 px-2.5 py-0.5 text-[11px] font-bold uppercase tracking-wide text-rose-800">{badge}</span>
+                  )}
+                  {selected && (
+                    <span className="absolute right-3 top-3 grid h-5 w-5 place-items-center rounded-full bg-azure text-white" aria-hidden><Check className="h-3 w-3" /></span>
+                  )}
+                  <span className={cn('grid h-12 w-12 place-items-center rounded-2xl', selected ? 'bg-azure-50 text-azure' : 'bg-paper text-slate-600')}><Icon className="h-6 w-6" aria-hidden /></span>
+                  <span className="mt-3 text-body font-bold text-ink">{title}</span>
+                  <span className="mt-1.5 text-small text-slate-600">{body}</span>
+                </button>
+              );
+            })}
+          </div>
+          <div className="mt-6 flex justify-end">
+            <Button onClick={() => { setError(''); setStage(startChoice); }}>Next</Button>
+          </div>
+        </div>
+      )}
+
+      {stage === 'scratch' && (
+        <div className="max-w-xl space-y-4">
+          <div>
+            <h3 className="text-small font-bold text-ink">Start from scratch</h3>
+            <p className="mt-1 text-caption text-slate-600">Add your name and headline now. On the next step you fill in every section: contact details, summary, experience, education, skills, certifications and projects.</p>
+          </div>
+          {hasProfile && (
+            <Note tone="warn">You already have a profile. Starting from scratch replaces it with an empty one. Your resumes, cover letters and interview sets stay in My resumes.</Note>
+          )}
+          <div className="grid gap-3 sm:grid-cols-2">
+            <Input label="Full name" value={manual.name} onChange={(e) => setManual((m) => ({ ...m, name: e.target.value }))} />
+            <Input label="Headline" placeholder="e.g. Frontend Developer" value={manual.headline} onChange={(e) => setManual((m) => ({ ...m, headline: e.target.value }))} />
+          </div>
+          <ConsentCheckbox checked={consent} onChange={(e) => setConsent(e.target.checked)} />
+          <div className="flex flex-wrap gap-3">
+            <Button onClick={startManual} loading={busy === 'manual'}>Start building my profile</Button>
+            <Button variant="quiet" onClick={() => setStage('choose')}>Back</Button>
+          </div>
+        </div>
+      )}
+
+      {stage === 'upload' && (
       <div className="grid gap-6 lg:grid-cols-2">
         <div className="space-y-4">
           <div>
+            <Button size="sm" variant="quiet" className="mb-2" onClick={() => setStage('choose')}>← Back</Button>
             <h3 className="text-small font-bold text-ink">1. LinkedIn profile PDF <span className="font-medium text-azure">(main source)</span></h3>
             <ol className="mt-1.5 list-decimal space-y-1 pl-5 text-caption text-slate-600">
               <li>On LinkedIn, open your profile.</li>
@@ -220,18 +293,9 @@ export function ImportStep({ studio, onDone, goTo }) {
           <div className="rounded-lg bg-paper p-4 text-caption text-slate-600">
             <strong className="text-ink">Why a PDF and not “Connect LinkedIn”?</strong> Reading a LinkedIn profile directly requires LinkedIn API partner approval. We never scrape LinkedIn or ask for your LinkedIn password. The PDF LinkedIn gives you contains the same profile data.
           </div>
-          {!hasProfile && (
-            <div>
-              <h3 className="text-small font-bold text-ink">Or start manually</h3>
-              <div className="mt-2 grid gap-2 sm:grid-cols-2">
-                <Input aria-label="Full name" placeholder="Full name" value={manual.name} onChange={(e) => setManual((m) => ({ ...m, name: e.target.value }))} />
-                <Input aria-label="Headline" placeholder="Headline, e.g. Frontend Developer" value={manual.headline} onChange={(e) => setManual((m) => ({ ...m, headline: e.target.value }))} />
-              </div>
-              <Button className="mt-2" variant="quiet" onClick={startManual} loading={busy === 'manual'}>Start with manual entry</Button>
-            </div>
-          )}
         </div>
       </div>
+      )}
       <ErrorLine error={error} />
     </Panel>
   );

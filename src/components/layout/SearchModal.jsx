@@ -56,7 +56,7 @@ export function SearchModal({ onClose }) {
       if (queryLower.includes('template') || queryLower.includes('cv')) {
         go({ path: '/cv-templates' });
       } else if (queryLower.includes('ai') || queryLower.includes('builder')) {
-        go({ path: '/ai-resume-builder' });
+        go({ path: '/resume-builder' });
       } else if (queryLower.includes('check') || queryLower.includes('score') || queryLower.includes('ats')) {
         go({ path: '/resume-checker' });
       } else if (queryLower.includes('job')) {

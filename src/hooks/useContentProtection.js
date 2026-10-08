@@ -1,26 +1,66 @@
 import { useEffect, useState } from 'react';
+import { useAuth } from '../context/AuthContext.jsx';
+import { paymentService } from '../services/paymentService.js';
 
-const STORAGE_KEY = 'dl_unlocked_templates';
+/**
+ * Paid Resume Builder templates are unlocked only by a real, server-verified
+ * Razorpay payment. The list of owned templates comes from
+ * GET /api/payments/entitlements — nothing is unlocked from the browser.
+ */
 
-export function getUnlockedTemplates() {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if (!raw) return new Set();
-    return new Set(JSON.parse(raw));
-  } catch {
-    return new Set();
-  }
+// Older builds stored "unlocked" templates in localStorage without a
+// payment. Those flags are ignored and removed.
+try {
+  localStorage.removeItem('dl_unlocked_templates');
+} catch {
+  /* storage unavailable */
 }
 
-export function saveUnlockedTemplate(templateId) {
-  try {
-    const set = getUnlockedTemplates();
-    set.add(templateId);
-    localStorage.setItem(STORAGE_KEY, JSON.stringify([...set]));
-    window.dispatchEvent(new Event('dl-templates-unlocked'));
-  } catch (err) {
-    console.error('Failed to save unlocked template', err);
+let owned = new Set();
+let ownedFor = null; // user id the cache belongs to
+let pending = null;
+
+/** Template id aliases (older "ats-…" ids) → canonical ids. */
+const ALIASES = {
+  'ats-classic': 'dl-elite',
+  'ats-technology': 'dl-tech',
+  'ats-sales': 'dl-professional',
+  'ats-executive': 'dl-executive',
+  'ats-modern': 'dl-modern',
+  'ats-finance': 'dl-finance',
+  'ats-international': 'dl-creative',
+};
+export const canonicalTemplateId = (id) => ALIASES[id] || id;
+
+function announce() {
+  window.dispatchEvent(new Event('dl-templates-unlocked'));
+}
+
+/** Reloads the signed-in user's owned templates from the server. */
+export function refreshOwnedTemplates(userId) {
+  if (!userId) {
+    owned = new Set();
+    ownedFor = null;
+    announce();
+    return Promise.resolve(owned);
   }
+  pending = paymentService
+    .entitlements()
+    .then((res) => {
+      owned = new Set((res?.data?.templates || []).map(canonicalTemplateId));
+      ownedFor = userId;
+      announce();
+      return owned;
+    })
+    .catch(() => owned)
+    .finally(() => {
+      pending = null;
+    });
+  return pending;
+}
+
+export function getUnlockedTemplates() {
+  return new Set(owned);
 }
 
 /**
@@ -28,6 +68,8 @@ export function saveUnlockedTemplate(templateId) {
  * right-click, PrintScreen, and screen capture tool window-switching.
  */
 export function useContentProtection({ enabled = true } = {}) {
+  const { user } = useAuth();
+  const userId = user?.id || user?._id || null;
   const [isWindowBlurred, setIsWindowBlurred] = useState(false);
   const [unlocked, setUnlocked] = useState(() => getUnlockedTemplates());
 
@@ -36,6 +78,12 @@ export function useContentProtection({ enabled = true } = {}) {
     window.addEventListener('dl-templates-unlocked', updateUnlocked);
     return () => window.removeEventListener('dl-templates-unlocked', updateUnlocked);
   }, []);
+
+  // Load (or clear) owned templates whenever the signed-in user changes.
+  useEffect(() => {
+    if (userId === ownedFor && !pending) return;
+    if (!pending) refreshOwnedTemplates(userId);
+  }, [userId]);
 
   useEffect(() => {
     if (!enabled) return undefined;
@@ -128,11 +176,12 @@ export function useContentProtection({ enabled = true } = {}) {
 
   const isUnlocked = (templateId) => {
     if (!templateId) return true;
-    return unlocked.has(templateId);
+    return unlocked.has(canonicalTemplateId(templateId));
   };
 
-  const unlock = (templateId) => {
-    saveUnlockedTemplate(templateId);
+  /** Call after a verified payment: re-reads ownership from the server. */
+  const unlock = async () => {
+    await refreshOwnedTemplates(userId);
     setUnlocked(getUnlockedTemplates());
   };
 
@@ -140,5 +189,7 @@ export function useContentProtection({ enabled = true } = {}) {
     isWindowBlurred,
     isUnlocked,
     unlock,
+    /** True once we know which templates this user owns (always true when signed out). */
+    isReady: !userId || (ownedFor === userId && !pending),
   };
 }

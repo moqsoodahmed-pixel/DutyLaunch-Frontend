@@ -11,8 +11,7 @@ import { menuGroups } from './site.js';
 const CURATED = [
     { title: 'Home', path: '/', group: 'Pages', description: 'Career, education, jobs and documentation — one launchpad.', keywords: 'home start dutylaunch' },
     { title: 'Resume Checker', path: '/resume-checker', group: 'Career+', description: 'Free Resume Health score with a fix for every issue.', keywords: 'ats cv resume score check free analyze analysis health scan' },
-    { title: 'AI Resume Builder', path: '/ai-resume-builder', group: 'Career+', description: 'Build a resume matched to a job description.', keywords: 'ai resume builder cv create generate job description match tailor' },
-    { title: 'CV Builder', path: '/cv-builder', group: 'Career+', description: 'Start a new CV or improve the one you have.', keywords: 'cv builder write new improve rewrite resume make' },
+    { title: 'Resume Builder', path: '/resume-builder', group: 'Career+', description: 'Upload your resume or start from scratch. Free and paid templates.', keywords: 'resume builder cv builder create write new improve upload template make' },
     { title: 'CV Templates', path: '/cv-templates', group: 'Career+', description: 'ATS-friendly resume templates by role.', keywords: 'cv resume templates ats format design role sample' },
     { title: 'LinkedIn Optimization', path: '/linkedin-optimization', group: 'Career+', description: 'Headline, About and keyword review.', keywords: 'linkedin profile optimization headline keywords social network' },
     { title: 'Cover Letter Generator', path: '/cover-letter-generator', group: 'Career+', description: 'A cover letter built from your own evidence.', keywords: 'cover letter generator write application' },

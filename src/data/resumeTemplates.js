@@ -1415,6 +1415,28 @@ export function getTemplateById(id) {
 export function enrichTemplateData(tpl) {
   if (!tpl) return TEMPLATES[0];
   const base = getTemplateById(tpl.id || tpl.name);
+  // A candidate's own resume: keep the template's design, but never fill
+  // empty sections with the template's sample content (it would otherwise
+  // appear in their downloaded PDF).
+  if (tpl.userContent) {
+    return {
+      ...base,
+      ...tpl,
+      personName: tpl.personName || '',
+      headline: tpl.headline || '',
+      summary: tpl.summary || '',
+      experience: tpl.experience || [],
+      education: tpl.education || [],
+      skills: tpl.skills || [],
+      certs: tpl.certs || [],
+      certifications: tpl.certifications || tpl.certs || [],
+      projects: tpl.projects || [],
+      achievements: tpl.achievements || [],
+      awards: tpl.awards || [],
+      languages: tpl.languages || [],
+      contact: tpl.contact || {},
+    };
+  }
   return {
     ...base,
     ...tpl,

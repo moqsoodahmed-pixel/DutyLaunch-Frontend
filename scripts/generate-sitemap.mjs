@@ -30,12 +30,10 @@ const ROUTES = [
 
   // Career tools — the acquisition surface.
   { path: '/resume-checker', changefreq: 'weekly', priority: '0.9' },
-  { path: '/ai-resume-builder', changefreq: 'weekly', priority: '0.9' },
   { path: '/linkedin-optimization', changefreq: 'monthly', priority: '0.8' },
   { path: '/cover-letter-generator', changefreq: 'monthly', priority: '0.8' },
   { path: '/interview-preparation', changefreq: 'monthly', priority: '0.8' },
   { path: '/cv-templates', changefreq: 'monthly', priority: '0.7' },
-  { path: '/cv-builder', changefreq: 'monthly', priority: '0.7' },
 
   // Marketplaces.
   { path: '/jobs', changefreq: 'daily', priority: '0.9' },

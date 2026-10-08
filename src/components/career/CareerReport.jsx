@@ -175,7 +175,7 @@ export function ResumeHealthReport({ health }) {
 
           <div className="lg:col-span-3 flex flex-col gap-2.5 sm:flex-row lg:flex-col justify-end">
             <Button
-              to="/cv-builder"
+              to="/resume-builder"
               variant="premium"
               size="sm"
               className="w-full justify-center shadow-sm text-center"

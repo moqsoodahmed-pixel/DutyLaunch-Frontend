@@ -34,15 +34,15 @@ export const seoPages = {
   },
 
   aiResumeBuilder: {
-    path: '/ai-resume-builder',
-    title: 'AI Resume Builder — Build a Resume That Matches the Job',
+    path: '/resume-builder',
+    title: 'Resume Builder — Build a Resume That Matches the Job',
     description:
       'Upload your resume, add a job description, and DutyLaunch identifies gaps, strengthens your content from your own evidence and builds a clean, ATS-friendly resume.',
     heading: 'Build a Resume That Matches the Job',
     subheading:
       'Upload your resume, add a job description, and let DutyLaunch identify gaps, strengthen your content and build a professional, ATS-friendly resume.',
-    primaryCta: { label: 'Analyze My Resume Free', to: '/ai-resume-builder#upload' },
-    secondaryCta: { label: 'Create resume from scratch', to: '/cv-builder' },
+    primaryCta: { label: 'Analyze My Resume Free', to: '/resume-checker' },
+    secondaryCta: { label: 'Create resume from scratch', to: '/resume-builder?start=scratch' },
   },
 
   resumeChecker: {

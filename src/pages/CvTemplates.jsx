@@ -43,10 +43,10 @@ export default function CvTemplates() {
         eyebrow="Flagship CV Templates"
         title="Five Flagship ATS Templates. One for Every Career Level."
         lead="Engineered for Taleo, Workday, Greenhouse, and iCIMS. DL Elite, DL Tech, DL Professional, DL Executive, and DL Modern provide flawless semantic parsing with premium Glacier design."
-        breadcrumb={[{ label: 'Career+', to: '/ai-resume-builder' }, { label: 'Templates' }]}
+        breadcrumb={[{ label: 'Career+', to: '/resume-builder' }, { label: 'Templates' }]}
         actions={
           <HeroActions
-            primary={{ label: 'Launch AI Resume Builder', to: '/ai-resume-builder' }}
+            primary={{ label: 'Open Resume Builder', to: '/resume-builder' }}
             secondary={{ label: 'Check My Resume ATS Score', to: '/resume-checker' }}
           />
         }
@@ -89,7 +89,7 @@ export default function CvTemplates() {
           </RevealGroup>
 
           <p className="mt-8 max-w-prose text-small text-slate-500">
-            Every template is loaded with realistic, production-ready career achievements, metrics, and credentials. When you open any template in the AI Resume Builder, our engine automatically maps your actual career achievements with verified ATS compatibility.
+            Every template is loaded with realistic, production-ready career achievements, metrics, and credentials. Open any template in the Resume Builder to fill it with your own details — upload your resume or start from scratch.
           </p>
         </Container>
       </Section>

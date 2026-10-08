@@ -82,10 +82,10 @@ export default function Pricing() {
         breadcrumb={[{ label: 'Pricing' }]}
         actions={
           <>
-            <Button to="/cv-builder?path=new" size="lg">
+            <Button to="/resume-builder?start=scratch" size="lg">
               Create a new CV
             </Button>
-            <Button to="/cv-builder?path=improve" variant="outline" size="lg">
+            <Button to="/resume-builder?start=upload" variant="outline" size="lg">
               Improve my existing CV
             </Button>
           </>

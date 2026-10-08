@@ -101,7 +101,7 @@ export default function AtsResumeChecker() {
                   description and we can also show you which of its requirements your resume does not yet evidence.
                 </p>
                 <div className="mt-4 flex flex-wrap gap-3">
-                  <Button to="/ai-resume-builder">Analyze against a job description</Button>
+                  <Button to="/resume-builder">Build my resume</Button>
                   <Button variant="quiet" onClick={() => setResult(null)}>
                     Check another resume
                   </Button>

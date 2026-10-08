@@ -175,7 +175,7 @@ export default function MockInterview() {
     return (
       <>
         <PanelHeader title="Mock interview" />
-        <EmptyState title="Set up your profile first" description="Mock interviews use your verified profile and resume. Import your LinkedIn PDF or CV in the AI Career Studio." action={<Button to="/career-studio">Open AI Career Studio</Button>} />
+        <EmptyState title="Set up your profile first" description="Mock interviews use your saved resume. Build your resume and save it to your profile first." action={<Button to="/resume-builder">Build my resume</Button>} />
       </>
     );
   }

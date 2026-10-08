@@ -140,7 +140,7 @@ export default function MyResumes() {
           icon={FileStack}
           title="No career profile yet"
           description="Upload your CV once. It becomes your master profile, and every targeted resume is built from it without changing it."
-          action={<Button to="/ai-resume-builder">Upload my CV</Button>}
+          action={<Button to="/resume-builder?start=upload">Upload my CV</Button>}
         />
       </>
     );
@@ -167,7 +167,7 @@ export default function MyResumes() {
               {profile.lastAnalyzedAt ? ` · last analysed ${formatDate(profile.lastAnalyzedAt)}` : ''}
             </p>
           </div>
-          <Button to="/ai-resume-builder" variant="outline" size="sm">
+          <Button to="/resume-builder" variant="outline" size="sm">
             Analyse &amp; optimise
           </Button>
         </div>
@@ -293,7 +293,7 @@ export default function MyResumes() {
             ) : (
               <p className="text-small text-slate-700">{blocked.message}</p>
             )}
-            <p className="text-small text-slate-600">Fix them in the AI Resume Builder, or confirm they are accurate and you stand behind them.</p>
+            <p className="text-small text-slate-600">Fix them in the Resume Builder, or confirm they are accurate and you stand behind them.</p>
             <div className="flex justify-end gap-3">
               <Button variant="quiet" onClick={() => setBlocked(null)}>
                 Go back

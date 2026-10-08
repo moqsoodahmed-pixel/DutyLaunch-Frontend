@@ -57,17 +57,22 @@ export function useRazorpayCheckout() {
   const location = useLocation();
   const [pendingId, setPendingId] = useState(null);
   const [enabled, setEnabled] = useState(null); // null = still checking
+  const [config, setConfig] = useState(null);
 
   useEffect(() => {
     let active = true;
-    loadPaymentsConfig().then((cfg) => active && setEnabled(Boolean(cfg?.enabled)));
+    loadPaymentsConfig().then((cfg) => {
+      if (!active) return;
+      setEnabled(Boolean(cfg?.enabled));
+      setConfig(cfg || null);
+    });
     return () => {
       active = false;
     };
   }, []);
 
   const pay = useCallback(
-    async ({ itemType, itemId }) => {
+    async ({ itemType, itemId, onSuccess }) => {
       if (!isAuthenticated) {
         navigate('/login', { state: { from: location.pathname + location.search } });
         return;
@@ -93,9 +98,10 @@ export function useRazorpayCheckout() {
           theme: { color: '#1D5DB8' },
           handler: async (response) => {
             try {
-              await paymentService.verify(response);
+              const verified = await paymentService.verify(response);
               toast.success(`Payment successful. Thank you — ${order.itemName} is confirmed.`);
-              if (user?.role !== 'admin') navigate('/payments');
+              if (onSuccess) await onSuccess(verified?.data);
+              else if (user?.role !== 'admin') navigate('/payments');
             } catch (error) {
               toast.error(error.message || 'We could not confirm your payment. Contact support with your payment id.');
             } finally {
@@ -124,5 +130,5 @@ export function useRazorpayCheckout() {
     [isAuthenticated, user, toast, navigate, location.pathname, location.search, pendingId]
   );
 
-  return { pay, pendingId, enabled };
+  return { pay, pendingId, enabled, config };
 }
