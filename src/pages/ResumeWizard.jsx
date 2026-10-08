@@ -277,6 +277,11 @@ export default function ResumeWizard() {
   const percent = completeness(w);
   const stepIndex = STEPS.findIndex((s) => s.id === step);
 
+  // Required for the Heading step to count as "done" — declared up here
+  // (not down by the Heading screen's own JSX) because Preview, below,
+  // needs to check it before the person has necessarily reached that step.
+  const headingValid = Boolean(w.personal.firstName.trim() && (w.personal.email.trim() || w.personal.phone.trim()));
+
   // Where "Preview" was opened from, so its Back button returns there
   // instead of falling through to the generic previous-step logic (see
   // handlePreview below for why this exists).
@@ -382,8 +387,7 @@ export default function ResumeWizard() {
 
   /* ================= screens ================= */
 
-  // --- 1. Heading ---
-  const headingValid = w.personal.firstName.trim() && (w.personal.email.trim() || w.personal.phone.trim());
+  // --- 1. Heading --- (headingValid is declared earlier, near previewReady)
   const [showLinks, setShowLinks] = useState({ linkedin: Boolean(w.personal.linkedin), website: Boolean(w.personal.website) });
   const heading = (
     <>
