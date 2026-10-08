@@ -346,7 +346,7 @@ function DLTech({ tpl }) {
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
             <h1
               style={{
-                fontFamily: '"Helvetica Neue", Arial, sans-serif',
+                fontFamily: 'Arial, Helvetica, sans-serif',
                 fontSize: 32,
                 fontWeight: 800,
                 color: INK,
@@ -596,7 +596,7 @@ function DLExecutive({ tpl }) {
       <div style={{ background: DARK, padding: '24px 38px 20px', textAlign: 'left' }}>
         <h1
           style={{
-            fontFamily: '"Helvetica Neue", Arial, sans-serif',
+            fontFamily: 'Arial, Helvetica, sans-serif',
             fontSize: 32,
             fontWeight: 800,
             color: '#FFFFFF',
@@ -714,7 +714,7 @@ function DLProjectPlus({ tpl }) {
       <div style={{ background: GRADIENT, padding: '22px 34px 18px', textAlign: 'left' }}>
         <h1
           style={{
-            fontFamily: '"Helvetica Neue", Arial, sans-serif',
+            fontFamily: 'Arial, Helvetica, sans-serif',
             fontSize: 30,
             fontWeight: 800,
             color: '#FFFFFF',
@@ -1029,7 +1029,7 @@ function DLCreative({ tpl }) {
       <div>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', borderBottom: '2px solid #E2E8F0', paddingBottom: 10 }}>
           <div>
-            <h1 style={{ fontFamily: '"Helvetica Neue", Arial, sans-serif', fontSize: 32, fontWeight: 800, color: INK, margin: 0, letterSpacing: '-0.02em', textAlign: 'left' }}>
+            <h1 style={{ fontFamily: 'Arial, Helvetica, sans-serif', fontSize: 32, fontWeight: 800, color: INK, margin: 0, letterSpacing: '-0.02em', textAlign: 'left' }}>
               {candidateName}
             </h1>
             <p style={{ fontSize: 13.5, fontWeight: 600, color: INDIGO, margin: '3px 0 0', textAlign: 'left' }}>{candidateHeadline}</p>
@@ -1146,11 +1146,39 @@ const LAYOUT_COMPONENTS = {
   'ats-international': DLCreative,
 };
 
-export function ResumeTemplatePreview({ template, className, crop = true }) {
+export function ResumeTemplatePreview({ template, className, crop = true, allowOverflow = false, onOverflow }) {
   const boxRef = useRef(null);
+  const sheetRef = useRef(null);
   const scale = useFitScale(boxRef, [template?.id, crop]);
 
   const resolved = useMemo(() => enrichTemplateData(template), [template]);
+
+  // allowOverflow is a separate, opt-in prop (default false) rather than
+  // reusing `crop` — `crop` never actually changed the clipping behaviour
+  // below (it was only ever used to retrigger the scale calculation), so
+  // every existing crop={false} caller (galleries, showcases, the live
+  // builder) already depends on this box always clipping to one page.
+  // Changing that default would risk breaking those. allowOverflow instead
+  // only affects callers that explicitly ask for it — today just the
+  // "review before you download" screen — where we must NOT silently clip
+  // content taller than one A4 page: the box below used to hard-crop to
+  // exactly one page with overflow hidden, so anything past that vanished
+  // on screen AND in the printed PDF with no sign anything was missing.
+  const [overflowPx, setOverflowPx] = useState(0);
+  useEffect(() => {
+    if (!allowOverflow || !sheetRef.current) return undefined;
+    const measure = () => {
+      const h = sheetRef.current?.scrollHeight || 0;
+      const extra = Math.max(0, h - PAGE_H);
+      setOverflowPx(extra);
+      onOverflow?.(extra);
+    };
+    measure();
+    const ro = new ResizeObserver(measure);
+    ro.observe(sheetRef.current);
+    return () => ro.disconnect();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [allowOverflow, resolved]);
 
   if (!resolved) return null;
 
@@ -1160,8 +1188,11 @@ export function ResumeTemplatePreview({ template, className, crop = true }) {
     LAYOUT_COMPONENTS[resolved.aliasId] ||
     DLElite;
 
-  // The outer container maintains exact A4 document ratio (794 : 1123)
+  // The outer container maintains exact A4 document ratio (794 : 1123) by
+  // default. With allowOverflow it grows to fit whatever the content
+  // actually needs instead of forcing a single-page height.
   const scaledHeight = scale > 0 ? PAGE_H * scale : undefined;
+  const overflowScaledHeight = scale > 0 ? (PAGE_H + overflowPx) * scale : undefined;
 
   return (
     <div
@@ -1170,20 +1201,21 @@ export function ResumeTemplatePreview({ template, className, crop = true }) {
       onContextMenu={(e) => e.preventDefault()}
       className={cn('dl-resume-preview-box dl-protected-preview select-none', className)}
       style={{
-        overflow: 'hidden',
+        overflow: allowOverflow ? 'visible' : 'hidden',
         position: 'relative',
         width: '100%',
-        aspectRatio: '794 / 1123',
-        height: scaledHeight,
+        aspectRatio: allowOverflow ? undefined : '794 / 1123',
+        height: allowOverflow ? overflowScaledHeight : scaledHeight,
         textAlign: 'left',
       }}
     >
       <div
+        ref={sheetRef}
         data-resume-sheet="true"
         className="dl-resume-a4-sheet"
         style={{
           width: PAGE_W,
-          height: PAGE_H,
+          height: allowOverflow ? undefined : PAGE_H,
           minHeight: PAGE_H,
           transformOrigin: 'top left',
           transform: `scale(${scale}) translateZ(0)`,
@@ -1194,7 +1226,14 @@ export function ResumeTemplatePreview({ template, className, crop = true }) {
           backfaceVisibility: 'hidden',
           WebkitBackfaceVisibility: 'hidden',
           background: '#FFFFFF',
-          fontFamily: '"Helvetica Neue", Arial, sans-serif',
+          // Arial first, not "Helvetica Neue": on some Windows machines a
+          // partial/incomplete "Helvetica Neue" font file is registered
+          // (bundled with some Office/Adobe installs), and the OS can
+          // synthesize bold for glyphs missing from that broken file
+          // instead of cleanly falling back to Arial — the exact cause of
+          // individual bold-looking letters (commonly "i") in printed
+          // PDFs. Leading with Arial avoids that file entirely.
+          fontFamily: 'Arial, Helvetica, sans-serif',
           lineHeight: 1.5,
           color: '#0F172A',
           boxSizing: 'border-box',

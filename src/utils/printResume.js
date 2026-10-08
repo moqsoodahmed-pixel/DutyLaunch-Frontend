@@ -44,26 +44,24 @@ export function printResumeSheet(title) {
     padding: 0 !important;
     background: #ffffff !important;
     width: 210mm !important;
-    height: 297mm !important;
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-    overflow: hidden !important;
+    /* No fixed height / overflow:hidden here on purpose — a resume longer
+       than one page must flow onto a second printed page instead of being
+       silently clipped. The old fixed 297mm height + overflow:hidden is
+       exactly what cut content off at the bottom of long resumes. */
+    font-family: Arial, Helvetica, sans-serif;
   }
   .print-container {
     width: 210mm !important;
-    height: 297mm !important;
     min-height: 297mm !important;
-    max-height: 297mm !important;
     margin: 0 auto !important;
     padding: 0 !important;
     background: #ffffff !important;
-    overflow: hidden !important;
   }
   .print-container > div {
     transform: none !important;
     width: 210mm !important;
-    height: 297mm !important;
     min-height: 297mm !important;
-    max-height: 297mm !important;
+    height: auto !important;
     margin: 0 !important;
   }
 </style>
@@ -76,10 +74,26 @@ export function printResumeSheet(title) {
 </html>`);
       frameDoc.close();
 
-      setTimeout(() => {
+      let printed = false;
+      const triggerPrint = () => {
+        if (printed) return;
+        printed = true;
         frame.contentWindow.focus();
         frame.contentWindow.print();
-      }, 300);
+      };
+      // Wait for fonts to actually finish loading before printing — a flat
+      // delay can fire before the real font is ready, which is one of the
+      // ways a browser ends up substituting glyphs from a fallback font
+      // mid-document. Falls back to a short delay if the Font Loading API
+      // isn't available in this context, and a safety-net timeout covers
+      // the rare case where 'ready' never resolves.
+      const fonts = frameDoc.fonts;
+      if (fonts?.ready) {
+        fonts.ready.then(triggerPrint).catch(() => setTimeout(triggerPrint, 300));
+        setTimeout(triggerPrint, 1500);
+      } else {
+        setTimeout(triggerPrint, 300);
+      }
       return;
     }
   } catch (e) {

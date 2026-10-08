@@ -896,6 +896,7 @@ export default function ResumeWizard() {
   const [consent, setConsent] = useState(false);
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
+  const [overflowsPage, setOverflowsPage] = useState(false);
   const lastSavedRef = useRef(null);
   async function saveProfile(opts = {}) {
     const { silent = false } = opts;
@@ -955,9 +956,14 @@ export default function ResumeWizard() {
           {placeholders.length > 4 ? '…' : ''}. Go back to the step and replace them with your real details.
         </div>
       )}
+      {overflowsPage && (
+        <div role="alert" className="mb-5 rounded-xl border border-amber-300 bg-amber-50 p-4 text-small text-amber-900">
+          <strong>Your resume is longer than one printed page.</strong> Everything below is still here and the preview now scrolls so you can check it, but it will print onto a second page. For a one-page resume, trim a section (shorter bullet points, fewer entries) on an earlier step.
+        </div>
+      )}
       <div className="grid gap-6 lg:grid-cols-[1fr_20rem]">
-        <div className="overflow-hidden rounded-xl border border-line bg-white shadow-crystal">
-          <ResumeTemplatePreview template={previewData(w.templateId, builderState)} crop={false} />
+        <div className="max-h-[80vh] overflow-y-auto rounded-xl border border-line bg-white shadow-crystal">
+          <ResumeTemplatePreview template={previewData(w.templateId, builderState)} crop={false} allowOverflow onOverflow={(px) => setOverflowsPage(px > 4)} />
         </div>
         <div className="space-y-4">
           <Button
