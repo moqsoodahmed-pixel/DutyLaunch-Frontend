@@ -21,7 +21,7 @@ import { reloadOnceForNewDeploy } from '../../utils/lazyWithReload.js';
 export class ChunkErrorBoundary extends Component {
     constructor(props) {
         super(props);
-        this.state = { hasError: false, isChunkError: false };
+        this.state = { hasError: false, isChunkError: false, gaveUp: false, detail: '' };
     }
 
     static getDerivedStateFromError(error) {
@@ -35,7 +35,7 @@ export class ChunkErrorBoundary extends Component {
             msg.includes('Unable to preload CSS') ||
             error?.name === 'ChunkLoadError';
 
-        return { hasError: true, isChunkError };
+        return { hasError: true, isChunkError, detail: msg.slice(0, 200) };
     }
 
     componentDidCatch(error, info) {
@@ -43,7 +43,9 @@ export class ChunkErrorBoundary extends Component {
             // Try a once-guarded reload. If we already reloaded in the last 10s,
             // reloadOnceForNewDeploy() returns false and we fall through to the
             // manual-reload UI below instead of looping.
-            reloadOnceForNewDeploy();
+            // Automatic reloads are capped (see lazyWithReload.js). When the
+            // cap is reached, stop saying "Reloading now" and offer a button.
+            if (!reloadOnceForNewDeploy()) this.setState({ gaveUp: true });
         } else {
             // Log non-chunk errors so they're still visible in monitoring.
             // eslint-disable-next-line no-console
@@ -71,7 +73,38 @@ export class ChunkErrorBoundary extends Component {
                     padding: '2rem',
                 }}
             >
-                {this.state.isChunkError ? (
+                {this.state.isChunkError && this.state.gaveUp ? (
+                    <>
+                        <p style={{ fontSize: '1.125rem', fontWeight: 700, color: '#38bdf8', marginBottom: '0.5rem' }}>
+                            We couldn't load the latest DutyLaunch
+                        </p>
+                        <p style={{ fontSize: '0.9rem', color: '#94a3b8', maxWidth: '38ch', marginBottom: '1.5rem' }}>
+                            Part of the website didn't download. Check your internet connection and reload. If it
+                            keeps happening, clear this site's cached files in your browser, or try again in a few minutes.
+                        </p>
+                        <button
+                            type="button"
+                            onClick={() => reloadOnceForNewDeploy({ manual: true })}
+                            style={{
+                                background: 'linear-gradient(to right, #1d5db8, #06b6d4)',
+                                color: '#fff',
+                                border: 'none',
+                                borderRadius: '0.75rem',
+                                padding: '0.75rem 1.75rem',
+                                fontSize: '0.9rem',
+                                fontWeight: 700,
+                                cursor: 'pointer',
+                            }}
+                        >
+                            Reload page
+                        </button>
+                        {this.state.detail && (
+                            <p style={{ marginTop: '1.5rem', fontSize: '0.75rem', color: '#475569', maxWidth: '60ch', wordBreak: 'break-all' }}>
+                                Details: {this.state.detail}
+                            </p>
+                        )}
+                    </>
+                ) : this.state.isChunkError ? (
                     <>
                         <p style={{ fontSize: '1.125rem', fontWeight: 700, color: '#38bdf8', marginBottom: '0.5rem' }}>
                             Updating DutyLaunch…
