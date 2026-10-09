@@ -1,11 +1,11 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { Mic, MicOff, Send, Flag, FileDown, Trash2, PlayCircle, CheckCircle2 } from 'lucide-react';
+import { Mic, MicOff, Send, Flag, FileDown, Trash2, PlayCircle, CheckCircle2, Sparkles } from 'lucide-react';
 import { PanelHeader } from '../../layouts/AppShell.jsx';
 import { Button, Seo, Select, Textarea, Badge, LoadingBlock, EmptyState } from '../../components/ui/index.js';
 import { Panel } from '../../components/studio/StudioSteps.jsx';
 import { studioService, INTERVIEW_TYPES, errMsg } from '../../services/studioService.js';
-import { careerService } from '../../services/careerService.js';
+import { useSavedProfile, SavedResumeSource, guessExperienceLevel, firstAutoRunThisSession } from '../../components/studio/StudioSteps.jsx';
 import { useToast } from '../../context/ToastContext.jsx';
 
 /**
@@ -104,50 +104,51 @@ export default function MockInterview() {
   const loadStudio = useCallback(() => studioService.get().then(setStudio).catch((e) => setError(errMsg(e, 'Could not load your data.'))), []);
   useEffect(() => { loadStudio(); }, [loadStudio]);
 
-  // Fill in the job title, company AND job description from the saved
-  // resume, the same way Cover Letter and the Top-10 Interview Q&A already
-  // pull from it — so questions are built from the actual job a resume was
-  // tailored for, not just a bare job title.
-  //
-  // studio.documents.resumes (from studioService.get(), already loaded
-  // above) only carries target.jobTitle/company — jobDescription is left
-  // out of that summary on purpose, since it can run to thousands of
-  // characters and that endpoint loads on every dashboard visit. The full
-  // text lives on each resume version's own record, so this fetches that
-  // specifically — one extra call, only on this page, only once.
-  //
-  // Prefers the most recently updated version that actually has a target
-  // over the resume's general headline, since a tailored job description is
-  // the sharpest possible signal of "the job mentioned in the resume."
-  // Never overwrites something already typed in, and never auto-starts the
-  // interview itself — that's still a deliberate click either way.
+  // Built ONLY from the resume saved in the Resume Builder (like Cover
+  // letter and Interview prep) — never from an older resume version.
+  //   job title  ← the profession on the resume (AI picks one if missing)
+  //   difficulty ← the experience on the resume (or the level AI reads)
+  //   job description ← written by AI from the whole resume
+  // "Generate everything with AI" fills these in; starting the interview
+  // itself stays a deliberate click.
+  const profile = useSavedProfile(0);
+  const DIFFICULTY_FOR_LEVEL = { fresher: 'easy', entry: 'easy', mid: 'medium', senior: 'hard', lead: 'hard' };
   const jobPrefilled = useRef(false);
+  const [aiPhase, setAiPhase] = useState('');
+  const [aiFilled, setAiFilled] = useState(false);
   useEffect(() => {
-    if (!studio?.profile || jobPrefilled.current) return;
+    if (!profile || jobPrefilled.current) return;
     jobPrefilled.current = true;
-    (async () => {
-      let targeted = null;
-      try {
-        const versions = await careerService.listVersions();
-        targeted = (versions || [])
-          .filter((v) => v.target?.jobTitle || v.target?.jobDescription)
-          .sort((a, b) => new Date(b.updatedAt || 0) - new Date(a.updatedAt || 0))[0];
-      } catch {
-        /* fall through to the lighter-weight summary below */
-      }
-      const jobTitle = targeted?.target?.jobTitle || studio.profile.headline?.trim() || '';
-      const company = targeted?.target?.company || '';
-      const jobDescription = targeted?.target?.jobDescription || '';
-      if (jobTitle || jobDescription) {
-        setSetup((s) => ({
-          ...s,
-          jobTitle: s.jobTitle || jobTitle,
-          company: s.company || company,
-          jobDescription: s.jobDescription || jobDescription,
-        }));
-      }
-    })();
-  }, [studio]);
+    const headline = profile.personal?.headline?.trim() || '';
+    const level = guessExperienceLevel(profile);
+    setSetup((s) => ({ ...s, jobTitle: s.jobTitle || headline, difficulty: level ? DIFFICULTY_FOR_LEVEL[level] : s.difficulty }));
+    if (!params.get('set') && !params.get('session') && firstAutoRunThisSession('dl_autorun_mock')) generateEverything();
+  }, [profile]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  async function generateEverything() {
+    setError('');
+    setBusy('ai-all');
+    setAiPhase('Reading your resume and preparing the job role, level and job description…');
+    try {
+      const titleFromResume = setup.jobTitle.trim() || profile?.personal?.headline?.trim() || '';
+      const jd = await studioService.suggestJobDescription({ jobTitle: titleFromResume || undefined, company: setup.company.trim() || undefined });
+      const levelFromResume = guessExperienceLevel(profile);
+      const level = levelFromResume || jd.experienceLevel;
+      setSetup((s) => ({
+        ...s,
+        sourceSetId: '',
+        jobTitle: titleFromResume || jd.jobTitle || s.jobTitle,
+        jobDescription: jd.description || s.jobDescription,
+        difficulty: DIFFICULTY_FOR_LEVEL[level] || s.difficulty,
+      }));
+      setAiFilled(true);
+    } catch (err) {
+      setError(errMsg(err, 'The AI could not prepare the interview right now. Try again in a moment, or type the job title yourself.'));
+    } finally {
+      setBusy('');
+      setAiPhase('');
+    }
+  }
   useEffect(() => {
     const id = params.get('session');
     if (id && (!session || session.id !== id)) studioService.getMock(id).then(setSession).catch((e) => setError(errMsg(e, 'Mock interview not found.')));
@@ -324,6 +325,25 @@ export default function MockInterview() {
       <PanelHeader title="Mock interview" description="Practise one question at a time and get feedback on each answer. Questions are practice questions based on your profile — not real employer questions." />
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]">
         <Panel title="Set up your interview">
+          <SavedResumeSource profile={profile} label="Interview built from your saved resume" />
+          {profile && (
+            <div className="mb-5 rounded-xl border border-azure-200 bg-gradient-to-br from-azure-50 to-white p-4">
+              <div className="flex flex-wrap items-center justify-between gap-3">
+                <div className="max-w-md">
+                  <p className="flex items-center gap-1.5 text-small font-bold text-ink">
+                    <Sparkles className="h-4 w-4 text-azure" aria-hidden /> Generate everything with AI
+                  </p>
+                  <p className="mt-1 text-caption text-slate-600">
+                    AI reads your saved resume and fills in the job role, the difficulty for your experience and a job description. Then press Start interview.
+                  </p>
+                </div>
+                <Button onClick={generateEverything} loading={busy === 'ai-all'} disabled={Boolean(busy)}>
+                  <Sparkles className="h-4 w-4" aria-hidden /> Generate everything with AI
+                </Button>
+              </div>
+              {aiPhase && <p className="mt-3 text-caption font-semibold text-azure-700" aria-live="polite">{aiPhase}</p>}
+            </div>
+          )}
           <div className="grid gap-4 sm:grid-cols-2">
             <Select label="Start from" value={setup.sourceSetId} onChange={(e) => setSetup((s) => ({ ...s, sourceSetId: e.target.value }))}>
               <option value="">Generate new questions</option>
@@ -340,22 +360,20 @@ export default function MockInterview() {
           )}
           {!setup.sourceSetId && (
             <>
-              {jobPrefilled.current && (setup.jobTitle || setup.jobDescription) && (
+              {aiFilled && (
                 <p className="mt-4 rounded-lg bg-azure-50 px-3 py-2 text-caption text-azure-800">
-                  {setup.jobDescription
-                    ? 'We filled this in from the job your resume was tailored for — questions will be based on your resume and this job. Change anything below.'
-                    : 'We filled in the job title from your saved resume — questions will be based on your resume and this job. Change it anytime.'}
+                  Filled in by AI from your saved resume: job role, difficulty and job description. Change anything below, then press <strong>Start interview</strong>.
                 </p>
               )}
               <div className="mt-4 grid gap-4 sm:grid-cols-2">
                 <Textarea label="Target job title" rows={1} value={setup.jobTitle} onChange={(e) => setSetup((s) => ({ ...s, jobTitle: e.target.value }))} />
                 <Textarea label="Company (optional)" rows={1} value={setup.company} onChange={(e) => setSetup((s) => ({ ...s, company: e.target.value }))} />
               </div>
-              <Textarea className="mt-4" label="Job description (recommended)" rows={4} value={setup.jobDescription} onChange={(e) => setSetup((s) => ({ ...s, jobDescription: e.target.value }))} />
+              <Textarea className="mt-4" label="Job description (optional)" rows={4} value={setup.jobDescription} onChange={(e) => setSetup((s) => ({ ...s, jobDescription: e.target.value }))} />
             </>
           )}
           {setup.sourceSetId && <p className="mt-3 text-caption text-slate-500">Uses the questions, job and resume from your saved top-10 set. Follow-up questions are added based on your answers.</p>}
-          <Button className="mt-5" onClick={start} loading={busy === 'start'}><PlayCircle className="h-4 w-4" aria-hidden /> Start interview</Button>
+          <Button className="mt-5" onClick={start} loading={busy === 'start'} disabled={busy === 'ai-all'}><PlayCircle className="h-4 w-4" aria-hidden /> Start interview</Button>
           {error && <p role="alert" className="mt-3 text-small font-medium text-danger">{error}</p>}
         </Panel>
         <Panel title="Practice history">

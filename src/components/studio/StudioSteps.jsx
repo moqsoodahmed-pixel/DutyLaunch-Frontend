@@ -672,7 +672,7 @@ export function AtsStep({ onDone, refreshKey }) {
  * and Interview prep are written ONLY from it — never from an older
  * uploaded resume version.
  * ------------------------------------------------------------------ */
-function useSavedProfile(refreshKey) {
+export function useSavedProfile(refreshKey) {
   const [profile, setProfile] = useState(null); // null = loading, false = none
   useEffect(() => {
     let active = true;
@@ -687,11 +687,24 @@ function useSavedProfile(refreshKey) {
   return profile;
 }
 
+/* The automatic "prepare everything" run happens once per browser session
+   for each tool, not on every visit or refresh — the free AI plans allow
+   only so many requests per minute, so keep them for the buttons. */
+export function firstAutoRunThisSession(key) {
+  try {
+    if (sessionStorage.getItem(key)) return false;
+    sessionStorage.setItem(key, '1');
+  } catch {
+    /* storage unavailable: allow the run */
+  }
+  return true;
+}
+
 /** Cover letter tone that suits an experience level. */
 const TONE_FOR_LEVEL = { fresher: 'entry-level', entry: 'entry-level', mid: 'professional', senior: 'experienced', lead: 'experienced' };
 
 /** Rough experience level from the saved resume's job dates (null = unknown). */
-function guessExperienceLevel(profile) {
+export function guessExperienceLevel(profile) {
   const jobs = profile?.experience || [];
   if (!jobs.length) return 'fresher';
   const now = new Date().getFullYear();
@@ -714,7 +727,7 @@ function guessExperienceLevel(profile) {
   return 'senior';
 }
 
-function SavedResumeSource({ profile, label = 'Using your saved resume' }) {
+export function SavedResumeSource({ profile, label = 'Using your saved resume' }) {
   if (profile === null) return <Spinner />;
   if (profile === false) {
     return (
@@ -847,7 +860,7 @@ export function CoverLetterStep({ onDone, refreshKey }) {
     if (!justFetched || letter || busy || autoRanFor.current === 'profile') return;
     autoRanFor.current = 'profile';
     setJustFetched(false);
-    generateEverything();
+    if (firstAutoRunThisSession('dl_autorun_cover_letter')) generateEverything();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [justFetched, letter, busy]);
 
@@ -1104,7 +1117,7 @@ export function InterviewStep({ onDone, refreshKey, existingSetId }) {
   useEffect(() => {
     if (!readyToAuto || autoRan.current || set || busy) return;
     autoRan.current = true;
-    generateEverything();
+    if (firstAutoRunThisSession('dl_autorun_interview')) generateEverything();
   }, [readyToAuto]); // eslint-disable-line react-hooks/exhaustive-deps
   const saveEdits = () => act('save', async () => {
     const questions = Object.entries(edits).map(([number, sampleAnswer]) => ({ number: Number(number), sampleAnswer }));
