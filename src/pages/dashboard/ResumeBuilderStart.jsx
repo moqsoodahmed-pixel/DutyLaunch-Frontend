@@ -9,6 +9,7 @@ import { BUILDER_IMPORT_KEY } from '../../utils/resumeToBuilder.js';
 import { cn } from '../../utils/cn.js';
 import { useAuth } from '../../context/AuthContext.jsx';
 import { draftKey } from '../ResumeWizard.jsx';
+import { takePendingUpload } from '../../utils/pendingUpload.js';
 
 const CHOICES = [
   {
@@ -74,6 +75,23 @@ export default function ResumeBuilderStart() {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [quickstart, savedProfile]);
+
+  // Handed a file from the AI Career Assistant's "+" upload button
+  // (?upload=1): skip the choose screen entirely and land straight on the
+  // upload step with that file already attached — the person just needs to
+  // tick consent and continue, same as if they'd picked it here themselves.
+  // If there's no pending file (e.g. the page was refreshed in between),
+  // this quietly does nothing and they see the normal choose screen.
+  useEffect(() => {
+    if (params.get('upload') !== '1') return;
+    const pending = takePendingUpload();
+    if (pending) {
+      setFile(pending);
+      setChoice('upload');
+      setStage('upload');
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const template = params.get('template') || 'dl-elite';
   const { user } = useAuth();
