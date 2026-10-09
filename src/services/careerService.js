@@ -124,7 +124,14 @@ export const careerService = {
 
   /** Returns proposals for review. Changes nothing. */
   async optimize(opts = {}) {
-    const res = await api.post('/career/optimize', withResume(opts, { scope: opts.scope }));
+    const { signal, timeout, autoApply, ...rest } = opts;
+    const res = await api.post(
+      '/career/optimize',
+      withResume(rest, { scope: rest.scope, ...(autoApply ? { autoApply: true } : {}) }),
+      // Rewriting calls an AI model several times, so it gets far longer than
+      // the 20 s default; `signal` lets the candidate cancel.
+      { timeout: timeout || 150000, signal }
+    );
     return unwrap(res);
   },
 
