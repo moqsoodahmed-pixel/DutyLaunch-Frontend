@@ -667,10 +667,12 @@ export function AtsStep({ onDone, refreshKey }) {
  * Step 6 — Cover letter
  * ------------------------------------------------------------------ */
 
-export function CoverLetterStep({ onDone, refreshKey }) {
-  const { success } = useToast();
-  // The letter is written ONLY from the resume saved in the Resume Builder
-  // (the career profile) — never from an older uploaded resume version.
+/* ------------------------------------------------------------------ *
+ * The resume saved in the Resume Builder (career profile). Cover letter
+ * and Interview prep are written ONLY from it — never from an older
+ * uploaded resume version.
+ * ------------------------------------------------------------------ */
+function useSavedProfile(refreshKey) {
   const [profile, setProfile] = useState(null); // null = loading, false = none
   useEffect(() => {
     let active = true;
@@ -682,6 +684,58 @@ export function CoverLetterStep({ onDone, refreshKey }) {
       active = false;
     };
   }, [refreshKey]);
+  return profile;
+}
+
+/** Rough experience level from the saved resume's job dates. */
+function guessExperienceLevel(profile) {
+  const jobs = profile?.experience || [];
+  if (!jobs.length) return 'fresher';
+  const now = new Date().getFullYear();
+  let months = 0;
+  jobs.forEach((j) => {
+    const start = Number(String(j.startDate || '').match(/(19|20)\d{2}/)?.[0]);
+    const endText = String(j.endDate || '');
+    const end = j.current || /present|current|now/i.test(endText) ? now : Number(endText.match(/(19|20)\d{2}/)?.[0]);
+    if (start && end && end >= start) months += Math.max(6, (end - start) * 12);
+  });
+  const years = months / 12;
+  if (years < 3) return 'entry';
+  if (years < 8) return 'mid';
+  return 'senior';
+}
+
+function SavedResumeSource({ profile, label = 'Using your saved resume' }) {
+  if (profile === null) return <Spinner />;
+  if (profile === false) {
+    return (
+      <div className="mb-5">
+        <Note tone="warn">
+          Build your resume first: open <strong>Resume builder</strong>, fill it in and tick “Save to my DutyLaunch account”. This is written from that saved resume.
+        </Note>
+      </div>
+    );
+  }
+  return (
+    <div className="mb-5 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-line bg-paper p-4">
+      <div>
+        <p className="text-caption font-semibold uppercase tracking-wide text-slate-500">{label}</p>
+        <p className="text-small font-bold text-ink">
+          {profile.personal?.name || 'Your resume'}
+          {profile.personal?.headline ? ` · ${profile.personal.headline}` : ''}
+        </p>
+        <p className="text-caption text-slate-600">
+          {(profile.experience || []).length} job(s) · {(profile.education || []).length} education · {Object.values(profile.skills || {}).flat().length} skills
+        </p>
+      </div>
+      <a href="/resume-builder/wizard" className="text-small font-semibold text-azure hover:underline">Edit in Resume Builder →</a>
+    </div>
+  );
+}
+
+export function CoverLetterStep({ onDone, refreshKey }) {
+  const { success } = useToast();
+  const profile = useSavedProfile(refreshKey);
   const [form, setForm] = useState({ versionId: '', jobTitle: '', company: '', jobDescription: '', tone: 'professional' });
   const [letter, setLetter] = useState(null);
   const [content, setContent] = useState('');
@@ -816,27 +870,7 @@ export function CoverLetterStep({ onDone, refreshKey }) {
 
       {view === 'write' && (
       <>
-      {profile === null && <Spinner />}
-      {profile === false && (
-        <Note tone="warn">
-          Build your resume first: open <strong>Resume builder</strong>, fill it in and tick “Save to my DutyLaunch account”. Your cover letter is written from that saved resume.
-        </Note>
-      )}
-      {profile && (
-        <div className="mb-5 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-line bg-paper p-4">
-          <div>
-            <p className="text-caption font-semibold uppercase tracking-wide text-slate-500">Writing from your saved resume</p>
-            <p className="text-small font-bold text-ink">
-              {profile.personal?.name || 'Your resume'}
-              {profile.personal?.headline ? ` · ${profile.personal.headline}` : ''}
-            </p>
-            <p className="text-caption text-slate-600">
-              {(profile.experience || []).length} job(s) · {(profile.education || []).length} education · {Object.values(profile.skills || {}).flat().length} skills
-            </p>
-          </div>
-          <a href="/resume-builder/wizard" className="text-small font-semibold text-azure hover:underline">Edit in Resume Builder →</a>
-        </div>
-      )}
+      <SavedResumeSource profile={profile} label="Writing from your saved resume" />
       <div className="grid gap-4 sm:grid-cols-2">
         <Select label="Tone" value={form.tone} onChange={set('tone')}>{COVER_LETTER_TONES.map((t) => <option key={t.value} value={t.value}>{t.label}</option>)}</Select>
         <Input label="Job title" value={form.jobTitle} onChange={set('jobTitle')} />
@@ -914,8 +948,11 @@ export function CoverLetterStep({ onDone, refreshKey }) {
 
 export function InterviewStep({ onDone, refreshKey, existingSetId }) {
   const { success } = useToast();
-  const versions = useVersions(refreshKey);
+  // Questions and answers come ONLY from the resume saved in the Resume Builder.
+  const profile = useSavedProfile(refreshKey);
   const [form, setForm] = useState({ versionId: '', jobTitle: '', company: '', jobDescription: '', experienceLevel: 'mid' });
+  const [readyToAuto, setReadyToAuto] = useState(false);
+  const autoRan = useRef(false);
   const [set, setSet] = useState(null);
   const [open, setOpen] = useState({});
   const [edits, setEdits] = useState({});
@@ -924,12 +961,14 @@ export function InterviewStep({ onDone, refreshKey, existingSetId }) {
   const [notes, setNotes] = useState({});
   const upd = (k) => (e) => setForm((f) => ({ ...f, [k]: e.target.value }));
 
+  // Fill the job title (profession) and experience level from the saved
+  // resume, then build the top 10 straight away — once.
   useEffect(() => {
-    if (versions?.length && !form.versionId) {
-      const v = versions[0];
-      setForm((f) => ({ ...f, versionId: v.id, jobTitle: v.target?.jobTitle || '', company: v.target?.company || '', jobDescription: v.target?.jobDescription || '' }));
-    }
-  }, [versions]); // eslint-disable-line react-hooks/exhaustive-deps
+    if (!profile) return;
+    const headline = profile.personal?.headline?.trim();
+    setForm((f) => ({ ...f, jobTitle: f.jobTitle || headline || '', experienceLevel: guessExperienceLevel(profile) }));
+    if (headline && !existingSetId) setReadyToAuto(true);
+  }, [profile]); // eslint-disable-line react-hooks/exhaustive-deps
   useEffect(() => {
     if (existingSetId && !set) studioService.getInterviewSet(existingSetId).then(setSet).catch(() => {});
   }, [existingSetId]); // eslint-disable-line react-hooks/exhaustive-deps
@@ -948,12 +987,27 @@ export function InterviewStep({ onDone, refreshKey, existingSetId }) {
   };
 
   const generate = () => act('create', async () => {
-    const res = await studioService.createInterviewSet({ ...form, versionId: form.versionId || undefined });
+    const res = await studioService.createInterviewSet({ ...form, versionId: undefined, jobDescription: form.jobDescription.trim() || undefined });
     setSet(res.set);
     setEdits({});
-    setNotes({ note: res.note, engine: res.engineNote });
+    // With only a job title, the AI wrote a typical job description from the
+    // saved resume first — show it, so it can be checked or replaced.
+    if (res.jobDescriptionSource === 'ai' && res.set?.jobDescription) {
+      setForm((f) => ({ ...f, jobDescription: res.set.jobDescription }));
+    }
+    setNotes({
+      note: res.note,
+      engine: res.engineNote,
+      jd: res.jobDescriptionSource === 'ai' ? 'No job description was given, so AI wrote a typical one for this role from your saved resume. Paste the real job posting above and generate again for questions closer to that job.' : '',
+    });
     onDone();
   }, 'Your top 10 questions are ready.');
+
+  useEffect(() => {
+    if (!readyToAuto || autoRan.current || set || busy || !form.jobTitle.trim()) return;
+    autoRan.current = true;
+    generate();
+  }, [readyToAuto, form.jobTitle]); // eslint-disable-line react-hooks/exhaustive-deps
   const saveEdits = () => act('save', async () => {
     const questions = Object.entries(edits).map(([number, sampleAnswer]) => ({ number: Number(number), sampleAnswer }));
     setSet(await studioService.updateInterviewSet(set._id, { questions }));
@@ -970,14 +1024,22 @@ export function InterviewStep({ onDone, refreshKey, existingSetId }) {
 
   return (
     <Panel title="Your top 10 interview questions & answers" lead="Ten practice questions built from your profile, resume and the job — with personalised sample answers. They are not real or leaked questions from any employer.">
+      <SavedResumeSource profile={profile} label="Questions built from your saved resume" />
       <div className="grid gap-4 sm:grid-cols-2">
-        <VersionSelect versions={versions} value={form.versionId} onChange={(v) => setForm((f) => ({ ...f, versionId: v }))} />
         <Select label="Experience level" value={form.experienceLevel} onChange={upd('experienceLevel')}>{EXPERIENCE_LEVELS.map((l) => <option key={l.value} value={l.value}>{l.label}</option>)}</Select>
         <Input label="Job title" value={form.jobTitle} onChange={upd('jobTitle')} />
         <Input label="Company (optional)" value={form.company} onChange={upd('company')} />
       </div>
-      <Textarea className="mt-4" label="Job description" rows={4} value={form.jobDescription} onChange={upd('jobDescription')} />
-      <Button className="mt-4" onClick={generate} loading={busy === 'create'}>{set ? 'Generate a new set' : 'Generate my top 10'}</Button>
+      <Textarea
+        className="mt-4"
+        label="Job description (optional)"
+        rows={4}
+        value={form.jobDescription}
+        onChange={upd('jobDescription')}
+        hint="Paste the job posting for questions closest to that job. Leave it empty and AI writes a typical one for this job title from your resume."
+      />
+      <Button className="mt-4" onClick={generate} loading={busy === 'create'} disabled={!profile || !form.jobTitle.trim() && !form.jobDescription.trim()}>{set ? 'Generate a new set' : 'Generate my top 10'}</Button>
+      {notes.jd && <div className="mt-3"><Note tone="info">{notes.jd}</Note></div>}
       {busy === 'create' && <p className="mt-2 text-caption text-slate-500">Tailoring ten questions to your experience can take up to a minute.</p>}
       <ErrorLine error={error} />
 
