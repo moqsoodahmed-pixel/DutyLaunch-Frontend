@@ -963,11 +963,15 @@ export function InterviewStep({ onDone, refreshKey, existingSetId }) {
 
   // Fill the job title (profession) and experience level from the saved
   // resume, then build the top 10 straight away — once.
+  // Only the first time the saved resume arrives — it is fetched again after
+  // each generation, and must not overwrite what the AI or the user chose.
+  const prefilled = useRef(false);
   useEffect(() => {
-    if (!profile) return;
+    if (!profile || prefilled.current) return;
+    prefilled.current = true;
     const headline = profile.personal?.headline?.trim();
     setForm((f) => ({ ...f, jobTitle: f.jobTitle || headline || '', experienceLevel: guessExperienceLevel(profile) }));
-    if (headline && !existingSetId) setReadyToAuto(true);
+    if (!existingSetId) setReadyToAuto(true);
   }, [profile]); // eslint-disable-line react-hooks/exhaustive-deps
   useEffect(() => {
     if (existingSetId && !set) studioService.getInterviewSet(existingSetId).then(setSet).catch(() => {});
@@ -986,8 +990,7 @@ export function InterviewStep({ onDone, refreshKey, existingSetId }) {
     }
   };
 
-  const generate = () => act('create', async () => {
-    const res = await studioService.createInterviewSet({ ...form, versionId: undefined, jobDescription: form.jobDescription.trim() || undefined });
+  const applySet = (res, aiNote = '') => {
     setSet(res.set);
     setEdits({});
     // With only a job title, the AI wrote a typical job description from the
@@ -998,16 +1001,46 @@ export function InterviewStep({ onDone, refreshKey, existingSetId }) {
     setNotes({
       note: res.note,
       engine: res.engineNote,
-      jd: res.jobDescriptionSource === 'ai' ? 'No job description was given, so AI wrote a typical one for this role from your saved resume. Paste the real job posting above and generate again for questions closer to that job.' : '',
+      jd: aiNote || (res.jobDescriptionSource === 'ai' ? 'No job description was given, so AI wrote a typical one for this role from your saved resume. Paste the real job posting above and generate again for questions closer to that job.' : ''),
     });
     onDone();
+  };
+
+  const generate = () => act('create', async () => {
+    applySet(await studioService.createInterviewSet({ ...form, versionId: undefined, jobDescription: form.jobDescription.trim() || undefined }));
+  }, 'Your top 10 questions are ready.');
+
+  // "Generate everything with AI": the AI reads the saved resume and picks
+  // the job role, the experience level and a job description, fills them in,
+  // then builds the ten questions from all of it.
+  const [aiPhase, setAiPhase] = useState('');
+  const generateEverything = () => act('ai-all', async () => {
+    try {
+      setAiPhase('Reading your resume and choosing the job role, level and description…');
+      const jd = await studioService.suggestJobDescription({ company: form.company.trim() || undefined });
+      const next = {
+        ...form,
+        versionId: undefined,
+        jobTitle: jd.jobTitle || form.jobTitle,
+        experienceLevel: jd.experienceLevel || form.experienceLevel,
+        jobDescription: jd.description || form.jobDescription,
+      };
+      setForm((f) => ({ ...f, jobTitle: next.jobTitle, experienceLevel: next.experienceLevel, jobDescription: next.jobDescription }));
+      setAiPhase('Writing your ten questions and sample answers…');
+      applySet(
+        await studioService.createInterviewSet(next),
+        'The job role, experience level and job description were chosen by AI from your saved resume. Change any of them (or paste a real job posting) and click “Generate a new set” to tailor the questions.'
+      );
+    } finally {
+      setAiPhase('');
+    }
   }, 'Your top 10 questions are ready.');
 
   useEffect(() => {
-    if (!readyToAuto || autoRan.current || set || busy || !form.jobTitle.trim()) return;
+    if (!readyToAuto || autoRan.current || set || busy) return;
     autoRan.current = true;
-    generate();
-  }, [readyToAuto, form.jobTitle]); // eslint-disable-line react-hooks/exhaustive-deps
+    generateEverything();
+  }, [readyToAuto]); // eslint-disable-line react-hooks/exhaustive-deps
   const saveEdits = () => act('save', async () => {
     const questions = Object.entries(edits).map(([number, sampleAnswer]) => ({ number: Number(number), sampleAnswer }));
     setSet(await studioService.updateInterviewSet(set._id, { questions }));
@@ -1025,6 +1058,28 @@ export function InterviewStep({ onDone, refreshKey, existingSetId }) {
   return (
     <Panel title="Your top 10 interview questions & answers" lead="Ten practice questions built from your profile, resume and the job — with personalised sample answers. They are not real or leaked questions from any employer.">
       <SavedResumeSource profile={profile} label="Questions built from your saved resume" />
+      {profile && (
+        <div className="mb-5 rounded-xl border border-azure-200 bg-gradient-to-br from-azure-50 to-white p-4">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <div className="max-w-xl">
+              <p className="flex items-center gap-1.5 text-small font-bold text-ink">
+                <Sparkles className="h-4 w-4 text-azure" aria-hidden /> Generate everything with AI
+              </p>
+              <p className="mt-1 text-caption text-slate-600">
+                AI reads your saved resume, picks the job role, your experience level and a job description, fills them in below — then builds your ten questions and answers.
+              </p>
+            </div>
+            <Button onClick={generateEverything} loading={busy === 'ai-all'} disabled={Boolean(busy)}>
+              <Sparkles className="h-4 w-4" aria-hidden /> Generate everything with AI
+            </Button>
+          </div>
+          {aiPhase && (
+            <p className="mt-3 text-caption font-semibold text-azure-700" aria-live="polite">
+              {aiPhase}
+            </p>
+          )}
+        </div>
+      )}
       <div className="grid gap-4 sm:grid-cols-2">
         <Select label="Experience level" value={form.experienceLevel} onChange={upd('experienceLevel')}>{EXPERIENCE_LEVELS.map((l) => <option key={l.value} value={l.value}>{l.label}</option>)}</Select>
         <Input label="Job title" value={form.jobTitle} onChange={upd('jobTitle')} />
@@ -1038,7 +1093,7 @@ export function InterviewStep({ onDone, refreshKey, existingSetId }) {
         onChange={upd('jobDescription')}
         hint="Paste the job posting for questions closest to that job. Leave it empty and AI writes a typical one for this job title from your resume."
       />
-      <Button className="mt-4" onClick={generate} loading={busy === 'create'} disabled={!profile || !form.jobTitle.trim() && !form.jobDescription.trim()}>{set ? 'Generate a new set' : 'Generate my top 10'}</Button>
+      <Button className="mt-4" variant={set ? 'primary' : 'outline'} onClick={generate} loading={busy === 'create'} disabled={!profile || Boolean(busy) || (!form.jobTitle.trim() && !form.jobDescription.trim())}>{set ? 'Generate a new set' : 'Generate with these details'}</Button>
       {notes.jd && <div className="mt-3"><Note tone="info">{notes.jd}</Note></div>}
       {busy === 'create' && <p className="mt-2 text-caption text-slate-500">Tailoring ten questions to your experience can take up to a minute.</p>}
       <ErrorLine error={error} />
