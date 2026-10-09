@@ -63,7 +63,13 @@ export function filledSteps(w) {
 }
 function firstMissingStep(w) {
   const f = filledSteps(w);
-  return FILL_STEPS.find((id) => !f[id]) || 'template';
+  // When an uploaded resume already has everything we ask for, don't stop
+  // at "Choose a template" and make the person click through it manually —
+  // land them straight on the finished, downloadable resume (a free
+  // template is already picked by default), the same "upload it and see
+  // your finished resume immediately" moment competitors like Rezi show.
+  // Change template / go back are both still one click away from there.
+  return FILL_STEPS.find((id) => !f[id]) || 'download';
 }
 
 function previewData(templateId, builderState) {
@@ -292,8 +298,11 @@ export default function ResumeWizard() {
     return emptyWizard();
   });
   const [step, setStep] = useState(() => (fromUpload ? firstMissingStep(w) : 'heading'));
-  // After an upload every filling step is reachable, up to Choose template.
-  const [maxStep, setMaxStep] = useState(() => (fromUpload ? STEPS.findIndex((x) => x.id === 'template') : 0));
+  // After an upload every step up to (and including) wherever that landed —
+  // Choose template, or straight to Download for an already-complete resume
+  // — is reachable, so the sidebar doesn't show the very step you're
+  // standing on as locked.
+  const [maxStep, setMaxStep] = useState(() => (fromUpload ? STEPS.findIndex((x) => x.id === firstMissingStep(w)) : 0));
   const [showErrors, setShowErrors] = useState(() => fromUpload && !filledSteps(w).heading);
   const [uploadBannerOpen, setUploadBannerOpen] = useState(fromUpload);
   // The resume saved in the database loads by default (all steps done), and
@@ -1295,13 +1304,15 @@ export default function ResumeWizard() {
                 </button>
               </div>
             )}
-            {!loadedFromProfile && uploadBannerOpen && FILL_STEPS.concat('extras', 'template').includes(step) && (
+            {!loadedFromProfile && uploadBannerOpen && FILL_STEPS.concat('extras', 'template', 'download').includes(step) && (
               <div className="mb-6 rounded-xl border border-emerald-200 bg-emerald-50 p-4">
                 <div className="flex items-start justify-between gap-3">
                   <div>
                     <p className="text-small font-bold text-emerald-900">
                       {FILL_STEPS.every((id) => filled[id])
-                        ? 'We filled in everything from your resume. Just pick a template!'
+                        ? step === 'download'
+                          ? 'We filled in everything from your resume — here it is, ready to download!'
+                          : 'We filled in everything from your resume. Just pick a template!'
                         : 'We filled in your resume from your file. Only fill in what is missing.'}
                     </p>
                     <p className="mt-0.5 text-caption text-emerald-800">You can still open any step to check or change it.</p>
