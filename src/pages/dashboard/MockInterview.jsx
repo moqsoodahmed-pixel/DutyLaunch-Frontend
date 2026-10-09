@@ -5,6 +5,7 @@ import { PanelHeader } from '../../layouts/AppShell.jsx';
 import { Button, Seo, Select, Textarea, Badge, LoadingBlock, EmptyState } from '../../components/ui/index.js';
 import { Panel } from '../../components/studio/StudioSteps.jsx';
 import { studioService, INTERVIEW_TYPES, errMsg } from '../../services/studioService.js';
+import { careerService } from '../../services/careerService.js';
 import { useToast } from '../../context/ToastContext.jsx';
 
 /**
@@ -92,7 +93,7 @@ export default function MockInterview() {
   const [params, setParams] = useSearchParams();
   const [studio, setStudio] = useState(null);
   const [session, setSession] = useState(null);
-  const [setup, setSetup] = useState({ sourceSetId: params.get('set') || '', interviewType: 'mixed', difficulty: 'medium', questionCount: 5, jobTitle: '', jobDescription: '' });
+  const [setup, setSetup] = useState({ sourceSetId: params.get('set') || '', interviewType: 'mixed', difficulty: 'medium', questionCount: 5, jobTitle: '', company: '', jobDescription: '' });
   const [answer, setAnswer] = useState('');
   const [lastFeedback, setLastFeedback] = useState(null);
   const [busy, setBusy] = useState('');
@@ -102,6 +103,51 @@ export default function MockInterview() {
 
   const loadStudio = useCallback(() => studioService.get().then(setStudio).catch((e) => setError(errMsg(e, 'Could not load your data.'))), []);
   useEffect(() => { loadStudio(); }, [loadStudio]);
+
+  // Fill in the job title, company AND job description from the saved
+  // resume, the same way Cover Letter and the Top-10 Interview Q&A already
+  // pull from it — so questions are built from the actual job a resume was
+  // tailored for, not just a bare job title.
+  //
+  // studio.documents.resumes (from studioService.get(), already loaded
+  // above) only carries target.jobTitle/company — jobDescription is left
+  // out of that summary on purpose, since it can run to thousands of
+  // characters and that endpoint loads on every dashboard visit. The full
+  // text lives on each resume version's own record, so this fetches that
+  // specifically — one extra call, only on this page, only once.
+  //
+  // Prefers the most recently updated version that actually has a target
+  // over the resume's general headline, since a tailored job description is
+  // the sharpest possible signal of "the job mentioned in the resume."
+  // Never overwrites something already typed in, and never auto-starts the
+  // interview itself — that's still a deliberate click either way.
+  const jobPrefilled = useRef(false);
+  useEffect(() => {
+    if (!studio?.profile || jobPrefilled.current) return;
+    jobPrefilled.current = true;
+    (async () => {
+      let targeted = null;
+      try {
+        const versions = await careerService.listVersions();
+        targeted = (versions || [])
+          .filter((v) => v.target?.jobTitle || v.target?.jobDescription)
+          .sort((a, b) => new Date(b.updatedAt || 0) - new Date(a.updatedAt || 0))[0];
+      } catch {
+        /* fall through to the lighter-weight summary below */
+      }
+      const jobTitle = targeted?.target?.jobTitle || studio.profile.headline?.trim() || '';
+      const company = targeted?.target?.company || '';
+      const jobDescription = targeted?.target?.jobDescription || '';
+      if (jobTitle || jobDescription) {
+        setSetup((s) => ({
+          ...s,
+          jobTitle: s.jobTitle || jobTitle,
+          company: s.company || company,
+          jobDescription: s.jobDescription || jobDescription,
+        }));
+      }
+    })();
+  }, [studio]);
   useEffect(() => {
     const id = params.get('session');
     if (id && (!session || session.id !== id)) studioService.getMock(id).then(setSession).catch((e) => setError(errMsg(e, 'Mock interview not found.')));
@@ -123,6 +169,7 @@ export default function MockInterview() {
       else {
         if (!setup.jobTitle.trim() && !setup.jobDescription.trim()) throw new Error('Choose a saved question set, or add a target job title.');
         if (setup.jobTitle.trim()) body.jobTitle = setup.jobTitle.trim();
+        if (setup.company.trim()) body.company = setup.company.trim();
         if (setup.jobDescription.trim()) body.jobDescription = setup.jobDescription.trim();
       }
       openSession(await studioService.startMock(body));
@@ -240,7 +287,14 @@ export default function MockInterview() {
 
         {q ? (
           <Panel>
-            <Badge tone="outline">{q.category}{q.isFollowUp ? '' : ''}</Badge>
+            <div className="flex flex-wrap items-center gap-2">
+              <Badge tone="outline">{q.category}</Badge>
+              {q.difficulty && (
+                <Badge tone={q.difficulty === 'hard' ? 'danger' : q.difficulty === 'easy' ? 'success' : 'amber'}>
+                  {q.difficulty[0].toUpperCase() + q.difficulty.slice(1)}
+                </Badge>
+              )}
+            </div>
             <p className="mt-3 text-h4 font-bold text-ink">{q.question}</p>
             <Textarea className="mt-5" label="Your answer" rows={8} value={answer} onChange={(e) => setAnswer(e.target.value)} placeholder="Answer as you would in the interview. For behavioural questions, try Situation → Task → Action → Result." />
             <div className="mt-3 flex flex-wrap items-center gap-3">
@@ -276,12 +330,27 @@ export default function MockInterview() {
               {sets.map((s) => <option key={s.id} value={s.id}>{s.title}</option>)}
             </Select>
             <Select label="Interview type" value={setup.interviewType} onChange={(e) => setSetup((s) => ({ ...s, interviewType: e.target.value }))}>{INTERVIEW_TYPES.map((t) => <option key={t.value} value={t.value}>{t.label}</option>)}</Select>
-            <Select label="Difficulty" value={setup.difficulty} onChange={(e) => setSetup((s) => ({ ...s, difficulty: e.target.value }))}>{['easy', 'medium', 'hard'].map((d) => <option key={d} value={d}>{d[0].toUpperCase() + d.slice(1)}</option>)}</Select>
+            <Select label="Difficulty" value={setup.difficulty} onChange={(e) => setSetup((s) => ({ ...s, difficulty: e.target.value }))}>
+              {['easy', 'medium', 'hard', 'mixed'].map((d) => <option key={d} value={d}>{d[0].toUpperCase() + d.slice(1)}</option>)}
+            </Select>
             <Select label="Number of questions" value={setup.questionCount} onChange={(e) => setSetup((s) => ({ ...s, questionCount: e.target.value }))}>{[3, 5, 8, 10].map((n) => <option key={n} value={n}>{n}</option>)}</Select>
           </div>
+          {setup.difficulty === 'mixed' && (
+            <p className="mt-2 text-caption text-slate-500">A spread of easy, medium and hard questions in one session, instead of all one level.</p>
+          )}
           {!setup.sourceSetId && (
             <>
-              <Textarea className="mt-4" label="Target job title" rows={1} value={setup.jobTitle} onChange={(e) => setSetup((s) => ({ ...s, jobTitle: e.target.value }))} />
+              {jobPrefilled.current && (setup.jobTitle || setup.jobDescription) && (
+                <p className="mt-4 rounded-lg bg-azure-50 px-3 py-2 text-caption text-azure-800">
+                  {setup.jobDescription
+                    ? 'We filled this in from the job your resume was tailored for — questions will be based on your resume and this job. Change anything below.'
+                    : 'We filled in the job title from your saved resume — questions will be based on your resume and this job. Change it anytime.'}
+                </p>
+              )}
+              <div className="mt-4 grid gap-4 sm:grid-cols-2">
+                <Textarea label="Target job title" rows={1} value={setup.jobTitle} onChange={(e) => setSetup((s) => ({ ...s, jobTitle: e.target.value }))} />
+                <Textarea label="Company (optional)" rows={1} value={setup.company} onChange={(e) => setSetup((s) => ({ ...s, company: e.target.value }))} />
+              </div>
               <Textarea className="mt-4" label="Job description (recommended)" rows={4} value={setup.jobDescription} onChange={(e) => setSetup((s) => ({ ...s, jobDescription: e.target.value }))} />
             </>
           )}
