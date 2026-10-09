@@ -2378,11 +2378,18 @@ export default function CvBuilder() {
                 </div>
               </div>
 
-              {/* Live ISO A4 Document Container */}
+              {/* Live ISO A4 Document Container.
+                  max-h + overflow-y-auto so a resume taller than one page
+                  scrolls into view instead of being clipped — this preview
+                  used to hard-crop at exactly one page's height with no way
+                  to see or scroll to anything past that point, on screen or
+                  in the printed PDF (same root cause fixed in
+                  ResumeWizard.jsx's review screen; see allowOverflow below
+                  and printResume.js for the matching print-side fix). */}
               <div
                 className={cn(
-                  'relative rounded-2xl border border-white/80 bg-slate-200/60 p-3 sm:p-5 shadow-crystal-lg backdrop-blur-xl transition-all duration-300 cv-preview-outer',
-                  previewZoom === '100%' ? 'overflow-x-auto' : 'overflow-hidden'
+                  'relative max-h-[85vh] overflow-y-auto rounded-2xl border border-white/80 bg-slate-200/60 p-3 sm:p-5 shadow-crystal-lg backdrop-blur-xl transition-all duration-300 cv-preview-outer',
+                  previewZoom === '100%' ? 'overflow-x-auto' : ''
                 )}
               >
                 {/* Print Anchor Container */}
@@ -2394,7 +2401,7 @@ export default function CvBuilder() {
                     width: previewZoom === '100%' ? `${PAGE_W}px` : '100%',
                   }}
                 >
-                  <ResumeTemplatePreview template={liveTemplateData} crop={false} />
+                  <ResumeTemplatePreview template={liveTemplateData} crop={false} allowOverflow />
                 </div>
               </div>
 

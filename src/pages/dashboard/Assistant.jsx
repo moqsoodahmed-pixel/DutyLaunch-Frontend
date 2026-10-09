@@ -1,13 +1,18 @@
 import { useEffect, useRef, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { motion, useMotionValue, useTransform } from 'framer-motion';
-import { ArrowUpRight, Compass, MessageCircle, Send, Sparkles, User } from 'lucide-react';
+import { ArrowUpRight, Compass, MessageCircle, Paperclip, Send, Sparkles, User } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext.jsx';
 import { careerAssistant, calculateProfileStrength, recommendCourses } from '../../services/aiService.js';
 import { ProgressRing } from '../../components/ui/Progress.jsx';
 import { Badge } from '../../components/ui/Badge.jsx';
 import { usePrefersReducedMotion } from '../../hooks/useMediaQuery.js';
 import { cn } from '../../utils/cn.js';
+import { setPendingUpload } from '../../utils/pendingUpload.js';
+import { useToast } from '../../context/ToastContext.jsx';
+
+const UPLOAD_ACCEPT = '.pdf,.docx,.doc';
+const MAX_UPLOAD_MB = 5;
 
 const SUGGESTED_PROMPTS = [
   'I want to become an Operations Manager.',
@@ -443,6 +448,40 @@ export default function Assistant() {
     send(question);
   };
 
+  // "+" upload button: lets someone hand over their resume file right from
+  // the chat instead of being told to go find the upload page themselves.
+  // The file can't be sent to the assistant's text endpoint (it's not a
+  // chat message), so this hands it to the Resume Builder's own, already-
+  // working upload step via pendingUpload.js and takes the person straight
+  // there — same "pre-filled and ready" idea as the chat's other actions.
+  const fileInputRef = useRef(null);
+  const toast = useToast();
+  const navigate = useNavigate();
+  const handleAttachClick = () => {
+    if (thinking) return;
+    fileInputRef.current?.click();
+  };
+  const handleFileChosen = (e) => {
+    const file = e.target.files?.[0];
+    e.target.value = ''; // allow choosing the same file again later
+    if (!file) return;
+    if (!/\.(pdf|docx?|doc)$/i.test(file.name)) {
+      toast.error('Please choose a PDF or Word (.docx) file.');
+      return;
+    }
+    if (file.size > MAX_UPLOAD_MB * 1024 * 1024) {
+      toast.error(`That file is over ${MAX_UPLOAD_MB} MB — try a smaller one.`);
+      return;
+    }
+    setMessages((m) => [
+      ...m,
+      { role: 'user', text: `📎 Uploaded ${file.name}` },
+      { role: 'assistant', text: "Got it! Opening the builder so you can review and finish your resume — I've already handed your file over." },
+    ]);
+    setPendingUpload(file);
+    setTimeout(() => navigate('/resume-builder?upload=1'), 700);
+  };
+
   /** Explicit, intentional end to the conversation — the "or the user
    * closes the chat" half of the persistence requirement. Navigating
    * away never triggers this; only clicking this button does. */
@@ -581,6 +620,24 @@ export default function Assistant() {
               }}
               className="flex items-center gap-2"
             >
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept={UPLOAD_ACCEPT}
+                onChange={handleFileChosen}
+                className="sr-only"
+                tabIndex={-1}
+              />
+              <button
+                type="button"
+                onClick={handleAttachClick}
+                disabled={thinking}
+                title="Upload your resume (PDF or Word)"
+                aria-label="Upload your resume"
+                className="grid h-11 w-11 shrink-0 place-items-center rounded-lg border border-line bg-white text-slate-500 hover:border-violet-200 hover:bg-violet-50 hover:text-violet-700 disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                <Paperclip className="h-4.5 w-4.5" aria-hidden />
+              </button>
               <input
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
