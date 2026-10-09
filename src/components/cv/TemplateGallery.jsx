@@ -14,19 +14,37 @@ import { TEMPLATES, LAYOUTS, LEVELS, TEMPLATE_COUNT } from '../../data/resumeTem
 import { cn } from '../../utils/cn.js';
 import { easing } from '../../utils/motion.js';
 import { usePrefersReducedMotion } from '../../hooks/useMediaQuery.js';
-import { useContentProtection } from '../../hooks/useContentProtection.js';
+import { useContentProtection, canonicalTemplateId } from '../../hooks/useContentProtection.js';
 import { useRazorpayCheckout } from '../../hooks/useRazorpayCheckout.js';
 import { formatCurrency } from '../../utils/format.js';
 
 const LAYOUT_LABEL = Object.fromEntries(LAYOUTS.map((l) => [l.value, l.label]));
 
+/** The 3 templates that are free before the one-time allowance is spent.
+ * Keep in sync with FREE_TEMPLATE_IDS in the backend's config/templates.js. */
+export const FREE_TEMPLATE_IDS = ['dl-elite', 'ats-classic', 'ats-minimal', 'ats-fresher'];
+
 /**
  * Checks whether a template is free or paid in the system.
+ *
+ * The 3 free templates (dl-elite/ats-classic, ats-minimal, ats-fresher) can
+ * be completed once per account in total — not once each. Pass the status
+ * from useContentProtection() so that once freeTemplateUsed is true, every
+ * free template except the one actually used (freeTemplateUsedId) is
+ * treated exactly like an unpurchased paid template. Omitting the second
+ * argument keeps the old, always-free behaviour, so existing call sites
+ * that haven't been updated yet are unaffected.
  */
-export function getTemplatePricing(tpl) {
+export function getTemplatePricing(tpl, { freeTemplateUsed = false, freeTemplateUsedId = null } = {}) {
   const id = tpl?.id || tpl?.aliasId || '';
-  if (id === 'dl-elite' || id === 'ats-classic' || id === 'ats-minimal' || id === 'ats-fresher') {
-    return { isPremium: false, badge: 'Free' };
+  const isOriginallyFree = FREE_TEMPLATE_IDS.includes(id);
+  if (isOriginallyFree) {
+    if (!freeTemplateUsed || freeTemplateUsedId === canonicalTemplateId(id)) {
+      return { isPremium: false, badge: 'Free' };
+    }
+    // The free allowance was spent on a different template — this one now
+    // needs payment, same as any other premium template.
+    return { isPremium: true, badge: 'Paid' };
   }
   return { isPremium: true, badge: 'Paid' };
 }
@@ -36,7 +54,7 @@ export function getTemplatePricing(tpl) {
  * Displayed when user tries to access/use a Paid template.
  * Explicitly states that payment is required before granting access to edit, use, or export.
  */
-export function PaymentRequiredModal({ tpl, open, onClose, onUnlockSuccess }) {
+export function PaymentRequiredModal({ tpl, open, onClose, onUnlockSuccess, reason = 'paid' }) {
   const { unlock } = useContentProtection();
   const { pay, pendingId, config } = useRazorpayCheckout();
   const navigate = useNavigate();
@@ -63,6 +81,11 @@ export function PaymentRequiredModal({ tpl, open, onClose, onUnlockSuccess }) {
   return (
     <Modal open={open} onClose={onClose} title={`Unlock ${tpl.name}`} description="Paid resume template" size="md">
       <div className="space-y-4 pt-1">
+        {reason === 'free-used' && (
+          <p className="rounded-lg bg-azure-50 p-3 text-caption text-azure-800">
+            You've already used your one free resume template. You can still use this template — it just needs a one-time unlock like any other.
+          </p>
+        )}
         <div className="relative overflow-hidden rounded-xl border border-amber-400/40 bg-gradient-to-br from-amber-500/15 via-orange-500/10 to-slate-900/60 p-4">
           <div className="flex items-center gap-3.5">
             <div className="grid h-12 w-12 shrink-0 place-items-center rounded-xl bg-gradient-to-tr from-amber-500 to-orange-500 text-white shadow-lg shadow-orange-500/30">
@@ -112,16 +135,18 @@ export function PaymentRequiredModal({ tpl, open, onClose, onUnlockSuccess }) {
           >
             {processing ? 'Opening payment…' : price ? `Pay ${formatCurrency(price)}${gst ? ' + GST' : ''}` : 'Pay & unlock'}
           </button>
-          <button
-            type="button"
-            onClick={() => {
-              onClose();
-              navigate('/resume-builder?template=dl-elite');
-            }}
-            className="cursor-pointer rounded-xl border border-slate-200 px-4 py-3 text-small font-semibold text-slate-600 transition-colors hover:bg-slate-100"
-          >
-            Use a free template
-          </button>
+          {reason !== 'free-used' && (
+            <button
+              type="button"
+              onClick={() => {
+                onClose();
+                navigate('/resume-builder?template=dl-elite');
+              }}
+              className="cursor-pointer rounded-xl border border-slate-200 px-4 py-3 text-small font-semibold text-slate-600 transition-colors hover:bg-slate-100"
+            >
+              Use a free template
+            </button>
+          )}
         </div>
         <p className="text-center text-caption text-slate-500">Secure payment by Razorpay.</p>
       </div>
@@ -142,11 +167,15 @@ export function TemplateCard({ tpl, selected, onSelect, onOpen, className, tone 
   const [hovered, setHovered] = useState(false);
   const [paymentModalOpen, setPaymentModalOpen] = useState(false);
   const navigate = useNavigate();
-  const pricing = getTemplatePricing(tpl);
-  const { isUnlocked, isWindowBlurred } = useContentProtection();
+  const { isUnlocked, isWindowBlurred, freeTemplateUsed, freeTemplateUsedId } = useContentProtection();
+  const pricing = getTemplatePricing(tpl, { freeTemplateUsed, freeTemplateUsedId });
 
   const isPaid = pricing.isPremium;
   const isAccessible = !isPaid || isUnlocked(tpl.id);
+  // Only meaningful when isPaid is true: distinguishes "never bought this"
+  // from "spent your one free template on something else", so the modal
+  // and card can explain the real reason instead of a generic paywall.
+  const lockedByFreeUsed = isPaid && freeTemplateUsed && (tpl?.id || tpl?.aliasId) !== freeTemplateUsedId;
 
   const handleAction = (e) => {
     e?.stopPropagation();
@@ -268,6 +297,7 @@ export function TemplateCard({ tpl, selected, onSelect, onOpen, className, tone 
         tpl={tpl}
         open={paymentModalOpen}
         onClose={() => setPaymentModalOpen(false)}
+        reason={lockedByFreeUsed ? 'free-used' : 'paid'}
         onUnlockSuccess={(unlockedTpl) => {
           onSelect?.(unlockedTpl.id);
           navigate(`/resume-builder?template=${unlockedTpl.id}`);
@@ -399,7 +429,14 @@ export function TemplateGallery({
   const [selected, setSelected] = useState(TEMPLATES[0].id);
   const [preview, setPreview] = useState(null);
   const [paymentModalTpl, setPaymentModalTpl] = useState(null);
-  const { isUnlocked } = useContentProtection();
+  const { isUnlocked, freeTemplateUsed, freeTemplateUsedId } = useContentProtection();
+  // Was this template locked because the account spent its one free
+  // template elsewhere, rather than because it was always a paid one?
+  const lockedByFreeUsed = (tpl) =>
+    Boolean(tpl) &&
+    freeTemplateUsed &&
+    (tpl.id || tpl.aliasId) !== freeTemplateUsedId &&
+    getTemplatePricing(tpl, { freeTemplateUsed, freeTemplateUsedId }).isPremium;
 
   const visible = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -525,7 +562,7 @@ export function TemplateGallery({
         size="lg"
       >
         {preview && (() => {
-          const pricing = getTemplatePricing(preview);
+          const pricing = getTemplatePricing(preview, { freeTemplateUsed, freeTemplateUsedId });
           const isPaid = pricing.isPremium;
           const isAccessible = !isPaid || isUnlocked(preview.id);
 
@@ -568,6 +605,7 @@ export function TemplateGallery({
         tpl={paymentModalTpl}
         open={Boolean(paymentModalTpl)}
         onClose={() => setPaymentModalTpl(null)}
+        reason={lockedByFreeUsed(paymentModalTpl) ? 'free-used' : 'paid'}
         onUnlockSuccess={(unlockedTpl) => {
           setSelected(unlockedTpl.id);
         }}

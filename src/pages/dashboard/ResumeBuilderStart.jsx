@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { FileUp, PencilLine, Upload, UserRound, Check } from 'lucide-react';
 import { PanelHeader } from '../../layouts/AppShell.jsx';
@@ -58,6 +58,22 @@ export default function ResumeBuilderStart() {
       active = false;
     };
   }, []);
+
+  // Deep links (e.g. the AI Career Assistant's "Build my resume" chip) can
+  // add ?quickstart=1 to skip this screen's choices entirely: the instant a
+  // saved profile is found, jump straight into the wizard pre-filled with
+  // it, same as clicking "Use my saved profile" by hand. If there's no
+  // saved profile to use, this quietly does nothing and the person just
+  // sees the normal choice screen instead — there's nothing to pre-fill.
+  const quickstart = params.get('quickstart') === '1';
+  const quickstarted = useRef(false);
+  useEffect(() => {
+    if (quickstart && savedProfile && !quickstarted.current) {
+      quickstarted.current = true;
+      handOff(savedProfile);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [quickstart, savedProfile]);
 
   const template = params.get('template') || 'dl-elite';
   const { user } = useAuth();

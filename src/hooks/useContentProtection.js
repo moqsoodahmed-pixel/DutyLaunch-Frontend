@@ -19,6 +19,11 @@ try {
 let owned = new Set();
 let ownedFor = null; // user id the cache belongs to
 let pending = null;
+// The one-time free-template allowance (see models/User.js on the backend).
+// Once true, every id in FREE_TEMPLATE_IDS must be treated as locked for
+// this account, same as an unpurchased paid template.
+let freeTemplateUsed = false;
+let freeTemplateUsedId = null;
 
 /** Template id aliases (older "ats-…" ids) → canonical ids. */
 const ALIASES = {
@@ -41,6 +46,8 @@ export function refreshOwnedTemplates(userId) {
   if (!userId) {
     owned = new Set();
     ownedFor = null;
+    freeTemplateUsed = false;
+    freeTemplateUsedId = null;
     announce();
     return Promise.resolve(owned);
   }
@@ -48,6 +55,8 @@ export function refreshOwnedTemplates(userId) {
     .entitlements()
     .then((res) => {
       owned = new Set((res?.data?.templates || []).map(canonicalTemplateId));
+      freeTemplateUsed = Boolean(res?.data?.freeTemplateUsed);
+      freeTemplateUsedId = res?.data?.freeTemplateUsedId ? canonicalTemplateId(res.data.freeTemplateUsedId) : null;
       ownedFor = userId;
       announce();
       return owned;
@@ -63,6 +72,10 @@ export function getUnlockedTemplates() {
   return new Set(owned);
 }
 
+export function getFreeTemplateStatus() {
+  return { freeTemplateUsed, freeTemplateUsedId };
+}
+
 /**
  * High-grade content protection against inspecting, devtools shortcuts,
  * right-click, PrintScreen, and screen capture tool window-switching.
@@ -72,9 +85,13 @@ export function useContentProtection({ enabled = true } = {}) {
   const userId = user?.id || user?._id || null;
   const [isWindowBlurred, setIsWindowBlurred] = useState(false);
   const [unlocked, setUnlocked] = useState(() => getUnlockedTemplates());
+  const [freeStatus, setFreeStatus] = useState(() => getFreeTemplateStatus());
 
   useEffect(() => {
-    const updateUnlocked = () => setUnlocked(getUnlockedTemplates());
+    const updateUnlocked = () => {
+      setUnlocked(getUnlockedTemplates());
+      setFreeStatus(getFreeTemplateStatus());
+    };
     window.addEventListener('dl-templates-unlocked', updateUnlocked);
     return () => window.removeEventListener('dl-templates-unlocked', updateUnlocked);
   }, []);
@@ -183,6 +200,7 @@ export function useContentProtection({ enabled = true } = {}) {
   const unlock = async () => {
     await refreshOwnedTemplates(userId);
     setUnlocked(getUnlockedTemplates());
+    setFreeStatus(getFreeTemplateStatus());
   };
 
   return {
@@ -191,5 +209,11 @@ export function useContentProtection({ enabled = true } = {}) {
     unlock,
     /** True once we know which templates this user owns (always true when signed out). */
     isReady: !userId || (ownedFor === userId && !pending),
+    /** The account's one-time free-template allowance (see models/User.js).
+     * Once freeTemplateUsed is true, treat every FREE template id as locked
+     * — getTemplatePricing() in TemplateGallery.jsx already does this when
+     * you pass it freeTemplateUsed. */
+    freeTemplateUsed: freeStatus.freeTemplateUsed,
+    freeTemplateUsedId: freeStatus.freeTemplateUsedId,
   };
 }

@@ -37,8 +37,11 @@ import { Button } from '../components/ui/Button.jsx';
 import { TEMPLATES } from '../data/resumeTemplates.js';
 import { ResumeTemplatePreview, PAGE_W } from '../components/cv/ResumeTemplatePreview.jsx';
 import { cn } from '../utils/cn.js';
-import { getTemplatePricing, PaymentRequiredModal } from '../components/cv/TemplateGallery.jsx';
+import { getTemplatePricing, PaymentRequiredModal, FREE_TEMPLATE_IDS } from '../components/cv/TemplateGallery.jsx';
 import { useContentProtection } from '../hooks/useContentProtection.js';
+import { paymentService } from '../services/paymentService.js';
+import { errMsg } from '../services/studioService.js';
+import { useToast } from '../context/ToastContext.jsx';
 import { resumeToBuilder, BUILDER_IMPORT_KEY } from '../utils/resumeToBuilder.js';
 import { printResumeSheet } from '../utils/printResume.js';
 import { buildTemplateData } from '../utils/templateData.js';
@@ -330,9 +333,29 @@ export default function CvBuilder() {
   const [customSections, setCustomSections] = useState([]);
 
   // Paid templates: usable only after a server-verified payment.
-  const { isUnlocked, isReady: ownershipReady } = useContentProtection({ enabled: false });
+  const { isUnlocked, isReady: ownershipReady, freeTemplateUsed, freeTemplateUsedId, unlock: refreshEntitlements } = useContentProtection({ enabled: false });
+  const toast = useToast();
   const [lockedTpl, setLockedTpl] = useState(null);
-  const isLocked = (id) => getTemplatePricing({ id }).isPremium && !isUnlocked(id);
+  const [downloading, setDownloading] = useState(false);
+  const isLocked = (id) => getTemplatePricing({ id }, { freeTemplateUsed, freeTemplateUsedId }).isPremium && !isUnlocked(id);
+  const lockedByFreeUsed = (id) =>
+    Boolean(id) && freeTemplateUsed && id !== freeTemplateUsedId && getTemplatePricing({ id }, { freeTemplateUsed, freeTemplateUsedId }).isPremium;
+
+  // Records real, server-side usage of the one-time free-template allowance
+  // right before the file is handed over — see the matching function in
+  // ResumeWizard.jsx for the full reasoning (not duplicated here).
+  async function claimFreeTemplateIfNeeded(id) {
+    if (!FREE_TEMPLATE_IDS.includes(id)) return true;
+    try {
+      await paymentService.consumeFreeTemplate(id);
+      await refreshEntitlements();
+      return true;
+    } catch (err) {
+      toast.error(errMsg(err, "You've already used your one free resume template."));
+      setLockedTpl(TEMPLATES.find((t) => t.id === id) || null);
+      return false;
+    }
+  }
   const chooseTemplate = (id) => {
     if (isLocked(id)) {
       setLockedTpl(TEMPLATES.find((t) => t.id === id) || null);
@@ -422,12 +445,17 @@ export default function CvBuilder() {
   // Preview zoom factor
   const [previewZoom, setPreviewZoom] = useState('fit');
 
-  // Downloads are blocked while a paid template is not unlocked.
-  const handleDownload = () => {
+  // Downloads are blocked while a paid template is not unlocked, and claim
+  // the one-time free-template allowance right before handing over the file.
+  const handleDownload = async () => {
     if (isLocked(templateId)) {
       setLockedTpl(TEMPLATES.find((t) => t.id === templateId) || null);
       return;
     }
+    setDownloading(true);
+    const ok = await claimFreeTemplateIfNeeded(templateId);
+    setDownloading(false);
+    if (!ok) return;
     handlePrint();
   };
 
@@ -731,6 +759,7 @@ export default function CvBuilder() {
               variant="premium"
               size="sm"
               onClick={handleDownload}
+              loading={downloading}
               className="!rounded-lg shadow-[0_4px_16px_-2px_rgba(79,193,230,0.5)] transition-all duration-[250ms] hover:scale-[1.04] hover:-translate-y-0.5"
             >
               <Printer className="mr-1.5 h-3.5 w-3.5" />
@@ -811,7 +840,7 @@ export default function CvBuilder() {
                             <p className="mt-1 text-[11px] text-slate-500 line-clamp-1">{tpl.tagline}</p>
                             <div className="mt-2.5 flex items-center justify-between border-t border-slate-100 pt-2 text-[10.5px]">
                               <span className="text-slate-600 font-medium">{tpl.role}</span>
-                              {!getTemplatePricing(tpl).isPremium ? (
+                              {!getTemplatePricing(tpl, { freeTemplateUsed, freeTemplateUsedId }).isPremium ? (
                                 <span className="font-semibold text-emerald-700">Free · Use →</span>
                               ) : isUnlocked(tpl.id) ? (
                                 <span className="font-semibold text-azure">Unlocked · Use →</span>
@@ -2381,6 +2410,7 @@ export default function CvBuilder() {
                   variant="premium"
                   size="sm"
                   onClick={handleDownload}
+                  loading={downloading}
                   className="transition-all duration-[250ms] hover:scale-[1.04]"
                 >
                   Download PDF
@@ -2394,6 +2424,7 @@ export default function CvBuilder() {
         tpl={lockedTpl}
         open={Boolean(lockedTpl)}
         onClose={() => setLockedTpl(null)}
+        reason={lockedByFreeUsed(lockedTpl?.id) ? 'free-used' : 'paid'}
         onUnlockSuccess={(tpl) => chooseTemplateAfterUnlock(tpl.id)}
       />
     </>

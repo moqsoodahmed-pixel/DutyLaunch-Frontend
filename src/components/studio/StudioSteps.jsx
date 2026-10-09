@@ -687,18 +687,27 @@ function useSavedProfile(refreshKey) {
   return profile;
 }
 
-/** Rough experience level from the saved resume's job dates. */
+/** Cover letter tone that suits an experience level. */
+const TONE_FOR_LEVEL = { fresher: 'entry-level', entry: 'entry-level', mid: 'professional', senior: 'experienced', lead: 'experienced' };
+
+/** Rough experience level from the saved resume's job dates (null = unknown). */
 function guessExperienceLevel(profile) {
   const jobs = profile?.experience || [];
   if (!jobs.length) return 'fresher';
   const now = new Date().getFullYear();
   let months = 0;
+  let dated = 0;
   jobs.forEach((j) => {
     const start = Number(String(j.startDate || '').match(/(19|20)\d{2}/)?.[0]);
     const endText = String(j.endDate || '');
     const end = j.current || /present|current|now/i.test(endText) ? now : Number(endText.match(/(19|20)\d{2}/)?.[0]);
-    if (start && end && end >= start) months += Math.max(6, (end - start) * 12);
+    if (start && end && end >= start) {
+      months += Math.max(6, (end - start) * 12);
+      dated += 1;
+    }
   });
+  // Jobs without readable dates: we can't tell — let the AI judge instead.
+  if (!dated) return null;
   const years = months / 12;
   if (years < 3) return 'entry';
   if (years < 8) return 'mid';
@@ -753,15 +762,19 @@ export function CoverLetterStep({ onDone, refreshKey }) {
   const autoRanFor = useRef(null); // which versionId we already auto-generated for, so it only ever fires once
   const set = (k) => (e) => setForm((f) => ({ ...f, [k]: e.target.value }));
 
-  // Pre-fill the job title with the profession from the saved resume, and
-  // draft the letter straight away (once) — the AI has everything it needs.
+  // Prepare everything from the saved resume, once:
+  //   job title ← the profession on the resume
+  //   tone      ← the experience on the resume (job dates)
+  // …then let "Generate everything with AI" fill what is still missing and
+  // write the job description and the letter.
+  const prefilled = useRef(false);
   useEffect(() => {
-    const headline = profile?.personal?.headline?.trim();
-    if (!profile || form.jobTitle) return;
-    if (headline) {
-      setForm((f) => ({ ...f, jobTitle: headline }));
-      setJustFetched(true);
-    }
+    if (!profile || prefilled.current) return;
+    prefilled.current = true;
+    const headline = profile.personal?.headline?.trim();
+    const level = guessExperienceLevel(profile);
+    setForm((f) => ({ ...f, jobTitle: f.jobTitle || headline || '', tone: level ? TONE_FOR_LEVEL[level] : f.tone }));
+    setJustFetched(true);
   }, [profile]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const act = async (key, fn, msg) => {
@@ -796,17 +809,47 @@ export function CoverLetterStep({ onDone, refreshKey }) {
     onDone();
   }, 'Cover letter drafted.');
 
-  // Once we've auto-fetched enough to work with, draft the letter right
-  // away instead of making the person press Generate for data we already
-  // have — this runs at most once per resume, and never overrides a letter
-  // the person is already editing.
+  // "Generate everything with AI": job title from the resume (or chosen by
+  // AI when the resume has none), tone from the resume's experience (or the
+  // level the AI reads from the resume), a job description written by AI
+  // from the whole resume — then the letter.
+  const [aiPhase, setAiPhase] = useState('');
+  const generateEverything = () => act('ai-all', async () => {
+    try {
+      setAiPhase('Reading your resume and writing the job description…');
+      const titleFromResume = form.jobTitle.trim() || profile?.personal?.headline?.trim() || '';
+      const jd = await studioService.suggestJobDescription({ jobTitle: titleFromResume || undefined, company: form.company.trim() || undefined });
+      const levelFromResume = guessExperienceLevel(profile);
+      const next = {
+        ...form,
+        jobTitle: titleFromResume || jd.jobTitle || '',
+        tone: levelFromResume ? TONE_FOR_LEVEL[levelFromResume] : TONE_FOR_LEVEL[jd.experienceLevel] || form.tone,
+        jobDescription: jd.description || form.jobDescription,
+      };
+      setForm(next);
+      setAiPhase('Writing your cover letter…');
+      const res = await studioService.createCoverLetter({ ...next, versionId: undefined });
+      setLetter(res.coverLetter);
+      setContent(res.coverLetter.content);
+      setNote(
+        res.engineNote ||
+          `Prepared from your saved resume: the job title${titleFromResume ? ' and tone come from your resume' : ' and tone were chosen by AI from your resume'}, and AI wrote the job description from your whole resume. Change anything — or paste a real job posting — and click “Generate a new letter”.`
+      );
+      onDone();
+    } finally {
+      setAiPhase('');
+    }
+  }, 'Cover letter drafted.');
+
+  // On first open, prepare everything straight away — at most once, and
+  // never over a letter the person is already editing.
   useEffect(() => {
-    if (!justFetched || !canGenerate || letter || busy || autoRanFor.current === 'profile') return;
+    if (!justFetched || letter || busy || autoRanFor.current === 'profile') return;
     autoRanFor.current = 'profile';
     setJustFetched(false);
-    generate();
+    generateEverything();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [justFetched, canGenerate, letter, busy, form.versionId]);
+  }, [justFetched, letter, busy]);
 
   const save = () => act('save', async () => { setLetter(await studioService.updateCoverLetter(letter._id, { content })); }, 'Cover letter saved.');
   const regen = (i) => act(`p${i}`, async () => {
@@ -871,6 +914,28 @@ export function CoverLetterStep({ onDone, refreshKey }) {
       {view === 'write' && (
       <>
       <SavedResumeSource profile={profile} label="Writing from your saved resume" />
+      {profile && (
+        <div className="mb-5 rounded-xl border border-azure-200 bg-gradient-to-br from-azure-50 to-white p-4">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <div className="max-w-xl">
+              <p className="flex items-center gap-1.5 text-small font-bold text-ink">
+                <Sparkles className="h-4 w-4 text-azure" aria-hidden /> Generate everything with AI
+              </p>
+              <p className="mt-1 text-caption text-slate-600">
+                Job title and tone come from your saved resume (AI fills them if missing), AI writes the job description from your whole resume — then your letter.
+              </p>
+            </div>
+            <Button onClick={generateEverything} loading={busy === 'ai-all'} disabled={Boolean(busy)}>
+              <Sparkles className="h-4 w-4" aria-hidden /> Generate everything with AI
+            </Button>
+          </div>
+          {aiPhase && (
+            <p className="mt-3 text-caption font-semibold text-azure-700" aria-live="polite">
+              {aiPhase}
+            </p>
+          )}
+        </div>
+      )}
       <div className="grid gap-4 sm:grid-cols-2">
         <Select label="Tone" value={form.tone} onChange={set('tone')}>{COVER_LETTER_TONES.map((t) => <option key={t.value} value={t.value}>{t.label}</option>)}</Select>
         <Input label="Job title" value={form.jobTitle} onChange={set('jobTitle')} />
@@ -970,7 +1035,7 @@ export function InterviewStep({ onDone, refreshKey, existingSetId }) {
     if (!profile || prefilled.current) return;
     prefilled.current = true;
     const headline = profile.personal?.headline?.trim();
-    setForm((f) => ({ ...f, jobTitle: f.jobTitle || headline || '', experienceLevel: guessExperienceLevel(profile) }));
+    setForm((f) => ({ ...f, jobTitle: f.jobTitle || headline || '', experienceLevel: guessExperienceLevel(profile) || f.experienceLevel }));
     if (!existingSetId) setReadyToAuto(true);
   }, [profile]); // eslint-disable-line react-hooks/exhaustive-deps
   useEffect(() => {

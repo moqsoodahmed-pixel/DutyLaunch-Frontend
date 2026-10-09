@@ -6,7 +6,8 @@ import { ConsentCheckbox } from '../components/ui/ConsentCheckbox.jsx';
 import { Logo } from '../components/layout/Logo.jsx';
 import { Seo } from '../components/ui/Seo.jsx';
 import { ResumeTemplatePreview } from '../components/cv/ResumeTemplatePreview.jsx';
-import { getTemplatePricing, PaymentRequiredModal } from '../components/cv/TemplateGallery.jsx';
+import { getTemplatePricing, PaymentRequiredModal, FREE_TEMPLATE_IDS } from '../components/cv/TemplateGallery.jsx';
+import { paymentService } from '../services/paymentService.js';
 import { useContentProtection } from '../hooks/useContentProtection.js';
 import { useAuth } from '../context/AuthContext.jsx';
 import { useToast } from '../context/ToastContext.jsx';
@@ -548,9 +549,13 @@ export default function ResumeWizard() {
   }
 
   /* ----- template gating ----- */
-  const { isUnlocked } = useContentProtection({ enabled: false });
+  const { isUnlocked, freeTemplateUsed, freeTemplateUsedId, unlock: refreshEntitlements } = useContentProtection({ enabled: false });
   const [lockedTpl, setLockedTpl] = useState(null);
-  const isLocked = (id) => getTemplatePricing({ id }).isPremium && !isUnlocked(id);
+  const isLocked = (id) => getTemplatePricing({ id }, { freeTemplateUsed, freeTemplateUsedId }).isPremium && !isUnlocked(id);
+  // Was the template just locked because the free allowance was already
+  // spent on a different one, rather than it always being a paid template?
+  const lockedByFreeUsed = (id) =>
+    Boolean(id) && freeTemplateUsed && id !== freeTemplateUsedId && getTemplatePricing({ id }, { freeTemplateUsed, freeTemplateUsedId }).isPremium;
   const chooseTemplate = (id) => {
     if (isLocked(id)) return setLockedTpl(TEMPLATES.find((t) => t.id === id) || null);
     return set({ templateId: id });
@@ -1034,10 +1039,18 @@ export default function ResumeWizard() {
   // --- 7. Template ---
   const template = (
     <>
-      <StepTitle title="Choose a template" lead="Your details are already filled in. Free templates are ready to use; paid templates unlock after a one-time payment." onBack={leavePreview} />
+      <StepTitle
+        title="Choose a template"
+        lead={
+          freeTemplateUsed
+            ? "Your details are already filled in. You've already used your one free template, so any template here now needs a one-time payment to download."
+            : 'Your details are already filled in. Any one free template is yours to use; after that, templates unlock with a one-time payment.'
+        }
+        onBack={leavePreview}
+      />
       <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
         {TEMPLATES.map((tpl) => {
-          const paid = getTemplatePricing(tpl).isPremium;
+          const paid = getTemplatePricing(tpl, { freeTemplateUsed, freeTemplateUsedId }).isPremium;
           const unlocked = !paid || isUnlocked(tpl.id);
           const selected = w.templateId === tpl.id;
           return (
@@ -1071,6 +1084,29 @@ export default function ResumeWizard() {
   );
 
   // --- 8. Download ---
+  const [downloading, setDownloading] = useState(false);
+
+  // Records real, server-side usage of the one-time free-template allowance
+  // right before the file is actually handed over — never on template
+  // selection alone, so previewing or changing your mind doesn't burn it.
+  // Safe to call for the same template more than once (the backend treats
+  // that as "already used, same one" rather than an error), so this can run
+  // on every download without tracking whether it already ran before.
+  async function claimFreeTemplateIfNeeded() {
+    if (!FREE_TEMPLATE_IDS.includes(w.templateId)) return true; // paid templates don't touch this
+    try {
+      await paymentService.consumeFreeTemplate(w.templateId);
+      await refreshEntitlements();
+      return true;
+    } catch (err) {
+      // Lost a race with another tab, or the allowance was spent elsewhere
+      // since this screen loaded — re-sync and show the real paywall
+      // instead of silently downloading something that should be blocked.
+      toast.error(errMsg(err, "You've already used your one free resume template."));
+      setLockedTpl(TEMPLATES.find((t) => t.id === w.templateId) || null);
+      return false;
+    }
+  }
   const fullName = [w.personal.firstName, w.personal.surname].filter(Boolean).join(' ');
   const placeholders = (() => {
     const found = new Set();
@@ -1104,8 +1140,13 @@ export default function ResumeWizard() {
           <Button
             size="lg"
             fullWidth
-            onClick={() => {
+            loading={downloading}
+            onClick={async () => {
               if (isLocked(w.templateId)) return chooseTemplate(w.templateId);
+              setDownloading(true);
+              const ok = await claimFreeTemplateIfNeeded();
+              setDownloading(false);
+              if (!ok) return undefined;
               printResumeSheet(fullName || 'DutyLaunch_Resume');
               return undefined;
             }}
@@ -1301,6 +1342,7 @@ export default function ResumeWizard() {
         tpl={lockedTpl}
         open={Boolean(lockedTpl)}
         onClose={() => setLockedTpl(null)}
+        reason={lockedByFreeUsed(lockedTpl?.id) ? 'free-used' : 'paid'}
         onUnlockSuccess={(tpl) => {
           setLockedTpl(null);
           set({ templateId: tpl.id });
