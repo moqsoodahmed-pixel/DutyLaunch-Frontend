@@ -28,6 +28,8 @@ export default {
         /* Primary action colour, aliased to the same brand-blue scale. */
         azure: {
           DEFAULT: '#1D5DB8',
+          900: '#0B1F48', // was missing: text-azure-900 / hover:text-azure-900 silently did nothing
+          800: '#0F2147', // was missing: text-azure-800 silently did nothing
           700: '#132952',
           600: '#1E4080',
           500: '#1D5DB8',
@@ -86,6 +88,8 @@ export default {
            primary brand/action colour everywhere it's already used). Frost
            is for icy highlights, glows and the crystal 3D material only. */
         frost: {
+          50: '#F0FAFE', // was missing: from-frost-50 (navbar hover/active) rendered nothing
+          100: '#E3F6FC',
           200: '#D6F0FA',
           300: '#AEE3F5',
           400: '#7DD3EF',
@@ -99,6 +103,8 @@ export default {
            family, different job: aurora = atmosphere, violet = a specific
            product's accent. */
         aurora: {
+          50: '#F7F3FE', // was missing: to-aurora-50 (navbar hover/active) rendered nothing
+          100: '#F1EBFC',
           200: '#EDE6FB',
           300: '#DCD0F7',
           400: '#C4AEF2', // Light Lavender

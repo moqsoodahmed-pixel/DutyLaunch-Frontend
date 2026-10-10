@@ -17,10 +17,10 @@ import { cn } from '../../utils/cn.js';
  */
 export function SectionHeader({ label, title, lead, aside, align = 'start', className, tone = 'light' }) {
   const dark = tone === 'dark';
-  const muted = dark ? 'text-slate-300' : 'text-slate-600';
+  const muted = dark ? 'text-slate-200' : 'text-slate-600';
   const labelClass = dark
-    ? 'inline-flex items-center gap-1.5 rounded-full border border-cyan-400/35 bg-cyan-950/70 px-3.5 py-1 text-[11.5px] font-bold uppercase tracking-wider text-cyan-300 backdrop-blur shadow-xs'
-    : 'inline-flex items-center gap-1.5 rounded-full border border-azure-200/90 bg-azure-50/90 px-3.5 py-1 text-[11.5px] font-bold uppercase tracking-wider text-azure-700 backdrop-blur shadow-xs';
+    ? 'inline-flex items-center gap-1.5 rounded-full border border-cyan-300/70 bg-[#0C3347] px-3.5 py-1 text-[11.5px] font-bold uppercase tracking-wider text-cyan-100'
+    : 'inline-flex items-center gap-1.5 rounded-full border border-azure-200/90 bg-azure-50 px-3.5 py-1 text-[11.5px] font-bold uppercase tracking-wider text-azure-700 shadow-xs';
   const center = align === 'center';
 
   return (

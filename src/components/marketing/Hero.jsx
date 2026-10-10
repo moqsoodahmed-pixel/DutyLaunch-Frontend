@@ -16,7 +16,7 @@ const ACTIONS = [
   { to: '/resume-checker', label: 'Resume Checker', sub: 'Free Resume Health score', icon: ScanSearch, badge: 'FREE', grad: 'from-azure-500 to-azure-700' },
   { to: '/resume-builder', label: 'Resume Builder', sub: 'Upload yours or start from scratch', icon: Zap, grad: 'from-aurora-500 to-violet-600' },
   { to: '/dubai-launch', label: 'Dubai Launch', sub: 'Jobs & relocation in the Gulf', icon: Plane, grad: 'from-frost-500 to-frost-600' },
-  { to: '/appostle-services', label: 'Apostille & Attestation', sub: 'Documents, legalised & tracked', icon: FileCheck2, grad: 'from-ink-600 to-ink-800' },
+  { to: '/appostle-services', label: 'Apostille & Attestation', sub: 'Documents, legalised & tracked', icon: FileCheck2, grad: 'from-[#4B3A9E] to-[#241B42]' },
 ];
 
 /* Popular quick links — the chip row under the CTAs. */
@@ -187,10 +187,7 @@ export function Hero({ tone = 'light' }) {
           transition={{ duration: 0.7, delay: 0.18, ease }}
           className="xl:col-span-5"
         >
-          {/* Was bg-ink-800/80 — the dark section this card sits in now uses
-              the new indigo-violet (.surface-dark in index.css); matched so
-              the card doesn't still show the old navy underneath it. */}
-          <div className={isDark ? 'rounded-2xl border border-white/10 bg-[#241B42]/80 p-5 sm:p-6 shadow-crystal-lg backdrop-blur-xl text-white' : 'glass-panel !p-5 sm:!p-6'}>
+          <div className={isDark ? 'rounded-2xl border-2 border-[#5B4FB0] bg-[#1B1238] p-5 sm:p-6 shadow-[0_18px_44px_-18px_rgba(0,0,0,0.65)] text-white' : 'glass-panel !p-5 sm:!p-6'}>
             <div className="flex items-center justify-between gap-3">
               <p className={`inline-flex items-center gap-2 text-caption font-bold uppercase tracking-wider ${isDark ? 'text-frost-300' : 'text-azure'}`}>
                 <Check className="h-3.5 w-3.5" aria-hidden />

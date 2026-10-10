@@ -1,3 +1,4 @@
+import { useId } from 'react';
 import { cn } from '../../utils/cn.js';
 
 /**
@@ -27,23 +28,46 @@ export function Progress({ value = 0, max = 100, tone = 'azure', className, trac
   );
 }
 
-/** Circular ring variant, for headline scores (profile strength, match %). */
+/**
+ * Circular ring variant, for headline scores (profile strength, match %).
+ *
+ * tone="dark" is for rings that sit on a dark card (e.g. the OneProfile demo
+ * card). Before, "dark" was not a known tone, so the ring silently fell back
+ * to the light-theme colours: a dark-blue arc, a near-white track and
+ * near-black text — i.e. an unreadable "88" on a dark background. The dark
+ * tone uses a solid indigo disc, a clearly visible track, a bright
+ * frost->aurora arc and big white digits.
+ */
 export function ProgressRing({ value = 0, max = 100, size = 88, strokeWidth = 8, tone = 'azure', label, sublabel }) {
+  const gradId = useId().replace(/:/g, '');
   const percent = Math.max(0, Math.min(100, (value / max) * 100));
   const radius = (size - strokeWidth) / 2;
   const circumference = 2 * Math.PI * radius;
   const offset = circumference - (percent / 100) * circumference;
+  const dark = tone === 'dark';
   const colors = { azure: '#1D5DB8', success: '#059669', amber: '#D97706', danger: '#DC2626' };
+  const trackColor = dark ? '#4B3C86' : '#EEF2F7';
+  const arcColor = dark ? `url(#${gradId})` : colors[tone] || colors.azure;
 
   return (
     <div className="relative inline-flex items-center justify-center" style={{ width: size, height: size }}>
-      <svg width={size} height={size} className="-rotate-90">
-        <circle cx={size / 2} cy={size / 2} r={radius} stroke="#EEF2F7" strokeWidth={strokeWidth} fill="none" />
+      <svg width={size} height={size} className="-rotate-90" aria-hidden>
+        {dark && (
+          <defs>
+            <linearGradient id={gradId} x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0%" stopColor="#7DD3EF" />
+              <stop offset="100%" stopColor="#C4AEF2" />
+            </linearGradient>
+          </defs>
+        )}
+        {/* Solid disc behind the digits so nothing from the card shows through. */}
+        {dark && <circle cx={size / 2} cy={size / 2} r={radius - strokeWidth / 2} fill="#241B42" />}
+        <circle cx={size / 2} cy={size / 2} r={radius} stroke={trackColor} strokeWidth={strokeWidth} fill="none" />
         <circle
           cx={size / 2}
           cy={size / 2}
           r={radius}
-          stroke={colors[tone] || colors.azure}
+          stroke={arcColor}
           strokeWidth={strokeWidth}
           fill="none"
           strokeDasharray={circumference}
@@ -52,8 +76,17 @@ export function ProgressRing({ value = 0, max = 100, size = 88, strokeWidth = 8,
         />
       </svg>
       <div className="absolute flex flex-col items-center justify-center text-center">
-        <span className="tabular text-h3 font-extrabold text-ink">{label ?? Math.round(value)}</span>
-        {sublabel && <span className="text-caption text-slate-500">{sublabel}</span>}
+        <span
+          className={cn(
+            'tabular font-extrabold',
+            dark ? 'text-[1.15rem] leading-none text-white' : 'text-h3 text-ink'
+          )}
+          role="img"
+          aria-label={`Score ${label ?? Math.round(value)}${sublabel ? ` ${sublabel}` : ''}`}
+        >
+          {label ?? Math.round(value)}
+        </span>
+        {sublabel && <span className={cn('text-caption', dark ? 'text-slate-200' : 'text-slate-500')}>{sublabel}</span>}
       </div>
     </div>
   );

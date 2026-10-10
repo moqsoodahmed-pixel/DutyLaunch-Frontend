@@ -43,16 +43,6 @@ export function TransformationHorizon({
       className={`relative z-20 overflow-hidden py-12 sm:py-16 ${className}`}
       data-testid="transformation-horizon"
     >
-      {/* Dynamic ambient ray across the transformation threshold */}
-      <div
-        className="pointer-events-none absolute inset-0 opacity-50"
-        style={{
-          background:
-            'radial-gradient(ellipse 70% 80% at 50% 50%, rgba(79,193,230,.25), transparent 75%)',
-        }}
-        aria-hidden
-      />
-
       <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="relative flex items-center justify-between gap-4">
           {/* Left Laser Transformation Beam */}
@@ -72,7 +62,7 @@ export function TransformationHorizon({
             whileInView={{ opacity: 1, scale: 1, y: 0 }}
             viewport={{ once: true, amount: 0.6 }}
             transition={{ duration: 0.55, ease: [0.16, 0.84, 0.44, 1] }}
-            className="group relative flex items-center gap-2.5 rounded-full border border-white/30 bg-ink-900/85 px-4 sm:px-5 py-2 shadow-[0_8px_28px_rgba(11,31,72,0.4),0_0_20px_rgba(79,193,230,0.35),inset_0_1px_0_rgba(255,255,255,0.3)] backdrop-blur-xl transition-all duration-300 hover:border-frost-300 hover:shadow-[0_0_32px_rgba(79,193,230,0.55)]"
+            className="group relative flex items-center gap-2.5 rounded-full border-2 border-frost-300 bg-[#160F29] px-4 sm:px-5 py-2 shadow-[0_8px_22px_rgba(0,0,0,0.5)] transition-all duration-300 hover:border-white"
           >
             {/* Pulsing Transformation Beacon */}
             <span className="relative flex h-2.5 w-2.5">

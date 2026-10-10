@@ -37,7 +37,7 @@ export function CTASection({
         <Reveal className="grid items-center gap-8 xl:grid-cols-[minmax(0,1fr)_auto] xl:gap-14">
           <div>
             <h2 className={`max-w-[24ch] text-h2 font-bold ${dark ? 'text-white' : 'text-ink'}`}>{title}</h2>
-            <p className={`mt-3 max-w-prose text-lead ${dark ? 'text-slate-300' : 'text-slate-600'}`}>{body}</p>
+            <p className={`mt-3 max-w-prose text-lead ${dark ? 'text-slate-100' : 'text-slate-600'}`}>{body}</p>
           </div>
           <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap xl:flex-nowrap xl:justify-end">
             <Button

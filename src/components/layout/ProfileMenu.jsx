@@ -91,7 +91,7 @@ export function ProfileMenu({ dark = false, iconClassName }) {
           'flex h-9 items-center gap-2 rounded-full border py-0.5 pl-0.5 pr-0.5 transition-all duration-[250ms] ease-out hover:-translate-y-0.5 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-frost-400 xl:pr-2.5',
           dark
             ? 'border-cyan-400/60 bg-slate-900/90 text-white hover:border-cyan-300'
-            : 'border-cyan-400/50 bg-white/95 text-ink shadow-[0_0_12px_rgba(56,189,248,0.25)] hover:border-cyan-400',
+            : 'border-cyan-400/70 bg-white text-ink shadow-[0_2px_8px_rgba(22,15,41,0.35)] hover:border-cyan-400',
           open && 'border-frost-400'
         )}
       >
@@ -112,7 +112,7 @@ export function ProfileMenu({ dark = false, iconClassName }) {
           animate={{ opacity: 1, y: 0, scale: 1 }}
           transition={{ duration: 0.16 }}
           role="menu"
-          className="absolute right-0 top-full z-[80] mt-2 w-[min(18rem,calc(100vw-2rem))] overflow-hidden rounded-2xl border border-white/60 bg-white/95 p-2 shadow-crystal-lg backdrop-blur-2xl"
+          className="absolute right-0 top-full z-[80] mt-2 w-[min(18rem,calc(100vw-2rem))] overflow-hidden rounded-2xl border-2 border-azure-200 bg-white p-2 shadow-[0_18px_44px_-10px_rgba(36,27,66,0.45)]"
         >
           <div className="flex items-center gap-3 rounded-xl bg-glacier-100 px-3 py-3">
             <span className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-gradient-to-br from-azure-500 to-azure-700 text-small font-bold text-white">

@@ -152,7 +152,7 @@ export function HeroComposite() {
                 <CountUp to={92} suffix="%" delay={0.45} duration={1.1} reduced={reduced} />
               </span>
             </div>
-            <div className="relative mt-2 h-1.5 overflow-hidden rounded-full bg-white/12">
+            <div className="relative mt-2 h-1.5 overflow-hidden rounded-full bg-white/10">
               <motion.div
                 initial={reduced ? false : { width: '0%' }}
                 animate={{ width: '92%' }}

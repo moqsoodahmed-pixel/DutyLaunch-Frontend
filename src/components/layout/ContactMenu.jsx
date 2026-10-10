@@ -62,7 +62,7 @@ export function ContactMenu({ onClose }) {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             transition={{ duration: 0.16 }}
             role="menu"
-            className="absolute right-0 top-full z-[80] mt-2 w-[min(20rem,calc(100vw-2rem))] overflow-hidden rounded-2xl border border-white/60 bg-white/90 p-2 shadow-crystal-lg backdrop-blur-2xl"
+            className="absolute right-0 top-full z-[80] mt-2 w-[min(20rem,calc(100vw-2rem))] overflow-hidden rounded-2xl border-2 border-azure-200 bg-white p-2 shadow-[0_18px_44px_-10px_rgba(36,27,66,0.45)]"
         >
             <p className="px-3 pb-1 pt-1 text-caption font-bold uppercase tracking-wider text-slate-400">Talk to us</p>
             <ul className="grid gap-0.5">

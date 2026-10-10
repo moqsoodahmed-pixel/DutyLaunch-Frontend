@@ -31,12 +31,12 @@ export function AnnouncementBar() {
     };
 
     return (
-        <div id="announcement-bar" className="relative z-40 bg-gradient-to-r from-ink-900 via-ink-800 to-ink-700 text-white print:hidden">
+        <div id="announcement-bar" className="relative z-40 bg-[#160F29] border-b border-[#5B4FB0] text-white print:hidden">
             <div className="mx-auto flex max-w-shell items-center justify-center gap-2 px-3 pr-10 sm:px-gutter sm:pr-12 py-2 text-small">
                 <Zap className="hidden h-4 w-4 shrink-0 text-frost-400 sm:block" aria-hidden />
                 <p className="min-w-0 truncate text-center">
                     <span className="font-semibold">New:</span> Free AI Resume Health score — see what recruiters and the ATS see.{' '}
-                    <Link to="/resume-checker" className="font-bold text-frost-300 underline-offset-4 hover:underline">
+                    <Link to="/resume-checker" className="font-bold text-frost-200 underline underline-offset-4 hover:underline">
                         Check yours →
                     </Link>
                 </p>

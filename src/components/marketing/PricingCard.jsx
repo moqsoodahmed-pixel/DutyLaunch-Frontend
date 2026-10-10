@@ -64,9 +64,7 @@ export function PricingCard({ pkg, highlighted, onSelect, tone = 'light' }) {
           featured
             ? 'bg-btn-grad text-white'
             : darkTone
-              // Was bg-ink-800/80 — matched to the new indigo-violet
-              // dark-section colour (.surface-dark in index.css).
-              ? 'border border-white/10 bg-[#241B42]/80 text-white'
+              ? 'border-2 border-[#5B4FB0] bg-[#1B1238] text-white'
               : 'border border-white/80 bg-white/95 group-hover:bg-white'
         )}
       >

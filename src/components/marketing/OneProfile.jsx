@@ -36,7 +36,7 @@ export function OneProfile() {
             />
             <ul className="mt-8 grid gap-x-6 gap-y-3 min-[400px]:grid-cols-2">
               {POWERS.map((label) => (
-                <li key={label} className="flex items-start gap-2.5 text-small text-slate-300">
+                <li key={label} className="flex items-start gap-2.5 text-small text-slate-100">
                   <span className="mt-0.5 grid h-4 w-4 shrink-0 place-items-center rounded-full bg-gradient-to-br from-frost-400 to-aurora-500">
                     <Check className="h-2.5 w-2.5 text-white" strokeWidth={3.5} aria-hidden />
                   </span>
@@ -47,21 +47,14 @@ export function OneProfile() {
           </div>
 
           <div className="relative min-w-0 lg:col-span-6">
-            <div
-              className="pointer-events-none absolute left-1/2 top-1/2 h-[26rem] w-[26rem] -translate-x-1/2 -translate-y-1/2 rounded-full bg-gradient-to-br from-frost-400/20 via-aurora-400/20 to-azure-500/20 blur-3xl"
-              aria-hidden
-            />
-            {/* Was bg-ink-800/80 — matched to the new indigo-violet
-                dark-section colour (.surface-dark in index.css) this card
-                sits inside, same reasoning as Hero.jsx. */}
-            <div className="relative mx-auto max-w-md rounded-2xl border border-white/10 bg-[#241B42]/80 p-5 shadow-crystal-lg backdrop-blur-xl transition-transform duration-300 hover:-translate-y-1 sm:p-6 text-white">
+            <div className="relative mx-auto max-w-md rounded-2xl border-2 border-[#5B4FB0] bg-[#1B1238] p-5 shadow-[0_24px_60px_-18px_rgba(0,0,0,0.7)] transition-transform duration-300 hover:-translate-y-1 sm:p-6 text-white">
               <div className="flex items-center gap-4">
-                <span className="grid h-14 w-14 shrink-0 place-items-center rounded-full bg-gradient-to-br from-frost-500 via-azure-500 to-aurora-500 text-lead font-extrabold text-white shadow-crystal">
+                <span className="grid h-14 w-14 shrink-0 place-items-center rounded-full bg-gradient-to-br from-[#0E7FB8] via-[#2557C9] to-[#6A47D9] text-lead font-extrabold text-white shadow-[0_4px_12px_rgba(0,0,0,0.5)]">
                   DS
                 </span>
                 <div className="min-w-0 flex-1">
                   <p className="truncate text-body font-bold text-white">Devika R. Shah</p>
-                  <p className="truncate text-small text-slate-400">Product Marketing Manager · Mumbai</p>
+                  <p className="text-small leading-snug text-slate-200">Product Marketing Manager · Mumbai</p>
                 </div>
                 <ProgressRing value={88} size={56} strokeWidth={6} sublabel="" tone="dark" />
               </div>
@@ -69,28 +62,28 @@ export function OneProfile() {
                 {['Marketing Strategy', 'Content Marketing', 'SEO', 'Analytics'].map((s) => (
                   <span
                     key={s}
-                    className="rounded-full border border-white/15 bg-white/10 px-2.5 py-1 text-caption font-semibold text-frost-300 backdrop-blur-xs"
+                    className="rounded-full border border-frost-300/60 bg-[#2E2160] px-2.5 py-1 text-caption font-semibold text-white"
                   >
                     {s}
                   </span>
                 ))}
               </div>
-              <div className="mt-5 grid grid-cols-3 gap-3 border-t border-white/10 pt-5 text-center">
+              <div className="mt-5 grid grid-cols-3 gap-3 border-t border-white/25 pt-5 text-center">
                 <div>
                   <p className="tabular text-body font-extrabold text-white">6</p>
-                  <p className="text-caption text-slate-400">Years exp.</p>
+                  <p className="text-caption text-slate-200">Years exp.</p>
                 </div>
                 <div>
                   <p className="tabular text-body font-extrabold text-white">15</p>
-                  <p className="text-caption text-slate-400">Applications</p>
+                  <p className="text-caption text-slate-200">Applications</p>
                 </div>
                 <div>
                   <p className="tabular text-body font-extrabold text-white">91%</p>
-                  <p className="text-caption text-slate-400">Top match</p>
+                  <p className="text-caption text-slate-200">Top match</p>
                 </div>
               </div>
             </div>
-            <p className="relative mt-3 text-center text-caption text-slate-400">Illustrative profile — for demonstration only.</p>
+            <p className="relative mt-3 text-center text-caption text-slate-200">Illustrative profile — for demonstration only.</p>
           </div>
         </div>
       </Container>

@@ -100,7 +100,7 @@ export function SearchModal({ onClose }) {
         exit={{ opacity: 0 }}
         transition={{ duration: 0.15 }}
         onClick={onClose}
-        className="fixed inset-0 bg-ink-950/40 backdrop-blur-sm"
+        className="fixed inset-0 bg-[#160F29]/60"
         aria-hidden="true"
       />
 
@@ -117,7 +117,7 @@ export function SearchModal({ onClose }) {
         {/* Search input form */}
         <form
           onSubmit={handleSubmit}
-          className="flex items-center gap-2.5 sm:gap-3 rounded-full border border-white/85 bg-white/95 px-3 sm:px-4 py-2.5 shadow-[0_20px_60px_-12px_rgba(15,28,46,0.28),0_8px_24px_-8px_rgba(79,193,230,0.25)] backdrop-blur-2xl"
+          className="flex items-center gap-2.5 sm:gap-3 rounded-full border border-azure-200 bg-white px-3 sm:px-4 py-2.5 shadow-[0_20px_60px_-12px_rgba(15,28,46,0.28),0_8px_24px_-8px_rgba(79,193,230,0.25)]"
         >
           <button
             type="submit"
@@ -157,7 +157,7 @@ export function SearchModal({ onClose }) {
             initial={{ opacity: 0, y: -6 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.14, ease: [0.16, 0.84, 0.44, 1] }}
-            className="mt-2 overflow-hidden rounded-2xl border border-white/85 bg-white/95 shadow-[0_24px_60px_-12px_rgba(15,28,46,0.2)] backdrop-blur-2xl"
+            className="mt-2 overflow-hidden rounded-2xl border border-azure-200 bg-white shadow-[0_24px_60px_-12px_rgba(15,28,46,0.2)]"
           >
             <ul className="max-h-72 overflow-y-auto p-2">
               {results.map((r, i) => (
@@ -196,7 +196,7 @@ export function SearchModal({ onClose }) {
             initial={{ opacity: 0, y: -4 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.14 }}
-            className="mt-2 rounded-2xl border border-white/85 bg-white/95 px-5 py-4 text-center backdrop-blur-2xl shadow-[0_24px_60px_-12px_rgba(15,28,46,0.15)]"
+            className="mt-2 rounded-2xl border border-azure-200 bg-white px-5 py-4 text-center shadow-[0_24px_60px_-12px_rgba(15,28,46,0.15)]"
           >
             <p className="text-small font-semibold text-ink">No exact match for &ldquo;{query}&rdquo;</p>
             <p className="mt-1 text-caption text-slate-500">
