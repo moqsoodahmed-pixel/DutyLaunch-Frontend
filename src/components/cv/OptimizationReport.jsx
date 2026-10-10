@@ -101,11 +101,17 @@ export function OptimizationReport({ report, onRevert, onAddSkill, onDismiss }) 
             <p className="text-small font-bold text-purple-900">
               {visibleChanges.length > 0
                 ? `Optimized draft — ${visibleChanges.length} change${visibleChanges.length === 1 ? '' : 's'} applied`
-                : 'Your resume was already well written — no rewording was needed'}
+                : rejections.length > 0
+                  ? 'No safe rewording was found — your original wording was kept'
+                  : 'Your resume was already well written — no rewording was needed'}
             </p>
             <p className="text-[11.5px] text-purple-700">
               {jobMode ? 'Matched to the job description you pasted.' : 'General ATS optimization — not matched to a specific job. Paste a job description to see how well you match it and which of its keywords you can add.'}{' '}
-              {visibleChanges.length > 0 ? 'Review and edit anything, then download.' : 'Your original wording was kept.'}
+              {visibleChanges.length > 0
+                ? 'Review and edit anything, then download.'
+                : rejections.length > 0
+                  ? `The AI looked at every bullet. ${rejections.length} suggestion${rejections.length === 1 ? ' was' : 's were'} blocked by the fact check (they would have dropped a keyword or changed nothing real) and the rest were already clear, so nothing was changed.`
+                  : 'Your original wording was kept.'}
             </p>
           </div>
         </div>

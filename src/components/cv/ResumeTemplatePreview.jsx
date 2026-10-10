@@ -68,7 +68,8 @@ function Bullets({ items = [], size = 11.2, color = '#334155', gap = 4 }) {
   return (
     <ul style={{ margin: '3px 0 0', paddingLeft: 18, textAlign: 'left' }}>
       {clean.map((b, i) => (
-        <li key={i} style={{ fontSize: size, lineHeight: 1.5, color, marginBottom: gap, textAlign: 'left' }}>
+        // A bullet is never split across two pages.
+        <li key={i} style={{ fontSize: size, lineHeight: 1.5, color, marginBottom: gap, textAlign: 'left', breakInside: 'avoid', pageBreakInside: 'avoid' }}>
           {b}
         </li>
       ))}
@@ -83,6 +84,9 @@ function ExperienceSection({ tpl, titleColor = '#0F172A', companyColor = '#47556
     <div style={{ marginTop: 2, display: 'flex', flexDirection: 'column', gap: 12, textAlign: 'left' }}>
       {list.map((exp, i) => (
         <div key={i}>
+          {/* Job title + company stay on the same page as the first bullet:
+              no heading stranded at the bottom of a page. */}
+          <div style={{ breakAfter: 'avoid', pageBreakAfter: 'avoid', breakInside: 'avoid', pageBreakInside: 'avoid' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', gap: 10 }}>
             <span style={{ fontSize: 12.8, fontWeight: 700, color: titleColor, textAlign: 'left' }}>
               {exp.title || 'Job Title'}
@@ -98,6 +102,7 @@ function ExperienceSection({ tpl, titleColor = '#0F172A', companyColor = '#47556
             {exp.location && (
               <span style={{ fontSize: 10.5, color: '#64748B', textAlign: 'right' }}>{exp.location}</span>
             )}
+          </div>
           </div>
           <Bullets items={exp.bullets} size={11.2} color="#334155" gap={3.5} />
         </div>

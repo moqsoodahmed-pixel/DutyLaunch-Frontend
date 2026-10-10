@@ -10,9 +10,23 @@ const text = (v) => (typeof v === 'string' ? v.trim() : '');
 const list = (v) => (Array.isArray(v) ? v.map(text).filter(Boolean) : []);
 const uniq = (arr) => [...new Set(arr.map((s) => s.trim()).filter(Boolean))];
 
+const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+
+/**
+ * Uploads store dates as "2026-03" (or "2026-03-14"). A resume should read
+ * "Mar 2026", the form ATS systems expect. Anything else ("2019",
+ * "Present", "Spring 2020") is returned unchanged.
+ */
+export function readableDate(value) {
+  const v = text(value);
+  const m = v.match(/^(\d{4})-(\d{1,2})(?:-\d{1,2})?$/);
+  if (m && Number(m[2]) >= 1 && Number(m[2]) <= 12) return `${MONTHS[Number(m[2]) - 1]} ${m[1]}`;
+  return v;
+}
+
 function dates(start, end, current) {
-  const from = text(start);
-  const to = current ? 'Present' : text(end);
+  const from = readableDate(start);
+  const to = current ? 'Present' : readableDate(end);
   if (from && to) return `${from} – ${to}`;
   return from || to;
 }
@@ -69,13 +83,14 @@ export function resumeToBuilder(resume = {}) {
       id: uid('c', i),
       name: text(c.name),
       issuer: text(c.issuer),
-      year: text(c.issueDate),
+      year: readableDate(c.issueDate),
     })),
     languages: (resume.languages || [])
       .map((l, i) =>
         typeof l === 'string'
-          ? { id: uid('lang', i), name: text(l), level: 'Full Professional' }
-          : { id: uid('lang', i), name: text(l?.name), level: text(l?.proficiency) || 'Full Professional' }
+          ? { id: uid('lang', i), name: text(l), level: '' }
+          : // A level is shown only if the candidate wrote one — never a made-up default.
+            { id: uid('lang', i), name: text(l?.name), level: text(l?.proficiency) }
       )
       .filter((l) => l.name),
     awards: list(resume.awards).map((a, i) => ({ id: uid('awd', i), title: a, issuer: '', year: '', description: '' })),

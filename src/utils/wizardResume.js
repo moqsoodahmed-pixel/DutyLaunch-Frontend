@@ -5,7 +5,7 @@
  *                    used by Cover letter and Interview prep)
  *   wizard state  →  builder state (via resumeToBuilder) → template preview
  */
-import { resumeToBuilder } from './resumeToBuilder.js';
+import { resumeToBuilder, readableDate } from './resumeToBuilder.js';
 
 const id = () => Math.random().toString(36).slice(2, 10);
 const t = (v) => (typeof v === 'string' ? v.trim() : '');
@@ -153,8 +153,8 @@ export function resumeToWizard(r = {}) {
     title: t(j.title),
     company: t(j.company),
     location: t(j.location),
-    startDate: t(j.startDate),
-    endDate: j.current ? '' : t(j.endDate),
+    startDate: readableDate(j.startDate),
+    endDate: j.current ? '' : readableDate(j.endDate),
     current: Boolean(j.current) || /present|current/i.test(t(j.endDate)),
     bullets: orderBullets(j),
   }));
@@ -164,7 +164,7 @@ export function resumeToWizard(r = {}) {
     location: t(e.location),
     degree: t(e.degree),
     field: t(e.field),
-    endDate: /present/i.test(t(e.endDate)) ? '' : t(e.endDate) || t(e.startDate),
+    endDate: /present/i.test(t(e.endDate)) ? '' : readableDate(e.endDate) || readableDate(e.startDate),
     current: /present/i.test(t(e.endDate)),
     grade: t(e.grade),
   }));
