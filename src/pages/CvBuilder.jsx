@@ -1,4 +1,4 @@
-import { useState, useMemo, useRef, useEffect } from 'react';
+import { useState, useMemo, useRef, useEffect, useCallback } from 'react';
 import { useSearchParams, Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
@@ -31,6 +31,9 @@ import {
   TrendingUp,
   FileSpreadsheet,
   Lock,
+  Loader2,
+  Lightbulb,
+  Wand2,
 } from 'lucide-react';
 import { Seo } from '../components/ui/Seo.jsx';
 import { Button } from '../components/ui/Button.jsx';
@@ -40,7 +43,8 @@ import { cn } from '../utils/cn.js';
 import { getTemplatePricing, PaymentRequiredModal, FREE_TEMPLATE_IDS } from '../components/cv/TemplateGallery.jsx';
 import { useContentProtection } from '../hooks/useContentProtection.js';
 import { paymentService } from '../services/paymentService.js';
-import { errMsg } from '../services/studioService.js';
+import { studioService, errMsg } from '../services/studioService.js';
+import { careerService } from '../services/careerService.js';
 import { useToast } from '../context/ToastContext.jsx';
 import { resumeToBuilder, BUILDER_IMPORT_KEY } from '../utils/resumeToBuilder.js';
 import { printResumeSheet } from '../utils/printResume.js';
@@ -420,6 +424,269 @@ export default function CvBuilder() {
   const [newSkillText, setNewSkillText] = useState('');
   const [activeSkillCategory, setActiveSkillCategory] = useState('hard');
 
+  // ── AI state ──────────────────────────────────────────────────────────
+  // Summary AI
+  const [aiSummaryLoading, setAiSummaryLoading] = useState(false);
+  const [aiSummaryItems, setAiSummaryItems] = useState([]);
+  const [aiSummaryNote, setAiSummaryNote] = useState('');
+  // Skills AI
+  const [aiSkillsLoading, setAiSkillsLoading] = useState(false);
+  const [aiSkillItems, setAiSkillItems] = useState([]);
+  const [aiSkillNote, setAiSkillNote] = useState('');
+  // Bullets AI — keyed by role index
+  const [aiBulletsLoading, setAiBulletsLoading] = useState({});
+  const [aiBulletItems, setAiBulletItems] = useState({});
+  const [aiBulletNote, setAiBulletNote] = useState({});
+
+  async function fetchAiSummary() {
+    setAiSummaryLoading(true);
+    setAiSummaryNote('');
+    try {
+      const jobTitle = personalInfo.title || experience[0]?.title || '';
+      const items = await studioService.suggestions({
+        kind: 'summary',
+        jobTitle,
+        details: {
+          name: personalInfo.fullName,
+          profession: personalInfo.title,
+          jobs: experience.map((e) => [e.title, e.company].filter(Boolean).join(' at ')).filter(Boolean),
+          education: education.map((e) => [e.degree, e.field, e.institution].filter(Boolean).join(', ')).filter(Boolean),
+          skills: [...(skills.hard || []), ...(skills.tools || []), ...(skills.soft || [])],
+        },
+      });
+      setAiSummaryItems(Array.isArray(items) ? items : items?.items || []);
+      setAiSummaryNote('AI-generated from your details. Pick one and customise it.');
+    } catch (err) {
+      setAiSummaryNote(errMsg(err, 'AI is busy right now. Use a starter or write your own.'));
+    } finally {
+      setAiSummaryLoading(false);
+    }
+  }
+
+  async function fetchAiSkills() {
+    setAiSkillsLoading(true);
+    setAiSkillNote('');
+    try {
+      const jobTitle = personalInfo.title || experience[0]?.title || '';
+      const items = await studioService.suggestions({ kind: 'skills', jobTitle });
+      setAiSkillItems(Array.isArray(items) ? items : items?.items || []);
+      setAiSkillNote('AI-suggested for your job title. Click to add.');
+    } catch (err) {
+      setAiSkillNote(errMsg(err, 'AI is busy right now. Use the recommended skills above.'));
+    } finally {
+      setAiSkillsLoading(false);
+    }
+  }
+
+  async function fetchAiBullets(idx) {
+    setAiBulletsLoading((prev) => ({ ...prev, [idx]: true }));
+    setAiBulletNote((prev) => ({ ...prev, [idx]: '' }));
+    try {
+      const exp = experience[idx];
+      const jobTitle = exp?.title || personalInfo.title || '';
+      const items = await studioService.suggestions({
+        kind: 'bullets',
+        jobTitle,
+        details: {
+          name: personalInfo.fullName,
+          profession: jobTitle,
+          jobs: [exp?.company].filter(Boolean),
+          skills: [...(skills.hard || []), ...(skills.tools || [])],
+        },
+      });
+      setAiBulletItems((prev) => ({ ...prev, [idx]: Array.isArray(items) ? items : items?.items || [] }));
+      setAiBulletNote((prev) => ({ ...prev, [idx]: 'AI-generated bullet ideas. Click to add.' }));
+    } catch (err) {
+      setAiBulletNote((prev) => ({ ...prev, [idx]: errMsg(err, 'AI is busy right now. Write your own bullets.') }));
+    } finally {
+      setAiBulletsLoading((prev) => ({ ...prev, [idx]: false }));
+    }
+  }
+
+  // ── AI FULL RESUME OPTIMIZATION ───────────────────────────────────
+  // Converts builder form state → Career Intelligence resume schema
+  // so the backend can analyze + rewrite the actual content.
+  function builderStateToResumeSchema() {
+    const p = personalInfo;
+    return {
+      personal: {
+        name: p.fullName || '',
+        headline: p.title || '',
+        email: p.email || '',
+        phone: p.phone || '',
+        location: p.location || '',
+        website: p.website || '',
+        linkedin: socialLinks.linkedin || '',
+      },
+      summary: summary || '',
+      experience: experience.map((e) => ({
+        title: e.title || '',
+        company: e.company || '',
+        location: e.location || '',
+        startDate: (e.dates || '').split(/[–—-]/)[0]?.trim() || '',
+        endDate: (e.dates || '').split(/[–—-]/)[1]?.trim() === 'Present' ? '' : (e.dates || '').split(/[–—-]/)[1]?.trim() || '',
+        current: (e.dates || '').toLowerCase().includes('present'),
+        responsibilities: (e.bullets || []).filter(Boolean),
+        achievements: [],
+      })),
+      education: education.map((e) => ({
+        degree: (e.degree || '').split(' in ')[0] || '',
+        field: (e.degree || '').split(' in ')[1] || '',
+        institution: e.institution || '',
+        location: e.location || '',
+        endDate: e.year || '',
+        highlights: e.honors ? [e.honors] : [],
+      })),
+      skills: {
+        technical: skills.hard || [],
+        tools: skills.tools || [],
+        soft: skills.soft || [],
+      },
+      projects: projects.map((pr) => ({
+        name: pr.name || '',
+        role: pr.role || '',
+        description: pr.impact || '',
+        link: pr.link || '',
+      })),
+      certifications: certifications.map((c) => ({
+        name: c.name || '',
+        issuer: c.issuer || '',
+        issueDate: c.year || '',
+      })),
+      languages: languages.map((l) => ({ name: l.name || '', proficiency: l.level || '' })),
+      awards: awards.map((a) => a.title).filter(Boolean),
+      customSections: customSections.map((cs) => ({ title: cs.title || '', items: cs.items || [] })),
+    };
+  }
+
+  // Applies AI proposals that the candidate accepted/edited to builder state
+  function applyProposalsToBuilderState(currentProposals, currentDecisions) {
+    const decisionsMap = {};
+    (currentDecisions || []).forEach((d) => { decisionsMap[d.id] = d; });
+
+    let newSummary = summary;
+    const newExperience = experience.map((e) => ({ ...e, bullets: [...(e.bullets || [])] }));
+
+    currentProposals.forEach((proposal) => {
+      const decision = decisionsMap[proposal.id];
+      // Default: accept all pending (user clicked "Accept All")
+      const action = decision?.action || 'accept';
+      if (action === 'reject') return;
+
+      const finalText = action === 'edit' ? (decision.text || proposal.proposed) : proposal.proposed;
+      if (!finalText) return;
+
+      if (proposal.field === 'summary') {
+        newSummary = finalText;
+      } else if (proposal.field === 'responsibilities' || proposal.field === 'achievements') {
+        const roleIdx = proposal.roleIndex;
+        if (roleIdx >= 0 && roleIdx < newExperience.length) {
+          // bullets[] merges both responsibilities and achievements
+          const bulletIdx = proposal.index;
+          if (bulletIdx >= 0 && bulletIdx < newExperience[roleIdx].bullets.length) {
+            newExperience[roleIdx].bullets[bulletIdx] = finalText;
+          }
+        }
+      }
+    });
+
+    return { newSummary, newExperience };
+  }
+
+  // Full optimize state
+  const [optimizeOpen, setOptimizeOpen] = useState(false);
+  const [optimizeLoading, setOptimizeLoading] = useState(false);
+  const [optimizeError, setOptimizeError] = useState('');
+  const [proposals, setProposals] = useState([]);
+  const [decisions, setDecisions] = useState({});
+  const [optimizeJd, setOptimizeJd] = useState('');
+  const [optimizeEngine, setOptimizeEngine] = useState('');
+  const [optimizeNote, setOptimizeNote] = useState('');
+  const [originalSnapshot, setOriginalSnapshot] = useState(null);
+  const [approveLoading, setApproveLoading] = useState(false);
+  const [approveSuccess, setApproveSuccess] = useState(false);
+  // Prevent duplicate submits
+  const optimizeInFlight = useRef(false);
+
+  async function runOptimize() {
+    if (optimizeInFlight.current) return;
+    optimizeInFlight.current = true;
+    setOptimizeLoading(true);
+    setOptimizeError('');
+    setProposals([]);
+    setDecisions({});
+    setApproveSuccess(false);
+
+    // Snapshot the current state so "Restore Original" always works
+    setOriginalSnapshot({ summary, experience: JSON.parse(JSON.stringify(experience)) });
+
+    try {
+      const resumeSchema = builderStateToResumeSchema();
+      const result = await careerService.optimize({
+        resume: resumeSchema,
+        jobDescription: optimizeJd || undefined,
+        scope: 'all',
+      });
+      const props = result?.proposals || [];
+      setProposals(props);
+      setOptimizeEngine(result?.engine || 'model');
+      setOptimizeNote(result?.engineNote || '');
+      if (props.length === 0) {
+        setOptimizeError('No improvements were needed — your resume is already in good shape!');
+      }
+    } catch (err) {
+      setOptimizeError(errMsg(err, 'AI optimization failed. Your original resume is unchanged.'));
+    } finally {
+      setOptimizeLoading(false);
+      optimizeInFlight.current = false;
+    }
+  }
+
+  function setDecision(id, action, text) {
+    setDecisions((prev) => ({ ...prev, [id]: { id, action, ...(text !== undefined ? { text } : {}) } }));
+  }
+
+  function acceptAll() {
+    const next = {};
+    proposals.forEach((p) => { next[p.id] = { id: p.id, action: 'accept' }; });
+    setDecisions(next);
+  }
+
+  function rejectAll() {
+    const next = {};
+    proposals.forEach((p) => { next[p.id] = { id: p.id, action: 'reject' }; });
+    setDecisions(next);
+  }
+
+  async function approveChanges() {
+    if (approveLoading) return;
+    setApproveLoading(true);
+    setOptimizeError('');
+    try {
+      const decisionsList = proposals.map((p) => decisions[p.id] || { id: p.id, action: 'accept' });
+      const { newSummary, newExperience } = applyProposalsToBuilderState(proposals, decisionsList);
+      setSummary(newSummary);
+      setExperience(newExperience);
+      setApproveSuccess(true);
+      setProposals([]);
+      setDecisions({});
+    } catch (err) {
+      setOptimizeError(errMsg(err, 'Failed to apply changes.'));
+    } finally {
+      setApproveLoading(false);
+    }
+  }
+
+  function restoreOriginal() {
+    if (!originalSnapshot) return;
+    setSummary(originalSnapshot.summary);
+    setExperience(originalSnapshot.experience);
+    setProposals([]);
+    setDecisions({});
+    setApproveSuccess(false);
+    setOptimizeError('');
+  }
+
   // Accordion active sections
   const [openSections, setOpenSections] = useState({
     template: false,
@@ -735,6 +1002,16 @@ export default function CvBuilder() {
 
           {/* Right Action Bar */}
           <div className="flex items-center gap-2">
+            {/* OPTIMIZE WITH AI — primary action */}
+            <button
+              type="button"
+              onClick={() => { setOptimizeOpen(true); setApproveSuccess(false); }}
+              className="inline-flex items-center gap-1.5 rounded-lg border border-purple-300 bg-gradient-to-r from-purple-600 to-indigo-600 px-3 py-1.5 text-[12px] font-bold text-white shadow-[0_2px_12px_-2px_rgba(124,58,237,0.5)] transition-all duration-[250ms] hover:scale-[1.04] hover:-translate-y-0.5 cursor-pointer"
+            >
+              <Wand2 className="h-3.5 w-3.5" />
+              <span>Optimize with AI</span>
+            </button>
+
             <button
               type="button"
               onClick={handleLoadDemo}
@@ -1119,6 +1396,49 @@ export default function CvBuilder() {
                       </div>
                     </div>
 
+                    {/* AI SUMMARY GENERATOR */}
+                    <div className="rounded-lg border border-purple-200 bg-purple-50/60 p-3">
+                      <div className="flex items-center justify-between mb-2">
+                        <div className="flex items-center gap-1.5 text-[12px] font-bold text-purple-800">
+                          <Wand2 className="h-3.5 w-3.5 text-purple-600" />
+                          Write my summary with AI
+                        </div>
+                        <button
+                          type="button"
+                          onClick={fetchAiSummary}
+                          disabled={aiSummaryLoading}
+                          className="inline-flex items-center gap-1.5 rounded bg-purple-600 px-2.5 py-1 text-[11px] font-bold text-white hover:bg-purple-700 transition-colors disabled:opacity-60 cursor-pointer"
+                        >
+                          {aiSummaryLoading ? (
+                            <><Loader2 className="h-3 w-3 animate-spin" /> Generating…</>
+                          ) : (
+                            <><Sparkles className="h-3 w-3" /> Generate</>
+                          )}
+                        </button>
+                      </div>
+                      {aiSummaryNote && (
+                        <p className={`text-[11px] mb-2 ${aiSummaryNote.includes('busy') ? 'text-red-600' : 'text-purple-700'}`}>
+                          {aiSummaryNote}
+                        </p>
+                      )}
+                      {aiSummaryItems.length > 0 && (
+                        <div className="space-y-1.5">
+                          {aiSummaryItems.map((item, i) => (
+                            <div key={i} className="flex items-start justify-between gap-2 rounded bg-white border border-purple-100 p-2">
+                              <p className="text-[11px] text-slate-700 leading-relaxed flex-1">{item}</p>
+                              <button
+                                type="button"
+                                onClick={() => setSummary(item)}
+                                className="shrink-0 rounded bg-purple-50 px-2 py-0.5 text-[10.5px] font-bold text-purple-700 hover:bg-purple-600 hover:text-white transition-colors cursor-pointer"
+                              >
+                                Use →
+                              </button>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+
                     <div className="flex items-center justify-between">
                       <label className="text-[11.5px] font-bold text-slate-700">Executive Narrative</label>
                       <span className="text-[11px] text-slate-500">{summary.length} characters</span>
@@ -1127,7 +1447,7 @@ export default function CvBuilder() {
                       rows={4}
                       value={summary}
                       onChange={(e) => setSummary(e.target.value)}
-                      placeholder="Type your own summary, or click 'Use Starter' above to start with a tailored narrative..."
+                      placeholder="Type your own summary, or click 'Use Starter' above, or generate with AI…"
                       className="w-full rounded-lg border border-line bg-white p-3 text-[13px] text-ink focus:border-azure focus:outline-none leading-relaxed"
                     />
                   </div>
@@ -1188,6 +1508,57 @@ export default function CvBuilder() {
                           );
                         })}
                       </div>
+                    </div>
+
+                    {/* AI SKILL SUGGESTIONS */}
+                    <div className="rounded-lg border border-emerald-200 bg-emerald-50/60 p-3">
+                      <div className="flex items-center justify-between mb-2">
+                        <div className="flex items-center gap-1.5 text-[12px] font-bold text-emerald-800">
+                          <Lightbulb className="h-3.5 w-3.5 text-emerald-600" />
+                          More skills with AI
+                        </div>
+                        <button
+                          type="button"
+                          onClick={fetchAiSkills}
+                          disabled={aiSkillsLoading}
+                          className="inline-flex items-center gap-1.5 rounded bg-emerald-600 px-2.5 py-1 text-[11px] font-bold text-white hover:bg-emerald-700 transition-colors disabled:opacity-60 cursor-pointer"
+                        >
+                          {aiSkillsLoading ? (
+                            <><Loader2 className="h-3 w-3 animate-spin" /> Generating…</>
+                          ) : (
+                            <><Sparkles className="h-3 w-3" /> Suggest Skills</>
+                          )}
+                        </button>
+                      </div>
+                      {aiSkillNote && (
+                        <p className={`text-[11px] mb-2 ${aiSkillNote.includes('busy') ? 'text-red-600' : 'text-emerald-700'}`}>
+                          {aiSkillNote}
+                        </p>
+                      )}
+                      {aiSkillItems.length > 0 && (
+                        <div className="flex flex-wrap gap-1.5">
+                          {aiSkillItems.map((sk) => {
+                            const isAdded = [...(skills.hard || []), ...(skills.tools || []), ...(skills.soft || [])].includes(sk);
+                            return (
+                              <button
+                                key={sk}
+                                type="button"
+                                disabled={isAdded}
+                                onClick={() => handleAddSkill(sk, activeSkillCategory)}
+                                className={cn(
+                                  'inline-flex items-center gap-1 rounded-md px-2 py-1 text-[11px] font-semibold transition-all cursor-pointer',
+                                  isAdded
+                                    ? 'bg-slate-200 text-slate-400 cursor-not-allowed'
+                                    : 'border border-emerald-300 bg-white text-emerald-800 hover:bg-emerald-600 hover:text-white'
+                                )}
+                              >
+                                {isAdded ? <Check className="h-2.5 w-2.5" /> : <Plus className="h-2.5 w-2.5" />}
+                                {sk}
+                              </button>
+                            );
+                          })}
+                        </div>
+                      )}
                     </div>
 
                     {/* Category tabs */}
@@ -1463,6 +1834,52 @@ export default function CvBuilder() {
                               >
                                 <Plus className="h-3 w-3" /> Add Empty Bullet
                               </button>
+                            </div>
+
+                            {/* AI BULLET IDEAS */}
+                            <div className="rounded-lg border border-azure-200 bg-azure-50/50 p-2.5 mt-2">
+                              <div className="flex items-center justify-between mb-1.5">
+                                <span className="flex items-center gap-1 text-[11px] font-bold text-azure-800">
+                                  <Wand2 className="h-3 w-3 text-azure" /> AI Bullet Ideas
+                                </span>
+                                <button
+                                  type="button"
+                                  onClick={() => fetchAiBullets(idx)}
+                                  disabled={aiBulletsLoading[idx]}
+                                  className="inline-flex items-center gap-1 rounded bg-azure px-2 py-0.5 text-[10.5px] font-bold text-white hover:bg-azure-600 transition-colors disabled:opacity-60 cursor-pointer"
+                                >
+                                  {aiBulletsLoading[idx] ? (
+                                    <><Loader2 className="h-3 w-3 animate-spin" /> Generating…</>
+                                  ) : (
+                                    <><Sparkles className="h-3 w-3" /> Generate</>
+                                  )}
+                                </button>
+                              </div>
+                              {aiBulletNote[idx] && (
+                                <p className={`text-[10.5px] mb-1.5 ${aiBulletNote[idx].includes('busy') ? 'text-red-600' : 'text-azure-700'}`}>
+                                  {aiBulletNote[idx]}
+                                </p>
+                              )}
+                              {(aiBulletItems[idx] || []).length > 0 && (
+                                <div className="space-y-1">
+                                  {(aiBulletItems[idx] || []).map((bullet, bi) => (
+                                    <div key={bi} className="flex items-start gap-1.5 rounded bg-white border border-azure-100 p-1.5">
+                                      <p className="flex-1 text-[11px] text-slate-700 leading-relaxed">{bullet}</p>
+                                      <button
+                                        type="button"
+                                        onClick={() => {
+                                          const next = [...experience];
+                                          next[idx].bullets = [...(next[idx].bullets || []).filter(Boolean), bullet];
+                                          setExperience(next);
+                                        }}
+                                        className="shrink-0 rounded bg-azure-50 px-1.5 py-0.5 text-[10px] font-bold text-azure hover:bg-azure hover:text-white transition-colors cursor-pointer"
+                                      >
+                                        + Add
+                                      </button>
+                                    </div>
+                                  ))}
+                                </div>
+                              )}
                             </div>
                           </div>
                         </div>
@@ -2434,6 +2851,297 @@ export default function CvBuilder() {
         reason={lockedByFreeUsed(lockedTpl?.id) ? 'free-used' : 'paid'}
         onUnlockSuccess={(tpl) => chooseTemplateAfterUnlock(tpl.id)}
       />
+
+      {/* ════════════════════════════════════════════════════════════
+       * AI OPTIMIZE PANEL — full-screen overlay modal
+       * ════════════════════════════════════════════════════════════ */}
+      <AnimatePresence>
+        {optimizeOpen && (
+          <motion.div
+            key="optimize-overlay"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[200] flex items-start justify-center overflow-y-auto bg-slate-900/70 backdrop-blur-sm p-4"
+            onClick={(e) => { if (e.target === e.currentTarget) setOptimizeOpen(false); }}
+          >
+            <motion.div
+              initial={{ opacity: 0, y: 24, scale: 0.97 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: 16, scale: 0.97 }}
+              transition={{ type: 'spring', stiffness: 340, damping: 28 }}
+              className="relative my-8 w-full max-w-3xl rounded-2xl border border-purple-200 bg-white shadow-2xl"
+              onClick={(e) => e.stopPropagation()}
+            >
+              {/* Header */}
+              <div className="flex items-center justify-between rounded-t-2xl border-b border-purple-100 bg-gradient-to-r from-purple-600 to-indigo-600 px-6 py-4">
+                <div className="flex items-center gap-3">
+                  <span className="grid h-9 w-9 place-items-center rounded-lg bg-white/20">
+                    <Wand2 className="h-5 w-5 text-white" />
+                  </span>
+                  <div>
+                    <h2 className="text-base font-bold text-white">AI Resume Optimizer</h2>
+                    <p className="text-[12px] text-purple-100">
+                      Rewrites your summary and experience bullets. Facts are never changed.
+                    </p>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setOptimizeOpen(false)}
+                  className="rounded-lg p-1.5 text-white/70 hover:bg-white/20 hover:text-white transition-colors cursor-pointer"
+                >
+                  ✕
+                </button>
+              </div>
+
+              <div className="p-6 space-y-5">
+                {/* Success banner */}
+                {approveSuccess && (
+                  <div className="flex items-center gap-3 rounded-lg border border-emerald-200 bg-emerald-50 p-4">
+                    <CheckCircle2 className="h-5 w-5 text-emerald-600 shrink-0" />
+                    <div>
+                      <p className="text-small font-bold text-emerald-800">Changes applied to your resume!</p>
+                      <p className="text-[12px] text-emerald-700">
+                        Your editor has been updated. Review the preview on the right — it reflects the approved changes.
+                      </p>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => { setApproveSuccess(false); setOptimizeOpen(false); }}
+                      className="ml-auto rounded-lg bg-emerald-600 px-3 py-1.5 text-[12px] font-bold text-white hover:bg-emerald-700 transition-colors cursor-pointer"
+                    >
+                      Close & review
+                    </button>
+                  </div>
+                )}
+
+                {/* Job Description input */}
+                {!proposals.length && !approveSuccess && (
+                  <div className="space-y-2">
+                    <label className="text-[12px] font-bold text-slate-700">
+                      Job Description <span className="font-normal text-slate-500">(optional — for targeted optimization)</span>
+                    </label>
+                    <textarea
+                      rows={4}
+                      value={optimizeJd}
+                      onChange={(e) => setOptimizeJd(e.target.value)}
+                      placeholder="Paste the job description here to optimize your resume for this specific role. Without it, general resume improvement is applied."
+                      className="w-full rounded-lg border border-line bg-slate-50 p-3 text-[13px] text-ink focus:border-purple-400 focus:outline-none leading-relaxed resize-none"
+                    />
+                    <div className="flex items-center gap-3 rounded-lg border border-amber-200 bg-amber-50 p-3">
+                      <TrendingUp className="h-4 w-4 text-amber-600 shrink-0" />
+                      <p className="text-[11.5px] text-amber-800">
+                        <strong>Factual accuracy is guaranteed.</strong> The AI improves wording only — it never adds employers, dates, qualifications, or metrics you have not provided.
+                      </p>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={runOptimize}
+                      disabled={optimizeLoading}
+                      className="w-full inline-flex items-center justify-center gap-2 rounded-lg bg-gradient-to-r from-purple-600 to-indigo-600 px-5 py-3 text-[13px] font-bold text-white shadow-lg hover:from-purple-700 hover:to-indigo-700 disabled:opacity-60 transition-all duration-[250ms] hover:scale-[1.01] cursor-pointer"
+                    >
+                      {optimizeLoading ? (
+                        <><Loader2 className="h-4 w-4 animate-spin" /> Analyzing and rewriting your resume…</>
+                      ) : (
+                        <><Sparkles className="h-4 w-4" /> Analyze &amp; Rewrite My Resume</>
+                      )}
+                    </button>
+                  </div>
+                )}
+
+                {/* Error state */}
+                {optimizeError && (
+                  <div className="flex items-start gap-3 rounded-lg border border-red-200 bg-red-50 p-4">
+                    <span className="text-red-500 font-bold text-sm shrink-0">⚠</span>
+                    <div className="flex-1">
+                      <p className="text-[12px] font-bold text-red-700">{optimizeError}</p>
+                      {originalSnapshot && (
+                        <button
+                          type="button"
+                          onClick={restoreOriginal}
+                          className="mt-2 text-[11px] font-bold text-red-600 underline hover:no-underline cursor-pointer"
+                        >
+                          Restore original resume
+                        </button>
+                      )}
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => { setOptimizeError(''); setProposals([]); }}
+                      className="text-[11px] font-bold text-red-500 hover:text-red-700 cursor-pointer"
+                    >
+                      Try again
+                    </button>
+                  </div>
+                )}
+
+                {/* Engine note (rules fallback) */}
+                {optimizeNote && (
+                  <div className="flex items-start gap-2 rounded-lg border border-amber-200 bg-amber-50 p-3">
+                    <TrendingUp className="h-4 w-4 text-amber-600 shrink-0 mt-0.5" />
+                    <p className="text-[11.5px] text-amber-800">{optimizeNote}</p>
+                  </div>
+                )}
+
+                {/* Proposals review */}
+                {proposals.length > 0 && !approveSuccess && (
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <h3 className="text-small font-bold text-ink">
+                          {proposals.length} improvement{proposals.length !== 1 ? 's' : ''} proposed
+                        </h3>
+                        <p className="text-[12px] text-slate-500">
+                          Accept, edit or reject each change. Only accepted changes are applied.
+                        </p>
+                      </div>
+                      <div className="flex gap-2">
+                        <button
+                          type="button"
+                          onClick={acceptAll}
+                          className="rounded-lg border border-emerald-300 bg-emerald-50 px-3 py-1.5 text-[11px] font-bold text-emerald-700 hover:bg-emerald-100 transition-colors cursor-pointer"
+                        >
+                          ✓ Accept all
+                        </button>
+                        <button
+                          type="button"
+                          onClick={rejectAll}
+                          className="rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-[11px] font-bold text-slate-600 hover:bg-slate-50 transition-colors cursor-pointer"
+                        >
+                          ✕ Reject all
+                        </button>
+                      </div>
+                    </div>
+
+                    <div className="max-h-[420px] overflow-y-auto space-y-3 pr-1">
+                      {proposals.map((proposal) => {
+                        const decision = decisions[proposal.id];
+                        const action = decision?.action || 'accept';
+                        const isEditing = action === 'edit';
+                        const editText = decision?.text ?? proposal.proposed;
+
+                        return (
+                          <div
+                            key={proposal.id}
+                            className={cn(
+                              'rounded-xl border p-4 transition-all',
+                              action === 'accept' ? 'border-emerald-200 bg-emerald-50/50' :
+                              action === 'reject' ? 'border-slate-200 bg-slate-50 opacity-60' :
+                              'border-indigo-200 bg-indigo-50/50'
+                            )}
+                          >
+                            {/* Field label */}
+                            <div className="flex items-center justify-between mb-2">
+                              <span className="text-[10.5px] font-bold uppercase tracking-wide text-slate-500">
+                                {proposal.field === 'summary' ? 'Professional Summary' :
+                                 `${proposal.roleIndex !== undefined ? `Role ${proposal.roleIndex + 1}` : ''} Bullet`}
+                              </span>
+                              {/* Accept / Edit / Reject toggle */}
+                              <div className="flex gap-1">
+                                {['accept', 'edit', 'reject'].map((act) => (
+                                  <button
+                                    key={act}
+                                    type="button"
+                                    onClick={() => setDecision(
+                                      proposal.id, act,
+                                      act === 'edit' ? editText : undefined
+                                    )}
+                                    className={cn(
+                                      'rounded px-2 py-0.5 text-[10.5px] font-bold transition-colors cursor-pointer',
+                                      action === act
+                                        ? act === 'accept' ? 'bg-emerald-600 text-white'
+                                          : act === 'reject' ? 'bg-slate-500 text-white'
+                                          : 'bg-indigo-600 text-white'
+                                        : 'bg-white border border-slate-200 text-slate-500 hover:border-slate-400'
+                                    )}
+                                  >
+                                    {act === 'accept' ? '✓ Accept' : act === 'edit' ? '✎ Edit' : '✕ Reject'}
+                                  </button>
+                                ))}
+                              </div>
+                            </div>
+
+                            {/* Before */}
+                            <div className="mb-2">
+                              <p className="text-[10.5px] font-bold text-slate-400 mb-0.5">Original</p>
+                              <p className={cn('text-[12px] leading-relaxed', action === 'reject' ? 'text-slate-600' : 'text-slate-500 line-through decoration-slate-300')}>
+                                {proposal.original || '(empty)'}
+                              </p>
+                            </div>
+
+                            {/* After */}
+                            {action !== 'reject' && (
+                              <div>
+                                <p className="text-[10.5px] font-bold text-emerald-700 mb-0.5">
+                                  {isEditing ? 'Your edited version' : 'AI rewrite'}
+                                </p>
+                                {isEditing ? (
+                                  <textarea
+                                    rows={proposal.field === 'summary' ? 4 : 2}
+                                    value={editText}
+                                    onChange={(e) => setDecision(proposal.id, 'edit', e.target.value)}
+                                    className="w-full rounded-lg border border-indigo-300 bg-white p-2 text-[12px] text-ink focus:border-indigo-500 focus:outline-none leading-relaxed resize-none"
+                                  />
+                                ) : (
+                                  <p className="text-[12px] text-ink leading-relaxed font-medium">
+                                    {proposal.proposed}
+                                  </p>
+                                )}
+                              </div>
+                            )}
+
+                            {/* Reason */}
+                            {proposal.reason && action !== 'reject' && (
+                              <p className="mt-2 text-[10.5px] text-indigo-600 italic">
+                                💡 {proposal.reason}
+                              </p>
+                            )}
+                          </div>
+                        );
+                      })}
+                    </div>
+
+                    {/* Bottom action bar */}
+                    <div className="flex items-center justify-between border-t border-line pt-4">
+                      <div className="flex gap-2">
+                        {originalSnapshot && (
+                          <button
+                            type="button"
+                            onClick={restoreOriginal}
+                            className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-[12px] font-bold text-slate-600 hover:bg-slate-50 transition-colors cursor-pointer"
+                          >
+                            ↩ Restore original
+                          </button>
+                        )}
+                        <button
+                          type="button"
+                          onClick={() => { setProposals([]); setDecisions({}); setOptimizeError(''); }}
+                          className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-[12px] font-semibold text-slate-500 hover:bg-slate-50 transition-colors cursor-pointer"
+                        >
+                          ← Re-run
+                        </button>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={approveChanges}
+                        disabled={approveLoading}
+                        className="inline-flex items-center gap-2 rounded-lg bg-gradient-to-r from-emerald-600 to-teal-600 px-5 py-2.5 text-[13px] font-bold text-white shadow-lg hover:from-emerald-700 hover:to-teal-700 disabled:opacity-60 transition-all duration-[250ms] hover:scale-[1.02] cursor-pointer"
+                      >
+                        {approveLoading ? (
+                          <><Loader2 className="h-4 w-4 animate-spin" /> Applying…</>
+                        ) : (
+                          <><CheckCircle2 className="h-4 w-4" /> Apply approved changes</>
+                        )}
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </>
   );
 }

@@ -11,6 +11,37 @@ const id = () => Math.random().toString(36).slice(2, 10);
 const t = (v) => (typeof v === 'string' ? v.trim() : '');
 const lines = (arr) => (Array.isArray(arr) ? arr.map(t).filter(Boolean) : []);
 
+/**
+ * A role stores duties and achievements in two lists, but the candidate wrote
+ * them as one list in a deliberate order. Restore that order by matching each
+ * bullet (original or AI-reworded) to the closest line of the role's original
+ * text. Bullets with no match keep their relative position at the end.
+ */
+function orderBullets(job) {
+  const all = [...new Set([...lines(job.responsibilities), ...lines(job.achievements)])];
+  const source = String(job._originalText || '').split(/\r?\n/).map(t).filter(Boolean);
+  if (all.length < 2 || !source.length) return [...new Set([...lines(job.achievements), ...lines(job.responsibilities)])];
+
+  const words = (text) => new Set(String(text).toLowerCase().split(/[^a-z0-9%+.]+/).filter((x) => x.length > 3));
+  const sourceWords = source.map(words);
+  const keyOf = (bullet) => {
+    const bw = words(bullet);
+    let best = -1;
+    let bestScore = 0;
+    sourceWords.forEach((sw, i) => {
+      let common = 0;
+      bw.forEach((x) => { if (sw.has(x)) common += 1; });
+      const score = common / Math.max(1, Math.min(bw.size, sw.size));
+      if (score > bestScore) { bestScore = score; best = i; }
+    });
+    return bestScore >= 0.5 ? best : Infinity;
+  };
+  return all
+    .map((bullet, position) => ({ bullet, position, key: keyOf(bullet) }))
+    .sort((a, b) => (a.key === b.key ? a.position - b.position : a.key - b.key))
+    .map((x) => x.bullet);
+}
+
 export const emptyJob = () => ({ id: id(), title: '', company: '', location: '', startDate: '', endDate: '', current: false, bullets: [] });
 export const emptySchool = () => ({ id: id(), institution: '', location: '', degree: '', field: '', endDate: '', current: false, grade: '' });
 
@@ -125,7 +156,7 @@ export function resumeToWizard(r = {}) {
     startDate: t(j.startDate),
     endDate: j.current ? '' : t(j.endDate),
     current: Boolean(j.current) || /present|current/i.test(t(j.endDate)),
-    bullets: [...new Set([...lines(j.achievements), ...lines(j.responsibilities)])],
+    bullets: orderBullets(j),
   }));
   w.education = (r.education || []).map((e) => ({
     ...emptySchool(),

@@ -96,7 +96,7 @@ export const studioService = {
         company: company || undefined,
         industry: industry || undefined,
         experienceLevel: experienceLevel || undefined,
-      })
+      }, { timeout: AI_TIMEOUT })
     ),
 
   /* Resume Builder wizard — example bullets / skills / summaries for a job title */

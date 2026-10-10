@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import { Navigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext.jsx';
 import { FileSearch, ScanLine, Target, Zap } from 'lucide-react';
 import { Seo } from '../components/ui/Seo.jsx';
@@ -56,13 +55,10 @@ const FAQS = [
 const seo = seoFor('resumeChecker');
 
 export default function AtsResumeChecker() {
-  const { user, initialising } = useAuth();
+  // user may be null (not signed in) — the ATS checker is intentionally
+  // public. Results are saved to the user's history when they are signed in.
+  const { user } = useAuth();
   const [result, setResult] = useState(null);
-
-  // Redirect unauthenticated visitors to sign-in, then back here.
-  if (!initialising && !user) {
-    return <Navigate to="/login" state={{ from: "/resume-checker" }} replace />;
-  }
 
   return (
     <>

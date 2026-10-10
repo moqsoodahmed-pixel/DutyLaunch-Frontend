@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { Link, useSearchParams } from 'react-router-dom';
-import { ArrowLeft, Check, Plus, Search, Sparkles, Trash2, Pencil, Lock, Download, X, Lightbulb } from 'lucide-react';
+import { Link, useSearchParams, useLocation } from 'react-router-dom';
+import { ArrowLeft, Check, Plus, Search, Sparkles, Trash2, Pencil, Lock, Download, X, Lightbulb, Wand2, Loader2, CheckCircle2, ChevronDown, ChevronUp } from 'lucide-react';
 import { Button, Input, Select, Textarea, Badge, Spinner } from '../components/ui/index.js';
 import { ConsentCheckbox } from '../components/ui/ConsentCheckbox.jsx';
 import { Logo } from '../components/layout/Logo.jsx';
@@ -17,6 +17,8 @@ import { TEMPLATES } from '../data/resumeTemplates.js';
 import { ROLE_EXAMPLES, POPULAR_TITLES, findRoleExamples, DEGREES, LANGUAGE_LEVELS, CERTIFICATION_PATTERNS, EXTRA_SECTIONS } from '../data/resumeExamples.js';
 import { emptyWizard, emptyJob, emptySchool, resumeToWizard, wizardToResume, wizardToBuilder, completeness } from '../utils/wizardResume.js';
 import { BUILDER_IMPORT_KEY } from '../utils/resumeToBuilder.js';
+import { BUILDER_AI_OPTIMIZE_KEY, BUILDER_AI_REPORT_KEY } from './dashboard/ResumeBuilderStart.jsx';
+import { OptimizationReport } from '../components/cv/OptimizationReport.jsx';
 import { buildTemplateData } from '../utils/templateData.js';
 import { printResumeSheet } from '../utils/printResume.js';
 import { cn } from '../utils/cn.js';
@@ -270,24 +272,66 @@ export default function ResumeWizard() {
   const { user } = useAuth();
   const toast = useToast();
   const [params] = useSearchParams();
+  const location = useLocation();
   const key = draftKey(user?.id || user?._id);
 
-  // Opened right after "Upload my resume"? (read before the draft below
-  // consumes the hand-off). Then we only ask for what the file was missing.
-  const [fromUpload] = useState(() => {
-    try {
-      return Boolean(sessionStorage.getItem(BUILDER_IMPORT_KEY));
-    } catch {
-      return false;
+  // ── Resume import: read from React Router location.state (primary) or
+  //    sessionStorage (fallback). location.state is set by ResumeBuilderStart
+  //    via navigate('/resume-builder/wizard', { state: { importedResume, aiProposals } }).
+  //    sessionStorage is the fallback in case the Suspense/ProtectedRoute
+  //    redirect chain drops the router state.
+  //
+  //    We compute hasImport once so fromUpload, aiProposals and w all
+  //    agree on the same data source.
+  // -----------------------------------------------------------------------
+
+  const [_importedOnce] = useState(() => {
+    // Pull from router state first
+    const routerResume = location.state?.importedResume;
+    const routerAi     = location.state?.aiProposals ?? null;
+    const routerReport = location.state?.aiReport ?? null;
+
+    if (routerResume) {
+      // Clear sessionStorage entries so a back-navigation doesn't re-import
+      try { sessionStorage.removeItem(BUILDER_IMPORT_KEY); } catch { /* ok */ }
+      try { sessionStorage.removeItem(BUILDER_AI_OPTIMIZE_KEY); } catch { /* ok */ }
+      try { sessionStorage.removeItem(BUILDER_AI_REPORT_KEY); } catch { /* ok */ }
+      return { resume: routerResume, ai: routerAi, report: routerReport };
     }
+
+    // Fallback: sessionStorage
+    try {
+      const raw = sessionStorage.getItem(BUILDER_IMPORT_KEY);
+      if (raw) {
+        sessionStorage.removeItem(BUILDER_IMPORT_KEY);
+        const aiRaw = sessionStorage.getItem(BUILDER_AI_OPTIMIZE_KEY);
+        if (aiRaw) sessionStorage.removeItem(BUILDER_AI_OPTIMIZE_KEY);
+        const reportRaw = sessionStorage.getItem(BUILDER_AI_REPORT_KEY);
+        if (reportRaw) sessionStorage.removeItem(BUILDER_AI_REPORT_KEY);
+        return { resume: JSON.parse(raw), ai: aiRaw ? JSON.parse(aiRaw) : null, report: reportRaw ? JSON.parse(reportRaw) : null };
+      }
+    } catch { /* fall through */ }
+
+    return null;
   });
+
+  // fromUpload: true when we have imported resume data from either path
+  const [fromUpload] = useState(() => Boolean(_importedOnce?.resume));
+
+  // AI optimization proposals from the upload step
+  const [aiProposals, setAiProposals] = useState(() => _importedOnce?.ai ?? null);
+  // Results of the automatic optimization (scores, keywords, applied changes).
+  const [aiReport, setAiReport] = useState(() => _importedOnce?.report ?? null);
+  const [aiReviewOpen, setAiReviewOpen] = useState(true);
+  const [aiDecisions, setAiDecisions] = useState({});
+  const [aiApplyLoading, setAiApplyLoading] = useState(false);
+  const [aiApplied, setAiApplied] = useState(false);
 
   const [w, setW] = useState(() => {
     try {
-      const imported = sessionStorage.getItem(BUILDER_IMPORT_KEY);
-      if (imported) {
-        sessionStorage.removeItem(BUILDER_IMPORT_KEY);
-        return { ...resumeToWizard(JSON.parse(imported)), templateId: params.get('template') || 'dl-elite' };
+      // Use imported resume (router state or sessionStorage)
+      if (_importedOnce?.resume) {
+        return { ...resumeToWizard(_importedOnce.resume), templateId: params.get('template') || 'dl-elite' };
       }
       if (params.get('start') === 'scratch' && params.get('fresh') === '1') return emptyWizard();
       const saved = localStorage.getItem(key);
@@ -337,6 +381,86 @@ export default function ResumeWizard() {
   const set = (patch) => setW((s) => ({ ...s, ...(typeof patch === 'function' ? patch(s) : patch) }));
   const setPersonal = (k) => (e) => set((s) => ({ personal: { ...s.personal, [k]: e.target.value } }));
   const setExtras = (patch) => set((s) => ({ extras: { ...s.extras, ...patch } }));
+
+  // Apply AI proposals from the upload step to the wizard state
+  function applyAiProposalsToWizard(proposals, decisions) {
+    const decisionsMap = {};
+    (decisions ? Object.values(decisions) : []).forEach((d) => { decisionsMap[d.id] = d; });
+
+    setW((prev) => {
+      const next = JSON.parse(JSON.stringify(prev));
+      proposals.forEach((proposal) => {
+        const decision = decisionsMap[proposal.id];
+        const action = decision?.action || 'accept';
+        if (action === 'reject') return;
+        const finalText = action === 'edit' ? (decision.text || proposal.proposed) : proposal.proposed;
+        if (!finalText) return;
+
+        if (proposal.field === 'summary') {
+          next.summary = finalText;
+        } else if (proposal.field === 'responsibilities' || proposal.field === 'achievements') {
+          /* The wizard merges a role's achievements and responsibilities into
+             one `bullets` list, so the proposal's index (relative to its own
+             list) cannot be used to find the bullet. Match on the original
+             wording instead, so a change can never land on the wrong bullet. */
+          const roleIdx = proposal.roleIndex;
+          const norm = (t) => String(t || '').replace(/\s+/g, ' ').trim().toLowerCase();
+          const role = (next.experience || [])[roleIdx];
+          if (role && Array.isArray(role.bullets)) {
+            const at = role.bullets.findIndex((b) => norm(b) === norm(proposal.original));
+            if (at >= 0) role.bullets[at] = finalText;
+          }
+        }
+      });
+      return next;
+    });
+  }
+
+  /** Adds a skill the candidate has explicitly confirmed they have. */
+  function addConfirmedSkill(term) {
+    const skill = String(term || '').trim();
+    if (!skill) return false;
+    setW((prev) => ((prev.skills || []).some((x) => x.toLowerCase() === skill.toLowerCase())
+      ? prev
+      : { ...prev, skills: [...(prev.skills || []), skill] }));
+    return true;
+  }
+
+  /** Puts one auto-applied change back to the candidate's original wording. */
+  function revertReportChange(change) {
+    const norm = (t) => String(t || '').replace(/\s+/g, ' ').trim().toLowerCase();
+    let restored = false;
+    setW((prev) => {
+      const next = JSON.parse(JSON.stringify(prev));
+      if (change.id === 'summary') {
+        if (norm(next.summary) === norm(change.final)) { next.summary = change.original; restored = true; }
+      } else {
+        const m = String(change.id).match(/^experience\.(\d+)\./);
+        const role = m ? (next.experience || [])[Number(m[1])] : null;
+        const at = role ? (role.bullets || []).findIndex((b) => norm(b) === norm(change.final)) : -1;
+        if (at >= 0) { role.bullets[at] = change.original; restored = true; }
+      }
+      return restored ? next : prev;
+    });
+    return true;
+  }
+
+  async function applyAiChanges() {
+    if (!aiProposals?.proposals?.length || aiApplyLoading) return;
+    setAiApplyLoading(true);
+    try {
+      const decisionsList = aiProposals.proposals.map((p) => aiDecisions[p.id] || { id: p.id, action: 'accept' });
+      applyAiProposalsToWizard(aiProposals.proposals, Object.fromEntries(decisionsList.map((d) => [d.id, d])));
+      setAiApplied(true);
+      setAiProposals(null);
+    } finally {
+      setAiApplyLoading(false);
+    }
+  }
+
+  function setAiDecision(id, action, text) {
+    setAiDecisions((prev) => ({ ...prev, [id]: { id, action, ...(text !== undefined ? { text } : {}) } }));
+  }
 
   const builderState = useMemo(() => wizardToBuilder(w), [w]);
   const percent = completeness(w);
@@ -1291,6 +1415,173 @@ export default function ResumeWizard() {
                 The uploaded resume has a different name. Your account's resumes always use <strong>{lockedName}</strong>, so that name is kept — everything else was filled in from the file.
               </p>
             )}
+            {/* ── OPTIMIZED DRAFT: what the automatic optimization did ── */}
+            {aiReport && (
+              <OptimizationReport report={aiReport} onRevert={revertReportChange} onAddSkill={addConfirmedSkill} onDismiss={() => setAiReport(null)} />
+            )}
+            {/* ── AI OPTIMIZATION REVIEW PANEL ── */}
+            {aiProposals?.proposals?.length > 0 && !aiApplied && (
+              <div className="mb-6 rounded-xl border border-purple-200 bg-gradient-to-br from-purple-50 to-indigo-50 shadow-xs">
+                {/* Header */}
+                <div className="flex items-center justify-between px-5 py-4">
+                  <div className="flex items-center gap-3">
+                    <span className="grid h-8 w-8 place-items-center rounded-lg bg-purple-600">
+                      <Wand2 className="h-4 w-4 text-white" />
+                    </span>
+                    <div>
+                      <p className="text-small font-bold text-purple-900">
+                        AI found {aiProposals.proposals.length} improvement{aiProposals.proposals.length !== 1 ? 's' : ''} for your resume
+                      </p>
+                      <p className="text-[11.5px] text-purple-700">
+                        Accept, edit or reject each one. Facts, dates and employers are never changed.
+                      </p>
+                    </div>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setAiReviewOpen((v) => !v)}
+                    className="rounded-lg p-1.5 text-purple-400 hover:bg-purple-100 hover:text-purple-700 transition-colors"
+                  >
+                    {aiReviewOpen ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+                  </button>
+                </div>
+
+                {aiReviewOpen && (
+                  <div className="border-t border-purple-200 px-5 pb-5 pt-4 space-y-3">
+                    {/* Engine fallback note */}
+                    {aiProposals.engineNote && (
+                      <p className="text-[11.5px] text-amber-700 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2">
+                        ℹ️ {aiProposals.engineNote}
+                      </p>
+                    )}
+
+                    {/* Bulk actions */}
+                    <div className="flex gap-2">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const next = {};
+                          aiProposals.proposals.forEach((p) => { next[p.id] = { id: p.id, action: 'accept' }; });
+                          setAiDecisions(next);
+                        }}
+                        className="rounded-lg border border-emerald-300 bg-emerald-50 px-3 py-1 text-[11px] font-bold text-emerald-700 hover:bg-emerald-100 transition-colors cursor-pointer"
+                      >
+                        ✓ Accept all
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const next = {};
+                          aiProposals.proposals.forEach((p) => { next[p.id] = { id: p.id, action: 'reject' }; });
+                          setAiDecisions(next);
+                        }}
+                        className="rounded-lg border border-slate-200 bg-white px-3 py-1 text-[11px] font-bold text-slate-600 hover:bg-slate-50 transition-colors cursor-pointer"
+                      >
+                        ✕ Reject all
+                      </button>
+                    </div>
+
+                    {/* Proposals list */}
+                    <div className="max-h-80 overflow-y-auto space-y-2 pr-1">
+                      {aiProposals.proposals.map((proposal) => {
+                        const decision = aiDecisions[proposal.id];
+                        const action = decision?.action || 'accept';
+                        const editText = decision?.text ?? proposal.proposed;
+                        return (
+                          <div
+                            key={proposal.id}
+                            className={cn(
+                              'rounded-lg border p-3 text-[12px] transition-all',
+                              action === 'accept' ? 'border-emerald-200 bg-white' :
+                              action === 'reject' ? 'border-slate-200 bg-slate-50 opacity-60' :
+                              'border-indigo-200 bg-white'
+                            )}
+                          >
+                            <div className="flex items-center justify-between mb-1.5">
+                              <span className="text-[10px] font-bold uppercase tracking-wide text-slate-400">
+                                {proposal.field === 'summary' ? 'Summary' : `Bullet · Role ${(proposal.roleIndex ?? 0) + 1}`}
+                              </span>
+                              <div className="flex gap-1">
+                                {['accept', 'edit', 'reject'].map((act) => (
+                                  <button
+                                    key={act}
+                                    type="button"
+                                    onClick={() => setAiDecision(proposal.id, act, act === 'edit' ? editText : undefined)}
+                                    className={cn(
+                                      'rounded px-2 py-0.5 text-[10px] font-bold transition-colors cursor-pointer',
+                                      action === act
+                                        ? act === 'accept' ? 'bg-emerald-600 text-white'
+                                          : act === 'reject' ? 'bg-slate-500 text-white'
+                                          : 'bg-indigo-600 text-white'
+                                        : 'bg-slate-100 text-slate-500 hover:bg-slate-200'
+                                    )}
+                                  >
+                                    {act === 'accept' ? '✓' : act === 'edit' ? '✎' : '✕'}
+                                  </button>
+                                ))}
+                              </div>
+                            </div>
+                            {/* Original */}
+                            <p className={cn('text-[11.5px] leading-relaxed mb-1', action !== 'reject' && 'line-through text-slate-400 decoration-slate-300')}>
+                              {proposal.original || '(empty)'}
+                            </p>
+                            {/* Proposed */}
+                            {action !== 'reject' && (
+                              action === 'edit' ? (
+                                <textarea
+                                  rows={2}
+                                  value={editText}
+                                  onChange={(e) => setAiDecision(proposal.id, 'edit', e.target.value)}
+                                  className="w-full rounded border border-indigo-300 bg-slate-50 p-1.5 text-[11.5px] text-ink focus:border-indigo-500 focus:outline-none resize-none"
+                                />
+                              ) : (
+                                <p className="text-[11.5px] leading-relaxed text-ink font-medium">{proposal.proposed}</p>
+                              )
+                            )}
+                            {proposal.reason && action !== 'reject' && (
+                              <p className="mt-1 text-[10.5px] text-indigo-500 italic">💡 {proposal.reason}</p>
+                            )}
+                          </div>
+                        );
+                      })}
+                    </div>
+
+                    {/* Apply button */}
+                    <button
+                      type="button"
+                      onClick={applyAiChanges}
+                      disabled={aiApplyLoading}
+                      className="w-full inline-flex items-center justify-center gap-2 rounded-lg bg-gradient-to-r from-purple-600 to-indigo-600 px-4 py-2.5 text-[13px] font-bold text-white shadow hover:from-purple-700 hover:to-indigo-700 disabled:opacity-60 transition-all cursor-pointer"
+                    >
+                      {aiApplyLoading
+                        ? <><Loader2 className="h-4 w-4 animate-spin" /> Applying…</>
+                        : <><CheckCircle2 className="h-4 w-4" /> Apply approved changes to my resume</>}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => { setAiProposals(null); setAiReviewOpen(false); }}
+                      className="w-full text-[11px] font-semibold text-purple-500 hover:text-purple-700 transition-colors cursor-pointer py-1"
+                    >
+                      Skip AI improvements and use my original resume
+                    </button>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Applied confirmation */}
+            {aiApplied && (
+              <div className="mb-4 flex items-center gap-3 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3">
+                <CheckCircle2 className="h-5 w-5 text-emerald-600 shrink-0" />
+                <p className="text-small font-bold text-emerald-800">
+                  AI improvements applied — your resume has been updated for better ATS scoring.
+                </p>
+                <button type="button" onClick={() => setAiApplied(false)} className="ml-auto text-emerald-500 hover:text-emerald-700">
+                  <X className="h-4 w-4" />
+                </button>
+              </div>
+            )}
+
             {loadedFromProfile && uploadBannerOpen && (
               <div className="mb-6 flex items-start justify-between gap-3 rounded-xl border border-emerald-200 bg-emerald-50 p-4">
                 <div>
