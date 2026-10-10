@@ -84,7 +84,7 @@ export function OptimizationReport({ report, onRevert, onAddSkill, onDismiss }) 
   const [reverted, setReverted] = useState({});
   if (!report) return null;
 
-  const { scores, keywords, changelog = [], warnings = [], remaining, mode, disclaimer, engineNote, rejections = [], considered } = report;
+  const { scores, keywords, changelog = [], warnings = [], remaining, mode, disclaimer, engineNote, rejections = [], considered, keywordSource, targetRole } = report;
   const before = scores?.before;
   const after = scores?.after;
   const jobMode = mode === 'job-matched';
@@ -106,7 +106,11 @@ export function OptimizationReport({ report, onRevert, onAddSkill, onDismiss }) 
                   : 'Your resume was already well written — no rewording was needed'}
             </p>
             <p className="text-[11.5px] text-purple-700">
-              {jobMode ? 'Matched to the job description you pasted.' : 'General ATS optimization — not matched to a specific job. Paste a job description to see how well you match it and which of its keywords you can add.'}{' '}
+              {keywordSource === 'typical-role'
+                ? `Matched to a typical ${targetRole || 'job'} posting written by AI from your profession — not a real job. Keywords your experience already supports were used; the rest are listed as gaps. Paste a real job description for exact matching.`
+                : jobMode
+                  ? 'Matched to the job description you pasted.'
+                  : 'General ATS optimization — not matched to a specific job. Paste a job description to see how well you match it and which of its keywords you can add.'}{' '}
               {visibleChanges.length > 0
                 ? 'Review and edit anything, then download.'
                 : rejections.length > 0

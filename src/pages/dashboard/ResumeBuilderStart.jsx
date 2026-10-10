@@ -9,6 +9,7 @@ import { Button } from '../../components/ui/Button.jsx';
 import { ConsentCheckbox } from '../../components/ui/ConsentCheckbox.jsx';
 import { careerService } from '../../services/careerService.js';
 import { BUILDER_IMPORT_KEY } from '../../utils/resumeToBuilder.js';
+import { describeOptimizeError } from '../../utils/optimizeErrors.js';
 import { cn } from '../../utils/cn.js';
 import { useAuth } from '../../context/AuthContext.jsx';
 import { draftKey } from '../ResumeWizard.jsx';
@@ -30,21 +31,6 @@ function forOptimize(resume) {
   delete r._confidence;
   if (r._source && (r._source.rawText || '').length > MAX_RAW_TEXT_FOR_VERIFY) r._source = { ...r._source, rawText: '' };
   return r;
-}
-
-function describeOptimizeError(err) {
-  const status = err?.response?.status ?? err?.status;
-  if (err?.code === 'ERR_CANCELED' || err?.name === 'CanceledError') return 'Optimization was cancelled.';
-  // The API layer rewrites a browser timeout as "That took too long…", which
-  // has no "timeout" in it — match that wording too, or a slow AI shows up as
-  // a vague "unavailable".
-  if (err?.code === 'ECONNABORTED' || /time(?:d)?[\s-]?out|took too long/i.test(err?.message || '')) {
-    return 'The AI is slower than usual right now, so this took too long. Your resume has not been changed. Press Try again — it usually works on the next attempt.';
-  }
-  if (status === 429) return 'Too many requests right now. Wait a minute and try again.';
-  if (status === 401 || status === 403) return 'Your session has expired. Sign in again to use AI optimization.';
-  if (status === 400 || status === 422) return err?.response?.data?.message || 'We could not process this resume for optimization.';
-  return 'AI optimization is unavailable right now. Your resume has not been changed.';
 }
 
 /**

@@ -196,6 +196,64 @@ export function resumeToWizard(r = {}) {
   return w;
 }
 
+/* How common skills are properly written. Keywords arrive in lower case
+   ("aws", "typescript"); a resume should show "AWS" and "TypeScript". */
+const SKILL_STYLE = {
+  aws: 'AWS', gcp: 'GCP', sql: 'SQL', nosql: 'NoSQL', ios: 'iOS', api: 'API', apis: 'APIs', 'rest apis': 'REST APIs', 'rest api': 'REST API',
+  typescript: 'TypeScript', javascript: 'JavaScript', 'node.js': 'Node.js', nodejs: 'Node.js', react: 'React', 'react.js': 'React.js', mongodb: 'MongoDB',
+  postgresql: 'PostgreSQL', mysql: 'MySQL', graphql: 'GraphQL', github: 'GitHub', gitlab: 'GitLab', 'ci/cd': 'CI/CD', html5: 'HTML5', css3: 'CSS3',
+  devops: 'DevOps', 'power bi': 'Power BI', kubernetes: 'Kubernetes', docker: 'Docker', git: 'Git', figma: 'Figma', excel: 'Excel', 'ms excel': 'MS Excel',
+};
+
+/** A keyword from the ATS report, written the way it would appear on a resume. */
+export function displaySkill(term) {
+  const v = t(term);
+  if (!v) return '';
+  const key = v.toLowerCase();
+  if (SKILL_STYLE[key]) return SKILL_STYLE[key];
+  if (v !== key) return v; // already has the candidate's own capitals
+  if (/^[a-z]{2,3}$/.test(v)) return v.toUpperCase(); // short acronyms
+  return v.replace(/(^|[\s/-])([a-z])/g, (_, a, c) => a + c.toUpperCase());
+}
+
+/**
+ * Puts the AI-optimised resume (backend schema) back into the wizard form.
+ *
+ * Only WORDING and ORDER can change here:
+ *  - the summary and each job's bullet points (same jobs, same count),
+ *  - the order of the skills (most relevant first) — a skill is never added,
+ *  - the profession, only when the candidate left it empty.
+ * Contact details, name, employers, titles, dates, education, extras and
+ * the chosen template are never touched.
+ */
+export function applyOptimizedToWizard(prev, optimized) {
+  const opt = resumeToWizard(optimized || {});
+  const next = { ...prev };
+
+  if (t(opt.summary)) next.summary = opt.summary;
+
+  next.personal = { ...prev.personal, profession: t(prev.personal?.profession) || opt.personal.profession || '' };
+
+  // Bullets: replace a job's list only when the optimiser returned the same
+  // number of points for the same position — otherwise keep what was typed.
+  next.experience = (prev.experience || []).map((job, i) => {
+    const o = opt.experience[i];
+    const same = o && t(o.title) === t(job.title) && t(o.company) === t(job.company);
+    return same && o.bullets.length === (job.bullets || []).filter(Boolean).length ? { ...job, bullets: o.bullets } : job;
+  });
+
+  // Skills: reorder only. Anything the optimiser returns that the candidate
+  // did not list is ignored; anything it left out stays at the end.
+  const mine = new Map((prev.skills || []).map((x) => [String(x).toLowerCase(), x]));
+  const ordered = [];
+  opt.skills.forEach((x) => {
+    const key = String(x).toLowerCase();
+    if (mine.has(key) && !ordered.some((o) => o.toLowerCase() === key)) ordered.push(mine.get(key));
+  });
+  next.skills = [...ordered, ...(prev.skills || []).filter((x) => !ordered.some((o) => o.toLowerCase() === String(x).toLowerCase()))];
+  return next;
+}
+
 /** Wizard → Resume Builder form state (what the templates render). */
 export const wizardToBuilder = (w) => resumeToBuilder(wizardToResume(w));
 

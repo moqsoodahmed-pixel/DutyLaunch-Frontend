@@ -15,10 +15,11 @@ import { studioService, errMsg } from '../services/studioService.js';
 import { careerService } from '../services/careerService.js';
 import { TEMPLATES } from '../data/resumeTemplates.js';
 import { ROLE_EXAMPLES, POPULAR_TITLES, findRoleExamples, DEGREES, LANGUAGE_LEVELS, CERTIFICATION_PATTERNS, EXTRA_SECTIONS } from '../data/resumeExamples.js';
-import { emptyWizard, emptyJob, emptySchool, resumeToWizard, wizardToResume, wizardToBuilder, completeness } from '../utils/wizardResume.js';
+import { emptyWizard, emptyJob, emptySchool, resumeToWizard, wizardToResume, wizardToBuilder, completeness, applyOptimizedToWizard, displaySkill } from '../utils/wizardResume.js';
 import { BUILDER_IMPORT_KEY } from '../utils/resumeToBuilder.js';
 import { BUILDER_AI_OPTIMIZE_KEY, BUILDER_AI_REPORT_KEY } from './dashboard/ResumeBuilderStart.jsx';
 import { OptimizationReport } from '../components/cv/OptimizationReport.jsx';
+import { AtsReviewStep } from '../components/cv/AtsReviewStep.jsx';
 import { buildTemplateData } from '../utils/templateData.js';
 import { printResumeSheet } from '../utils/printResume.js';
 import { cn } from '../utils/cn.js';
@@ -37,6 +38,7 @@ const STEPS = [
   { id: 'skills', label: 'Skills' },
   { id: 'summary', label: 'Summary' },
   { id: 'extras', label: 'Anything else' },
+  { id: 'ats', label: 'ATS review' },
   { id: 'template', label: 'Choose template' },
   { id: 'download', label: 'Download' },
 ];
@@ -418,7 +420,7 @@ export default function ResumeWizard() {
 
   /** Adds a skill the candidate has explicitly confirmed they have. */
   function addConfirmedSkill(term) {
-    const skill = String(term || '').trim();
+    const skill = displaySkill(term);
     if (!skill) return false;
     setW((prev) => ((prev.skills || []).some((x) => x.toLowerCase() === skill.toLowerCase())
       ? prev
@@ -443,6 +445,48 @@ export default function ResumeWizard() {
       return restored ? next : prev;
     });
     return true;
+  }
+
+  /* ---------- ATS review (resume built from scratch) ---------- */
+  // What the form looked like before the AI changed it, so every change can
+  // be undone. Only wording and order are ever replaced (see
+  // applyOptimizedToWizard), so only those are remembered.
+  const wRef = useRef(w);
+  wRef.current = w;
+  const [aiSnapshot, setAiSnapshot] = useState(null);
+  const [atsAutoDone, setAtsAutoDone] = useState(false);
+
+  function handleAtsResult({ optimizedResume, pending, report }) {
+    const before = wRef.current;
+    setAiSnapshot({
+      summary: before.summary,
+      profession: before.personal?.profession || '',
+      skills: [...(before.skills || [])],
+      jobs: (before.experience || []).map((j) => ({ id: j.id, bullets: [...(j.bullets || [])] })),
+    });
+    setW((prev) => applyOptimizedToWizard(prev, optimizedResume));
+    setAiReport(report);
+    setAiProposals(pending?.length ? { proposals: pending, engineNote: report.engineNote } : null);
+    setAiApplied(false);
+    setAiDecisions({});
+  }
+
+  function undoAtsChanges() {
+    if (!aiSnapshot) return;
+    const snap = aiSnapshot;
+    setW((prev) => ({
+      ...prev,
+      summary: snap.summary,
+      personal: { ...prev.personal, profession: snap.profession },
+      skills: snap.skills,
+      experience: (prev.experience || []).map((j) => {
+        const old = snap.jobs.find((x) => x.id === j.id);
+        return old ? { ...j, bullets: old.bullets } : j;
+      }),
+    }));
+    setAiReport(null);
+    setAiProposals(null);
+    setAiSnapshot(null);
   }
 
   async function applyAiChanges() {
@@ -1165,7 +1209,7 @@ export default function ResumeWizard() {
         )}
         {x.on.additional && <Textarea label="Additional information" rows={4} value={x.additional} onChange={(e) => setExtras({ additional: e.target.value })} placeholder="e.g. Willing to relocate · Two-wheeler licence" />}
       </div>
-      <NavRow onPreview={handlePreview} previewLocked={!previewReady} nextLabel="Next: Choose template" onNext={next} />
+      <NavRow onPreview={handlePreview} previewLocked={!previewReady} nextLabel="Next: ATS review" onNext={next} />
     </>
   );
 
@@ -1317,7 +1361,35 @@ export default function ResumeWizard() {
     </>
   );
 
-  const screens = { heading, work, education, skills, summary, extras, template, download };
+  // --- 7. ATS review: analyse everything, rewrite with ATS keywords ---
+  const hasContentToOptimize =
+    (w.experience || []).some((j) => (j.bullets || []).some((b) => String(b || '').trim().length > 12)) || String(w.summary || '').trim().length > 30;
+  const ats = (
+    <>
+      <StepTitle
+        title="ATS review"
+        lead="We analyse everything you entered and rewrite it with ATS-friendly wording and keywords — using only what your own experience supports."
+        onBack={back}
+      />
+      <AtsReviewStep
+        resume={wizardToResume(w)}
+        autoRun={!atsAutoDone && !fromUpload && !aiReport && hasContentToOptimize}
+        onRunStart={() => setAtsAutoDone(true)}
+        onResult={handleAtsResult}
+        onUndo={undoAtsChanges}
+        canUndo={Boolean(aiSnapshot)}
+        hasResult={Boolean(aiReport)}
+      />
+      {aiReport && (
+        <div className="mt-6">
+          <OptimizationReport report={aiReport} onRevert={revertReportChange} onAddSkill={addConfirmedSkill} onDismiss={() => setAiReport(null)} />
+        </div>
+      )}
+      <NavRow nextLabel="Next: Choose template" onNext={next} />
+    </>
+  );
+
+  const screens = { heading, work, education, skills, summary, extras, ats, template, download };
 
   if (profileLoading && !fromUpload) {
     return (
@@ -1416,7 +1488,7 @@ export default function ResumeWizard() {
               </p>
             )}
             {/* ── OPTIMIZED DRAFT: what the automatic optimization did ── */}
-            {aiReport && (
+            {aiReport && step !== 'ats' && (
               <OptimizationReport report={aiReport} onRevert={revertReportChange} onAddSkill={addConfirmedSkill} onDismiss={() => setAiReport(null)} />
             )}
             {/* ── AI OPTIMIZATION REVIEW PANEL ── */}
@@ -1595,7 +1667,7 @@ export default function ResumeWizard() {
                 </button>
               </div>
             )}
-            {!loadedFromProfile && uploadBannerOpen && FILL_STEPS.concat('extras', 'template', 'download').includes(step) && (
+            {!loadedFromProfile && uploadBannerOpen && FILL_STEPS.concat('extras', 'ats', 'template', 'download').includes(step) && (
               <div className="mb-6 rounded-xl border border-emerald-200 bg-emerald-50 p-4">
                 <div className="flex items-start justify-between gap-3">
                   <div>
