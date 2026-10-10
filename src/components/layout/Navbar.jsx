@@ -150,25 +150,30 @@ export function Navbar() {
             scrolled ? 'max-w-[74rem]' : 'max-w-[80rem]'
           )}
         >
-          {/* Edge Lighting Glow Aura — continuous edge lighting visible on every section */}
+          {/* Edge Lighting Glow Aura — continuous edge lighting visible on every
+              section. Retuned to the new indigo-violet dark-section palette
+              (was a vivid cyan/blue, left over from before that redesign and
+              no longer matching it) and toned down for a subtler, more
+              premium feel rather than a loud blue glow. */}
           <div
-            className="pointer-events-none absolute -inset-1 rounded-full opacity-70 blur-md transition-all duration-300"
+            className="pointer-events-none absolute -inset-1 rounded-full opacity-50 blur-md transition-all duration-300"
             style={{
               background: isDarkNavbar
-                ? 'linear-gradient(90deg, rgba(56,189,248,0.5), rgba(129,140,248,0.45), rgba(56,189,248,0.5))'
-                : 'linear-gradient(90deg, rgba(79,193,230,0.45), rgba(96,165,250,0.45), rgba(169,140,234,0.4), rgba(79,193,230,0.45))',
+                ? 'linear-gradient(90deg, rgba(109,74,232,0.4), rgba(169,140,234,0.35), rgba(109,74,232,0.4))'
+                : 'linear-gradient(90deg, rgba(109,74,232,0.3), rgba(169,140,234,0.3), rgba(79,193,230,0.25), rgba(109,74,232,0.3))',
             }}
             aria-hidden="true"
           />
 
-          {/* Continuous rotating edge-light perimeter border */}
+          {/* Continuous rotating edge-light perimeter border — same retune:
+              the sweep now resolves through violet instead of cyan/blue. */}
           <div className="pointer-events-none absolute -inset-[1.5px] rounded-full p-[1.5px] overflow-hidden" aria-hidden="true">
             <div
-              className="absolute -inset-[200%] opacity-90 animate-edge-orbit"
+              className="absolute -inset-[200%] opacity-80 animate-edge-orbit"
               style={{
                 background: isDarkNavbar
-                  ? 'conic-gradient(from 0deg, transparent 0deg, transparent 200deg, rgba(56,189,248,0.8) 260deg, rgba(169,140,234,0.95) 310deg, #ffffff 350deg, transparent 360deg)'
-                  : 'conic-gradient(from 0deg, transparent 0deg, transparent 200deg, rgba(56,189,248,0.75) 260deg, rgba(43,114,212,0.9) 310deg, #ffffff 350deg, transparent 360deg)',
+                  ? 'conic-gradient(from 0deg, transparent 0deg, transparent 200deg, rgba(109,74,232,0.75) 260deg, rgba(169,140,234,0.9) 310deg, #ffffff 350deg, transparent 360deg)'
+                  : 'conic-gradient(from 0deg, transparent 0deg, transparent 200deg, rgba(109,74,232,0.6) 260deg, rgba(90,56,214,0.85) 310deg, #ffffff 350deg, transparent 360deg)',
               }}
             />
           </div>

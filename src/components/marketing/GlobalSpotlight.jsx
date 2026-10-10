@@ -110,7 +110,9 @@ export function GlobalSpotlight() {
                 whileInView={{ opacity: 1, x: 0 }}
                 viewport={{ once: true, amount: 0.4 }}
                 transition={{ duration: 0.55, delay: op.delay, ease }}
-                className="flex items-center justify-between gap-4 rounded-xl border border-white/10 bg-ink-800/60 p-4 shadow-crystal-lg backdrop-blur-xl transition-colors duration-200 hover:border-frost-300/40 sm:p-5"
+                // Was bg-ink-800/60 — matched to the new indigo-violet
+                // dark-section colour (.surface-dark in index.css).
+                className="flex items-center justify-between gap-4 rounded-xl border border-white/10 bg-[#241B42]/60 p-4 shadow-crystal-lg backdrop-blur-xl transition-colors duration-200 hover:border-frost-300/40 sm:p-5"
               >
                 <div className="flex items-center gap-3.5">
                   <span className="grid h-11 w-11 shrink-0 place-items-center rounded-full border border-frost-300/20 bg-frost-400/10">

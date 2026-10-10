@@ -28,7 +28,9 @@ export function TestimonialStrip({ tone = 'dark' }) {
               key={item._id}
               className={`flex flex-col rounded-xl p-6 ${
                 dark
-                  ? 'border border-white/10 bg-ink-800/80 text-white backdrop-blur-md'
+                  // Was bg-ink-800/80 — matched to the new indigo-violet
+                  // dark-section colour (.surface-dark in index.css).
+                  ? 'border border-white/10 bg-[#241B42]/80 text-white backdrop-blur-md'
                   : 'border border-line bg-white'
               }`}
             >

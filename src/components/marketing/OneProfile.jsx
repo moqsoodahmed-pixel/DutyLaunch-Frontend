@@ -51,7 +51,10 @@ export function OneProfile() {
               className="pointer-events-none absolute left-1/2 top-1/2 h-[26rem] w-[26rem] -translate-x-1/2 -translate-y-1/2 rounded-full bg-gradient-to-br from-frost-400/20 via-aurora-400/20 to-azure-500/20 blur-3xl"
               aria-hidden
             />
-            <div className="relative mx-auto max-w-md rounded-2xl border border-white/10 bg-ink-800/80 p-5 shadow-crystal-lg backdrop-blur-xl transition-transform duration-300 hover:-translate-y-1 sm:p-6 text-white">
+            {/* Was bg-ink-800/80 — matched to the new indigo-violet
+                dark-section colour (.surface-dark in index.css) this card
+                sits inside, same reasoning as Hero.jsx. */}
+            <div className="relative mx-auto max-w-md rounded-2xl border border-white/10 bg-[#241B42]/80 p-5 shadow-crystal-lg backdrop-blur-xl transition-transform duration-300 hover:-translate-y-1 sm:p-6 text-white">
               <div className="flex items-center gap-4">
                 <span className="grid h-14 w-14 shrink-0 place-items-center rounded-full bg-gradient-to-br from-frost-500 via-azure-500 to-aurora-500 text-lead font-extrabold text-white shadow-crystal">
                   DS

@@ -90,7 +90,14 @@ export default function HigherEducation() {
               <RevealItem
                 as="li"
                 key={stage.stage}
-                className="bg-ink-800 p-5 transition-colors duration-200 hover:bg-ink-700"
+                // Was bg-ink-800/hover:bg-ink-700 — the section wrapping
+                // these cards (tone="ink" above) already shows the new
+                // indigo-violet dark-section colour, but these cards still
+                // used the old shared navy token directly, creating a
+                // mismatch between the section and the cards inside it.
+                // Matched to the same #241B42 as that section, with a
+                // lighter variant for hover feedback.
+                className="bg-[#241B42] p-5 transition-colors duration-200 hover:bg-[#332755]"
               >
                 <span className="tabular text-caption font-bold text-azure-500">0{i + 1}</span>
                 <h3 className="mt-2 text-body font-bold text-white">{stage.stage}</h3>

@@ -23,7 +23,9 @@ export function AiAssistantPreview() {
       <Container>
         <div className="grid gap-10 lg:grid-cols-12 lg:items-center">
           <Reveal className="lg:col-span-5">
-            <p className="inline-flex items-center gap-2 rounded-full border border-white/25 bg-ink-900/70 px-3 py-1 text-caption font-bold uppercase tracking-wider text-frost-200 shadow-lg backdrop-blur">
+            {/* Was bg-ink-900/70 — matched to the new dark-section palette's
+                deeper shade (.seam-tone-ink900 in index.css). */}
+            <p className="inline-flex items-center gap-2 rounded-full border border-white/25 bg-[#160F29]/70 px-3 py-1 text-caption font-bold uppercase tracking-wider text-frost-200 shadow-lg backdrop-blur">
               <Sparkles className="h-3.5 w-3.5" aria-hidden />
               DutyLaunch AI Career Assistant
             </p>
@@ -79,7 +81,9 @@ export function AiAssistantPreview() {
                   <span className={`grid h-8 w-8 shrink-0 place-items-center rounded-full ${AI_GRADIENT} text-white shadow-glow`}>
                     <Sparkles className="h-3.5 w-3.5" aria-hidden />
                   </span>
-                  <div className="max-w-[85%] rounded-xl border border-white/10 bg-ink-900/60 px-4 py-3 text-small leading-relaxed text-slate-100">
+                  {/* Was bg-ink-900/60 — matched to the new dark-section
+                      palette's deeper shade (.seam-tone-ink900 in index.css). */}
+                  <div className="max-w-[85%] rounded-xl border border-white/10 bg-[#160F29]/60 px-4 py-3 text-small leading-relaxed text-slate-100">
                     Based on your current profile, you already have strong operations experience. Your
                     profile could be strengthened by improving analytics skills and adding a relevant
                     management qualification depending on the roles you are targeting.
