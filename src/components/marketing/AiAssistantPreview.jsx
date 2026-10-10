@@ -23,7 +23,7 @@ export function AiAssistantPreview() {
       <Container>
         <div className="grid gap-10 lg:grid-cols-12 lg:items-center">
           <Reveal className="lg:col-span-5">
-            <p className="inline-flex items-center gap-2 rounded-full border border-frost-300/60 bg-[#160F29] px-3 py-1 text-caption font-bold uppercase tracking-wider text-frost-100 shadow-lg">
+            <p className="inline-flex items-center gap-2 rounded-full border border-frost-300/60 bg-night-deep px-3 py-1 text-caption font-bold uppercase tracking-wider text-frost-100 shadow-lg">
               <Sparkles className="h-3.5 w-3.5" aria-hidden />
               DutyLaunch AI Career Assistant
             </p>
@@ -79,7 +79,7 @@ export function AiAssistantPreview() {
                   <span className={`grid h-8 w-8 shrink-0 place-items-center rounded-full ${AI_GRADIENT} text-white shadow-glow`}>
                     <Sparkles className="h-3.5 w-3.5" aria-hidden />
                   </span>
-                  <div className="max-w-[85%] rounded-xl border border-[#5B4FB0] bg-[#1B1238] px-4 py-3 text-small leading-relaxed text-white">
+                  <div className="max-w-[85%] rounded-xl border border-night-line bg-night-card px-4 py-3 text-small leading-relaxed text-white">
                     Based on your current profile, you already have strong operations experience. Your
                     profile could be strengthened by improving analytics skills and adding a relevant
                     management qualification depending on the roles you are targeting.

@@ -30,7 +30,7 @@ export function MegaMenu({ menuIds, onNavigate, anchorLeft = 0, onMouseEnter, on
       onMouseLeave={onMouseLeave}
       className="absolute top-full z-50 pt-2"
     >
-      <div className="w-[min(36rem,calc(100vw-2rem))] overflow-hidden rounded-2xl border-2 border-azure-200 bg-white shadow-[0_18px_44px_-10px_rgba(36,27,66,0.45)]">
+      <div className="w-[min(36rem,calc(100vw-2rem))] overflow-hidden rounded-2xl border-2 border-azure-200 bg-white shadow-[0_18px_44px_-10px_rgba(5,8,14,0.45)]">
         <div className={`grid gap-6 p-5 sm:p-6 ${single ? '' : 'md:grid-cols-2'}`}>
           {groups.map((group) => {
             const Icon = Icons[group.icon] || Icons.Circle;

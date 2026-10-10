@@ -73,7 +73,7 @@ export default function AuthLayout() {
         </div>
       </div>
 
-      <aside className="relative hidden overflow-hidden bg-ink-900 px-12 py-16 text-white lg:flex lg:flex-col">
+      <aside className="relative hidden overflow-hidden bg-night-base px-12 py-16 text-white lg:flex lg:flex-col">
         {/* Blurred city-lights photo as a faint base layer, under the grid and
             glow. The navy gradient on top keeps the white copy at full
             contrast. loading="lazy" matters here: this panel is display:none
@@ -92,7 +92,7 @@ export default function AuthLayout() {
         />
         )}
         <div
-          className="pointer-events-none absolute inset-0 bg-gradient-to-b from-ink-900/70 via-ink-900/55 to-ink-900/90"
+          className="pointer-events-none absolute inset-0 bg-gradient-to-b from-black/60 via-black/45 to-black/80"
           aria-hidden
         />
         {/* Faint grid + radial mask, same treatment used on the dark marketing

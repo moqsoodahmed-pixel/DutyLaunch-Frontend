@@ -47,7 +47,7 @@ export function OneProfile() {
           </div>
 
           <div className="relative min-w-0 lg:col-span-6">
-            <div className="relative mx-auto max-w-md rounded-2xl border-2 border-[#5B4FB0] bg-[#1B1238] p-5 shadow-[0_24px_60px_-18px_rgba(0,0,0,0.7)] transition-transform duration-300 hover:-translate-y-1 sm:p-6 text-white">
+            <div className="relative mx-auto max-w-md rounded-2xl border-2 border-night-line bg-night-card p-5 shadow-[0_24px_60px_-18px_rgba(0,0,0,0.7)] transition-transform duration-300 hover:-translate-y-1 sm:p-6 text-white">
               <div className="flex items-center gap-4">
                 <span className="grid h-14 w-14 shrink-0 place-items-center rounded-full bg-gradient-to-br from-[#0E7FB8] via-[#2557C9] to-[#6A47D9] text-lead font-extrabold text-white shadow-[0_4px_12px_rgba(0,0,0,0.5)]">
                   DS
@@ -62,7 +62,7 @@ export function OneProfile() {
                 {['Marketing Strategy', 'Content Marketing', 'SEO', 'Analytics'].map((s) => (
                   <span
                     key={s}
-                    className="rounded-full border border-frost-300/60 bg-[#2E2160] px-2.5 py-1 text-caption font-semibold text-white"
+                    className="rounded-full border border-frost-300/60 bg-night-chip px-2.5 py-1 text-caption font-semibold text-white"
                   >
                     {s}
                   </span>

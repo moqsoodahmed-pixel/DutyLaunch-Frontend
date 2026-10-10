@@ -1,13 +1,12 @@
-import { useRef } from 'react';
+import { useMemo, useRef } from 'react';
 import { motion, useScroll, useTransform } from 'framer-motion';
 import { Sparkles } from 'lucide-react';
 import { usePrefersReducedMotion } from '../../hooks/useMediaQuery.js';
 
 /**
  * TransformationHorizon: Scroll-linked dynamic transformation bridge between
- * daylight ServiceMatrix (#F1F6FC) and the deep indigo-violet dark-section
- * colour (#241B42 — see .surface-dark / .seam-tone-ink in index.css, which
- * this must match since it bridges into that same colour family).
+ * daylight ServiceMatrix (#F1F6FC) and the site's dark-section colour
+ * (--night-base in index.css).
  *
  * As the user scrolls through, the background color dynamically interpolates
  * so the transition feels completely seamless and organic:
@@ -25,21 +24,21 @@ export function TransformationHorizon({
     offset: ['start end', 'end start'],
   });
 
-  // Dynamic continuous background color interpolation.
-  // Midpoint (#4A3875) sits between the light start and the new
-  // indigo-violet end colour, in the same hue family — the old #2B4D87 was
-  // a blue midtone matching the previous navy end colour and would now
-  // read as an odd blue "detour" between light and indigo-violet.
-  const backgroundColor = useTransform(
-    scrollYProgress,
-    [0.2, 0.5, 0.8],
-    ['#F1F6FC', '#4A3875', '#241B42']
-  );
+  // The dark end-colour and the mid-colour come from the site palette
+  // (--night-base / --night-mid in index.css), so recolouring the site's dark
+  // sections there also recolours this scroll transition. framer-motion needs
+  // real colour strings (not var()), so the variables are read once here.
+  const [midColor, endColor] = useMemo(() => {
+    const css = typeof window !== 'undefined' ? getComputedStyle(document.documentElement) : null;
+    const read = (name, fallback) => (css?.getPropertyValue(name).trim() || fallback);
+    return [read('--night-mid', '#3C7F8C'), read('--night-base', '#06303A')];
+  }, []);
+  const backgroundColor = useTransform(scrollYProgress, [0.2, 0.5, 0.8], ['#F1F6FC', midColor, endColor]);
 
   return (
     <motion.div
       ref={containerRef}
-      style={reduceMotion ? { backgroundColor: '#241B42' } : { backgroundColor }}
+      style={reduceMotion ? { backgroundColor: endColor } : { backgroundColor }}
       className={`relative z-20 overflow-hidden py-12 sm:py-16 ${className}`}
       data-testid="transformation-horizon"
     >
@@ -62,7 +61,7 @@ export function TransformationHorizon({
             whileInView={{ opacity: 1, scale: 1, y: 0 }}
             viewport={{ once: true, amount: 0.6 }}
             transition={{ duration: 0.55, ease: [0.16, 0.84, 0.44, 1] }}
-            className="group relative flex items-center gap-2.5 rounded-full border-2 border-frost-300 bg-[#160F29] px-4 sm:px-5 py-2 shadow-[0_8px_22px_rgba(0,0,0,0.5)] transition-all duration-300 hover:border-white"
+            className="group relative flex items-center gap-2.5 rounded-full border-2 border-frost-300 bg-night-deep px-4 sm:px-5 py-2 shadow-[0_8px_22px_rgba(0,0,0,0.5)] transition-all duration-300 hover:border-white"
           >
             {/* Pulsing Transformation Beacon */}
             <span className="relative flex h-2.5 w-2.5">

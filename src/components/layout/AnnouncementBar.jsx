@@ -31,7 +31,7 @@ export function AnnouncementBar() {
     };
 
     return (
-        <div id="announcement-bar" className="relative z-40 bg-[#160F29] border-b border-[#5B4FB0] text-white print:hidden">
+        <div id="announcement-bar" className="relative z-40 bg-night-deep border-b border-night-line text-white print:hidden">
             <div className="mx-auto flex max-w-shell items-center justify-center gap-2 px-3 pr-10 sm:px-gutter sm:pr-12 py-2 text-small">
                 <Zap className="hidden h-4 w-4 shrink-0 text-frost-400 sm:block" aria-hidden />
                 <p className="min-w-0 truncate text-center">

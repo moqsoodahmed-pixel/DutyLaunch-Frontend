@@ -100,7 +100,7 @@ export function SearchModal({ onClose }) {
         exit={{ opacity: 0 }}
         transition={{ duration: 0.15 }}
         onClick={onClose}
-        className="fixed inset-0 bg-[#160F29]/60"
+        className="fixed inset-0 bg-black/60"
         aria-hidden="true"
       />
 

@@ -11,7 +11,7 @@ export function BlogCard({ post, featured = false, tone = 'light' }) {
     return (
       <article className={cn(
         "group relative grid gap-6 rounded-xl p-6 lg:grid-cols-12 lg:p-8",
-        dark ? "border border-white/10 bg-ink-800/80 text-white backdrop-blur-md" : "border border-line bg-white"
+        dark ? "border border-night-line bg-night-card text-white" : "border border-line bg-white"
       )}>
         <div className="lg:col-span-7">
           <Badge tone={dark ? "frost" : "azure"}>{post.category}</Badge>
@@ -35,7 +35,7 @@ export function BlogCard({ post, featured = false, tone = 'light' }) {
     <article className={cn(
       "group relative flex flex-col rounded-xl p-5 transition-all duration-300",
       dark
-        ? "border border-white/10 bg-ink-800/80 shadow-crystal text-white backdrop-blur-md hover:border-frost-300/40 hover:-translate-y-1"
+        ? "border border-night-line bg-night-card shadow-crystal text-white hover:border-frost-300/60 hover:-translate-y-1"
         : "border border-line bg-white hover:border-slate-300"
     )}>
       <Badge tone={dark ? "frost" : "outline"}>{post.category}</Badge>

@@ -5,6 +5,23 @@
 @layer base {
   :root {
     color-scheme: light;
+
+    /* ===== NIGHT PALETTE — "Deep Teal". Edit these to recolour every dark area ===== */
+    --night-base: #06303A;  /* dark sections */
+    --night-deep: #031E25;  /* CTA band, top bar, pills */
+    --night-card: #0A3F4C;  /* cards on dark sections */
+    --night-line: #1E7C90;  /* borders on dark surfaces */
+    --night-chip: #0F4F5F;  /* chips / tags */
+    --night-tile: #0E7490;  /* dark action-tile gradient start */
+    --night-track: #1F6E80; /* score-ring track */
+    --night-mid: #3C7F8C;   /* mid-colour of the scroll transition */
+    --night-text: #DDF3F7;  /* muted text on dark */
+    --night-glow-a: 79 193 230;   /* soft accent glow 1 (r g b) */
+    --night-glow-b: 45 212 191;   /* soft accent glow 2 (r g b) */
+
+    /* Ready-made alternatives (paste over the values above):
+       Obsidian black: base #0E1117 deep #07090D card #171C26 line #33415A chip #222B3B tile #2D3B57 track #3A4660 mid #4A5568 text #E6EAF2 glow-b 96 165 250
+       Royal ocean:    base #0A2A5E deep #061A3D card #0E3573 line #3B74D6 chip #143F8A tile #1D5DB8 track #2F63B8 mid #3C6CB0 text #E0EBFF glow-b 140 109 251 */
   }
 
   * {
@@ -110,15 +127,15 @@
   }
 
   .eyebrow-dark {
-    @apply inline-flex items-center gap-2 rounded-full border border-frost-300/60 bg-[#2E2160] px-3 py-1 text-caption font-bold uppercase tracking-wider text-white;
+    @apply inline-flex items-center gap-2 rounded-full border border-frost-300/60 bg-night-chip px-3 py-1 text-caption font-bold uppercase tracking-wider text-white;
   }
 
   /* Frosted surface for cards that sit on top of the dark/gradient sections.
      visionOS-style: real backdrop blur + saturation, a bright inner top edge
      to read as glass thickness, and a deep soft drop shadow. */
   .glass-card {
-    @apply rounded-2xl border border-[#5B4FB0];
-    background: #1B1238;
+    @apply rounded-2xl border border-night-line;
+    background: var(--night-card);
     box-shadow: 0 18px 44px -18px rgba(0, 0, 0, 0.6);
   }
 
@@ -131,7 +148,7 @@
     @apply rounded-2xl border p-6;
     border-color: #D7E4F3;
     background: #ffffff;
-    box-shadow: 0 18px 44px -22px rgba(36, 27, 66, 0.35);
+    box-shadow: 0 18px 44px -22px rgba(5, 8, 14, 0.35);
   }
 
   /* Standard content card — ported from the LauncherDesk design system: a
@@ -197,7 +214,7 @@
      sparingly: one strong dark moment per page. */
   .surface-dark {
     @apply relative overflow-hidden text-white;
-    background-color: #241B42;
+    background-color: var(--night-base);
   }
 
   .surface-dark::before {
@@ -277,21 +294,21 @@
        transition rather than a confident one; this keeps a smooth blend
        (a hard cut looked broken against the rest of this seam system) while
        making it noticeably crisper. */
-    --seam-tone: #241B42;
+    --seam-tone: var(--night-base);
     --seam-fade: 2.5rem;
   }
 
   .seam-tone-ink900 {
-    --seam-tone: #160F29;
+    --seam-tone: var(--night-deep);
     --seam-fade: 2.5rem;
   }
 
   .seam-top-dark {
-    --seam-top: #160F29;
+    --seam-top: var(--night-deep);
   }
 
   .seam-bottom-dark {
-    --seam-bottom: #160F29;
+    --seam-bottom: var(--night-deep);
   }
 
   /* Ends in the footer's own colour — used by the dark closing CTA.
@@ -502,5 +519,5 @@
 .surface-dark .text-slate-400,
 .surface-dark .text-slate-300,
 .cta-dark .text-slate-300 {
-  color: #E3E0F5 !important;
+  color: var(--night-text) !important;
 }

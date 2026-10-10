@@ -46,7 +46,7 @@ export function ProgressRing({ value = 0, max = 100, size = 88, strokeWidth = 8,
   const offset = circumference - (percent / 100) * circumference;
   const dark = tone === 'dark';
   const colors = { azure: '#1D5DB8', success: '#059669', amber: '#D97706', danger: '#DC2626' };
-  const trackColor = dark ? '#4B3C86' : '#EEF2F7';
+  const trackColor = dark ? 'var(--night-track)' : '#EEF2F7';
   const arcColor = dark ? `url(#${gradId})` : colors[tone] || colors.azure;
 
   return (
@@ -61,8 +61,8 @@ export function ProgressRing({ value = 0, max = 100, size = 88, strokeWidth = 8,
           </defs>
         )}
         {/* Solid disc behind the digits so nothing from the card shows through. */}
-        {dark && <circle cx={size / 2} cy={size / 2} r={radius - strokeWidth / 2} fill="#241B42" />}
-        <circle cx={size / 2} cy={size / 2} r={radius} stroke={trackColor} strokeWidth={strokeWidth} fill="none" />
+        {dark && <circle cx={size / 2} cy={size / 2} r={radius - strokeWidth / 2} style={{ fill: 'var(--night-base)' }} />}
+        <circle cx={size / 2} cy={size / 2} r={radius} style={{ stroke: trackColor }} strokeWidth={strokeWidth} fill="none" />
         <circle
           cx={size / 2}
           cy={size / 2}

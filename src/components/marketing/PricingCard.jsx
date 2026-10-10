@@ -64,7 +64,7 @@ export function PricingCard({ pkg, highlighted, onSelect, tone = 'light' }) {
           featured
             ? 'bg-btn-grad text-white'
             : darkTone
-              ? 'border-2 border-[#5B4FB0] bg-[#1B1238] text-white'
+              ? 'border-2 border-night-line bg-night-card text-white'
               : 'border border-white/80 bg-white/95 group-hover:bg-white'
         )}
       >

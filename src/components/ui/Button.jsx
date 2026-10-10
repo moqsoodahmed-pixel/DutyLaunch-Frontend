@@ -16,7 +16,7 @@ const variants = {
   primary:
     'bg-btn-grad text-white shadow-blue ring-1 ring-inset ring-white/15 hover:brightness-105 hover:ring-white/30 hover:shadow-[0_16px_40px_-8px_rgba(29,93,184,0.7)] focus-visible:outline focus-visible:outline-[3px] focus-visible:outline-azure-300 focus-visible:outline-offset-2',
   secondary:
-    'bg-ink-800 text-white shadow-lift ring-1 ring-inset ring-white/10 hover:bg-ink-700 hover:brightness-110 hover:ring-white/20 hover:shadow-[0_14px_34px_-10px_rgba(22,15,41,0.75)]',
+    'bg-ink-800 text-white shadow-lift ring-1 ring-inset ring-white/10 hover:bg-ink-700 hover:brightness-110 hover:ring-white/20 hover:shadow-[0_14px_34px_-10px_rgba(5,8,14,0.75)]',
   outline:
     'border-[1.5px] border-azure-400 bg-azure-50/90 text-azure-800 hover:border-azure-500 hover:bg-azure-100 hover:text-azure-900 hover:shadow-[0_10px_26px_-10px_rgba(29,93,184,0.5)]',
   quiet:
@@ -32,7 +32,7 @@ const variants = {
   /* Glacier premium variant: frost→aurora gradient, glow shadow, and a
      shimmer sweep on hover matching official Analyze My Resume Free button. */
   premium:
-    'bg-gradient-to-r from-[#0E7FB8] via-[#2557C9] to-[#6A47D9] text-white border border-white/30 shadow-[0_6px_16px_-4px_rgba(22,15,41,0.55)] hover:brightness-110 hover:shadow-[0_10px_24px_-6px_rgba(22,15,41,0.65)] focus-visible:outline focus-visible:outline-[3px] focus-visible:outline-frost-400 focus-visible:outline-offset-2',
+    'bg-gradient-to-r from-[#0E7FB8] via-[#2557C9] to-[#6A47D9] text-white border border-white/30 shadow-[0_6px_16px_-4px_rgba(5,8,14,0.55)] hover:brightness-110 hover:shadow-[0_10px_24px_-6px_rgba(5,8,14,0.65)] focus-visible:outline focus-visible:outline-[3px] focus-visible:outline-frost-400 focus-visible:outline-offset-2',
 };
 
 

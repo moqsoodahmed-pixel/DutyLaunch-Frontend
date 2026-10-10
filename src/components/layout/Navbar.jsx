@@ -14,7 +14,7 @@ import { cn } from '../../utils/cn.js';
 /* Shared style for the round glass icon buttons on the right of the pill —
    with smooth lift, scale 1.04, neon glow, and 250ms transitions matching Analyze button colors. */
 const iconBtn =
-  'group/icon dl-glass-btn grid h-9 w-9 shrink-0 cursor-pointer place-items-center rounded-full border border-cyan-400/50 bg-white text-ink shadow-[0_2px_8px_rgba(22,15,41,0.35)] transition-all duration-[250ms] ease-out hover:-translate-y-0.5 hover:scale-[1.06] hover:border-cyan-400 hover:text-azure hover:bg-gradient-to-r hover:from-frost-50 hover:via-azure-50/60 hover:to-aurora-50 hover:shadow-[0_0_22px_rgba(56,189,248,0.7),0_0_35px_rgba(169,140,234,0.5)] active:scale-95 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-frost-400 [&>svg]:transition-colors [&>svg]:duration-[250ms] group-hover/icon:[&>svg]:text-azure';
+  'group/icon dl-glass-btn grid h-9 w-9 shrink-0 cursor-pointer place-items-center rounded-full border border-cyan-400/50 bg-white text-ink shadow-[0_2px_8px_rgba(5,8,14,0.35)] transition-all duration-[250ms] ease-out hover:-translate-y-0.5 hover:scale-[1.06] hover:border-cyan-400 hover:text-azure hover:bg-gradient-to-r hover:from-frost-50 hover:via-azure-50/60 hover:to-aurora-50 hover:shadow-[0_0_22px_rgba(56,189,248,0.7),0_0_35px_rgba(169,140,234,0.5)] active:scale-95 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-frost-400 [&>svg]:transition-colors [&>svg]:duration-[250ms] group-hover/icon:[&>svg]:text-azure';
 
 export function Navbar() {
   const [openMenu, setOpenMenu] = useState(null);
@@ -168,16 +168,16 @@ export function Navbar() {
               'relative flex h-14 w-full items-center gap-2 sm:gap-3 rounded-full px-2.5 sm:px-3 pl-3.5 sm:pl-4 transition-all duration-300 lg:h-[3.75rem] lg:pl-5 xl:gap-5',
               isDarkNavbar
                 ? scrolled
-                  ? 'border border-cyan-400/70 bg-[#160F29] shadow-[0_14px_36px_rgba(0,0,0,0.75)]'
-                  : 'border border-cyan-400/60 bg-[#160F29] shadow-[0_14px_36px_-8px_rgba(0,0,0,0.65)]'
+                  ? 'border border-cyan-400/70 bg-night-deep shadow-[0_14px_36px_rgba(0,0,0,0.75)]'
+                  : 'border border-cyan-400/60 bg-night-deep shadow-[0_14px_36px_-8px_rgba(0,0,0,0.65)]'
                 : scrolled
-                  ? 'border-2 border-azure-400 bg-white shadow-[0_12px_32px_-6px_rgba(36,27,66,0.55)] ring-1 ring-[#241B42]/15'
+                  ? 'border-2 border-azure-400 bg-white shadow-[0_12px_32px_-6px_rgba(5,8,14,0.55)] ring-1 ring-black/15'
                   // FIX: this used `bg-white/98`, which is NOT a valid Tailwind opacity
                   // step, so no background was generated at all and the pill was fully
                   // transparent (page colour showed through, dark links on a dark page).
                   // A plain solid `bg-white` + a clearly visible border and a dark
                   // indigo shadow keeps the navbar readable on every section, light or dark.
-                  : 'border-2 border-azure-300 bg-white shadow-[0_10px_28px_-8px_rgba(36,27,66,0.5)] ring-1 ring-[#241B42]/10'
+                  : 'border-2 border-azure-300 bg-white shadow-[0_10px_28px_-8px_rgba(5,8,14,0.5)] ring-1 ring-black/10'
             )}
           >
             <Logo tone={isDarkNavbar ? 'light' : 'dark'} />
@@ -261,7 +261,7 @@ export function Navbar() {
                   aria-haspopup="dialog"
                   className={cn(
                     iconBtn,
-                    isDarkNavbar && 'border-cyan-400/60 bg-[#241B42] text-cyan-100 shadow-[0_0_15px_rgba(56,189,248,0.35)] hover:text-white hover:border-cyan-300 hover:bg-cyan-950/80 hover:shadow-[0_0_24px_rgba(56,189,248,0.8),0_0_35px_rgba(169,140,234,0.5)]',
+                    isDarkNavbar && 'border-cyan-400/60 bg-night-base text-cyan-100 shadow-[0_0_15px_rgba(56,189,248,0.35)] hover:text-white hover:border-cyan-300 hover:bg-cyan-950/80 hover:shadow-[0_0_24px_rgba(56,189,248,0.8),0_0_35px_rgba(169,140,234,0.5)]',
                     searchOpen && 'border-frost-400 text-azure shadow-crystal'
                   )}
                 >
@@ -278,7 +278,7 @@ export function Navbar() {
                   aria-haspopup="true"
                   className={cn(
                     iconBtn,
-                    isDarkNavbar && 'border-cyan-400/60 bg-[#241B42] text-cyan-100 shadow-[0_0_15px_rgba(56,189,248,0.35)] hover:text-white hover:border-cyan-300 hover:bg-cyan-950/80 hover:shadow-[0_0_24px_rgba(56,189,248,0.8),0_0_35px_rgba(169,140,234,0.5)]',
+                    isDarkNavbar && 'border-cyan-400/60 bg-night-base text-cyan-100 shadow-[0_0_15px_rgba(56,189,248,0.35)] hover:text-white hover:border-cyan-300 hover:bg-cyan-950/80 hover:shadow-[0_0_24px_rgba(56,189,248,0.8),0_0_35px_rgba(169,140,234,0.5)]',
                     contactOpen && 'border-frost-400 text-azure shadow-crystal'
                   )}
                 >
@@ -291,7 +291,7 @@ export function Navbar() {
                 dark={isDarkNavbar}
                 iconClassName={cn(
                   iconBtn,
-                  isDarkNavbar && 'border-cyan-400/60 bg-[#241B42] text-cyan-100 shadow-[0_0_15px_rgba(56,189,248,0.35)] hover:text-white hover:border-cyan-300 hover:bg-cyan-950/80 hover:shadow-[0_0_24px_rgba(56,189,248,0.8),0_0_35px_rgba(169,140,234,0.5)]'
+                  isDarkNavbar && 'border-cyan-400/60 bg-night-base text-cyan-100 shadow-[0_0_15px_rgba(56,189,248,0.35)] hover:text-white hover:border-cyan-300 hover:bg-cyan-950/80 hover:shadow-[0_0_24px_rgba(56,189,248,0.8),0_0_35px_rgba(169,140,234,0.5)]'
                 )}
               />
 
@@ -300,7 +300,7 @@ export function Navbar() {
                 to={primaryCta.to}
                 size="sm"
                 variant="premium"
-                className="hidden !rounded-full sm:inline-flex lg:hidden xl:inline-flex transition-all duration-[250ms] hover:scale-[1.04] hover:-translate-y-0.5 shadow-[0_4px_14px_rgba(36,27,66,0.45)] hover:shadow-[0_8px_22px_rgba(36,27,66,0.55)]"
+                className="hidden !rounded-full sm:inline-flex lg:hidden xl:inline-flex transition-all duration-[250ms] hover:scale-[1.04] hover:-translate-y-0.5 shadow-[0_4px_14px_rgba(5,8,14,0.45)] hover:shadow-[0_8px_22px_rgba(5,8,14,0.55)]"
               >
                 {primaryCta.label}
               </Button>
@@ -310,7 +310,7 @@ export function Navbar() {
                 onClick={() => setMobileOpen(true)}
                 className={cn(
                   iconBtn,
-                  isDarkNavbar && 'border-cyan-400/60 bg-[#241B42] text-cyan-100 shadow-[0_0_15px_rgba(56,189,248,0.35)] hover:text-white hover:border-cyan-300 hover:bg-cyan-950/80 hover:shadow-[0_0_24px_rgba(56,189,248,0.8),0_0_35px_rgba(169,140,234,0.5)]',
+                  isDarkNavbar && 'border-cyan-400/60 bg-night-base text-cyan-100 shadow-[0_0_15px_rgba(56,189,248,0.35)] hover:text-white hover:border-cyan-300 hover:bg-cyan-950/80 hover:shadow-[0_0_24px_rgba(56,189,248,0.8),0_0_35px_rgba(169,140,234,0.5)]',
                   'lg:hidden'
                 )}
                 aria-label="Open menu"

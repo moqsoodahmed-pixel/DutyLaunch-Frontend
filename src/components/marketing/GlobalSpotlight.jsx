@@ -53,7 +53,7 @@ export function GlobalSpotlight() {
           className={`pointer-events-none absolute inset-0 ${reduceMotion ? '' : 'animate-aurora-drift'}`}
           style={{
             background:
-              'radial-gradient(45% 55% at 30% 0%, rgba(169,140,234,.28), transparent 70%), radial-gradient(35% 45% at 85% 70%, rgba(79,193,230,.16), transparent 70%)',
+              'radial-gradient(45% 55% at 30% 0%, rgb(var(--night-glow-b) / .22), transparent 70%), radial-gradient(35% 45% at 85% 70%, rgb(var(--night-glow-a) / .14), transparent 70%)',
           }}
           aria-hidden
         />
@@ -110,7 +110,7 @@ export function GlobalSpotlight() {
                 whileInView={{ opacity: 1, x: 0 }}
                 viewport={{ once: true, amount: 0.4 }}
                 transition={{ duration: 0.55, delay: op.delay, ease }}
-                className="flex items-center justify-between gap-4 rounded-xl border-2 border-[#5B4FB0] bg-[#1B1238] p-4 shadow-[0_18px_44px_-18px_rgba(0,0,0,0.65)] transition-colors duration-200 hover:border-frost-300/40 sm:p-5"
+                className="flex items-center justify-between gap-4 rounded-xl border-2 border-night-line bg-night-card p-4 shadow-[0_18px_44px_-18px_rgba(0,0,0,0.65)] transition-colors duration-200 hover:border-frost-300/40 sm:p-5"
               >
                 <div className="flex items-center gap-3.5">
                   <span className="grid h-11 w-11 shrink-0 place-items-center rounded-full border border-frost-300/20 bg-frost-400/10">

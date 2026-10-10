@@ -28,7 +28,7 @@ export function TestimonialStrip({ tone = 'dark' }) {
               key={item._id}
               className={`flex flex-col rounded-xl p-6 ${
                 dark
-                  ? 'border-2 border-[#5B4FB0] bg-[#1B1238] text-white'
+                  ? 'border-2 border-night-line bg-night-card text-white'
                   : 'border border-line bg-white'
               }`}
             >

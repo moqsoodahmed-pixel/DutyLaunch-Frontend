@@ -66,7 +66,7 @@ export class ChunkErrorBoundary extends Component {
                     alignItems: 'center',
                     justifyContent: 'center',
                     minHeight: '100vh',
-                    background: '#050C18',
+                    background: 'var(--night-deep, #031E25)',
                     color: '#e2e8f0',
                     fontFamily: '"Helvetica Neue", Arial, sans-serif',
                     textAlign: 'center',

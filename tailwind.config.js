@@ -53,6 +53,17 @@ export default {
           200: '#FDE9C8',
           50: '#FFFBEB',
         },
+        /* NIGHT — the single dark-section palette for the whole site.
+           Values live in src/index.css (:root --night-*). Change the colour
+           THERE and every dark section, card, chip, menu and ring follows. */
+        night: {
+          base: 'var(--night-base)', // dark section background
+          deep: 'var(--night-deep)', // deepest surfaces: CTA band, announcement bar, pills
+          card: 'var(--night-card)', // cards sitting on a dark section
+          line: 'var(--night-line)', // borders on dark surfaces
+          chip: 'var(--night-chip)', // tags / chips on dark cards
+          tile: 'var(--night-tile)', // gradient start for dark action tiles
+        },
         paper: '#F8FAFC', // --bg
         line: 'rgba(15,28,46,0.09)',
         success: '#059669',
@@ -195,7 +206,7 @@ export default {
           'radial-gradient(38% 42% at 14% 10%, rgba(79,193,230,.22), transparent 65%), radial-gradient(42% 46% at 86% 14%, rgba(169,140,234,.18), transparent 68%), radial-gradient(46% 50% at 78% 92%, rgba(253,243,226,.55), transparent 70%), radial-gradient(30% 34% at 8% 86%, rgba(169,238,227,.16), transparent 65%)',
         // Same glow palette, tuned to glow rather than tint against the dark ink surface.
         'glacier-mesh-dark':
-          'radial-gradient(42% 46% at 16% 14%, rgba(79,193,230,.28), transparent 65%), radial-gradient(46% 50% at 88% 20%, rgba(169,140,234,.30), transparent 68%), radial-gradient(34% 38% at 70% 90%, rgba(169,238,227,.14), transparent 65%)',
+          'radial-gradient(42% 46% at 16% 14%, rgb(var(--night-glow-a) / .26), transparent 65%), radial-gradient(46% 50% at 88% 20%, rgb(var(--night-glow-b) / .22), transparent 68%)',
         'aurora-blob': 'radial-gradient(circle, rgba(169,140,234,.55), transparent 70%)',
         'frost-blob': 'radial-gradient(circle, rgba(79,193,230,.55), transparent 70%)',
         'cream-blob': 'radial-gradient(circle, rgba(253,232,200,.65), transparent 70%)',

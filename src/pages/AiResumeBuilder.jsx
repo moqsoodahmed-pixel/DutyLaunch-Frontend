@@ -309,7 +309,7 @@ export default function AiResumeBuilder() {
           Deep midnight glacier abyss with electric cyan, icy blue, and sapphire ambient glows.
           Extends seamlessly underneath the sticky navbar via negative top margin.
       */}
-      <div className="relative min-h-screen overflow-hidden -mt-[76px] lg:-mt-[84px] pt-[76px] lg:pt-[84px] bg-gradient-to-b from-[#050C18] via-[#08152B] to-[#040914] text-slate-100">
+      <div className="relative min-h-screen overflow-hidden -mt-[76px] lg:-mt-[84px] pt-[76px] lg:pt-[84px] bg-gradient-to-b from-night-deep via-night-base to-night-deep text-slate-100">
         {/* ── EXCLUSIVE DUAL GLACIER GLOWS: RIGHT-UPSIDE & LEFT-SIDE BOTTOM ── */}
         {/* 1. Right Upside Glow */}
         <div
@@ -406,7 +406,7 @@ export default function AiResumeBuilder() {
         </section>
 
         {/* ── FEATURED RESUME TEMPLATES CAROUSEL (PAUSE-ON-HOVER VERIFIED) ── */}
-        <section className="relative z-10 mt-6 sm:mt-8 py-6 border-t border-cyan-500/20 bg-[#060E1C]/75 backdrop-blur-md">
+        <section className="relative z-10 mt-6 sm:mt-8 py-6 border-t border-night-line bg-night-deep backdrop-blur-md">
           <Container>
             <div className="flex flex-col items-start justify-between gap-2 sm:flex-row sm:items-end mb-2">
               <div>
@@ -445,7 +445,7 @@ export default function AiResumeBuilder() {
         </section>
 
         {/* ── PROGRESS RAIL — mobile responsive horizontal track ── */}
-        <div className="border-y border-cyan-500/20 bg-[#060D1A]/90 backdrop-blur-xl sticky top-[70px] z-30 shadow-[0_4px_20px_rgba(0,0,0,0.5)]">
+        <div className="border-y border-night-line bg-night-deep backdrop-blur-xl sticky top-[70px] z-30 shadow-[0_4px_20px_rgba(0,0,0,0.5)]">
           <Container className="py-2.5 overflow-x-auto no-scrollbar">
             <ol className="flex items-center gap-x-3 sm:gap-x-4 text-small min-w-max">
               {STEPS.map((s, i) => (
@@ -493,7 +493,7 @@ export default function AiResumeBuilder() {
                   }}
                   aria-hidden="true"
                 />
-                <div className="relative flex h-full flex-col rounded-[14.5px] border border-cyan-500/25 bg-[#0B1528]/90 p-6 backdrop-blur-xl">
+                <div className="relative flex h-full flex-col rounded-[14.5px] border border-night-line bg-night-card p-6 backdrop-blur-xl">
                   <input
                     ref={fileInput}
                     type="file"
@@ -631,7 +631,7 @@ export default function AiResumeBuilder() {
                   }}
                   aria-hidden="true"
                 />
-                <div className="relative flex h-full flex-col rounded-[14.5px] border border-cyan-500/25 bg-[#0B1528]/90 p-6 backdrop-blur-xl">
+                <div className="relative flex h-full flex-col rounded-[14.5px] border border-night-line bg-night-card p-6 backdrop-blur-xl">
                   <label className="block flex-1">
                     <span className="mb-1.5 block font-bold text-white">Target job description</span>
                     <span className="mb-3 block text-small text-slate-400">
@@ -642,7 +642,7 @@ export default function AiResumeBuilder() {
                       onChange={(e) => setJobDescription(e.target.value)}
                       rows={7}
                       placeholder="Paste the target job description or requirements here…"
-                      className="w-full rounded-lg border border-cyan-500/25 bg-[#060D1A]/90 px-3.5 py-3 text-small text-white placeholder:text-slate-500 outline-none transition-all focus:border-cyan-400 focus:bg-[#081224] focus:ring-2 focus:ring-cyan-500/20"
+                      className="w-full rounded-lg border border-night-line bg-night-deep px-3.5 py-3 text-small text-white placeholder:text-slate-500 outline-none transition-all focus:border-cyan-400 focus:bg-night-base focus:ring-2 focus:ring-cyan-500/20"
                     />
                   </label>
 
@@ -670,9 +670,9 @@ export default function AiResumeBuilder() {
 
         {/* ── STEP 2: REVIEW EXTRACTED DATA ── */}
         {parsed && (
-          <section id="review" className="relative z-10 py-10 border-t border-cyan-500/20">
+          <section id="review" className="relative z-10 py-10 border-t border-night-line">
             <Container>
-              <div className="rounded-2xl border border-cyan-500/25 bg-[#0B1528]/90 p-6 sm:p-8 shadow-crystal backdrop-blur-xl">
+              <div className="rounded-2xl border border-night-line bg-night-card p-6 sm:p-8 shadow-crystal backdrop-blur-xl">
                 <SectionHeader
                   tone="dark"
                   label="Step 2"
