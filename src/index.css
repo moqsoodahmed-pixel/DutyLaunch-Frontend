@@ -198,10 +198,16 @@
       0 12px 26px -8px rgba(29, 93, 184, 0.45);
   }
 
-  /* Dark, premium section treatment — deep navy with a faint grid, masked to
-     fade toward the edges. Used sparingly: one strong dark moment per page. */
+  /* Dark, premium section treatment — deep indigo-violet (a darkened, muted
+     relative of the existing `violet` accent, not the shared `ink` navy
+     scale — ink-800/900 are used across ~20 other components for buttons,
+     badges, modals etc., so changing those tokens directly would have
+     recoloured unrelated UI everywhere; this is scoped to dark sections
+     only) with a faint grid, masked to fade toward the edges. Used
+     sparingly: one strong dark moment per page. */
   .surface-dark {
-    @apply relative overflow-hidden bg-ink-800 text-white;
+    @apply relative overflow-hidden text-white;
+    background-color: #241B42;
   }
 
   .surface-dark::before {
@@ -238,6 +244,9 @@
     /* glacier-100 — also the <body> colour */
     --seam-bottom: #f8fbfe;
     --seam-fade: 4rem;
+    /* Light-tone sections (white/paper/glacier/sand) keep their original
+       4rem fade — only dark sections' fade changed, see .seam-tone-ink
+       below, so this line is unchanged. */
     background-color: var(--seam-tone);
     background-image: linear-gradient(to bottom,
         var(--seam-top) 0,
@@ -263,26 +272,37 @@
   }
 
   .seam-tone-ink {
-    --seam-tone: #132952;
-    --seam-fade: 7rem;
+    /* Deep indigo-violet — matches .surface-dark above. Fade shortened from
+       7rem to 2.5rem: the long fade was reading as a washed-out, "smoky"
+       transition rather than a confident one; this keeps a smooth blend
+       (a hard cut looked broken against the rest of this seam system) while
+       making it noticeably crisper. */
+    --seam-tone: #241B42;
+    --seam-fade: 2.5rem;
   }
 
   .seam-tone-ink900 {
-    --seam-tone: #0b1f48;
-    --seam-fade: 7rem;
+    --seam-tone: #160F29;
+    --seam-fade: 2.5rem;
   }
 
   .seam-top-dark {
-    --seam-top: #0b1f48;
+    --seam-top: #160F29;
   }
 
   .seam-bottom-dark {
-    --seam-bottom: #0b1f48;
+    --seam-bottom: #160F29;
   }
 
-  /* Ends in the footer's own colour — used by the dark closing CTA. */
+  /* Ends in the footer's own colour — used by the dark closing CTA.
+     Pre-existing mismatch found while making this change, fixed in
+     passing: this was #0d1b2e (a dark navy) from when the footer itself
+     used to be dark. Footer.jsx's background is now #F8FBFE (light) — see
+     its own "Light-theme palette" comment — so this was fading into a
+     colour the footer no longer actually is, causing a visible mismatch
+     right before the footer rather than the seamless transition intended. */
   .seam-bottom-footer {
-    --seam-bottom: #0d1b2e;
+    --seam-bottom: #F8FBFE;
   }
 
   /* The footer opens with a fade from the light page colour into its own
@@ -292,7 +312,13 @@
      dark areas. Browsers without :has() simply keep the fade. */
   .footer-fade {
     height: 7rem;
-    background: linear-gradient(to bottom, #f8fbfe, #0d1b2e);
+    /* Same stale dark-footer colour fixed in .seam-bottom-footer above —
+       was fading into a navy the footer hasn't actually been for a while.
+       Since the footer is light, there's no longer a colour shift to
+       bridge here at all; keeping the rule (rather than deleting it) in
+       case the footer's colour changes again later, but it's now a no-op
+       fade from the page colour to itself. */
+    background: linear-gradient(to bottom, #f8fbfe, #f8fbfe);
   }
 
   main:has(> .cta-dark:last-child)+footer .footer-fade {

@@ -183,7 +183,12 @@ export function Navbar() {
                   : 'border border-cyan-400/50 bg-[#060D1A]/90 shadow-[0_20px_50px_-10px_rgba(0,0,0,0.7),0_0_24px_rgba(56,189,248,0.35)] backdrop-blur-2xl'
                 : scrolled
                   ? 'border border-cyan-400/50 bg-white/98 shadow-[0_18px_45px_-12px_rgba(79,193,230,0.4),0_0_22px_rgba(56,189,248,0.35)] backdrop-blur-2xl'
-                  : 'border border-cyan-300/60 bg-white/90 shadow-[0_12px_36px_-10px_rgba(79,193,230,0.35),0_0_20px_rgba(56,189,248,0.3)] backdrop-blur-xl'
+                  // Was bg-white/90: at the top of a page with a dark hero directly
+                  // behind the navbar, that 10% transparency let the hero's colour
+                  // bleed through and tint the nav blue. Matching the scrolled
+                  // variant's opacity keeps the navbar reading as plain white no
+                  // matter what's behind it.
+                  : 'border border-cyan-300/60 bg-white/98 shadow-[0_12px_36px_-10px_rgba(79,193,230,0.35),0_0_20px_rgba(56,189,248,0.3)] backdrop-blur-xl'
             )}
           >
             <Logo tone={isDarkNavbar ? 'light' : 'dark'} />

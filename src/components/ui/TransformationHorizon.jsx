@@ -5,7 +5,9 @@ import { usePrefersReducedMotion } from '../../hooks/useMediaQuery.js';
 
 /**
  * TransformationHorizon: Scroll-linked dynamic transformation bridge between
- * daylight ServiceMatrix (#F1F6FC) and deep midnight JourneyRail (#132952).
+ * daylight ServiceMatrix (#F1F6FC) and the deep indigo-violet dark-section
+ * colour (#241B42 — see .surface-dark / .seam-tone-ink in index.css, which
+ * this must match since it bridges into that same colour family).
  *
  * As the user scrolls through, the background color dynamically interpolates
  * so the transition feels completely seamless and organic:
@@ -23,17 +25,21 @@ export function TransformationHorizon({
     offset: ['start end', 'end start'],
   });
 
-  // Dynamic continuous background color interpolation
+  // Dynamic continuous background color interpolation.
+  // Midpoint (#4A3875) sits between the light start and the new
+  // indigo-violet end colour, in the same hue family — the old #2B4D87 was
+  // a blue midtone matching the previous navy end colour and would now
+  // read as an odd blue "detour" between light and indigo-violet.
   const backgroundColor = useTransform(
     scrollYProgress,
     [0.2, 0.5, 0.8],
-    ['#F1F6FC', '#2B4D87', '#132952']
+    ['#F1F6FC', '#4A3875', '#241B42']
   );
 
   return (
     <motion.div
       ref={containerRef}
-      style={reduceMotion ? { backgroundColor: '#132952' } : { backgroundColor }}
+      style={reduceMotion ? { backgroundColor: '#241B42' } : { backgroundColor }}
       className={`relative z-20 overflow-hidden py-12 sm:py-16 ${className}`}
       data-testid="transformation-horizon"
     >

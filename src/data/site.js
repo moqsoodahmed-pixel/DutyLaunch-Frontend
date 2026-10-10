@@ -130,8 +130,6 @@ export const navGroups = [
     icon: 'Compass',
     summary: 'Done-with-you services when the tools are not enough on their own.',
     items: [
-      { label: 'Career services', path: '/career-services', description: 'CV writing, counselling, job search support' },
-      { label: 'CV packages & pricing', path: '/pricing', description: 'Bundles by years of experience' },
       { label: 'Apostille & attestation', path: '/appostle-services', description: 'Document legalisation, tracked' },
       { label: 'For employers', path: '/employers', description: 'Post roles and reach matched candidates' },
       { label: 'Partner with us', path: '/partners', description: 'Institutes, EdTech and service partners' },
