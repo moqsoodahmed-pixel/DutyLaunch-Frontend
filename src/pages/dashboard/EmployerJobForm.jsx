@@ -119,10 +119,14 @@ export default function EmployerJobForm() {
     try {
       if (isEdit) {
         await employerService.updateJob(id, payload);
-        toast.success('Job post updated');
+        toast.success(values.status === 'draft' ? 'Job draft updated.' : 'Job post updated.');
       } else {
         await employerService.createJob(payload);
-        toast.success('Job post created. It will appear once approved.');
+        toast.success(
+          values.status === 'draft'
+            ? 'Job draft saved.'
+            : 'Job post created. It will appear once approved.'
+        );
       }
       navigate('/employer/jobs');
     } catch (err) {

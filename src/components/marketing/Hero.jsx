@@ -16,7 +16,7 @@ const ACTIONS = [
   { to: '/resume-checker', label: 'Resume Checker', sub: 'Free Resume Health score', icon: ScanSearch, badge: 'FREE', grad: 'from-azure-500 to-azure-700' },
   { to: '/resume-builder', label: 'Resume Builder', sub: 'Upload yours or start from scratch', icon: Zap, grad: 'from-aurora-500 to-violet-600' },
   { to: '/dubai-launch', label: 'Dubai Launch', sub: 'Jobs & relocation in the Gulf', icon: Plane, grad: 'from-frost-500 to-frost-600' },
-  { to: '/appostle-services', label: 'Apostille & Attestation', sub: 'Documents, legalised & tracked', icon: FileCheck2, grad: 'from-azure-600 to-azure-800' },
+  { to: '/apostille-services', label: 'Apostille & Attestation', sub: 'Documents, legalised & tracked', icon: FileCheck2, grad: 'from-azure-600 to-azure-800' },
 ];
 
 /* Popular quick links — the chip row under the CTAs. */

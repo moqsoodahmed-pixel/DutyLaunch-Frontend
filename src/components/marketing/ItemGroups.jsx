@@ -7,7 +7,7 @@ import { cn } from '../../utils/cn.js';
 /**
  * Grouped item lists (programme families, course categories, included
  * services) rendered with the site's existing `tile` card styling — used by
- * Higher Education, Professional Courses, Dubai Launch and Appostle Services
+ * Higher Education, Professional Courses, Dubai Launch and Apostille Services
  * so the new content looks like it was always part of those pages.
  *
  * groups: [{ title, description?, icon?, items?: string[] }]

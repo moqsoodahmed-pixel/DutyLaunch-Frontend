@@ -83,7 +83,7 @@ const SERVICES = [
     icon: 'FileCheck2',
     label: 'Documentation & Apostille',
     summary: 'Apostille, embassy attestation, and certified translation with guaranteed end-to-end tracking.',
-    path: '/appostle-services',
+    path: '/apostille-services',
     highlights: [
       'Hague Apostille Services',
       'Embassy Attestation',

@@ -14,11 +14,17 @@
 /career-tools/cover-letter     /cover-letter-generator    301
 /career-tools/interview        /interview-preparation     301
 /dubai-job-seeker-package      /dubai-launch              301
-/documentation                 /appostle-services         301
+/documentation                 /apostille-services        301
+/appostle-services             /apostille-services        301
+/apostille                     /apostille-services        301
+/apostille-attestation         /apostille-services        301
+/career                        /career-services           301
+/refund-cancellation-policy    /refund-policy             301
+/cancellation-policy           /refund-policy             301
 /employer                      /employers                 301
 
 # Query strings are preserved by Pages, so /documentation?category=Apostille
-# lands on /appostle-services?category=Apostille without a second rule.
+# lands on /apostille-services?category=Apostille without a second rule.
 
 # SPA fallback: every other path is served the shell so the router can
 # resolve it. This must stay last — rules are matched in order.

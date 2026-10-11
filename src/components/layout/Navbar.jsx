@@ -189,12 +189,8 @@ export function Navbar() {
                     key={item.label}
                     type="button"
                     onClick={(e) => {
-                      if (openMenu === item.label) {
-                        if (closeTimeoutRef.current) clearTimeout(closeTimeoutRef.current);
-                        setOpenMenu(null);
-                      } else {
-                        handleMenuEnter(item.label, e.currentTarget);
-                      }
+                      e.preventDefault();
+                      handleMenuEnter(item.label, e.currentTarget);
                     }}
                     onMouseEnter={(e) => handleMenuEnter(item.label, e.currentTarget)}
                     onMouseLeave={handleMenuLeave}

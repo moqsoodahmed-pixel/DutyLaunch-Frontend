@@ -44,7 +44,7 @@ const ROUTES = [
 
   // Services.
   { path: '/dubai-launch', changefreq: 'monthly', priority: '0.8' },
-  { path: '/appostle-services', changefreq: 'monthly', priority: '0.8' },
+  { path: '/apostille-services', changefreq: 'monthly', priority: '0.8' },
   { path: '/career-services', changefreq: 'monthly', priority: '0.7' },
   { path: '/pricing', changefreq: 'monthly', priority: '0.7' },
 

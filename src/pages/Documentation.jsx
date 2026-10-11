@@ -17,7 +17,7 @@ import { Check } from 'lucide-react';
 import { Modal } from '../components/ui/Modal.jsx';
 import { ConsultationForm } from '../components/marketing/ConsultationForm.jsx';
 
-/* Content from dutylaunch.com's Appostle services page, in the live site's order. */
+/* Content from dutylaunch.com's Apostille services page, in the live site's order. */
 const DOCUMENT_SERVICES = [
   { title: 'Educational Certificate Attestation', icon: 'GraduationCap' },
   { title: 'Degree & Diploma Apostille', icon: 'Stamp' },
@@ -47,8 +47,8 @@ export default function Documentation() {
   return (
     <>
       <Seo
-        title={seoFor('appostleServices').title}
-        description={seoFor('appostleServices').description}
+        title={seoFor('apostilleServices').title}
+        description={seoFor('apostilleServices').description}
       />
       <PageHero
         eyebrow="Apostille Services"

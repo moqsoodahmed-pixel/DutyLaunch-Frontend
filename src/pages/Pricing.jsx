@@ -7,7 +7,7 @@ import { Reveal, RevealGroup, RevealItem } from '../components/ui/Reveal.jsx';
 import { Tabs } from '../components/ui/Tabs.jsx';
 import { Button } from '../components/ui/Button.jsx';
 import { Modal } from '../components/ui/Modal.jsx';
-import { LoadingBlock, ErrorState, EmptyState } from '../components/ui/States.jsx';
+import { LoadingBlock, ErrorState, EmptyState, Skeleton } from '../components/ui/States.jsx';
 import { PageHero } from '../components/marketing/PageHero.jsx';
 import { GlacierBackdrop } from '../components/premium/GlacierBackdrop.jsx';
 import { PricingCard } from '../components/marketing/PricingCard.jsx';
@@ -119,7 +119,23 @@ export default function Pricing() {
           </div>
 
           <div className="mt-8">
-            {loading && <LoadingBlock label="Loading bundles" />}
+            {loading && (
+              <div className="grid gap-6 pt-6 md:grid-cols-2 xl:grid-cols-4" aria-hidden>
+                {Array.from({ length: 4 }).map((_, i) => (
+                  <div key={i} className="space-y-4 rounded-2xl border border-line bg-white p-6 shadow-sm animate-pulse">
+                    <Skeleton className="h-6 w-1/3" />
+                    <Skeleton className="h-4 w-1/2" />
+                    <Skeleton className="h-10 w-2/3" />
+                    <div className="space-y-2 pt-4 border-t border-line">
+                      <Skeleton className="h-4 w-full" />
+                      <Skeleton className="h-4 w-5/6" />
+                      <Skeleton className="h-4 w-4/6" />
+                    </div>
+                    <Skeleton className="h-11 w-full rounded-lg mt-6" />
+                  </div>
+                ))}
+              </div>
+            )}
             {error && <ErrorState error={error} onRetry={refetch} />}
             {!loading && !error && !packages.length && (
               <EmptyState

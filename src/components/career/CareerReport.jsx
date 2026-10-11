@@ -266,7 +266,9 @@ export function ResumeHealthReport({ health }) {
                     <div className="mt-1.5 flex items-center justify-between text-[11px] text-slate-500">
                       <span>{category.weight}% weighting</span>
                       <span className={isHigh ? 'text-emerald-600 font-semibold' : isMedium ? 'text-amber-600 font-semibold' : 'text-rose-600 font-semibold'}>
-                        {category.findings?.length ? `${category.findings.length} findings` : 'Optimal'}
+                        {category.findings?.length
+                          ? `${category.findings.length} finding${category.findings.length === 1 ? '' : 's'}`
+                          : 'Optimal'}
                       </span>
                     </div>
                   </div>

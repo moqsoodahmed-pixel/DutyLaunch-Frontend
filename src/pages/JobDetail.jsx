@@ -227,18 +227,19 @@ function initials(name = '') {
 }
 
 export default function JobDetail() {
-  const { id } = useParams();
+  const { id, idOrSlug } = useParams();
+  const lookupId = id || idOrSlug;
   const { isAuthenticated, user } = useAuth();
   const toast = useToast();
   const [applyOpen, setApplyOpen] = useState(false);
   // GET /jobs/:idOrSlug responds with { job, related, hasApplied } — read the
   // job out of that envelope (tolerating a bare job object too).
-  const { data: jobData, loading } = useApi(() => jobService.get(id), [id]);
+  const { data: jobData, loading } = useApi(() => jobService.get(lookupId), [lookupId]);
   const apiJob = jobData?.job ?? (jobData?.title ? jobData : null);
   // If the API has no record (the live DB is seeded without demo jobs), fall
   // back to the bundled demo copy for [DEMO] slugs so those links still show
   // a complete page. Real jobs always come from the API.
-  const job = apiJob || (!loading ? findDemoJob(id) : null);
+  const job = apiJob || (!loading ? findDemoJob(lookupId) : null);
   const isDemo = Boolean(job?.isDemo);
   const { data: saved, refetch: refetchSaved } = useApi(
     () => (isAuthenticated ? jobService.savedJobs() : Promise.resolve({ data: [] })),
@@ -288,9 +289,18 @@ export default function JobDetail() {
       <p className="tabular mt-4 text-h3 font-extrabold text-ink">{formatSalary(job.salary)}</p>
       <p className="text-caption text-slate-500">Posted {relativeTime(job.publishedAt || job.createdAt)}</p>
 
-      <Button className="mt-5" fullWidth onClick={openApply}>
-        Apply now
-      </Button>
+      {job.isExpired || job.status === 'closed' ? (
+        <div className="mt-5">
+          <Button fullWidth disabled variant="outline" className="opacity-70 cursor-not-allowed">
+            Position Closed
+          </Button>
+          <p className="mt-2 text-center text-caption text-slate-500">This role is no longer accepting applications.</p>
+        </div>
+      ) : (
+        <Button className="mt-5" fullWidth onClick={openApply}>
+          Apply now
+        </Button>
+      )}
       <div className="mt-2 flex gap-2">
         <Button
           variant="outline"
@@ -402,7 +412,13 @@ export default function JobDetail() {
           {/* Mobile apply bar — the sticky card only shows at lg, so small
               screens get the primary action right under the header. */}
           <div className="mt-6 flex gap-2 lg:hidden">
-            <Button onClick={openApply}>Apply now</Button>
+            {job.isExpired || job.status === 'closed' ? (
+              <Button disabled variant="outline" className="opacity-70 cursor-not-allowed">
+                Position Closed
+              </Button>
+            ) : (
+              <Button onClick={openApply}>Apply now</Button>
+            )}
             <Button variant="outline" onClick={toggleSave} aria-pressed={isSaved}>
               <Bookmark className={isSaved ? 'h-4 w-4 fill-amber-500 text-amber-500' : 'h-4 w-4'} aria-hidden />
             </Button>

@@ -41,6 +41,17 @@ export default function Login() {
     }
   };
 
+  const fromPath = location.state?.from || '';
+  const contextMessage = fromPath.includes('pricing')
+    ? 'Sign in to complete your plan purchase.'
+    : fromPath.includes('resume-checker')
+      ? 'Sign in to run your free ATS resume check.'
+      : fromPath.includes('resume-builder')
+        ? 'Sign in to create and save your resume.'
+        : fromPath.includes('jobs')
+          ? 'Sign in to apply and track your job applications.'
+          : null;
+
   return (
     <>
       <Seo title="Sign in" description="Sign in to your DutyLaunch account." noIndex />
@@ -48,6 +59,11 @@ export default function Login() {
       <div>
         <h1 className="text-h1 font-extrabold text-ink">Welcome back</h1>
         <p className="mt-2 text-body text-slate-600">Sign in to continue your DutyLaunch journey.</p>
+        {contextMessage && (
+          <div className="mt-3.5 rounded-lg border border-azure-200 bg-azure-50/80 px-3.5 py-2 text-small font-medium text-azure-800">
+            {contextMessage}
+          </div>
+        )}
       </div>
 
       <form onSubmit={handleSubmit(onSubmit)} className="mt-8 space-y-5" noValidate>

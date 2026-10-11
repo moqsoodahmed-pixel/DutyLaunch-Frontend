@@ -21,7 +21,7 @@ const CURATED = [
     { title: 'Pricing', path: '/pricing', group: 'Services', description: 'CV bundles priced by experience.', keywords: 'pricing price cost cv bundles packages fees plans charges rates' },
     { title: 'Career Services', path: '/career-services', group: 'Services', description: 'CV writing, counselling and job-search support.', keywords: 'career services cv writing counselling job search coaching guidance' },
     { title: 'Dubai Launch', path: '/dubai-launch', group: 'Global mobility', description: 'Jobs and relocation support in the Gulf.', keywords: 'dubai uae gulf abroad relocation visa job seeker package overseas' },
-    { title: 'Apostille & Attestation', path: '/appostle-services', group: 'Documentation', description: 'Document legalisation, tracked end to end.', keywords: 'apostille attestation documents legalisation certificate embassy mea passport translation visa notary' },
+    { title: 'Apostille & Attestation', path: '/apostille-services', group: 'Documentation', description: 'Document legalisation, tracked end to end.', keywords: 'apostille attestation documents legalisation certificate embassy mea passport translation visa notary' },
     { title: 'Higher Education', path: '/higher-education', group: 'Education', description: 'Study-abroad programmes and applications.', keywords: 'higher education study abroad degree university college masters admission sop bachelors' },
     { title: 'Professional Courses', path: '/professional-courses', group: 'Education', description: 'Industry-recognised certifications.', keywords: 'professional courses certification certificate training programme' },
     { title: 'Courses', path: '/courses', group: 'Education', description: 'Browse the full course catalogue.', keywords: 'courses catalogue upskill learning certification class training' },
@@ -64,7 +64,7 @@ function build() {
 
 export const SEARCH_INDEX = build();
 
-export const POPULAR_SEARCHES = ['/resume-checker', '/jobs', '/pricing', '/cv-templates', '/dubai-launch', '/appostle-services']
+export const POPULAR_SEARCHES = ['/resume-checker', '/jobs', '/pricing', '/cv-templates', '/dubai-launch', '/apostille-services']
     .map((p) => SEARCH_INDEX.find((e) => e.path === p))
     .filter(Boolean);
 

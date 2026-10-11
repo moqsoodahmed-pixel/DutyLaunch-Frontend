@@ -29,7 +29,7 @@ export function PageHero({ eyebrow, title, lead, breadcrumb, actions, aside, ton
           animate="show"
           className="grid items-center gap-6 lg:grid-cols-12 lg:gap-8"
         >
-          <div className="flex flex-col justify-center lg:col-span-6 xl:col-span-6">
+          <div className={aside ? 'flex flex-col justify-center lg:col-span-6 xl:col-span-6' : 'flex flex-col justify-center lg:col-span-10 xl:col-span-9'}>
             {eyebrow && (
               <motion.p variants={fadeUp} className={`mb-3.5 inline-flex self-start ${dark ? 'eyebrow-dark' : 'eyebrow'}`}>
                 {eyebrow}

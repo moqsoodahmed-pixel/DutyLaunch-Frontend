@@ -70,6 +70,11 @@ export function JobCard({ job, saved, onToggleSave, compact }) {
 
         {!compact && (
           <div className="mt-3.5 flex flex-wrap items-center gap-1.5">
+            {(job.isExpired || job.status === 'closed') && (
+              <Badge tone="neutral" className="!rounded-full border-slate-300 bg-slate-100 text-slate-600 font-semibold">
+                Closed
+              </Badge>
+            )}
             <Badge tone="outline" className="!rounded-full">
               {job.jobType}
             </Badge>
@@ -89,7 +94,7 @@ export function JobCard({ job, saved, onToggleSave, compact }) {
         <div className="mt-3.5 flex items-center justify-between border-t border-line pt-3">
           <span className="text-caption text-slate-500">Posted {relativeTime(job.publishedAt || job.createdAt)}</span>
           <span className="relative z-10 text-caption font-bold text-azure-600 opacity-0 transition-opacity group-hover:opacity-100">
-            View &amp; apply →
+            {job.isExpired || job.status === 'closed' ? 'View details →' : 'View & apply →'}
           </span>
         </div>
       </div>

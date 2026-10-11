@@ -104,9 +104,9 @@ export default function AppShell({ groups, title }) {
   );
 
   return (
-    <div className="min-h-screen bg-paper lg:grid lg:grid-cols-[16rem_1fr]">
-      {/* Desktop rail */}
-      <aside className="sticky top-0 hidden h-screen flex-col border-r border-line bg-white px-3 lg:flex">
+    <div className="min-h-screen bg-paper md:grid md:grid-cols-[15rem_1fr] lg:grid-cols-[16rem_1fr]">
+      {/* Persistent rail for tablet and desktop */}
+      <aside className="sticky top-0 hidden h-screen flex-col border-r border-line bg-white px-3 md:flex">
         <div className="flex h-16 items-center px-1">
           <Logo />
         </div>
@@ -114,8 +114,8 @@ export default function AppShell({ groups, title }) {
         {account}
       </aside>
 
-      {/* Mobile bar */}
-      <div className="sticky top-0 z-[60] flex h-14 items-center gap-3 border-b border-line bg-white px-gutter lg:hidden">
+      {/* Mobile bar for screens below 768px */}
+      <div className="sticky top-0 z-[60] flex h-14 items-center gap-3 border-b border-line bg-white px-gutter md:hidden">
         <button
           type="button"
           onClick={() => setOpen(true)}
@@ -127,11 +127,9 @@ export default function AppShell({ groups, title }) {
         <span className="text-small font-bold text-ink">{title}</span>
       </div>
 
-      {/* No exit animation, for the same reason as MobileMenu.jsx: a
-          navigation from inside the drawer could interrupt the slide-out
-          and leave the drawer stuck open with its state already closed. */}
+      {/* Mobile drawer */}
       {open && (
-          <div className="fixed inset-0 z-[95] lg:hidden">
+          <div className="fixed inset-0 z-[95] md:hidden">
             <motion.div
               className="absolute inset-0 bg-ink-900/55"
               initial={{ opacity: 0 }}
@@ -162,7 +160,7 @@ export default function AppShell({ groups, title }) {
           </div>
       )}
 
-      <main id="main" className="min-w-0 px-gutter py-8 lg:py-10">
+      <main id="main" className="min-w-0 px-gutter py-8 md:py-10">
         {/* Page-level loading boundary: the sidebar and header stay mounted
             while a page's code loads, instead of the whole shell vanishing. */}
         <Suspense fallback={<PageFallback />}>

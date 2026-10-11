@@ -50,6 +50,50 @@ export default function CvTemplates() {
             secondary={{ label: 'Check My Resume ATS Score', to: '/resume-checker' }}
           />
         }
+        aside={
+          <div className="relative mx-auto w-full max-w-sm rounded-2xl border border-white/80 bg-white/90 p-6 shadow-crystal backdrop-blur-xl">
+            <div className="flex items-center justify-between border-b border-line pb-4">
+              <div className="flex items-center gap-2.5">
+                <span className="grid h-8 w-8 place-items-center rounded-lg bg-azure-50 text-azure-700">
+                  <ScanLine className="h-4 w-4" aria-hidden />
+                </span>
+                <div>
+                  <p className="text-small font-bold text-ink">ATS Compatibility</p>
+                  <p className="text-[11px] text-slate-500">Taleo · Workday · iCIMS</p>
+                </div>
+              </div>
+              <span className="tabular rounded-full bg-emerald-50 px-2.5 py-1 text-caption font-extrabold text-emerald-700">
+                98% ATS Pass
+              </span>
+            </div>
+            <div className="mt-4 space-y-2.5">
+              <div className="flex items-center justify-between text-caption font-semibold text-slate-600">
+                <span>Universal Single-Column DOM</span>
+                <span className="text-emerald-600 font-bold">Verified</span>
+              </div>
+              <div className="h-1.5 w-full rounded-full bg-slate-100 overflow-hidden">
+                <div className="h-full w-[98%] rounded-full bg-gradient-to-r from-azure-500 to-emerald-500" />
+              </div>
+              <div className="flex items-center justify-between text-caption font-semibold text-slate-600 pt-1">
+                <span>Heading Hierarchy (H1/H2/H3)</span>
+                <span className="text-emerald-600 font-bold">Standard</span>
+              </div>
+              <div className="h-1.5 w-full rounded-full bg-slate-100 overflow-hidden">
+                <div className="h-full w-[96%] rounded-full bg-gradient-to-r from-azure-500 to-emerald-500" />
+              </div>
+              <div className="flex items-center justify-between text-caption font-semibold text-slate-600 pt-1">
+                <span>Quantified Achievement Patterns</span>
+                <span className="text-emerald-600 font-bold">High Impact</span>
+              </div>
+              <div className="h-1.5 w-full rounded-full bg-slate-100 overflow-hidden">
+                <div className="h-full w-[95%] rounded-full bg-gradient-to-r from-azure-500 to-emerald-500" />
+              </div>
+            </div>
+            <div className="mt-5 rounded-lg border border-line bg-paper px-3 py-2 text-center text-caption text-slate-500">
+              5 Flagship Formats · 1 Free Allowance
+            </div>
+          </div>
+        }
       />
 
       <TemplateGallery

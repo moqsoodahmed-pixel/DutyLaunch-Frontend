@@ -136,25 +136,25 @@ export function AppRoutes() {
               <Route path="interview-preparation" element={<InterviewCoach />} />
 
               {/* --- Services and marketplaces -------------------------- */}
+              {/* --- Services and marketplaces -------------------------- */}
               <Route path="dubai-launch" element={<DubaiPackage />} />
-              <Route path="appostle-services" element={<Documentation />} />
+              <Route path="apostille-services" element={<Documentation />} />
               <Route path="jobs" element={<Jobs />} />
               <Route path="jobs/:idOrSlug" element={<JobDetail />} />
               <Route path="employers" element={<Employer />} />
               <Route path="partners" element={<Partners />} />
 
-              {/* --- Legacy URLs ---------------------------------------
-                These paths were indexed and linked before the information
-                architecture changed. They redirect rather than 404, so a
-                rename does not throw away the search ranking or break an
-                existing campaign link. `replace` keeps them out of the
-                browser's back history. */}
+              {/* --- Legacy URLs & Aliases ------------------------------- */}
+              <Route path="career" element={<Navigate to="/career-services" replace />} />
+              <Route path="appostle-services" element={<Navigate to="/apostille-services" replace />} />
+              <Route path="apostille" element={<Navigate to="/apostille-services" replace />} />
+              <Route path="apostille-attestation" element={<Navigate to="/apostille-services" replace />} />
+              <Route path="documentation" element={<Navigate to="/apostille-services" replace />} />
               <Route path="ats-resume-checker" element={<Navigate to="/resume-checker" replace />} />
               <Route path="career-tools/linkedin" element={<Navigate to="/linkedin-optimization" replace />} />
               <Route path="career-tools/cover-letter" element={<Navigate to="/cover-letter-generator" replace />} />
               <Route path="career-tools/interview" element={<Navigate to="/interview-preparation" replace />} />
               <Route path="dubai-job-seeker-package" element={<Navigate to="/dubai-launch" replace />} />
-              <Route path="documentation" element={<Navigate to="/appostle-services" replace />} />
               <Route path="employer" element={<Navigate to="/employers" replace />} />
               <Route path="blog" element={<Blog />} />
               <Route path="blog/:slug" element={<BlogPost />} />
@@ -164,6 +164,7 @@ export function AppRoutes() {
               <Route path="privacy-policy" element={<Privacy />} />
               <Route path="terms-and-conditions" element={<Terms />} />
               <Route path="refund-policy" element={<RefundCancellation />} />
+              <Route path="refund-cancellation-policy" element={<Navigate to="/refund-policy" replace />} />
               <Route path="disclaimers" element={<Disclaimers />} />
               {/* Old legal URLs: keep bookmarks and search results working. */}
               <Route path="terms" element={<Navigate to="/terms-and-conditions" replace />} />

@@ -121,16 +121,20 @@ export const seoPages = {
       'We help you prepare and apply. We do not guarantee employment, visa approval or a processing timeline, those decisions sit with employers and authorities.',
   },
 
-  appostleServices: {
-    path: '/appostle-services',
+  apostilleServices: {
+    path: '/apostille-services',
     title: 'Apostille & Attestation Services: Tracked End to End',
     description:
       'Apostille, embassy attestation and certified translation for educational and personal documents, handled and tracked from collection to delivery.',
     heading: 'Documents ready before the employer asks',
     subheading:
       'Apostille, attestation and certified translation, with a tracked status at every stage rather than a black box.',
-    primaryCta: { label: 'See services and timelines', to: '/appostle-services#services' },
+    primaryCta: { label: 'See services and timelines', to: '/apostille-services#services' },
     secondaryCta: { label: 'Ask about your documents', to: '/contact' },
+  },
+
+  get appostleServices() {
+    return this.apostilleServices;
   },
 
   linkedinOptimization: {
@@ -234,7 +238,12 @@ export const legacyRedirects = [
   { from: '/career-tools/cover-letter', to: '/cover-letter-generator' },
   { from: '/career-tools/interview', to: '/interview-preparation' },
   { from: '/dubai-job-seeker-package', to: '/dubai-launch' },
-  { from: '/documentation', to: '/appostle-services' },
+  { from: '/documentation', to: '/apostille-services' },
+  { from: '/appostle-services', to: '/apostille-services' },
+  { from: '/apostille', to: '/apostille-services' },
+  { from: '/apostille-attestation', to: '/apostille-services' },
+  { from: '/career', to: '/career-services' },
+  { from: '/refund-cancellation-policy', to: '/refund-policy' },
   { from: '/employer', to: '/employers' },
 ];
 

@@ -50,7 +50,7 @@ export function GlobalSpotlight() {
             <Button to="/dubai-launch" size="lg" variant="premium" magnetic>
               Explore the Dubai package
             </Button>
-            <Button to="/appostle-services" size="lg" variant="outline">
+            <Button to="/apostille-services" size="lg" variant="outline">
               Documentation services
             </Button>
           </div>

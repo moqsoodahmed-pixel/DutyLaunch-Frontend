@@ -7,6 +7,8 @@ import { useApi } from '../../hooks/useApi.js';
 import { paymentService } from '../../services/paymentService.js';
 import { formatCurrency, formatDate } from '../../utils/format.js';
 
+import { useAuth } from '../../context/AuthContext.jsx';
+
 const STATUS = {
   paid: { tone: 'success', label: 'Paid' },
   failed: { tone: 'danger', label: 'Failed' },
@@ -19,19 +21,40 @@ const ITEM_TYPE = { 'cv-package': 'CV bundle', course: 'Course', template: 'Resu
 const rupees = (paise, currency) => formatCurrency(paise / 100, currency || 'INR');
 
 export default function Payments() {
+  const { user } = useAuth();
+  const role = user?.role;
+  const isEmployer = role === 'employer';
+  const isInstitute = role === 'institute';
+
   const { data, loading, error, refetch } = useApi(() => paymentService.mine(), []);
   const payments = data || [];
+
+  const panelDescription = isEmployer
+    ? 'Billing and receipts for your employer account. Standard job postings are currently complimentary during our launch phase.'
+    : isInstitute
+      ? 'Billing and receipt history for your partner institute account.'
+      : 'Every purchase made with your account. A counsellor contacts you within one working day of a successful payment.';
+
+  const panelActions = isEmployer ? (
+    <Button to="/employer/jobs/new" variant="outline" size="sm">
+      Post a job
+    </Button>
+  ) : isInstitute ? (
+    <Button to="/partner" variant="outline" size="sm">
+      Partner profile
+    </Button>
+  ) : (
+    <Button to="/pricing" variant="outline" size="sm">
+      View CV bundles
+    </Button>
+  );
 
   return (
     <>
       <PanelHeader
         title="My payments"
-        description="Every purchase made with your account. A counsellor contacts you within one working day of a successful payment."
-        actions={
-          <Button to="/pricing" variant="outline" size="sm">
-            View CV bundles
-          </Button>
-        }
+        description={panelDescription}
+        actions={panelActions}
       />
 
       {loading && <LoadingBlock label="Loading your payments" />}
@@ -40,9 +63,29 @@ export default function Payments() {
       {!loading && !error && payments.length === 0 && (
         <EmptyState
           icon={CreditCard}
-          title="No payments yet"
-          description="When you buy a CV bundle or a course, the receipt shows up here."
-          action={<Button to="/pricing">See CV bundles</Button>}
+          title={
+            isEmployer
+              ? 'No employer transactions yet'
+              : isInstitute
+                ? 'No institute transactions yet'
+                : 'No payments yet'
+          }
+          description={
+            isEmployer
+              ? 'Standard job postings are free during our launch phase. Invoices for promoted listings and candidate shortlisting will show up here.'
+              : isInstitute
+                ? 'Standard partner listings are active. Receipts for featured institution placements and promotional campaigns will appear here.'
+                : 'When you buy a CV bundle or a course, the receipt shows up here.'
+          }
+          action={
+            isEmployer ? (
+              <Button to="/employer/jobs/new">Post a job</Button>
+            ) : isInstitute ? (
+              <Button to="/partner">Manage partner profile</Button>
+            ) : (
+              <Button to="/pricing">See CV bundles</Button>
+            )
+          }
         />
       )}
 

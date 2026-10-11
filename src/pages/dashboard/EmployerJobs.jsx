@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
-import { PlusCircle, Trash2, Eye, Users } from 'lucide-react';
+import { PlusCircle, Trash2, Eye, Users, Pencil } from 'lucide-react';
 import { PanelHeader } from '../../layouts/AppShell.jsx';
 import { DataTable } from '../../components/admin/DataTable.jsx';
 import { StatusBadge } from '../../components/ui/Badge.jsx';
@@ -97,11 +97,16 @@ export default function EmployerJobs() {
             header: '',
             render: (row) => (
               <div className="flex items-center justify-end gap-1">
-                <Button to={`/employer/applications?job=${row._id}`} variant="ghost" size="sm" aria-label="View applicants">
+                <Button to={`/employer/applications?job=${row._id}`} variant="ghost" size="sm" aria-label="View applicants" title="View applicants">
                   <Users className="h-4 w-4" aria-hidden />
                 </Button>
-                <Button to={`/employer/jobs/${row._id}/edit`} variant="ghost" size="sm" aria-label="Edit">
-                  <Eye className="h-4 w-4" aria-hidden />
+                {row.status === 'published' && (
+                  <Button to={`/jobs/${row.slug || row._id}`} target="_blank" rel="noopener noreferrer" variant="ghost" size="sm" aria-label="Preview public job" title="Preview public job">
+                    <Eye className="h-4 w-4" aria-hidden />
+                  </Button>
+                )}
+                <Button to={`/employer/jobs/${row._id}/edit`} variant="ghost" size="sm" aria-label="Edit job post" title="Edit job post">
+                  <Pencil className="h-4 w-4" aria-hidden />
                 </Button>
                 <Button
                   variant="ghost"
@@ -109,6 +114,7 @@ export default function EmployerJobs() {
                   onClick={() => remove(row._id)}
                   loading={deletingId === row._id}
                   aria-label="Delete"
+                  title="Delete"
                   className="text-danger hover:bg-danger/5"
                 >
                   <Trash2 className="h-4 w-4" aria-hidden />

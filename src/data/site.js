@@ -70,19 +70,19 @@ export const pillars = [
     items: [
       { label: 'Dubai Launch package', path: '/dubai-launch', description: 'Dubai and the wider Gulf' },
       { label: 'Visa & relocation guidance', path: '/dubai-launch#relocation', description: 'Paperwork, housing, arrival' },
-      { label: 'Apostille & attestation', path: '/appostle-services', description: 'Document legalisation' },
+      { label: 'Apostille & attestation', path: '/apostille-services', description: 'Document legalisation' },
     ],
   },
   {
     id: 'documentation',
     label: 'Documentation',
-    path: '/appostle-services',
+    path: '/apostille-services',
     icon: 'FileCheck2',
     summary: 'Apostille, attestation and certified translation, tracked end to end.',
     items: [
-      { label: 'All services', path: '/appostle-services', description: 'Apostille, attestation, translation' },
-      { label: 'Apostille', path: '/appostle-services?category=Apostille', description: 'Hague Convention countries' },
-      { label: 'Embassy attestation', path: '/appostle-services?category=Attestation', description: 'UAE and non-Hague countries' },
+      { label: 'All services', path: '/apostille-services', description: 'Apostille, attestation, translation' },
+      { label: 'Apostille', path: '/apostille-services?category=Apostille', description: 'Hague Convention countries' },
+      { label: 'Embassy attestation', path: '/apostille-services?category=Attestation', description: 'UAE and non-Hague countries' },
     ],
   },
   {
@@ -150,7 +150,7 @@ export const primaryNav = [
   { label: 'Career+', menu: ['career-tools'] },
   { label: 'Upskills', menu: ['upskills'] },
   { label: 'Dubai Launch', path: '/dubai-launch' },
-  { label: 'Apostille', path: '/appostle-services' },
+  { label: 'Apostille', path: '/apostille-services' },
   { label: 'Jobs', path: '/jobs' },
 ];
 
@@ -332,7 +332,7 @@ export const footerColumns = [
     title: 'Global',
     links: [
       { label: 'UAE job seeker package', path: '/dubai-launch' },
-      { label: 'Documentation', path: '/appostle-services' },
+      { label: 'Documentation', path: '/apostille-services' },
       { label: 'Jobs', path: '/jobs' },
       { label: 'For employers', path: '/employers' },
     ],

@@ -54,7 +54,7 @@ export default function DubaiPackage() {
           <HeroActions
             dark
             primary={{ label: 'Talk to Our Experts', to: '/contact#consultation' }}
-            secondary={{ label: 'Apostille Services', to: '/appostle-services' }}
+            secondary={{ label: 'Apostille Services', to: '/apostille-services' }}
           />
         }
         aside={
@@ -159,7 +159,7 @@ export default function DubaiPackage() {
         title="Ready to Take the Next Step in Your Career?"
         body="Your dream career starts with the right guidance. Whether you’re looking for a better job, planning higher education, relocating abroad, or improving your professional profile, DutyLaunch is here to support you at every stage of your journey."
         primary={{ label: 'Book Free Consultation', to: '/contact#consultation' }}
-        secondary={{ label: 'Apostille Services', to: '/appostle-services' }}
+        secondary={{ label: 'Apostille Services', to: '/apostille-services' }}
       />
     </>
   );

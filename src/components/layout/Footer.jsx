@@ -19,7 +19,7 @@ const SOCIALS = [
 // Services mirrors the navbar. Pages that are no longer in the navbar
 // (templates, ATS checker, employer) stay reachable from here.
 const NAV_COLS = [
-  { title: 'Services', links: [['Get Your CV', '/pricing'], ['Upskills', '/upskills'], ['Dubai Launch', '/dubai-launch'], ['Apostille', '/appostle-services']] },
+  { title: 'Services', links: [['Get Your CV', '/pricing'], ['Upskills', '/upskills'], ['Dubai Launch', '/dubai-launch'], ['Apostille', '/apostille-services']] },
   { title: 'Career', links: [['Career services', '/career-services'], ['CV templates', '/cv-templates'], ['ATS resume checker', '/resume-checker'], ['Interview preparation', '/career-services#interview'], ['Career counselling', '/career-services#counselling']] },
   { title: 'Learn', links: [['Higher education', '/higher-education'], ['Professional courses', '/professional-courses'], ['All courses', '/courses']] },
   { title: 'Company', links: [['About us', '/about'], ['Jobs', '/jobs'], ['For employers', '/employers'], ['Blog', '/blog'], ['FAQ', '/faq'], ['Partner with us', '/register?type=institute'], ['Contact', '/contact']] },

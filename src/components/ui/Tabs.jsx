@@ -6,7 +6,7 @@ export function Tabs({ options, value, onChange, className, label = 'Filter' }) 
     <div
       role="tablist"
       aria-label={label}
-      className={cn('no-scrollbar -mx-gutter flex gap-1.5 overflow-x-auto px-gutter sm:mx-0 sm:flex-wrap sm:px-0', className)}
+      className={cn('flex flex-wrap items-center gap-1.5', className)}
     >
       {options.map((opt) => {
         const val = typeof opt === 'string' ? opt : opt.value;
