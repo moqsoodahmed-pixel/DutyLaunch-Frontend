@@ -34,7 +34,7 @@ export default function Blog() {
       <PageHero
         eyebrow="Blog"
         title="Notes on careers, education and moving abroad."
-        lead="Practical articles, not filler — written from the questions people actually bring to consultations."
+        lead="Practical articles, not filler, written from the questions people actually bring to consultations."
         breadcrumb={[{ label: 'Blog' }]}
         aside={<SiteImage image={images.blogHero} priority ratio="5 / 4" className="mx-auto w-full lg:ml-auto lg:mr-0" />}
       />

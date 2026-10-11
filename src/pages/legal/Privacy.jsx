@@ -44,7 +44,7 @@ export default function Privacy() {
 
       <h2>How we use it</h2>
       <ul>
-        <li>To provide the service you asked for — matching you with jobs, processing a CV order, or preparing a documentation service.</li>
+        <li>To provide the service you asked for, matching you with jobs, processing a CV order, or preparing a documentation service.</li>
         <li>To respond to consultation and contact requests.</li>
         <li>To protect the platform against abuse, including rate limiting and fraud prevention.</li>
         <li>To meet legal and accounting obligations connected to paid services.</li>
@@ -58,8 +58,8 @@ export default function Privacy() {
         engaged us for.
       </p>
       <p>
-        If you use the free resume checker without an account, your CV is processed to produce your report and is
-        not saved. If you are signed in, it is saved to your career profile so you can return to it.
+        The resume checker is available to signed-in users. Your CV is processed to produce your report, and the
+        result is saved to your career profile so you can return to it.
       </p>
 
       <h2>AI-assisted processing</h2>

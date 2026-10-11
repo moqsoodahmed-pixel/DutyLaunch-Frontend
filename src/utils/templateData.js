@@ -28,7 +28,7 @@ export function buildTemplateData(baseTpl, s = {}, { useSamples = !hasAnyUserDat
   const list = (mine, sample, map) => ((mine || []).length ? mine.map(map) : useSamples ? sample || [] : []);
   const skillsList = [...(sk.hard || []), ...(sk.tools || []), ...(sk.soft || [])];
   const certs = list(s.certifications, baseTpl.certifications || baseTpl.certs, (c) =>
-    typeof c === 'string' ? c : [c.name, c.issuer && `— ${c.issuer}`, c.year && `(${c.year})`].filter(Boolean).join(' ')
+    typeof c === 'string' ? c : [c.name, c.issuer && `, ${c.issuer}`, c.year && `(${c.year})`].filter(Boolean).join(' ')
   );
 
   return {
@@ -66,10 +66,10 @@ export function buildTemplateData(baseTpl, s = {}, { useSamples = !hasAnyUserDat
       typeof l === 'string' ? l : l?.level ? `${l.name} (${l.level})` : l?.name || ''
     ).filter(has),
     awards: list(s.awards, baseTpl.awards, (a) =>
-      typeof a === 'string' ? a : [a.title, a.issuer && `— ${a.issuer}`, a.year && `(${a.year})`, a.description && `: ${a.description}`].filter(Boolean).join(' ')
+      typeof a === 'string' ? a : [a.title, a.issuer && `, ${a.issuer}`, a.year && `(${a.year})`, a.description && `: ${a.description}`].filter(Boolean).join(' ')
     ),
     achievements: list(s.achievements, baseTpl.achievements, (a) =>
-      typeof a === 'string' ? a : [a.title, a.issuer && `— ${a.issuer}`, a.year && `(${a.year})`].filter(Boolean).join(' ')
+      typeof a === 'string' ? a : [a.title, a.issuer && `, ${a.issuer}`, a.year && `(${a.year})`].filter(Boolean).join(' ')
     ),
     customSections: s.customSections || [],
     // Tells the preview not to back-fill empty sections with sample content.

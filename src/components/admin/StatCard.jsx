@@ -17,7 +17,7 @@ export function StatCard({ label, value, hint, icon = 'Circle', to, tone = 'defa
           aria-hidden
         />
       </div>
-      <p className="tabular mt-3 text-h1 font-extrabold leading-none text-ink">{value ?? '—'}</p>
+      <p className="tabular mt-3 text-h1 font-extrabold leading-none text-ink">{value ?? 0}</p>
       {hint && <p className="mt-2 text-caption text-slate-500">{hint}</p>}
     </>
   );

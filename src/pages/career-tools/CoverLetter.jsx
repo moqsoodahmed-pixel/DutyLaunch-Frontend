@@ -63,7 +63,7 @@ export default function CoverLetter() {
 
   return (
     <>
-      <Seo title="Cover Letter Generator" description="Draft a targeted cover letter from your own CV and the job description — no invented claims." />
+      <Seo title="Cover Letter Generator" description="Draft a targeted cover letter from your own CV and the job description, no invented claims." />
       <PageHero
         eyebrow="Career+"
         title="Cover Letter Assistant"
@@ -78,13 +78,13 @@ export default function CoverLetter() {
               <ResumeSourceCard source={source} />
 
               <form className="tile space-y-5 p-6" onSubmit={generate}>
-                <p className="text-small font-semibold text-ink">Step 2 — The job</p>
+                <p className="text-small font-semibold text-ink">Step 2: The job</p>
                 <Input label="Target role" value={form.role} onChange={update('role')} placeholder="e.g. Operations Manager" />
                 <Input label="Company" value={form.company} onChange={update('company')} />
-                <Input label="Hiring manager" hint="Optional — leave blank for “Dear Hiring Manager”" value={form.hiringManager} onChange={update('hiringManager')} />
+                <Input label="Hiring manager" hint="Optional, leave blank for “Dear Hiring Manager”" value={form.hiringManager} onChange={update('hiringManager')} />
                 <Textarea
                   label="Job description"
-                  hint="Recommended — the letter is matched to what the job actually asks for"
+                  hint="Recommended, the letter is matched to what the job actually asks for"
                   rows={6}
                   value={form.jobDescription}
                   onChange={update('jobDescription')}

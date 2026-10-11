@@ -236,10 +236,10 @@ export const DEGREES = ['10th (SSLC)', '12th (PUC / HSC)', 'ITI', 'Diploma', "Ba
 export const LANGUAGE_LEVELS = ['Native', 'Fluent', 'Professional', 'Intermediate', 'Basic'];
 
 export const CERTIFICATION_PATTERNS = [
-  '[Area of certification] Training — [Year]',
-  '[Area of expertise] License — [Year]',
-  'Certified [Job title], [Organisation] — [Year]',
-  '[Course name], [Platform e.g. Coursera / NPTEL] — [Year]',
+  '[Area of certification] Training, [Year]',
+  '[Area of expertise] License, [Year]',
+  'Certified [Job title], [Organisation], [Year]',
+  '[Course name], [Platform e.g. Coursera / NPTEL], [Year]',
 ];
 
 export const EXTRA_SECTIONS = [

@@ -71,7 +71,7 @@ export function CoverLetterDesigner({ content, company, jobTitle }) {
     <section aria-label="Cover letter design">
       <div className="flex flex-wrap items-end justify-between gap-3">
         <p className="text-small text-slate-600">
-          Pick a template on the left — the preview on the right shows your letter exactly as it will download.
+          Pick a template on the left, the preview on the right shows your letter exactly as it will download.
         </p>
         <Input
           className="w-full sm:w-64"
@@ -98,7 +98,7 @@ export function CoverLetterDesigner({ content, company, jobTitle }) {
                 type="button"
                 role="radio"
                 aria-checked={on}
-                aria-label={`${t.name} template — ${t.note}`}
+                aria-label={`${t.name} template: ${t.note}`}
                 onClick={() => setTemplate(t.id)}
                 className={cn('group rounded-xl border-2 bg-white p-1.5 text-left transition-all', on ? 'border-azure shadow-crystal' : 'border-line hover:border-azure-300')}
               >
@@ -125,14 +125,14 @@ export function CoverLetterDesigner({ content, company, jobTitle }) {
           </div>
           {!fits && (
             <p role="alert" className="mt-3 rounded-lg border border-amber-300 bg-amber-50 p-3 text-small text-amber-900">
-              Your letter is too long for one page. Shorten it a little in the editor above (aim for 250–400 words).
+              Your letter is too long for one page. Shorten it a little in the editor above (aim for 250 to 400 words).
             </p>
           )}
           <Button className="mt-4" size="lg" fullWidth onClick={download}>
             <Download className="h-5 w-5" aria-hidden /> Download {current.name} PDF
           </Button>
           <p className="mt-2 text-caption text-slate-500">
-            In the print window, choose <strong>Save as PDF</strong>. Your name and contact details come from your saved resume — update them in the Resume Builder.
+            In the print window, choose <strong>Save as PDF</strong>. Your name and contact details come from your saved resume, update them in the Resume Builder.
           </p>
         </div>
       </div>

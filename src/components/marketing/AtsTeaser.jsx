@@ -10,7 +10,7 @@ import { AtsUploader } from './AtsUploader.jsx';
 import { AtsScoreReport } from './AtsScoreReport.jsx';
 
 const ASSURANCES = [
-  'Your resume is analyzed to calculate a real, on-the-spot score — nothing is pre-filled or hard-coded.',
+  'Your resume is analyzed to calculate a real, on-the-spot score, nothing is pre-filled or hard-coded.',
   'We don\u2019t keep your uploaded document longer than it takes to analyze it.',
 ];
 
@@ -81,7 +81,7 @@ export function AtsTeaser() {
               </span>
             </h2>
             <p className="mt-4 text-lead text-slate-600">
-              Upload your CV and discover how well it performs against ATS systems — plus get
+              Upload your CV and discover how well it performs against ATS systems, plus get
               actionable recommendations to improve it.
             </p>
             <ul className="mt-6 space-y-3 text-small text-slate-600">

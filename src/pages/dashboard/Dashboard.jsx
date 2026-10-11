@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { Bookmark, FileStack, Briefcase, Users, ArrowUpRight, ScanLine, Sparkles, CircleAlert } from 'lucide-react';
+import { Bookmark, FileStack, Briefcase, Users, ArrowUpRight, ScanLine, Bot, CircleAlert } from 'lucide-react';
 import { PanelHeader } from '../../layouts/AppShell.jsx';
 import { StatCard } from '../../components/admin/StatCard.jsx';
 import { LoadingBlock, EmptyState } from '../../components/ui/States.jsx';
@@ -68,7 +68,6 @@ function RecommendedJobs({ user }) {
     <section className="mt-8">
       <div className="flex items-center justify-between">
         <h2 className="inline-flex items-center gap-2 text-h3 font-bold text-ink">
-          <Sparkles className="h-4.5 w-4.5 text-azure" aria-hidden />
           Recommended for you
         </h2>
         <Link to="/jobs" className="inline-flex items-center gap-1 text-small font-medium text-azure hover:underline">
@@ -184,11 +183,11 @@ function CandidateOverview() {
       <ProfileStrengthCard user={user} />
 
       <div className="mt-6 grid gap-4 sm:grid-cols-3">
-        <StatCard label="Applications" value={meta?.total ?? applications?.length ?? '—'} icon="FileStack" to="/applications" />
-        <StatCard label="Saved jobs" value={saved?.length ?? '—'} icon="Bookmark" to="/saved-jobs" />
+        <StatCard label="Applications" value={meta?.total ?? applications?.length ?? 0} icon="FileStack" to="/applications" />
+        <StatCard label="Saved jobs" value={saved?.length ?? 0} icon="Bookmark" to="/saved-jobs" />
         <Link to="/assistant" className="tile flex items-center gap-3 p-5">
           <span className="tile-icon grid h-10 w-10 shrink-0 place-items-center rounded-lg bg-azure-50">
-            <Sparkles className="h-5 w-5 text-azure" aria-hidden />
+            <Bot className="h-5 w-5 text-azure" aria-hidden />
           </span>
           <div>
             <p className="text-small font-bold text-ink">AI Career Assistant</p>
@@ -250,8 +249,8 @@ function EmployerOverview() {
   return (
     <>
       <div className="grid gap-4 sm:grid-cols-2">
-        <StatCard label="Job posts" value={jobs?.length ?? '—'} icon="Briefcase" to="/employer/jobs" />
-        <StatCard label="Total applicants" value={applicationsMeta?.total ?? '—'} icon="Users" to="/employer/applications" />
+        <StatCard label="Job posts" value={jobs?.length ?? 0} icon="Briefcase" to="/employer/jobs" />
+        <StatCard label="Total applicants" value={applicationsMeta?.total ?? 0} icon="Users" to="/employer/applications" />
       </div>
 
       <section className="mt-8">
@@ -313,9 +312,9 @@ function StudioCard() {
     <div className="rounded-xl border border-line bg-white p-6">
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
-          <p className="flex items-center gap-2 text-small font-bold text-ink"><Sparkles className="h-4 w-4 text-azure" aria-hidden /> Your career tools</p>
+          <p className="flex items-center gap-2 text-small font-bold text-ink">Your career tools</p>
           <p className="mt-1 text-caption text-slate-500">
-            {studio?.profile ? 'Your saved resume powers your cover letters and interview prep.' : 'Start with your resume — everything else is built from it.'}
+            {studio?.profile ? 'Your saved resume powers your cover letters and interview prep.' : 'Start with your resume, everything else is built from it.'}
           </p>
         </div>
         <Button to="/resume-builder" size="sm">{studio?.profile ? 'Open Resume Builder' : 'Build my resume'}</Button>

@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { Mic, MicOff, Send, Flag, FileDown, Trash2, PlayCircle, CheckCircle2, Sparkles } from 'lucide-react';
+import { Mic, MicOff, Send, Flag, FileDown, Trash2, PlayCircle, CheckCircle2 } from 'lucide-react';
 import { PanelHeader } from '../../layouts/AppShell.jsx';
 import { Button, Seo, Select, Textarea, Badge, LoadingBlock, EmptyState } from '../../components/ui/index.js';
 import { Panel } from '../../components/studio/StudioSteps.jsx';
@@ -63,8 +63,8 @@ function Feedback({ f }) {
   return (
     <div className="space-y-3 text-small text-slate-700">
       <div className="flex flex-wrap items-center gap-2">
-        <Badge tone="azure">Practice score {f.score ?? '—'}/100</Badge>
-        <span className="text-caption text-slate-500">AI practice assessment of your written answer — not an employer evaluation.</span>
+        <Badge tone="azure">Practice score {f.score ?? 'N/A'}/100</Badge>
+        <span className="text-caption text-slate-500">AI practice assessment of your written answer, not an employer evaluation.</span>
       </div>
       {f.scores && (
         <div className="grid grid-cols-3 gap-2 sm:grid-cols-7">
@@ -240,14 +240,14 @@ export default function MockInterview() {
         <PanelHeader title="Interview report" description={session.title} actions={<Button variant="quiet" size="sm" onClick={() => { setSession(null); setParams({}); }}>New interview</Button>} />
         <Panel>
           <div className="flex flex-wrap items-center gap-4">
-            <div className="rounded-xl bg-azure-50 px-5 py-3 text-center"><p className="text-h2 font-extrabold tabular-nums text-ink">{r.overallScore ?? '—'}</p><p className="text-caption text-slate-600">Average practice score</p></div>
+            <div className="rounded-xl bg-azure-50 px-5 py-3 text-center"><p className="text-h2 font-extrabold tabular-nums text-ink">{r.overallScore ?? 'N/A'}</p><p className="text-caption text-slate-600">Average practice score</p></div>
             <p className="max-w-prose flex-1 text-small text-slate-700">{r.summary}</p>
             <Button variant="outline" size="sm" loading={busy === 'pdf'} onClick={async () => { setBusy('pdf'); try { await studioService.mockDocument(session.id, { format: 'pdf', filename: 'Mock_Interview_Report.pdf' }); } catch (e) { setError(errMsg(e, 'Download failed.')); } finally { setBusy(''); } }}><FileDown className="h-4 w-4" aria-hidden /> Report PDF</Button>
           </div>
-          <p className="mt-3 text-caption text-slate-500">AI-generated practice feedback on your written answers — not an employer evaluation.</p>
+          <p className="mt-3 text-caption text-slate-500">AI-generated practice feedback on your written answers, not an employer evaluation.</p>
           <div className="mt-6 grid gap-5 md:grid-cols-3">
             {[['Strengths', r.strengths], ['Areas to improve', r.improvements], ['Topics to revise', r.topicsToRevise]].map(([t, list]) => (
-              <div key={t} className="rounded-lg border border-line p-4"><p className="text-small font-bold text-ink">{t}</p><ul className="mt-2 list-disc space-y-1 pl-5 text-small text-slate-700">{(list || []).length ? list.map((x) => <li key={x}>{x}</li>) : <li className="list-none text-slate-400">—</li>}</ul></div>
+              <div key={t} className="rounded-lg border border-line p-4"><p className="text-small font-bold text-ink">{t}</p><ul className="mt-2 list-disc space-y-1 pl-5 text-small text-slate-700">{(list || []).length ? list.map((x) => <li key={x}>{x}</li>) : <li className="list-none text-slate-400">, </li>}</ul></div>
             ))}
           </div>
           {r.nextSteps?.length > 0 && <div className="mt-5"><p className="text-small font-bold text-ink">Recommended next practice</p><ol className="mt-2 list-decimal space-y-1 pl-5 text-small text-slate-700">{r.nextSteps.map((x) => <li key={x}>{x}</li>)}</ol></div>}
@@ -322,7 +322,7 @@ export default function MockInterview() {
   return (
     <>
       <Seo title="Mock interview" noIndex />
-      <PanelHeader title="Mock interview" description="Practise one question at a time and get feedback on each answer. Questions are practice questions based on your profile — not real employer questions." />
+      <PanelHeader title="Mock interview" description="Practise one question at a time and get feedback on each answer. Questions are practice questions based on your profile, not real employer questions." />
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]">
         <Panel title="Set up your interview">
           <SavedResumeSource profile={profile} label="Interview built from your saved resume" />
@@ -331,14 +331,14 @@ export default function MockInterview() {
               <div className="flex flex-wrap items-center justify-between gap-3">
                 <div className="max-w-md">
                   <p className="flex items-center gap-1.5 text-small font-bold text-ink">
-                    <Sparkles className="h-4 w-4 text-azure" aria-hidden /> Generate everything with AI
+                    Generate everything with AI
                   </p>
                   <p className="mt-1 text-caption text-slate-600">
                     AI reads your saved resume and fills in the job role, the difficulty for your experience and a job description. Then press Start interview.
                   </p>
                 </div>
                 <Button onClick={generateEverything} loading={busy === 'ai-all'} disabled={Boolean(busy)}>
-                  <Sparkles className="h-4 w-4" aria-hidden /> Generate everything with AI
+                  Generate everything with AI
                 </Button>
               </div>
               {aiPhase && <p className="mt-3 text-caption font-semibold text-azure-700" aria-live="polite">{aiPhase}</p>}
@@ -383,7 +383,7 @@ export default function MockInterview() {
                 <li key={m.id} className="flex items-center justify-between gap-3 py-3">
                   <button type="button" className="min-w-0 text-left" onClick={() => studioService.getMock(m.id).then(openSession)}>
                     <p className="truncate text-small font-semibold text-ink hover:text-azure">{m.title}</p>
-                    <p className="text-caption text-slate-500">{m.status === 'completed' ? `Practice score ${m.score ?? '—'}` : `In progress · ${m.answered}/${m.questionCount}`} · {new Date(m.updatedAt).toLocaleDateString()}</p>
+                    <p className="text-caption text-slate-500">{m.status === 'completed' ? `Practice score ${m.score ?? 'N/A'}` : `In progress · ${m.answered}/${m.questionCount}`} · {new Date(m.updatedAt).toLocaleDateString()}</p>
                   </button>
                   <button type="button" onClick={() => remove(m.id)} aria-label={`Delete ${m.title}`} className="text-slate-400 hover:text-danger"><Trash2 className="h-4 w-4" aria-hidden /></button>
                 </li>

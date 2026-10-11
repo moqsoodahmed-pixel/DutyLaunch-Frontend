@@ -76,7 +76,7 @@ export default function AppShell({ groups, title }) {
     <div className="border-t border-line px-3 py-4">
       <div className="flex items-center gap-3">
         <span className="grid h-9 w-9 shrink-0 place-items-center rounded-sm bg-ink-800 text-caption font-bold text-white">
-          {initials(user?.name) || '—'}
+          {initials(user?.name) || 'U'}
         </span>
         <div className="min-w-0 flex-1">
           <p className="truncate text-small font-semibold text-ink">{user?.name}</p>

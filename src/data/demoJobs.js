@@ -38,7 +38,7 @@ export const DEMO_JOBS = [
       "Power BI",
       "Stakeholder management"
     ],
-    "description": "DEMO RECORD — seeded for development only. Replace with real listings before launch. A business analyst role working with commercial teams to define reporting requirements and deliver analysis.",
+    "description": "DEMO RECORD, seeded for development only. Replace with real listings before launch. A business analyst role working with commercial teams to define reporting requirements and deliver analysis.",
     "responsibilities": [
       "Gather and document requirements",
       "Build and maintain reporting",
@@ -81,7 +81,7 @@ export const DEMO_JOBS = [
       "Analytics",
       "Copywriting"
     ],
-    "description": "DEMO RECORD — seeded for development only. Replace with real listings before launch. Campaign planning and execution across paid and organic channels for a regional brand.",
+    "description": "DEMO RECORD, seeded for development only. Replace with real listings before launch. Campaign planning and execution across paid and organic channels for a regional brand.",
     "responsibilities": [
       "Plan and run paid campaigns",
       "Own channel reporting",
@@ -119,7 +119,7 @@ export const DEMO_JOBS = [
       "Patient care",
       "Clinical documentation"
     ],
-    "description": "DEMO RECORD — seeded for development only. Replace with real listings before launch. Ward-based nursing role with licensing support for overseas candidates.",
+    "description": "DEMO RECORD, seeded for development only. Replace with real listings before launch. Ward-based nursing role with licensing support for overseas candidates.",
     "responsibilities": [
       "Deliver patient care to protocol",
       "Maintain clinical records"
@@ -138,7 +138,7 @@ export const DEMO_JOBS = [
     "slug": "demo-software-engineer-backend-sample-tech-labs",
     "title": "[DEMO] Software Engineer (Backend)",
     "company": "Sample Tech Labs",
-    "location": "Remote — India",
+    "location": "Remote: India",
     "country": "India",
     "category": "Technology",
     "jobType": "Remote",
@@ -160,7 +160,7 @@ export const DEMO_JOBS = [
       "REST APIs",
       "AWS"
     ],
-    "description": "DEMO RECORD — seeded for development only. Replace with real listings before launch. Backend engineering on a distributed services platform.",
+    "description": "DEMO RECORD, seeded for development only. Replace with real listings before launch. Backend engineering on a distributed services platform.",
     "responsibilities": [
       "Design and ship backend services",
       "Own reliability of your services",
@@ -202,7 +202,7 @@ export const DEMO_JOBS = [
       "Employee relations",
       "HRIS"
     ],
-    "description": "DEMO RECORD — seeded for development only. Replace with real listings before launch. HRBP role partnering with engineering and product leadership on hiring, performance cycles and retention.",
+    "description": "DEMO RECORD, seeded for development only. Replace with real listings before launch. HRBP role partnering with engineering and product leadership on hiring, performance cycles and retention.",
     "responsibilities": [
       "Partner with department heads on people plans",
       "Run performance review cycles",
@@ -242,7 +242,7 @@ export const DEMO_JOBS = [
       "ERP systems",
       "Vendor management"
     ],
-    "description": "DEMO RECORD — seeded for development only. Replace with real listings before launch. Coordinating inbound and outbound freight for a regional distribution business.",
+    "description": "DEMO RECORD, seeded for development only. Replace with real listings before launch. Coordinating inbound and outbound freight for a regional distribution business.",
     "responsibilities": [
       "Track shipments end to end",
       "Liaise with freight forwarders and customs agents",
@@ -283,7 +283,7 @@ export const DEMO_JOBS = [
       "Inventory management",
       "P&L ownership"
     ],
-    "description": "DEMO RECORD — seeded for development only. Replace with real listings before launch. Running day-to-day operations for a high-footfall retail location.",
+    "description": "DEMO RECORD, seeded for development only. Replace with real listings before launch. Running day-to-day operations for a high-footfall retail location.",
     "responsibilities": [
       "Own store P&L and shrinkage targets",
       "Hire, train and roster store staff",
@@ -323,7 +323,7 @@ export const DEMO_JOBS = [
       "Client presentations",
       "Financial modelling"
     ],
-    "description": "DEMO RECORD — seeded for development only. Replace with real listings before launch. Client-facing consulting role across strategy and operations engagements.",
+    "description": "DEMO RECORD, seeded for development only. Replace with real listings before launch. Client-facing consulting role across strategy and operations engagements.",
     "responsibilities": [
       "Build client-ready analysis and models",
       "Support engagement leads on delivery",
@@ -364,7 +364,7 @@ export const DEMO_JOBS = [
       "PMS systems",
       "Team scheduling"
     ],
-    "description": "DEMO RECORD — seeded for development only. Replace with real listings before launch. Leading the front-office team at a mid-size hotel property.",
+    "description": "DEMO RECORD, seeded for development only. Replace with real listings before launch. Leading the front-office team at a mid-size hotel property.",
     "responsibilities": [
       "Manage front-desk rostering and standards",
       "Resolve escalated guest issues",
@@ -383,7 +383,7 @@ export const DEMO_JOBS = [
     "slug": "demo-qa-automation-engineer-novacore-systems",
     "title": "[DEMO] QA Automation Engineer",
     "company": "NovaCore Systems",
-    "location": "Remote — India",
+    "location": "Remote: India",
     "country": "India",
     "category": "Technology",
     "jobType": "Remote",
@@ -405,7 +405,7 @@ export const DEMO_JOBS = [
       "API testing",
       "JavaScript"
     ],
-    "description": "DEMO RECORD — seeded for development only. Replace with real listings before launch. Building and maintaining automated test suites across a web platform.",
+    "description": "DEMO RECORD, seeded for development only. Replace with real listings before launch. Building and maintaining automated test suites across a web platform.",
     "responsibilities": [
       "Write and maintain end-to-end test suites",
       "Wire tests into CI/CD",

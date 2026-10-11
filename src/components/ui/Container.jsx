@@ -17,9 +17,10 @@ const TONES = {
   paper: 'seam seam-tone-paper',
   glacier: 'seam seam-tone-glacier',
   sand: 'seam seam-tone-sand',
-  ink: 'surface-dark seam seam-tone-ink',
+  mist: 'surface-mist',
+  ink: 'surface-mist', // legacy name: the old dark tone is now the light mist blue
 };
-const DARK_TONES = new Set(['ink']);
+const DARK_TONES = new Set([]); // no dark sections any more, so no extra fade padding
 
 /**
  * Vertical rhythm wrapper. `tone` picks the surface.
@@ -45,7 +46,7 @@ export function Section({ tone = 'white', seamTop, seamBottom, backdrop, classNa
   // content (same rule as before this pass). Plain white/paper/sand
   // sections stay unclipped, because overflow-hidden would break the
   // `position: sticky` side panels on the job, course and Dubai pages.
-  const layered = dark || tone === 'glacier' || Boolean(backdrop);
+  const layered = dark || tone === 'glacier' || tone === 'mist' || tone === 'ink' || Boolean(backdrop);
 
   return (
     <section

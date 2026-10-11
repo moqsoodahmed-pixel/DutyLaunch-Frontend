@@ -96,7 +96,7 @@ export function AtsScoreReport({ result, onReset }) {
           <p className="text-small font-semibold text-azure">DutyLaunch ATS Compatibility Score</p>
           <p className="mt-1 text-small text-slate-500">
             An internal assessment of how well this resume is likely to be parsed and ranked by common
-            Applicant Tracking Systems — not an official score from any specific vendor.
+            Applicant Tracking Systems, not an official score from any specific vendor.
           </p>
           <div className="mt-6 grid gap-4 sm:grid-cols-2">
             {Object.entries(categories || {}).map(([key, value], i) => (
@@ -153,10 +153,10 @@ export function AtsScoreReport({ result, onReset }) {
       {suggested && (
         <div className="mt-8 rounded-lg border border-teal-200 bg-teal-50 p-5">
           <h3 className="flex items-center gap-2 text-small font-bold text-teal-800">
-            <Sparkles className="h-4 w-4 text-teal-600" aria-hidden /> AI-suggested summary rewrite
+            AI-suggested summary rewrite
           </h3>
           <p className="mt-2 text-small leading-relaxed text-teal-900">{suggested}</p>
-          <p className="mt-2 text-caption text-teal-600">Review and personalise before using — this is a starting point, not your final copy.</p>
+          <p className="mt-2 text-caption text-teal-600">Review and personalise before using, this is a starting point, not your final copy.</p>
         </div>
       )}
 

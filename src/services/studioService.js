@@ -151,8 +151,8 @@ export const INTERVIEW_TYPES = [
 
 export const EXPERIENCE_LEVELS = [
   { value: 'fresher', label: 'Fresher / graduate' },
-  { value: 'entry', label: 'Entry level (0–2 yrs)' },
-  { value: 'mid', label: 'Mid level (3–7 yrs)' },
+  { value: 'entry', label: 'Entry level (0 to 2 yrs)' },
+  { value: 'mid', label: 'Mid level (3 to 7 yrs)' },
   { value: 'senior', label: 'Senior (8+ yrs)' },
   { value: 'lead', label: 'Lead / manager' },
 ];

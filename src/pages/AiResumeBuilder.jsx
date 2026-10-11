@@ -309,7 +309,7 @@ export default function AiResumeBuilder() {
           Deep midnight glacier abyss with electric cyan, icy blue, and sapphire ambient glows.
           Extends seamlessly underneath the sticky navbar via negative top margin.
       */}
-      <div className="relative min-h-screen overflow-hidden -mt-[76px] lg:-mt-[84px] pt-[76px] lg:pt-[84px] bg-gradient-to-b from-night-deep via-night-base to-night-deep text-slate-100">
+      <div className="relative min-h-screen overflow-hidden -mt-[76px] lg:-mt-[84px] pt-[76px] lg:pt-[84px] bg-gradient-to-b from-mist-soft via-mist-base to-mist-deep text-slate-100">
         {/* ── EXCLUSIVE DUAL GLACIER GLOWS: RIGHT-UPSIDE & LEFT-SIDE BOTTOM ── */}
         {/* 1. Right Upside Glow */}
         <div
@@ -406,7 +406,7 @@ export default function AiResumeBuilder() {
         </section>
 
         {/* ── FEATURED RESUME TEMPLATES CAROUSEL (PAUSE-ON-HOVER VERIFIED) ── */}
-        <section className="relative z-10 mt-6 sm:mt-8 py-6 border-t border-night-line bg-night-deep backdrop-blur-md">
+        <section className="relative z-10 mt-6 sm:mt-8 py-6 border-t border-mist-line bg-mist-soft backdrop-blur-md">
           <Container>
             <div className="flex flex-col items-start justify-between gap-2 sm:flex-row sm:items-end mb-2">
               <div>
@@ -445,7 +445,7 @@ export default function AiResumeBuilder() {
         </section>
 
         {/* ── PROGRESS RAIL — mobile responsive horizontal track ── */}
-        <div className="border-y border-night-line bg-night-deep backdrop-blur-xl sticky top-[70px] z-30 shadow-[0_4px_20px_rgba(0,0,0,0.5)]">
+        <div className="border-y border-mist-line bg-mist-soft backdrop-blur-xl sticky top-[70px] z-30 shadow-[0_4px_20px_rgba(0,0,0,0.5)]">
           <Container className="py-2.5 overflow-x-auto no-scrollbar">
             <ol className="flex items-center gap-x-3 sm:gap-x-4 text-small min-w-max">
               {STEPS.map((s, i) => (
@@ -493,7 +493,7 @@ export default function AiResumeBuilder() {
                   }}
                   aria-hidden="true"
                 />
-                <div className="relative flex h-full flex-col rounded-[14.5px] border border-night-line bg-night-card p-6 backdrop-blur-xl">
+                <div className="relative flex h-full flex-col rounded-[14.5px] border border-mist-line bg-white p-6 backdrop-blur-xl">
                   <input
                     ref={fileInput}
                     type="file"
@@ -614,7 +614,7 @@ export default function AiResumeBuilder() {
 
                   {parsed && (
                     <p className="mt-4 rounded-lg bg-cyan-950/40 border border-cyan-500/30 p-2.5 text-small text-slate-300">
-                      Read <span className="font-semibold text-white">{resume?._source?.fileName || parsed.fileName}</span> —{' '}
+                      Read <span className="font-semibold text-white">{resume?._source?.fileName || parsed.fileName}</span>, {' '}
                       {resume?.experience?.length || 0} roles, {resume?.education?.length || 0} qualifications.
                     </p>
                   )}
@@ -631,7 +631,7 @@ export default function AiResumeBuilder() {
                   }}
                   aria-hidden="true"
                 />
-                <div className="relative flex h-full flex-col rounded-[14.5px] border border-night-line bg-night-card p-6 backdrop-blur-xl">
+                <div className="relative flex h-full flex-col rounded-[14.5px] border border-mist-line bg-white p-6 backdrop-blur-xl">
                   <label className="block flex-1">
                     <span className="mb-1.5 block font-bold text-white">Target job description</span>
                     <span className="mb-3 block text-small text-slate-400">
@@ -642,7 +642,7 @@ export default function AiResumeBuilder() {
                       onChange={(e) => setJobDescription(e.target.value)}
                       rows={7}
                       placeholder="Paste the target job description or requirements here…"
-                      className="w-full rounded-lg border border-night-line bg-night-deep px-3.5 py-3 text-small text-white placeholder:text-slate-500 outline-none transition-all focus:border-cyan-400 focus:bg-night-base focus:ring-2 focus:ring-cyan-500/20"
+                      className="w-full rounded-lg border border-mist-line bg-mist-soft px-3.5 py-3 text-small text-white placeholder:text-slate-500 outline-none transition-all focus:border-cyan-400 focus:bg-mist-base focus:ring-2 focus:ring-cyan-500/20"
                     />
                   </label>
 
@@ -670,9 +670,9 @@ export default function AiResumeBuilder() {
 
         {/* ── STEP 2: REVIEW EXTRACTED DATA ── */}
         {parsed && (
-          <section id="review" className="relative z-10 py-10 border-t border-night-line">
+          <section id="review" className="relative z-10 py-10 border-t border-mist-line">
             <Container>
-              <div className="rounded-2xl border border-night-line bg-night-card p-6 sm:p-8 shadow-crystal backdrop-blur-xl">
+              <div className="rounded-2xl border border-mist-line bg-white p-6 sm:p-8 shadow-crystal backdrop-blur-xl">
                 <SectionHeader
                   tone="dark"
                   label="Step 2"
@@ -816,7 +816,7 @@ export default function AiResumeBuilder() {
                       or confirm that they are accurate and you are happy to stand behind them.
                     </p>
                     <Button className="mt-4" variant="quiet" loading={busy === 'export'} onClick={() => handleExport(true)}>
-                      These are accurate — export anyway
+                      These are accurate, export anyway
                     </Button>
                   </div>
                 )}
@@ -826,7 +826,7 @@ export default function AiResumeBuilder() {
                     <Download className="mr-2 h-4 w-4" aria-hidden />
                     Download as PDF
                   </Button>
-                  <Badge tone="outline">Opens your browser&apos;s print dialogue — choose &ldquo;Save as PDF&rdquo;</Badge>
+                  <Badge tone="outline">Opens your browser&apos;s print dialogue, choose &ldquo;Save as PDF&rdquo;</Badge>
                 </div>
 
                 <p className="mt-6 max-w-prose text-small text-slate-600">
@@ -847,7 +847,7 @@ export default function AiResumeBuilder() {
       <Modal
         open={Boolean(previewModal)}
         onClose={() => setPreviewModal(null)}
-        title={previewModal ? `${previewModal.name} (${previewModal.personName}) — ${previewModal.industry || previewModal.tagline}` : ''}
+        title={previewModal ? `${previewModal.name} (${previewModal.personName}), ${previewModal.industry || previewModal.tagline}` : ''}
         description={previewModal ? previewModal.description : ''}
         size="lg"
       >
@@ -1015,7 +1015,7 @@ function ExtractedSummary({ resume, onSave, saving }) {
                 return (
                   <div key={key} className="flex gap-4 text-small">
                     <dt className="w-24 shrink-0 text-slate-500">{label}</dt>
-                    <dd className={value ? 'text-ink font-medium' : 'text-danger'}>{value || 'Not found — please add'}</dd>
+                    <dd className={value ? 'text-ink font-medium' : 'text-danger'}>{value || 'Not found, please add'}</dd>
                   </div>
                 );
               })}
@@ -1056,7 +1056,7 @@ function ExtractedSummary({ resume, onSave, saving }) {
                         {role.company ? ` · ${role.company}` : ''}
                       </p>
                       <p className="text-slate-600">
-                        {role.startDate || '?'} – {role.current ? 'Present' : role.endDate || '?'}
+                        {role.startDate || '?'} to {role.current ? 'Present' : role.endDate || '?'}
                         {' · '}
                         {(role.responsibilities?.length || 0) + (role.achievements?.length || 0)} bullets
                       </p>
@@ -1067,7 +1067,7 @@ function ExtractedSummary({ resume, onSave, saving }) {
             </ul>
           ) : (
             <p className="text-small text-slate-600">
-              No work history was found. If you are a student or a fresher that is expected — your projects, internships
+              No work history was found. If you are a student or a fresher that is expected, your projects, internships
               and coursework are what we will score instead.
             </p>
           )}

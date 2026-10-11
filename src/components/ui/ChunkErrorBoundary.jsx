@@ -66,8 +66,8 @@ export class ChunkErrorBoundary extends Component {
                     alignItems: 'center',
                     justifyContent: 'center',
                     minHeight: '100vh',
-                    background: 'var(--night-deep, #031E25)',
-                    color: '#e2e8f0',
+                    background: 'linear-gradient(135deg, #EDF7FD, #D8E9F6)',
+                    color: '#0F1C2E',
                     fontFamily: '"Helvetica Neue", Arial, sans-serif',
                     textAlign: 'center',
                     padding: '2rem',
@@ -75,10 +75,10 @@ export class ChunkErrorBoundary extends Component {
             >
                 {this.state.isChunkError && this.state.gaveUp ? (
                     <>
-                        <p style={{ fontSize: '1.125rem', fontWeight: 700, color: '#38bdf8', marginBottom: '0.5rem' }}>
+                        <p style={{ fontSize: '1.125rem', fontWeight: 700, color: '#1D5DB8', marginBottom: '0.5rem' }}>
                             We couldn't load the latest DutyLaunch
                         </p>
-                        <p style={{ fontSize: '0.9rem', color: '#94a3b8', maxWidth: '38ch', marginBottom: '1.5rem' }}>
+                        <p style={{ fontSize: '0.9rem', color: '#475569', maxWidth: '38ch', marginBottom: '1.5rem' }}>
                             Part of the website didn't download. Check your internet connection and reload. If it
                             keeps happening, clear this site's cached files in your browser, or try again in a few minutes.
                         </p>
@@ -106,7 +106,7 @@ export class ChunkErrorBoundary extends Component {
                     </>
                 ) : this.state.isChunkError ? (
                     <>
-                        <p style={{ fontSize: '1.125rem', fontWeight: 700, color: '#38bdf8', marginBottom: '0.5rem' }}>
+                        <p style={{ fontSize: '1.125rem', fontWeight: 700, color: '#1D5DB8', marginBottom: '0.5rem' }}>
                             Updating DutyLaunch…
                         </p>
                         <p style={{ fontSize: '0.9rem', color: '#94a3b8', maxWidth: '30ch' }}>
@@ -119,7 +119,7 @@ export class ChunkErrorBoundary extends Component {
                             Something went wrong
                         </p>
                         <p style={{ fontSize: '0.9rem', color: '#94a3b8', maxWidth: '30ch', marginBottom: '1.5rem' }}>
-                            This page ran into an error. Try reloading — if the problem
+                            This page ran into an error. Try reloading, if the problem
                             persists, contact support.
                         </p>
                         <button

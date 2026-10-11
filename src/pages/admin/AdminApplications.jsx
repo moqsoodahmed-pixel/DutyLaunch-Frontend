@@ -60,7 +60,7 @@ export default function AdminApplications() {
               </div>
             ),
           },
-          { key: 'job', header: 'Role', render: (row) => `${row.job?.title || '—'} · ${row.job?.company || ''}` },
+          { key: 'job', header: 'Role', render: (row) => `${row.job?.title || 'N/A'} · ${row.job?.company || ''}` },
           { key: 'appliedAt', header: 'Applied', render: (row) => formatDate(row.appliedAt) },
           { key: 'status', header: 'Status', render: (row) => <StatusBadge status={row.status} /> },
         ]}

@@ -261,10 +261,10 @@ export default function MyResumes() {
             <Input label="Target role" value={form.jobTitle} onChange={(e) => setForm((f) => ({ ...f, jobTitle: e.target.value }))} placeholder="e.g. Key Account Manager" />
             <Input label="Company" hint="Optional" value={form.company} onChange={(e) => setForm((f) => ({ ...f, company: e.target.value }))} />
           </div>
-          <Input label="Version name" hint="Optional — defaults to role and company" value={form.label} onChange={(e) => setForm((f) => ({ ...f, label: e.target.value }))} />
+          <Input label="Version name" hint="Optional, defaults to role and company" value={form.label} onChange={(e) => setForm((f) => ({ ...f, label: e.target.value }))} />
           <Textarea
             label="Job description"
-            hint="Recommended — this decides which experience is emphasised"
+            hint="Recommended, this decides which experience is emphasised"
             rows={7}
             value={form.jobDescription}
             onChange={(e) => setForm((f) => ({ ...f, jobDescription: e.target.value }))}
@@ -299,7 +299,7 @@ export default function MyResumes() {
                 Go back
               </Button>
               <Button loading={busyId === `dl-${blocked.version.id}`} onClick={() => download(blocked.version, true)}>
-                These are accurate — export
+                These are accurate, export
               </Button>
             </div>
           </div>

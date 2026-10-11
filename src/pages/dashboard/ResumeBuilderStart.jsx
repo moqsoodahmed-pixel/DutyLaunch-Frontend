@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import {
   FileUp, PencilLine, Upload, UserRound, Check,
-  Sparkles, Loader2, Wand2, AlertTriangle, RefreshCw,
+  Loader2, Wand2, AlertTriangle, RefreshCw,
 } from 'lucide-react';
 import { PanelHeader } from '../../layouts/AppShell.jsx';
 import { Button } from '../../components/ui/Button.jsx';
@@ -62,7 +62,7 @@ const CHOICES = [
     id: 'scratch',
     icon: PencilLine,
     title: 'No, start from scratch',
-    body: 'We guide you step by step — contact details, work history, education, skills and summary — with ready-made examples to pick from.',
+    body: 'We guide you step by step, contact details, work history, education, skills and summary, with ready-made examples to pick from.',
   },
 ];
 
@@ -143,7 +143,7 @@ export default function ResumeBuilderStart() {
       const raw = localStorage.getItem(draftKey(user?.id || user?._id));
       const d = raw ? JSON.parse(raw) : null;
       if (d?.personal?.firstName) setDraft(d);
-    } catch { /* ignore */ }
+    } catch {  }/* ignore */
   }, [user]);
 
   /**
@@ -173,7 +173,7 @@ export default function ResumeBuilderStart() {
       try {
         sessionStorage.clear();
         sessionStorage.setItem(BUILDER_IMPORT_KEY, JSON.stringify(lean));
-      } catch { /* ignored — router state is the primary path */ }
+      } catch {  }/* ignored — router state is the primary path */
     }
 
     openEditor('upload', routerState);
@@ -295,7 +295,7 @@ export default function ResumeBuilderStart() {
       {stage === 'choose' && draft && (
         <div className="mb-5 flex flex-col gap-3 rounded-lg border border-azure-200 bg-azure-50 p-4 sm:flex-row sm:items-center sm:justify-between">
           <p className="text-small text-ink">
-            <strong>Continue where you left off</strong> — your resume for{' '}
+            <strong>Continue where you left off</strong> Your resume for{' '}
             {[draft.personal.firstName, draft.personal.surname].filter(Boolean).join(' ')} is saved in this browser.
           </p>
           <Button size="sm" onClick={() => navigate('/resume-builder/wizard')}>
@@ -310,7 +310,7 @@ export default function ResumeBuilderStart() {
             <h2 className="text-h2 font-extrabold text-ink">Are you uploading an existing resume?</h2>
             <p className="mt-2 text-body text-slate-600">Just review, edit and update it with new information.</p>
             <p className="mt-3 text-caption text-slate-500">
-              Takes about 5 minutes. Pick one option below, then press Next — you can't lose your progress, it saves automatically.
+              Takes about 5 minutes. Pick one option below, then press Next, you can't lose your progress, it saves automatically.
             </p>
           </div>
 
@@ -365,7 +365,7 @@ export default function ResumeBuilderStart() {
         <div className="rounded-lg border border-line bg-white p-6 sm:p-8">
           <h2 className="text-h3 font-bold text-ink">Upload your resume</h2>
           <p className="mt-1 text-small text-slate-600">
-            PDF or DOCX, text-based (not a scanned image), up to 5 MB. We fill in the builder — you review and edit everything.
+            PDF or DOCX, text-based (not a scanned image), up to 5 MB. We fill in the builder, you review and edit everything.
           </p>
 
           <div className="mt-4 flex items-start gap-3 rounded-lg border border-purple-200 bg-purple-50 px-4 py-3">
@@ -374,7 +374,7 @@ export default function ResumeBuilderStart() {
               <p className="text-[12px] font-bold text-purple-800">AI Resume Enhancement included</p>
               <p className="text-[11.5px] text-purple-700">
                 After reading your file you can paste the job you are applying for. Our AI then rewrites your summary and
-                bullet points with ATS-friendly wording and the job's keywords — only where your experience supports them,
+                bullet points with ATS-friendly wording and the job's keywords, only where your experience supports them,
                 and without changing any facts, dates, numbers or employers.
               </p>
             </div>
@@ -459,7 +459,7 @@ export default function ResumeBuilderStart() {
             <>
               <h2 className="mt-6 text-h3 font-bold text-ink">Which job are you applying for?</h2>
               <p className="mt-1 text-small text-slate-600">
-                Paste the full job description and we will use its keywords — but only where your own experience backs them up.
+                Paste the full job description and we will use its keywords, but only where your own experience backs them up.
                 Skills you don't have are listed as gaps, never added.
               </p>
 
@@ -497,7 +497,7 @@ export default function ResumeBuilderStart() {
                   Continue without a job description
                 </Button>
                 <Button variant="quiet" onClick={() => handOff(parsed)}>
-                  Skip AI — open my resume as it is
+                  Skip AI, open my resume as it is
                 </Button>
                 <Button variant="quiet" onClick={() => { setStage(STAGE.UPLOAD); setParsed(null); }}>
                   Back
@@ -520,12 +520,11 @@ export default function ResumeBuilderStart() {
                       : 'Rewriting and fact-checking your resume for ATS-readability…'}
                   </p>
                   <p className="mt-1 font-normal text-purple-700">
-                    {elapsed}s elapsed — this usually takes 15–60 seconds. Please keep this page open.
+                    {elapsed}s elapsed, this usually takes 15 to 60 seconds. Please keep this page open.
                   </p>
                 </div>
               </div>
               <div className="flex items-center gap-3 rounded-lg border border-slate-200 bg-slate-50 px-4 py-3 text-[12px] font-semibold text-slate-400">
-                <Sparkles className="h-4 w-4 text-slate-300" />
                 Preparing your optimized resume in the builder
               </div>
               <div className="pt-2">

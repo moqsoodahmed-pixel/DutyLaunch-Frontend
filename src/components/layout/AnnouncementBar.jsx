@@ -31,12 +31,12 @@ export function AnnouncementBar() {
     };
 
     return (
-        <div id="announcement-bar" className="relative z-40 bg-night-deep border-b border-night-line text-white print:hidden">
+        <div id="announcement-bar" className="relative z-40 bg-mist-base border-b border-mist-line text-ink print:hidden">
             <div className="mx-auto flex max-w-shell items-center justify-center gap-2 px-3 pr-10 sm:px-gutter sm:pr-12 py-2 text-small">
-                <Zap className="hidden h-4 w-4 shrink-0 text-frost-400 sm:block" aria-hidden />
+                <Zap className="hidden h-4 w-4 shrink-0 text-azure sm:block" aria-hidden />
                 <p className="min-w-0 truncate text-center">
-                    <span className="font-semibold">New:</span> Free AI Resume Health score — see what recruiters and the ATS see.{' '}
-                    <Link to="/resume-checker" className="font-bold text-frost-200 underline underline-offset-4 hover:underline">
+                    <span className="font-semibold">New:</span> Free AI Resume Health score, see what recruiters and the ATS see.{' '}
+                    <Link to="/resume-checker" className="font-bold text-azure-700 underline underline-offset-4 hover:underline">
                         Check yours →
                     </Link>
                 </p>
@@ -45,7 +45,7 @@ export function AnnouncementBar() {
                 type="button"
                 onClick={dismiss}
                 aria-label="Dismiss announcement"
-                className="absolute right-2 top-1/2 grid h-7 w-7 -translate-y-1/2 place-items-center rounded-full text-white/70 transition hover:bg-white/10 hover:text-white"
+                className="absolute right-2 top-1/2 grid h-7 w-7 -translate-y-1/2 place-items-center rounded-full text-slate-600 transition hover:bg-white hover:text-ink"
             >
                 <X className="h-4 w-4" aria-hidden />
             </button>

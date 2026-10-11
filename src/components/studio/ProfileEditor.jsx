@@ -123,7 +123,7 @@ export function ProfileEditor({ value, onChange, needsReview = [] }) {
       </Section>
 
       <Section title="Skills">
-        <p className="text-caption text-slate-500">LinkedIn only exports your top 3 skills — add any others you genuinely use. Comma separated.</p>
+        <p className="text-caption text-slate-500">LinkedIn only exports your top 3 skills, add any others you genuinely use. Comma separated.</p>
         <div className="grid gap-3 sm:grid-cols-2">
           {[['technical', 'Technical skills'], ['tools', 'Tools & technologies'], ['functional', 'Professional skills'], ['soft', 'Soft skills']].map(([k, label]) => (
             <Input key={k} label={label} value={csv(r.skills?.[k])} onChange={(e) => set({ skills: { ...r.skills, [k]: toCsv(e.target.value) } })} />

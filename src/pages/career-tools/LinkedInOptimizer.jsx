@@ -69,11 +69,11 @@ export default function LinkedInOptimizer() {
             <div className="space-y-5 lg:col-span-5">
               <ResumeSourceCard source={source} />
               <form className="tile space-y-5 p-6" onSubmit={generate}>
-                <p className="text-small font-semibold text-ink">Step 2 — What you are aiming for</p>
+                <p className="text-small font-semibold text-ink">Step 2: What you are aiming for</p>
                 <Input label="Target role" hint="Optional" value={role} onChange={(e) => setRole(e.target.value)} placeholder="e.g. Operations Manager" />
                 <Textarea
                   label="A job description you like"
-                  hint="Optional — aligns your keywords with what recruiters search for"
+                  hint="Optional, aligns your keywords with what recruiters search for"
                   rows={6}
                   value={jobDescription}
                   onChange={(e) => setJobDescription(e.target.value)}
@@ -96,7 +96,7 @@ export default function LinkedInOptimizer() {
                   className="flex h-full min-h-[24rem] flex-col justify-center"
                   icon={ClipboardCheck}
                   title="Your recommendations will appear here"
-                  description="A headline, an About section, rewritten experience entries and the skills worth listing — all from your own CV."
+                  description="A headline, an About section, rewritten experience entries and the skills worth listing, all from your own CV."
                 />
               )}
 
@@ -110,7 +110,7 @@ export default function LinkedInOptimizer() {
                   )}
 
                   <Block title="Headline" onCopy={result.headline ? () => copy(result.headline) : null}>
-                    <p className="text-body font-semibold text-ink">{result.headline || '—'}</p>
+                    <p className="text-body font-semibold text-ink">{result.headline || 'N/A'}</p>
                     {result.headlineAlternatives?.length > 0 && (
                       <ul className="mt-3 space-y-1.5">
                         {result.headlineAlternatives.map((h) => (

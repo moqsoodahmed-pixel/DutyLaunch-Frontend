@@ -126,7 +126,11 @@ export function AppRoutes() {
               <Route path="professional-courses/:slug" element={<ProgrammeDetail track="courses" />} />
               {/* --- Career Tools, at their SEO URLs -------------------- */}
               <Route path="ai-resume-builder" element={<Navigate to="/resume-builder" replace />} />
-              <Route path="resume-checker" element={<AtsResumeChecker />} />
+              {/* The ATS resume checker needs a signed-in account. Visitors are sent to
+                  the login page and returned here straight after signing in. */}
+              <Route element={<ProtectedRoute />}>
+                <Route path="resume-checker" element={<AtsResumeChecker />} />
+              </Route>
               <Route path="linkedin-optimization" element={<LinkedInOptimizer />} />
               <Route path="cover-letter-generator" element={<CoverLetter />} />
               <Route path="interview-preparation" element={<InterviewCoach />} />

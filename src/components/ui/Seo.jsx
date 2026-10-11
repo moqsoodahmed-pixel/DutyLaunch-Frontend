@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import { canonical, siteUrl } from '../../utils/seo.js';
 
-const DEFAULT_TITLE = 'DutyLaunch — Career, education and global opportunities';
+const DEFAULT_TITLE = 'DutyLaunch: Career, education and global opportunities';
 const SUFFIX = ' · DutyLaunch';
 
 function upsertMeta(attr, key, content) {

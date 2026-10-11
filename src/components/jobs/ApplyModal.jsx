@@ -90,7 +90,7 @@ export function ApplyModal({ job, open, onClose, onApplied }) {
     <Modal
       open={open}
       onClose={onClose}
-      title={`Apply — ${job?.title || ''}`}
+      title={`Apply: ${job?.title || ''}`}
       description={job?.company}
       footer={
         <div className="flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">

@@ -17,7 +17,7 @@ const POINTS = [
   {
     icon: Layers,
     title: 'Two-column and single-column',
-    body: 'Sidebar layouts keep the rail after the main column in document order, so a parser still reads your roles first — the visual split is presentation only.',
+    body: 'Sidebar layouts keep the rail after the main column in document order, so a parser still reads your roles first, the visual split is presentation only.',
   },
   {
     icon: Type,
@@ -27,7 +27,7 @@ const POINTS = [
   {
     icon: FileCheck2,
     title: 'Written for your target role',
-    body: 'Each template carries the sections, verbs and keyword groups screeners expect for that job — then a writer fills them with your actual history.',
+    body: 'Each template carries the sections, verbs and keyword groups screeners expect for that job, then a writer fills them with your actual history.',
   },
 ];
 
@@ -89,7 +89,7 @@ export default function CvTemplates() {
           </RevealGroup>
 
           <p className="mt-8 max-w-prose text-small text-slate-500">
-            Every template is loaded with realistic, production-ready career achievements, metrics, and credentials. Open any template in the Resume Builder to fill it with your own details — upload your resume or start from scratch.
+            Every template is loaded with realistic, production-ready career achievements, metrics, and credentials. Open any template in the Resume Builder to fill it with your own details, upload your resume or start from scratch.
           </p>
         </Container>
       </Section>

@@ -73,7 +73,9 @@ export default function Register() {
 
       const user = await doRegister(payload);
       toast.success(`Welcome to DutyLaunch, ${user.name.split(' ')[0]}`);
-      navigate(homePathFor(user.role), { replace: true });
+      const next = searchParams.get('next');
+      const safeNext = next && next.startsWith('/') && !next.startsWith('//') ? next : null;
+      navigate(safeNext || homePathFor(user.role), { replace: true });
     } catch (error) {
       error.fieldErrors?.forEach((f) => setError(f.field, { message: f.message }));
       toast.error(

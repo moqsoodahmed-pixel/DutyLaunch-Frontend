@@ -40,7 +40,7 @@ export default function DubaiPackage() {
         schema={serviceSchema({
           name: 'Dubai Launch',
           description:
-            'Complete guidance for finding a job in Dubai — profile preparation, job applications, interview support and relocation assistance.',
+            'Complete guidance for finding a job in Dubai, profile preparation, job applications, interview support and relocation assistance.',
           path: '/dubai-launch',
         })}
       />
@@ -49,12 +49,12 @@ export default function DubaiPackage() {
         tone="ink"
         eyebrow="Dubai Launch"
         title="Take the stress out of finding a job in Dubai."
-        lead="DutyLaunch provides complete guidance—from profile preparation and job applications to interview support and relocation assistance—helping you move confidently toward your international career."
+        lead="DutyLaunch provides complete guidance, from profile preparation and job applications to interview support and relocation assistance, helping you move confidently toward your international career."
         actions={
           <HeroActions
             dark
             primary={{ label: 'Talk to Our Experts', to: '/contact#consultation' }}
-            secondary={{ label: 'Appostle Services', to: '/appostle-services' }}
+            secondary={{ label: 'Apostille Services', to: '/appostle-services' }}
           />
         }
         aside={
@@ -98,7 +98,7 @@ export default function DubaiPackage() {
             <SectionHeader
               align="stack"
               title="Who This Is For"
-              lead="Job seekers relocating to Dubai or the wider UAE who want a structured, supported transition — with a team that has done this before — rather than piecing the process together alone."
+              lead="Job seekers relocating to Dubai or the wider UAE who want a structured, supported transition, with a team that has done this before, rather than piecing the process together alone."
             />
             <SiteImage image={images.dubaiRelocation} className="mx-auto md:mx-0" />
           </div>
@@ -110,7 +110,7 @@ export default function DubaiPackage() {
           <SectionHeader
             label="Sequence"
             title="The order things have to happen in."
-            lead="Most delays come from doing things out of order — travelling before your CV is ready, or arriving with nowhere to stay. This is the sequence the package follows."
+            lead="Most delays come from doing things out of order, travelling before your CV is ready, or arriving with nowhere to stay. This is the sequence the package follows."
           />
           <ol className="mt-12 grid gap-8 lg:grid-cols-4">
             {globalMobility.timeline.map((phase, i) => (
@@ -159,7 +159,7 @@ export default function DubaiPackage() {
         title="Ready to Take the Next Step in Your Career?"
         body="Your dream career starts with the right guidance. Whether you’re looking for a better job, planning higher education, relocating abroad, or improving your professional profile, DutyLaunch is here to support you at every stage of your journey."
         primary={{ label: 'Book Free Consultation', to: '/contact#consultation' }}
-        secondary={{ label: 'Appostle Services', to: '/appostle-services' }}
+        secondary={{ label: 'Apostille Services', to: '/appostle-services' }}
       />
     </>
   );

@@ -9,7 +9,7 @@ export function describeOptimizeError(err) {
   // has no "timeout" in it — match that wording too, or a slow AI shows up as
   // a vague "unavailable".
   if (err?.code === 'ECONNABORTED' || /time(?:d)?[\s-]?out|took too long/i.test(err?.message || '')) {
-    return 'The AI is slower than usual right now, so this took too long. Your resume has not been changed. Press Try again — it usually works on the next attempt.';
+    return 'The AI is slower than usual right now, so this took too long. Your resume has not been changed. Press Try again, it usually works on the next attempt.';
   }
   if (status === 429) return 'Too many requests right now. Wait a minute and try again.';
   if (status === 401 || status === 403) return 'Your session has expired. Sign in again to use AI optimization.';

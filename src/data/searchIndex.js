@@ -9,14 +9,14 @@ import { menuGroups } from './site.js';
  * still lands on the right page. Everything here is a real, existing route.
  */
 const CURATED = [
-    { title: 'Home', path: '/', group: 'Pages', description: 'Career, education, jobs and documentation — one launchpad.', keywords: 'home start dutylaunch' },
+    { title: 'Home', path: '/', group: 'Pages', description: 'Career, education, jobs and documentation, one launchpad.', keywords: 'home start dutylaunch' },
     { title: 'Resume Checker', path: '/resume-checker', group: 'Career+', description: 'Free Resume Health score with a fix for every issue.', keywords: 'ats cv resume score check free analyze analysis health scan' },
     { title: 'Resume Builder', path: '/resume-builder', group: 'Career+', description: 'Upload your resume or start from scratch. Free and paid templates.', keywords: 'resume builder cv builder create write new improve upload template make' },
     { title: 'CV Templates', path: '/cv-templates', group: 'Career+', description: 'ATS-friendly resume templates by role.', keywords: 'cv resume templates ats format design role sample' },
     { title: 'LinkedIn Optimization', path: '/linkedin-optimization', group: 'Career+', description: 'Headline, About and keyword review.', keywords: 'linkedin profile optimization headline keywords social network' },
     { title: 'Cover Letter Generator', path: '/cover-letter-generator', group: 'Career+', description: 'A cover letter built from your own evidence.', keywords: 'cover letter generator write application' },
     { title: 'Interview Preparation', path: '/interview-preparation', group: 'Career+', description: 'Practice questions from the job and your resume.', keywords: 'interview preparation questions practice coach mock prep' },
-    { title: 'Jobs', path: '/jobs', group: 'Jobs', description: 'Search and filter open roles — free for candidates.', keywords: 'jobs search vacancy vacancies roles hiring careers salary apply openings work' },
+    { title: 'Jobs', path: '/jobs', group: 'Jobs', description: 'Search and filter open roles, free for candidates.', keywords: 'jobs search vacancy vacancies roles hiring careers salary apply openings work' },
     { title: 'For Employers', path: '/employers', group: 'Jobs', description: 'Post a role and manage applicants.', keywords: 'employer post job hire recruiter recruitment applicants vacancy' },
     { title: 'Pricing', path: '/pricing', group: 'Services', description: 'CV bundles priced by experience.', keywords: 'pricing price cost cv bundles packages fees plans charges rates' },
     { title: 'Career Services', path: '/career-services', group: 'Services', description: 'CV writing, counselling and job-search support.', keywords: 'career services cv writing counselling job search coaching guidance' },
@@ -28,7 +28,7 @@ const CURATED = [
     { title: 'Upskills', path: '/upskills', group: 'Education', description: 'Short courses for a specific gap.', keywords: 'upskill upskilling short course skills learn' },
     { title: 'Blog', path: '/blog', group: 'Company', description: 'Articles on careers, education and moving abroad.', keywords: 'blog articles news guides tips stories' },
     { title: 'FAQ', path: '/faq', group: 'Company', description: 'Common questions, answered plainly.', keywords: 'faq questions help support answers' },
-    { title: 'Contact', path: '/contact', group: 'Company', description: 'Talk to us — the first conversation is free.', keywords: 'contact support email phone whatsapp consultation book call reach' },
+    { title: 'Contact', path: '/contact', group: 'Company', description: 'Talk to us, the first conversation is free.', keywords: 'contact support email phone whatsapp consultation book call reach' },
     { title: 'About', path: '/about', group: 'Company', description: 'One team for the career, qualification and paperwork.', keywords: 'about company team who we are story' },
     { title: 'Partners', path: '/partners', group: 'Company', description: 'Institutes, EdTech and service partners.', keywords: 'partners partnership institutes collaborate affiliate' },
     { title: 'Privacy Policy', path: '/privacy-policy', group: 'Legal', description: 'How we handle your data.', keywords: 'privacy policy data protection' },

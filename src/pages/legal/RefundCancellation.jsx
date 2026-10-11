@@ -70,7 +70,7 @@ export default function RefundCancellation() {
       <h2>How refunds are paid</h2>
       <p>
         Approved refunds are returned to the original payment method. Processing time depends on your bank or payment
-        provider and is typically 5–10 working days after approval.
+        provider and is typically 5 to 10 working days after approval.
       </p>
     </LegalPage>
   );

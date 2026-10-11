@@ -92,7 +92,7 @@ export default function AdminTestimonials() {
         rows={data || []}
         empty={{
           title: 'No testimonials yet',
-          description: 'The homepage will show nothing here until a real, consented quote is added — that is intentional.',
+          description: 'The homepage will show nothing here until a real, consented quote is added, that is intentional.',
         }}
         columns={[
           { key: 'name', header: 'Client', primary: true, render: (row) => <span className="font-semibold text-ink">{row.name}</span> },

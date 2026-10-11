@@ -24,9 +24,9 @@ function Score({ label, before, after, hint }) {
     <div className="rounded-lg border border-slate-200 bg-white p-3" title={hint}>
       <p className="text-[10px] font-bold uppercase tracking-wide text-slate-400">{label}</p>
       <p className="mt-1 text-[18px] font-extrabold text-ink">
-        {typeof before === 'number' ? before : '—'}
+        {typeof before === 'number' ? before : 'N/A'}
         <span className="mx-1.5 text-[12px] font-semibold text-slate-400">→</span>
-        {typeof after === 'number' ? after : '—'}
+        {typeof after === 'number' ? after : 'N/A'}
         {delta !== null && delta !== 0 && (
           <span className={cn('ml-2 text-[11px] font-bold', delta > 0 ? 'text-emerald-600' : 'text-amber-600')}>
             {delta > 0 ? `+${delta}` : delta}
@@ -61,7 +61,7 @@ function Chips({ items, tone, onAddSkill }) {
             {onAddSkill && st === 'confirm' && (
               <>
                 <button type="button" onClick={() => { if (onAddSkill(k.term)) setState((x) => ({ ...x, [k.term]: 'added' })); }} className="rounded bg-slate-800 px-1.5 text-[10px] font-bold text-white">
-                  Yes, I have this skill — add
+                  Yes, I have this skill, add
                 </button>
                 <button type="button" onClick={() => setState((x) => ({ ...x, [k.term]: undefined }))} className="text-[10px] font-bold text-slate-500">Cancel</button>
               </>
@@ -100,17 +100,17 @@ export function OptimizationReport({ report, onRevert, onAddSkill, onDismiss }) 
           <div>
             <p className="text-small font-bold text-purple-900">
               {visibleChanges.length > 0
-                ? `Optimized draft — ${visibleChanges.length} change${visibleChanges.length === 1 ? '' : 's'} applied`
+                ? `Optimized draft, ${visibleChanges.length} change${visibleChanges.length === 1 ? '' : 's'} applied`
                 : rejections.length > 0
-                  ? 'No safe rewording was found — your original wording was kept'
-                  : 'Your resume was already well written — no rewording was needed'}
+                  ? 'No safe rewording was found, your original wording was kept'
+                  : 'Your resume was already well written, no rewording was needed'}
             </p>
             <p className="text-[11.5px] text-purple-700">
               {keywordSource === 'typical-role'
-                ? `Matched to a typical ${targetRole || 'job'} posting written by AI from your profession — not a real job. Keywords your experience already supports were used; the rest are listed as gaps. Paste a real job description for exact matching.`
+                ? `Matched to a typical ${targetRole || 'job'} posting written by AI from your profession, not a real job. Keywords your experience already supports were used; the rest are listed as gaps. Paste a real job description for exact matching.`
                 : jobMode
                   ? 'Matched to the job description you pasted.'
-                  : 'General ATS optimization — not matched to a specific job. Paste a job description to see how well you match it and which of its keywords you can add.'}{' '}
+                  : 'General ATS optimization, not matched to a specific job. Paste a job description to see how well you match it and which of its keywords you can add.'}{' '}
               {visibleChanges.length > 0
                 ? 'Review and edit anything, then download.'
                 : rejections.length > 0
@@ -186,7 +186,7 @@ export function OptimizationReport({ report, onRevert, onAddSkill, onDismiss }) 
               )}
               {keywords.needsConfirmation?.length > 0 && (
                 <div>
-                  <p className="text-[12px] font-bold text-ink">Possible matches — add them only if they are true for you</p>
+                  <p className="text-[12px] font-bold text-ink">Possible matches, add them only if they are true for you</p>
                   <Chips items={keywords.needsConfirmation} tone="warn" onAddSkill={onAddSkill} />
                 </div>
               )}

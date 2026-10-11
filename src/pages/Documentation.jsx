@@ -51,11 +51,11 @@ export default function Documentation() {
         description={seoFor('appostleServices').description}
       />
       <PageHero
-        eyebrow="Appostle Services"
+        eyebrow="Apostille Services"
         tone="sand"
         title="Apostille & Attestation"
         lead="Planning to study, work, or relocate abroad? DutyLaunch provides reliable Apostille and Attestation services to ensure your documents are legally recognized across countries."
-        breadcrumb={[{ label: 'Appostle Services' }]}
+        breadcrumb={[{ label: 'Apostille Services' }]}
         actions={<HeroActions primary={{ label: 'Check Your Document Requirements', to: '/contact#consultation' }} />}
       />
 

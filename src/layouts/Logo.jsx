@@ -10,7 +10,7 @@ import { cn } from '../../utils/cn.js';
 export function Logo({ tone = 'dark', className, height = 32 }) {
   const src = tone === 'light' ? '/logo-white.png' : '/logo.png';
   return (
-    <Link to="/" className={cn('inline-flex items-center', className)} aria-label="DutyLaunch — home">
+    <Link to="/" className={cn('inline-flex items-center', className)} aria-label="DutyLaunch, home">
       <img src={src} alt="DutyLaunch" height={height} style={{ height, width: 'auto' }} />
     </Link>
   );

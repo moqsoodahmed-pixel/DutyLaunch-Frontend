@@ -120,7 +120,7 @@ export default function AdminScoring() {
         <div className="space-y-6">
           <div className="grid gap-4 rounded-lg border border-line bg-white p-5 sm:grid-cols-2">
             <Input label="Name" value={editing.name} onChange={(e) => setEditing((s) => ({ ...s, name: e.target.value }))} placeholder="e.g. Skills-heavy match, Q4" />
-            <Textarea label="Notes" hint="Why this change — shown to other admins" rows={2} value={editing.notes} onChange={(e) => setEditing((s) => ({ ...s, notes: e.target.value }))} />
+            <Textarea label="Notes" hint="Why this change, shown to other admins" rows={2} value={editing.notes} onChange={(e) => setEditing((s) => ({ ...s, notes: e.target.value }))} />
           </div>
 
           {sets.map(({ key, label }) => (
@@ -128,7 +128,7 @@ export default function AdminScoring() {
               <div className="flex items-center justify-between gap-3">
                 <h2 className="text-body font-bold text-ink">{label}</h2>
                 <span className={cn('tabular text-small font-bold', sums[key] === 100 ? 'text-success' : 'text-danger')}>
-                  Total {sums[key]}%{sums[key] !== 100 && ' — must be 100%'}
+                  Total {sums[key]}%{sums[key] !== 100 && ', must be 100%'}
                 </span>
               </div>
               <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">

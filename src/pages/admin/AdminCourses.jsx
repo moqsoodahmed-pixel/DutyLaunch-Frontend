@@ -96,7 +96,7 @@ export default function AdminCourses() {
         empty={{ title: 'No courses yet', action: <Button size="sm" onClick={openNew}>Add the first one</Button> }}
         columns={[
           { key: 'title', header: 'Title', primary: true, render: (row) => <span className="font-semibold text-ink">{row.title}</span> },
-          { key: 'category', header: 'Category', render: (row) => row.category?.name || '—' },
+          { key: 'category', header: 'Category', render: (row) => row.category?.name || 'N/A' },
           { key: 'level', header: 'Level', render: (row) => <Badge tone="outline">{row.level}</Badge> },
           { key: 'price', header: 'Price', render: (row) => (row.priceOnRequest ? 'On request' : formatCurrency(row.price, row.currency)) },
           { key: 'status', header: 'Status', render: (row) => <StatusBadge status={row.status} /> },

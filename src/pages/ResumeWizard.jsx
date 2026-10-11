@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useSearchParams, useLocation } from 'react-router-dom';
-import { ArrowLeft, Check, Plus, Search, Sparkles, Trash2, Pencil, Lock, Download, X, Lightbulb, Wand2, Loader2, CheckCircle2, ChevronDown, ChevronUp } from 'lucide-react';
+import { ArrowLeft, Check, Plus, Search, Trash2, Pencil, Lock, Download, X, Lightbulb, Wand2, Loader2, CheckCircle2, ChevronDown, ChevronUp } from 'lucide-react';
 import { Button, Input, Select, Textarea, Badge, Spinner } from '../components/ui/index.js';
 import { ConsentCheckbox } from '../components/ui/ConsentCheckbox.jsx';
 import { Logo } from '../components/layout/Logo.jsx';
@@ -205,7 +205,7 @@ function ExamplesPanel({ query, setQuery, items, picked, onToggle, loading, onMo
       </ul>
       {onMoreAi && (
         <button type="button" onClick={onMoreAi} disabled={loading} className="mt-3 inline-flex items-center gap-1.5 text-small font-semibold text-azure hover:underline disabled:opacity-50">
-          <Sparkles className="h-4 w-4" aria-hidden /> More ideas with AI
+          More ideas with AI
         </button>
       )}
       {aiNote && <p className="mt-2 text-caption text-slate-500">{aiNote}</p>}
@@ -295,9 +295,9 @@ export default function ResumeWizard() {
 
     if (routerResume) {
       // Clear sessionStorage entries so a back-navigation doesn't re-import
-      try { sessionStorage.removeItem(BUILDER_IMPORT_KEY); } catch { /* ok */ }
-      try { sessionStorage.removeItem(BUILDER_AI_OPTIMIZE_KEY); } catch { /* ok */ }
-      try { sessionStorage.removeItem(BUILDER_AI_REPORT_KEY); } catch { /* ok */ }
+      try { sessionStorage.removeItem(BUILDER_IMPORT_KEY); } catch {  }/* ok */
+      try { sessionStorage.removeItem(BUILDER_AI_OPTIMIZE_KEY); } catch {  }/* ok */
+      try { sessionStorage.removeItem(BUILDER_AI_REPORT_KEY); } catch {  }/* ok */
       return { resume: routerResume, ai: routerAi, report: routerReport };
     }
 
@@ -312,7 +312,7 @@ export default function ResumeWizard() {
         if (reportRaw) sessionStorage.removeItem(BUILDER_AI_REPORT_KEY);
         return { resume: JSON.parse(raw), ai: aiRaw ? JSON.parse(aiRaw) : null, report: reportRaw ? JSON.parse(reportRaw) : null };
       }
-    } catch { /* fall through */ }
+    } catch {  }/* fall through */
 
     return null;
   });
@@ -662,7 +662,7 @@ export default function ResumeWizard() {
   const handlePreview = () => {
     if (!previewReady) {
       setShowErrors(true);
-      toast.error('Add your name and an email or phone number first — then you can preview your resume.');
+      toast.error('Add your name and an email or phone number first, then you can preview your resume.');
       return;
     }
     setPreviewOrigin(step);
@@ -717,7 +717,7 @@ export default function ResumeWizard() {
       });
       const k = `${kind === 'summary' ? 'summaries' : kind}:${exQuery.toLowerCase()}`;
       setAiItems((m) => ({ ...m, [k]: [...(m[k] || []), ...(res.items || [])] }));
-      if (kind === 'summary') setAiNote('Personalised from what you entered — pick one and edit it.');
+      if (kind === 'summary') setAiNote('Personalised from what you entered, pick one and edit it.');
     } catch (err) {
       setAiNote(errMsg(err, 'AI ideas are busy right now. Use the examples or write your own.'));
     } finally {
@@ -750,7 +750,7 @@ export default function ResumeWizard() {
           <Lightbulb className="h-4 w-4 shrink-0 text-azure" aria-hidden /> Save to my DutyLaunch account
         </p>
         <p className="mt-1 text-caption text-slate-600">
-          Tick once and everything you enter is saved to your account as you go — and used to write your Cover letter and Interview prep automatically.
+          Tick once and everything you enter is saved to your account as you go, and used to write your Cover letter and Interview prep automatically.
         </p>
         <div className="mt-3">
           <ConsentCheckbox checked={consent} onChange={handleConsentChange} />
@@ -769,7 +769,7 @@ export default function ResumeWizard() {
         <Input label="Surname" value={w.personal.surname} onChange={setPersonal('surname')} placeholder="e.g. Sutar" disabled={Boolean(lockedName)} hint={lockedName ? '🔒 Locked to your account' : undefined} />
         {lockedName && (
           <p className="-mt-2 text-caption text-slate-500 sm:col-span-2">
-            Your name is fixed to your DutyLaunch account — each account builds one person's resume. Everything else (profession, contact details, jobs, skills, summary) can be changed for each job you apply to. Need your name corrected? Contact support.
+            Your name is fixed to your DutyLaunch account, each account builds one person's resume. Everything else (profession, contact details, jobs, skills, summary) can be changed for each job you apply to. Need your name corrected? Contact support.
           </p>
         )}
         <Input className="sm:col-span-2" label="Profession" value={w.personal.profession} onChange={setPersonal('profession')} placeholder="e.g. Web Developer" hint="The job you have or want. It appears under your name." />
@@ -834,7 +834,7 @@ export default function ResumeWizard() {
         title={job.title ? `What did you do as ${/^[aeiou]/i.test(job.title) ? 'an' : 'a'} ${job.title}?` : 'Tell us about this job'}
         lead="Fill in the details, then choose from pre-written examples below or write your own."
         onBack={() => (w.experience.length > 1 || job.title ? setEditingJob(null) : back())}
-        tips="Start each point with an action word (Built, Led, Improved). Add numbers where you can — e.g. “served 40 customers a day”."
+        tips="Start each point with an action word (Built, Led, Improved). Add numbers where you can, e.g. “served 40 customers a day”."
       />
       <div className="grid gap-4 sm:grid-cols-2">
         <Input label="Job title" value={job.title} onChange={(e) => updateJob({ title: e.target.value })} onBlur={() => job.title && setExQuery(job.title)} placeholder="e.g. Web Developer" />
@@ -859,14 +859,14 @@ export default function ResumeWizard() {
           loading={aiLoading}
           onMoreAi={() => moreWithAi('bullets')}
           aiNote={aiNote}
-          emptyText="Type your job title above and press search to see examples — or write your own on the right."
+          emptyText="Type your job title above and press search to see examples, or write your own on the right."
         />
         <div>
           <p className="text-small font-bold text-ink">
             {job.title || 'Job'}
             {job.company ? ` | ${job.company}` : ''}
           </p>
-          <p className="mb-2 text-caption text-slate-500">What you did — one point per line. Click an example to add it, then edit the [brackets].</p>
+          <p className="mb-2 text-caption text-slate-500">What you did, one point per line. Click an example to add it, then edit the [brackets].</p>
           <LineList items={job.bullets} onChange={(bullets) => updateJob({ bullets })} placeholder="Describe a task or achievement" addLabel="Add a point" multiline />
         </div>
       </div>
@@ -885,7 +885,7 @@ export default function ResumeWizard() {
       <StepTitle title="Work history summary" lead="Check your jobs. Add another one, or continue." onBack={back} />
       {w.noExperience ? (
         <div className="rounded-xl border border-line bg-paper p-5 text-small text-slate-700">
-          You chose <strong>no work experience yet</strong>. That's fine — your education, skills and projects will lead your resume.
+          You chose <strong>no work experience yet</strong>. That's fine, your education, skills and projects will lead your resume.
           <button type="button" className="ml-2 font-semibold text-azure hover:underline" onClick={() => { set({ noExperience: false }); startNewJob(); }}>
             Add a job instead
           </button>
@@ -900,7 +900,7 @@ export default function ResumeWizard() {
                   {j.company ? `, ${j.company}` : ''}
                 </p>
                 <p className="text-caption text-slate-500">
-                  {[j.location, [j.startDate, j.current ? 'Present' : j.endDate].filter(Boolean).join(' – ')].filter(Boolean).join(' · ')}
+                  {[j.location, [j.startDate, j.current ? 'Present' : j.endDate].filter(Boolean).join(' to ')].filter(Boolean).join(' · ')}
                 </p>
                 <p className="mt-1 text-caption text-slate-600">{j.bullets.filter(Boolean).length} point(s)</p>
               </div>
@@ -943,7 +943,7 @@ export default function ResumeWizard() {
       }}
       className="mb-5 w-full rounded-xl border border-dashed border-azure-300 bg-azure-50/50 p-3 text-left text-small text-azure-700 hover:bg-azure-50"
     >
-      <strong>No work experience yet?</strong> That's okay — skip this step and we'll focus on your education and skills →
+      <strong>No work experience yet?</strong> That's okay, skip this step and we'll focus on your education and skills →
     </button>
   );
 
@@ -1018,7 +1018,7 @@ export default function ResumeWizard() {
   const toggleSkill = (t) => set((s) => ({ skills: s.skills.includes(t) ? s.skills.filter((x) => x !== t) : [...s.skills, t] }));
   const skills = (
     <>
-      <StepTitle title="What skills would you like to highlight?" lead="Choose from pre-written examples or write your own. 6–10 skills is ideal." onBack={back} tips="Add skills from the job posting you are applying for — recruiters and ATS software look for them." />
+      <StepTitle title="What skills would you like to highlight?" lead="Choose from pre-written examples or write your own. 6 to 10 skills is ideal." onBack={back} tips="Add skills from the job posting you are applying for, recruiters and ATS software look for them." />
       <div className="grid gap-5 lg:grid-cols-2">
         <ExamplesPanel
           query={exQuery}
@@ -1042,7 +1042,7 @@ export default function ResumeWizard() {
                 </button>
               </span>
             ))}
-            {w.skills.length === 0 && <p className="text-small text-slate-500">No skills yet — click the + next to an example, or type one below.</p>}
+            {w.skills.length === 0 && <p className="text-small text-slate-500">No skills yet, click the + next to an example, or type one below.</p>}
           </div>
           <form
             className="mt-4 flex gap-2"
@@ -1067,7 +1067,7 @@ export default function ResumeWizard() {
   // --- 5. Summary ---
   const summary = (
     <>
-      <StepTitle title="Briefly tell us about your background" lead="Choose a pre-written example, let AI write one from your details, or write your own." onBack={back} tips="2–4 sentences: who you are, your strongest skills, and the job you want." />
+      <StepTitle title="Briefly tell us about your background" lead="Choose a pre-written example, let AI write one from your details, or write your own." onBack={back} tips="2 to 4 sentences: who you are, your strongest skills, and the job you want." />
       <div className="grid gap-5 lg:grid-cols-2">
         <ExamplesPanel
           query={exQuery}
@@ -1082,7 +1082,7 @@ export default function ResumeWizard() {
         <div>
           <div className="rounded-xl border border-azure-200 bg-gradient-to-br from-azure-50 to-white p-4">
             <p className="flex items-center gap-1.5 text-small font-bold text-ink">
-              <Sparkles className="h-4 w-4 text-azure" aria-hidden /> Write my summary with AI
+              Write my summary with AI
             </p>
             <p className="mt-1 text-caption text-slate-600">Uses the job, education and skills you entered. Pick one and edit it.</p>
             <Button className="mt-3" size="sm" onClick={() => moreWithAi('summary')} loading={aiLoading}>
@@ -1345,7 +1345,7 @@ export default function ResumeWizard() {
               </div>
             ) : (
               <>
-                <p className="mt-1 text-caption text-slate-600">Tick the box below to save this resume — it then fills in automatically for Cover letter, Interview prep and job applications, and stays in sync as you keep editing.</p>
+                <p className="mt-1 text-caption text-slate-600">Tick the box below to save this resume, it then fills in automatically for Cover letter, Interview prep and job applications, and stays in sync as you keep editing.</p>
                 <div className="mt-3">
                   <ConsentCheckbox checked={consent} onChange={handleConsentChange} />
                 </div>
@@ -1368,7 +1368,7 @@ export default function ResumeWizard() {
     <>
       <StepTitle
         title="ATS review"
-        lead="We analyse everything you entered and rewrite it with ATS-friendly wording and keywords — using only what your own experience supports."
+        lead="We analyse everything you entered and rewrite it with ATS-friendly wording and keywords, using only what your own experience supports."
         onBack={back}
       />
       <AtsReviewStep
@@ -1484,7 +1484,7 @@ export default function ResumeWizard() {
             {step === 'work' && freshersHint}
             {nameReplaced && (
               <p role="alert" className="mb-4 rounded-xl border border-amber-300 bg-amber-50 p-3 text-small text-amber-900">
-                The uploaded resume has a different name. Your account's resumes always use <strong>{lockedName}</strong>, so that name is kept — everything else was filled in from the file.
+                The uploaded resume has a different name. Your account's resumes always use <strong>{lockedName}</strong>, so that name is kept, everything else was filled in from the file.
               </p>
             )}
             {/* ── OPTIMIZED DRAFT: what the automatic optimization did ── */}
@@ -1646,7 +1646,7 @@ export default function ResumeWizard() {
               <div className="mb-4 flex items-center gap-3 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3">
                 <CheckCircle2 className="h-5 w-5 text-emerald-600 shrink-0" />
                 <p className="text-small font-bold text-emerald-800">
-                  AI improvements applied — your resume has been updated for better ATS scoring.
+                  AI improvements applied, your resume has been updated for better ATS scoring.
                 </p>
                 <button type="button" onClick={() => setAiApplied(false)} className="ml-auto text-emerald-500 hover:text-emerald-700">
                   <X className="h-4 w-4" />
@@ -1657,7 +1657,7 @@ export default function ResumeWizard() {
             {loadedFromProfile && uploadBannerOpen && (
               <div className="mb-6 flex items-start justify-between gap-3 rounded-xl border border-emerald-200 bg-emerald-50 p-4">
                 <div>
-                  <p className="text-small font-bold text-emerald-900">Your saved resume is loaded — all steps are done.</p>
+                  <p className="text-small font-bold text-emerald-900">Your saved resume is loaded, all steps are done.</p>
                   <p className="mt-0.5 text-caption text-emerald-800">
                     Open any step to tailor it for a new job role (profession, summary, skills, jobs…). Changes save automatically. Your name stays fixed to your account.
                   </p>
@@ -1674,7 +1674,7 @@ export default function ResumeWizard() {
                     <p className="text-small font-bold text-emerald-900">
                       {FILL_STEPS.every((id) => filled[id])
                         ? step === 'download'
-                          ? 'We filled in everything from your resume — here it is, ready to download!'
+                          ? 'We filled in everything from your resume, here it is, ready to download!'
                           : 'We filled in everything from your resume. Just pick a template!'
                         : 'We filled in your resume from your file. Only fill in what is missing.'}
                     </p>
@@ -1699,7 +1699,7 @@ export default function ResumeWizard() {
                       >
                         {filled[id] ? <Check className="h-3.5 w-3.5" aria-hidden /> : <span aria-hidden>•</span>}
                         {label}
-                        {!filled[id] && ' — missing'}
+                        {!filled[id] && ', missing'}
                       </button>
                     );
                   })}

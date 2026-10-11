@@ -90,11 +90,11 @@ export default function InterviewCoach() {
             <div className="space-y-5 lg:col-span-5">
               <ResumeSourceCard source={source} />
               <form className="tile space-y-5 p-6" onSubmit={generate}>
-                <p className="text-small font-semibold text-ink">Step 2 — The interview</p>
+                <p className="text-small font-semibold text-ink">Step 2: The interview</p>
                 <Input label="Role you are interviewing for" value={role} onChange={(e) => setRole(e.target.value)} placeholder="e.g. Operations Manager" />
                 <Textarea
                   label="Job description"
-                  hint="Recommended — adds questions taken straight from the job"
+                  hint="Recommended, adds questions taken straight from the job"
                   rows={6}
                   value={jobDescription}
                   onChange={(e) => setJobDescription(e.target.value)}

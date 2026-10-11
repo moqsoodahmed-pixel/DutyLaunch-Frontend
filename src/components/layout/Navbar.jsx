@@ -52,7 +52,7 @@ export function Navbar() {
   }, []);
 
   // Inside Resume Builder pages, keep dark glacier theme throughout the page for seamless contrast.
-  const isDarkNavbar = isBuilderPage;
+  const isDarkNavbar = false; // no page has a dark hero any more
 
   // ⌘K / Ctrl+K opens site search from anywhere.
   useEffect(() => {
@@ -168,8 +168,8 @@ export function Navbar() {
               'relative flex h-14 w-full items-center gap-2 sm:gap-3 rounded-full px-2.5 sm:px-3 pl-3.5 sm:pl-4 transition-all duration-300 lg:h-[3.75rem] lg:pl-5 xl:gap-5',
               isDarkNavbar
                 ? scrolled
-                  ? 'border border-cyan-400/70 bg-night-deep shadow-[0_14px_36px_rgba(0,0,0,0.75)]'
-                  : 'border border-cyan-400/60 bg-night-deep shadow-[0_14px_36px_-8px_rgba(0,0,0,0.65)]'
+                  ? 'border border-cyan-400/70 bg-ink-900 shadow-[0_14px_36px_rgba(0,0,0,0.75)]'
+                  : 'border border-cyan-400/60 bg-ink-900 shadow-[0_14px_36px_-8px_rgba(0,0,0,0.65)]'
                 : scrolled
                   ? 'border-2 border-azure-400 bg-white shadow-[0_12px_32px_-6px_rgba(5,8,14,0.55)] ring-1 ring-black/15'
                   // FIX: this used `bg-white/98`, which is NOT a valid Tailwind opacity
@@ -261,7 +261,7 @@ export function Navbar() {
                   aria-haspopup="dialog"
                   className={cn(
                     iconBtn,
-                    isDarkNavbar && 'border-cyan-400/60 bg-night-base text-cyan-100 shadow-[0_0_15px_rgba(56,189,248,0.35)] hover:text-white hover:border-cyan-300 hover:bg-cyan-950/80 hover:shadow-[0_0_24px_rgba(56,189,248,0.8),0_0_35px_rgba(169,140,234,0.5)]',
+                    isDarkNavbar && 'border-cyan-400/60 bg-ink-900 text-cyan-100 shadow-[0_0_15px_rgba(56,189,248,0.35)] hover:text-white hover:border-cyan-300 hover:bg-cyan-950/80 hover:shadow-[0_0_24px_rgba(56,189,248,0.8),0_0_35px_rgba(169,140,234,0.5)]',
                     searchOpen && 'border-frost-400 text-azure shadow-crystal'
                   )}
                 >
@@ -278,7 +278,7 @@ export function Navbar() {
                   aria-haspopup="true"
                   className={cn(
                     iconBtn,
-                    isDarkNavbar && 'border-cyan-400/60 bg-night-base text-cyan-100 shadow-[0_0_15px_rgba(56,189,248,0.35)] hover:text-white hover:border-cyan-300 hover:bg-cyan-950/80 hover:shadow-[0_0_24px_rgba(56,189,248,0.8),0_0_35px_rgba(169,140,234,0.5)]',
+                    isDarkNavbar && 'border-cyan-400/60 bg-ink-900 text-cyan-100 shadow-[0_0_15px_rgba(56,189,248,0.35)] hover:text-white hover:border-cyan-300 hover:bg-cyan-950/80 hover:shadow-[0_0_24px_rgba(56,189,248,0.8),0_0_35px_rgba(169,140,234,0.5)]',
                     contactOpen && 'border-frost-400 text-azure shadow-crystal'
                   )}
                 >
@@ -291,7 +291,7 @@ export function Navbar() {
                 dark={isDarkNavbar}
                 iconClassName={cn(
                   iconBtn,
-                  isDarkNavbar && 'border-cyan-400/60 bg-night-base text-cyan-100 shadow-[0_0_15px_rgba(56,189,248,0.35)] hover:text-white hover:border-cyan-300 hover:bg-cyan-950/80 hover:shadow-[0_0_24px_rgba(56,189,248,0.8),0_0_35px_rgba(169,140,234,0.5)]'
+                  isDarkNavbar && 'border-cyan-400/60 bg-ink-900 text-cyan-100 shadow-[0_0_15px_rgba(56,189,248,0.35)] hover:text-white hover:border-cyan-300 hover:bg-cyan-950/80 hover:shadow-[0_0_24px_rgba(56,189,248,0.8),0_0_35px_rgba(169,140,234,0.5)]'
                 )}
               />
 
@@ -310,7 +310,7 @@ export function Navbar() {
                 onClick={() => setMobileOpen(true)}
                 className={cn(
                   iconBtn,
-                  isDarkNavbar && 'border-cyan-400/60 bg-night-base text-cyan-100 shadow-[0_0_15px_rgba(56,189,248,0.35)] hover:text-white hover:border-cyan-300 hover:bg-cyan-950/80 hover:shadow-[0_0_24px_rgba(56,189,248,0.8),0_0_35px_rgba(169,140,234,0.5)]',
+                  isDarkNavbar && 'border-cyan-400/60 bg-ink-900 text-cyan-100 shadow-[0_0_15px_rgba(56,189,248,0.35)] hover:text-white hover:border-cyan-300 hover:bg-cyan-950/80 hover:shadow-[0_0_24px_rgba(56,189,248,0.8),0_0_35px_rgba(169,140,234,0.5)]',
                   'lg:hidden'
                 )}
                 aria-label="Open menu"

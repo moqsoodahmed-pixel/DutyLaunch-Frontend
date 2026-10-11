@@ -4,25 +4,24 @@ import { Link } from 'react-router-dom';
 import { ArrowRight } from 'lucide-react';
 import { Container, Section } from '../ui/Container.jsx';
 import { SectionHeader } from '../ui/SectionHeader.jsx';
-import { GlacierBackdrop } from '../premium/GlacierBackdrop.jsx';
 import { journey } from '../../data/site.js';
 import { revealOnce } from '../../utils/motion.js';
 import { usePrefersReducedMotion } from '../../hooks/useMediaQuery.js';
 
 const ease = [0.16, 0.84, 0.44, 1];
 
-// Stage marker states: idle (dark, before it scrolls into view) and lit.
+// Stage marker states: idle (white, before it scrolls into view) and lit (brand blue).
 const MARKER_IDLE = {
-  backgroundColor: 'rgba(11,31,72,1)',
-  borderColor: 'rgba(255,255,255,0.2)',
-  color: '#93C5FD',
-  boxShadow: '0 0 0 rgba(79,193,230,0)',
+  backgroundColor: 'rgba(255,255,255,1)',
+  borderColor: 'rgba(191,217,238,1)',
+  color: '#1D5DB8',
+  boxShadow: '0 0 0 rgba(29,93,184,0)',
 };
 const MARKER_LIT = {
-  backgroundColor: 'rgba(79,193,230,1)',
-  borderColor: 'rgba(174,227,245,1)',
-  color: '#0B1F48',
-  boxShadow: '0 0 18px rgba(79,193,230,.55)',
+  backgroundColor: 'rgba(29,93,184,1)',
+  borderColor: 'rgba(29,93,184,1)',
+  color: '#FFFFFF',
+  boxShadow: '0 4px 12px rgba(29,93,184,.35)',
 };
 
 /**
@@ -43,20 +42,19 @@ export function JourneyRail() {
   const fill = useSpring(scrollYProgress, { stiffness: 120, damping: 30, mass: 0.4 });
 
   return (
-    <Section tone="ink" seamTop="dark" seamBottom="dark" backdrop={<GlacierBackdrop tone="dark" />}>
+    <Section tone="mist">
       <Container>
         <SectionHeader
-          tone="dark"
           label="How it works"
           title="Five stages, and honest advice at each one"
-          lead="Most people arrive mid-way through. Start wherever you actually are — you do not have to use all five."
+          lead="Most people arrive mid-way through. Start wherever you actually are. You do not have to use all five."
         />
 
         <ol ref={listRef} className="relative mt-14">
           {/* The rail: a faint track, with the gradient fill drawn over it. */}
-          <span className="absolute left-[11px] top-2 hidden h-[calc(100%-2rem)] w-px bg-white/10 sm:block" aria-hidden>
+          <span className="absolute left-[11px] top-2 hidden h-[calc(100%-2rem)] w-px bg-mist-line sm:block" aria-hidden>
             <motion.span
-              className="absolute inset-0 origin-top bg-gradient-to-b from-frost-400 via-azure-300 to-aurora-400 shadow-[0_0_12px_rgba(79,193,230,.6)]"
+              className="absolute inset-0 origin-top bg-gradient-to-b from-azure-400 via-azure to-violet"
               style={reduceMotion ? undefined : { scaleY: fill }}
             />
           </span>
@@ -68,7 +66,7 @@ export function JourneyRail() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={revealOnce}
               transition={{ duration: 0.5, delay: index * 0.05, ease }}
-              className="group relative grid gap-4 border-b border-white/10 py-8 first:pt-0 last:border-0 last:pb-0 sm:pl-12 lg:grid-cols-12 lg:gap-8"
+              className="group relative grid gap-4 border-b border-mist-line py-8 first:pt-0 last:border-0 last:pb-0 sm:pl-12 lg:grid-cols-12 lg:gap-8"
             >
               {/* Stage marker — lights up (gradient fill + glow) once in view.
                   Under reduced motion it's rendered directly in its lit
@@ -90,26 +88,26 @@ export function JourneyRail() {
               </motion.span>
 
               <div className="lg:col-span-4">
-                <h3 className="text-h2 font-bold text-white">{step.stage}</h3>
-                <p className="mt-1.5 text-body text-frost-300">{step.lead}</p>
+                <h3 className="text-h2 font-bold text-ink">{step.stage}</h3>
+                <p className="mt-1.5 text-body font-medium text-azure-700">{step.lead}</p>
               </div>
 
               <div className="lg:col-span-5">
-                <p className="max-w-prose text-body text-slate-300">{step.detail}</p>
+                <p className="max-w-prose text-body text-slate-700">{step.detail}</p>
               </div>
 
               <div className="lg:col-span-3">
                 <ul className="space-y-1.5">
                   {step.support.map((item) => (
-                    <li key={item} className="flex items-center gap-2 text-small text-slate-400">
-                      <span className="h-1 w-1 shrink-0 rounded-full bg-aurora-400" aria-hidden />
+                    <li key={item} className="flex items-center gap-2 text-small text-slate-600">
+                      <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-azure" aria-hidden />
                       {item}
                     </li>
                   ))}
                 </ul>
                 <Link
                   to={step.link.to}
-                  className="group/link mt-4 inline-flex items-center gap-1.5 rounded-full border border-white/15 bg-white/[0.06] px-3.5 py-1.5 text-small font-semibold text-white backdrop-blur transition-all duration-200 hover:border-frost-300/60 hover:bg-white/[0.12] hover:shadow-[0_0_20px_rgba(79,193,230,.25)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-frost-300"
+                  className="group/link mt-4 inline-flex items-center gap-1.5 rounded-full border border-azure-300 bg-white px-3.5 py-1.5 text-small font-semibold text-azure-700 transition-all duration-200 hover:border-azure hover:bg-mist-chip focus-visible:outline focus-visible:outline-2 focus-visible:outline-azure"
                 >
                   {step.link.label}
                   <ArrowRight className="h-4 w-4 transition-transform duration-200 group-hover/link:translate-x-0.5" aria-hidden />

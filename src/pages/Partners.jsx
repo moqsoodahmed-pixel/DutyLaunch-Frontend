@@ -33,7 +33,7 @@ const TRACKS = [
   {
     icon: LineChart,
     title: 'Training providers and EdTech',
-    body: 'Certifications surfaced against the specific skill a candidate is missing — named by our analysis, not guessed from a browsing history.',
+    body: 'Certifications surfaced against the specific skill a candidate is missing, named by our analysis, not guessed from a browsing history.',
   },
   {
     icon: Building2,
@@ -63,7 +63,7 @@ const HOW_IT_WORKS = [
   },
   {
     step: 'Receive matched enquiries',
-    body: 'Candidates reach you after they have seen a specific gap in their own profile — so the conversation starts further along than a cold enquiry.',
+    body: 'Candidates reach you after they have seen a specific gap in their own profile, so the conversation starts further along than a cold enquiry.',
   },
 ];
 
@@ -78,7 +78,7 @@ const FAQS = [
     id: 'matching',
     question: 'How are programmes matched to candidates?',
     answer:
-      'Our analysis identifies the skills a candidate has not evidenced against the roles they are targeting. Programmes are matched to those named skills. We do not rank by who pays the most — a course that does not close the candidate’s gap is not shown for that gap.',
+      'Our analysis identifies the skills a candidate has not evidenced against the roles they are targeting. Programmes are matched to those named skills. We do not rank by who pays the most, a course that does not close the candidate’s gap is not shown for that gap.',
   },
   {
     id: 'guarantees',
@@ -90,7 +90,7 @@ const FAQS = [
     id: 'claims',
     question: 'Can we advertise placement or salary outcomes?',
     answer:
-      'Only where you can evidence them, and they will be labelled as your claim rather than ours. We do not publish outcome statistics we cannot verify — the same rule we apply to candidate resumes applies here.',
+      'Only where you can evidence them, and they will be labelled as your claim rather than ours. We do not publish outcome statistics we cannot verify, the same rule we apply to candidate resumes applies here.',
   },
   {
     id: 'control',

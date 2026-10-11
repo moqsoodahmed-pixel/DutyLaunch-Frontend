@@ -49,7 +49,7 @@ export function DataTable({
               <tr key={rowKey(row)} className="align-top transition-colors hover:bg-paper/60">
                 {columns.map((col) => (
                   <td key={col.key} className={cn('px-4 py-3.5 text-small text-slate-700', col.className)}>
-                    {col.render ? col.render(row) : row[col.key] ?? '—'}
+                    {col.render ? col.render(row) : row[col.key] ?? 'N/A'}
                   </td>
                 ))}
               </tr>
@@ -76,7 +76,7 @@ export function DataTable({
                         wraps/truncates inside it instead of pushing the card
                         wider than the screen. */}
                     <dd className="flex min-w-0 flex-1 flex-wrap justify-end break-words text-right text-small text-slate-700">
-                      {col.render ? col.render(row) : row[col.key] ?? '—'}
+                      {col.render ? col.render(row) : row[col.key] ?? 'N/A'}
                     </dd>
                   </div>
                 ))}

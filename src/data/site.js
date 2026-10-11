@@ -21,7 +21,7 @@ export const contact = {
     'Bengaluru, Karnataka 560001',
   ],
   addressMapUrl: 'https://www.google.com/maps/place/DutyLaunch/@12.983623,77.6094233,17z/data=!4m6!3m5!1s0x3bae17cc3757987d:0xfba9cd46257832ef!8m2!3d12.983623!4d77.6094233!16s%2Fg%2F11p19s05hm',
-  hours: 'Monday to Saturday, 10:00 – 19:00 IST',
+  hours: 'Monday to Saturday, 10:00 to 19:00 IST',
   needsConfirmation: false,
 };
 
@@ -40,7 +40,7 @@ export const pillars = [
     label: 'Career',
     path: '/career-services',
     icon: 'Compass',
-    summary: 'Profile, applications and interviews — the work that gets you shortlisted.',
+    summary: 'Profile, applications and interviews, the work that gets you shortlisted.',
     items: [
       { label: 'Career services', path: '/career-services', description: 'CV, cover letter, LinkedIn, interviews' },
       { label: 'CV pricing', path: '/pricing', description: 'Bundles by years of experience' },
@@ -90,7 +90,7 @@ export const pillars = [
     label: 'Jobs',
     path: '/jobs',
     icon: 'Briefcase',
-    summary: 'Search, apply and track — free for candidates.',
+    summary: 'Search, apply and track, free for candidates.',
     items: [
       { label: 'Browse jobs', path: '/jobs', description: 'Search and filter open roles' },
       { label: 'For employers', path: '/employers', description: 'Post a role and manage applicants' },
@@ -120,22 +120,6 @@ export const pillars = [
  */
 export const navGroups = [
   {
-    /* "Services" is the paid-services drawer: the things that are
-       delivered by people rather than by the product. Keeping it out of
-       `pillars` stops it appearing as another card on the homepage
-       matrix, where it would compete with the free tools. */
-    id: 'services',
-    label: 'Services',
-    path: '/career-services',
-    icon: 'Compass',
-    summary: 'Done-with-you services when the tools are not enough on their own.',
-    items: [
-      { label: 'Apostille & attestation', path: '/appostle-services', description: 'Document legalisation, tracked' },
-      { label: 'For employers', path: '/employers', description: 'Post roles and reach matched candidates' },
-      { label: 'Partner with us', path: '/partners', description: 'Institutes, EdTech and service partners' },
-    ],
-  },
-  {
     id: 'upskills',
     label: 'Upskills',
     path: '/upskills',
@@ -153,7 +137,7 @@ export const menuGroups = [...pillars, ...navGroups];
 
 /**
  * Top-level navigation:
- * Home | Career Tools ▾ | Jobs | Upskills ▾ | Dubai Launch | Services | About
+ * Career+ ▾ | Upskills ▾ | Dubai Launch | Apostille | Jobs
  *
  * Desktop navbar and mobile menu both read from this one array, so the
  * information architecture changes here and nowhere else.
@@ -166,7 +150,7 @@ export const primaryNav = [
   { label: 'Career+', menu: ['career-tools'] },
   { label: 'Upskills', menu: ['upskills'] },
   { label: 'Dubai Launch', path: '/dubai-launch' },
-  { label: 'Services', menu: ['services'] },
+  { label: 'Apostille', path: '/appostle-services' },
   { label: 'Jobs', path: '/jobs' },
 ];
 
@@ -211,7 +195,7 @@ export const journey = [
     stage: 'Apply',
     lead: 'Apply deliberately, and prepare for what happens next.',
     detail:
-      'Targeting, outreach and interview preparation — including mock interviews and the salary conversation most candidates go into unprepared.',
+      'Targeting, outreach and interview preparation, including mock interviews and the salary conversation most candidates go into unprepared.',
     support: ['Job search assistance', 'Interview preparation', 'Job marketplace'],
     link: { label: 'Browse jobs', to: '/jobs' },
   },
@@ -232,7 +216,7 @@ export const careerServices = [
     icon: 'FileText',
     promise: 'A CV that parses cleanly and reads well.',
     body:
-      'Written to the constraints applicant tracking systems impose — single column, standard headings, real text — and then written properly for the person who reads it next. Every bullet answers what changed, by how much, and how you know.',
+      'Written to the constraints applicant tracking systems impose, single column, standard headings, real text, and then written properly for the person who reads it next. Every bullet answers what changed, by how much, and how you know.',
     includes: ['Single-column, parse-safe layout', 'Achievement rewriting', 'Keyword mapping to target roles', 'Editable source file'],
     link: '/pricing',
   },

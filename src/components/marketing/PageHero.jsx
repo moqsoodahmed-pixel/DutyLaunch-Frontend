@@ -14,13 +14,15 @@ import { fadeUp, stagger } from '../../utils/motion.js';
  * align with zero wasted vertical whitespace and 100% viewport harmony.
  */
 export function PageHero({ eyebrow, title, lead, breadcrumb, actions, aside, tone = 'paper' }) {
-  const dark = tone === 'ink';
-  const surfaceClass = dark ? 'surface-dark' : tone === 'white' ? 'seam seam-tone-white' : 'surface-hero';
+  // `ink` (the old dark hero) now renders as the pale mist-blue hero with dark text.
+  const mist = tone === 'ink' || tone === 'mist';
+  const dark = false;
+  const surfaceClass = mist ? 'surface-mist' : tone === 'white' ? 'seam seam-tone-white' : 'surface-hero';
 
   return (
     <section className={surfaceClass}>
-      <Container className={`py-6 lg:py-8 ${dark ? 'relative z-[1]' : ''}`}>
-        {breadcrumb && !dark && <Breadcrumb items={breadcrumb} />}
+      <Container className="py-6 lg:py-8">
+        {breadcrumb && <Breadcrumb items={breadcrumb} />}
         <motion.div
           variants={stagger(0.08)}
           initial="hidden"
@@ -68,12 +70,12 @@ export function HeroActions({ primary, secondary, dark }) {
   return (
     <>
       {primary && (
-        <Button to={primary.to} size="lg" variant={dark ? 'onInk' : 'premium'} className="shadow-crystal hover:shadow-crystal-lg">
+        <Button to={primary.to} size="lg" variant="premium" className="shadow-crystal hover:shadow-crystal-lg">
           {primary.label}
         </Button>
       )}
       {secondary && (
-        <Button to={secondary.to} size="lg" variant={dark ? 'outlineInk' : 'outline'} className="bg-white/80 backdrop-blur-md">
+        <Button to={secondary.to} size="lg" variant="outline" className="bg-white">
           {secondary.label}
         </Button>
       )}

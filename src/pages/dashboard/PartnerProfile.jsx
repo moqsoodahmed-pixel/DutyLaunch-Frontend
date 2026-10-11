@@ -25,7 +25,7 @@ function StatusBanner({ profile }) {
   }
   const live = programmesIn(profile.track).filter((p) => profile.programmes?.includes(p.slug));
   const cfg = {
-    pending: { icon: Clock, tone: 'border-amber-500/30 bg-amber-500/10', title: 'Under review', body: 'Thanks — our team is reviewing your profile. It becomes visible on DutyLaunch once approved, usually within one working day.' },
+    pending: { icon: Clock, tone: 'border-amber-500/30 bg-amber-500/10', title: 'Under review', body: 'Thanks, our team is reviewing your profile. It becomes visible on DutyLaunch once approved, usually within one working day.' },
     approved: { icon: CheckCircle2, tone: 'border-success/30 bg-success/10', title: 'Live on DutyLaunch', body: `Your institute is listed as a DutyLaunch partner on ${live.length} ${TRACKS[profile.track].noun} page${live.length === 1 ? '' : 's'}.` },
     rejected: { icon: XCircle, tone: 'border-danger/30 bg-danger/10', title: 'Changes needed', body: 'Your profile wasn’t approved yet. Update it below and save to send it for review again.' },
   }[profile.status];
@@ -139,7 +139,7 @@ export default function PartnerProfile() {
     }
     try {
       const saved = (await partnerService.saveMine({ ...values, track, programmes: selected }))?.data;
-      toast.success(saved?.status === 'pending' ? 'Saved — sent to our team for review' : 'Profile updated');
+      toast.success(saved?.status === 'pending' ? 'Saved, sent to our team for review' : 'Profile updated');
       refetch();
     } catch (err) {
       err.fieldErrors?.forEach((f) => setError(f.field, { message: f.message }));
@@ -197,7 +197,7 @@ export default function PartnerProfile() {
             />
             <Input
               label="Contact phone"
-              hint="For our team only — not shown publicly"
+              hint="For our team only, not shown publicly"
               type="tel"
               error={errors.contactPhone?.message}
               {...register('contactPhone')}

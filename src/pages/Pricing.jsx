@@ -22,11 +22,11 @@ const TRUST_POINTS = [
   { icon: UserCheck, label: 'Written by career writers, not templates' },
   { icon: FileCheck2, label: 'ATS-checked before delivery' },
   { icon: ShieldCheck, label: 'Secure online payment by Razorpay' },
-  { icon: Zap, label: '2–3 day turnaround' },
+  { icon: Zap, label: '2 to 3 day turnaround' },
 ];
 
 const PROCESS = [
-  { step: '1', title: 'Choose and pay', body: 'Pick the band that matches your experience and pay securely online — or ask us and we will place you.' },
+  { step: '1', title: 'Choose and pay', body: 'Pick the band that matches your experience and pay securely online, or ask us and we will place you.' },
   { step: '2', title: 'Share your details', body: 'Send your current CV or a quick brief. A counsellor confirms scope within a day.' },
   { step: '3', title: 'We write & review', body: 'A career writer rewrites and formats it, then it is run through an ATS check.' },
   { step: '4', title: 'Revise & receive', body: 'You get the final files plus a month of revisions if anything needs a tweak.' },
@@ -34,9 +34,9 @@ const PROCESS = [
 
 const BANDS = [
   { value: 'all', label: 'Show all' },
-  { value: '0', label: '0–3 years' },
-  { value: '4', label: '4–7 years' },
-  { value: '8', label: '8–14 years' },
+  { value: '0', label: '0 to 3 years' },
+  { value: '4', label: '4 to 7 years' },
+  { value: '8', label: '8 to 14 years' },
   { value: '15', label: '15+ years' },
 ];
 
@@ -72,13 +72,13 @@ export default function Pricing() {
     <>
       <Seo
         title="CV and LinkedIn pricing"
-        description="DutyLaunch CV bundles: Early Career ₹599, Advanced Career ₹899, Senior Career ₹1,199 and Executive Career ₹1,799. Each includes an ATS-friendly CV, cover letter, LinkedIn optimisation, a month of revisions and 2–3 day delivery."
+        description="DutyLaunch CV bundles: Early Career ₹599, Advanced Career ₹899, Senior Career ₹1,199 and Executive Career ₹1,799. Each includes an ATS-friendly CV, cover letter, LinkedIn optimisation, a month of revisions and 2 to 3 day delivery."
       />
 
       <PageHero
         eyebrow="Pricing"
         title="Four bundles, priced by experience."
-        lead="More experience means more to weigh, cut and reposition — so the bands differ by the work involved, not by how much is included. Every bundle contains the same five deliverables."
+        lead="More experience means more to weigh, cut and reposition, so the bands differ by the work involved, not by how much is included. Every bundle contains the same five deliverables."
         breadcrumb={[{ label: 'Pricing' }]}
         actions={
           <>
@@ -188,7 +188,7 @@ export default function Pricing() {
               ))}
             </div>
             <p className="text-small font-semibold text-ink">
-              Rated by candidates placed across India and the Gulf — every bundle includes a satisfaction revision window.
+              Rated by candidates placed across India and the Gulf, every bundle includes a satisfaction revision window.
             </p>
           </div>
         </Container>

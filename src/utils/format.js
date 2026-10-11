@@ -16,7 +16,7 @@ export function formatSalary(salary) {
   if (!min && !max) return 'Salary not disclosed';
   const unit = period === 'month' ? '/month' : '/year';
   if (min && max) {
-    return `${formatCurrency(min, currency, { compact: true })} – ${formatCurrency(max, currency, { compact: true })}${unit}`;
+    return `${formatCurrency(min, currency, { compact: true })} to ${formatCurrency(max, currency, { compact: true })}${unit}`;
   }
   return `${formatCurrency(min || max, currency, { compact: true })}${unit}`;
 }
@@ -25,7 +25,7 @@ export function formatExperience(experience) {
   if (!experience) return 'Any experience';
   const { min = 0, max } = experience;
   if (!max || max === min) return min === 0 ? 'Entry level' : `${min}+ years`;
-  return `${min}–${max} years`;
+  return `${min} to ${max} years`;
 }
 
 export function formatDate(value, opts = { day: 'numeric', month: 'short', year: 'numeric' }) {

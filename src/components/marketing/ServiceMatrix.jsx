@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom';
 import { Icons } from '../../utils/iconMap.js';
-import { ArrowUpRight, Sparkles } from 'lucide-react';
+import { ArrowUpRight, Compass } from 'lucide-react';
 import { Container, Section } from '../ui/Container.jsx';
 import { SectionHeader } from '../ui/SectionHeader.jsx';
 import { GlacierBackdrop } from '../premium/GlacierBackdrop.jsx';
@@ -60,7 +60,7 @@ const SERVICES = [
     badge: 'Gulf Relocation',
     icon: 'Plane',
     label: 'Global Mobility',
-    summary: 'Working abroad made smooth — from your first overseas application to your first week on site.',
+    summary: 'Working abroad made smooth, from your first overseas application to your first week on site.',
     path: '/dubai-launch',
     highlights: [
       'Dubai Launch Package',
@@ -104,7 +104,7 @@ const SERVICES = [
     badge: 'Verified Roles',
     icon: 'Briefcase',
     label: 'Jobs & Placement',
-    summary: 'Search, apply, and track applications across verified global companies — free for candidates.',
+    summary: 'Search, apply, and track applications across verified global companies, free for candidates.',
     path: '/jobs',
     highlights: [
       'Curated Global Vacancies',
@@ -153,7 +153,7 @@ export function ServiceMatrix() {
         <SectionHeader
           label="What we do"
           title="Everything you need to move forward"
-          lead="Six connected services. Most people start with one and come back for the next — a CV, then a course, then the paperwork for a move abroad."
+          lead="Six connected services. Most people start with one and come back for the next, a CV, then a course, then the paperwork for a move abroad."
         />
 
         {/* Responsive Symmetrical Grid */}
@@ -233,14 +233,14 @@ export function ServiceMatrix() {
         <div className="mt-10 sm:mt-12 flex flex-col md:flex-row items-center justify-between gap-6 rounded-2xl border border-white/80 bg-white/70 p-6 sm:p-8 shadow-crystal backdrop-blur-xl">
           <div className="flex items-center gap-4 text-left">
             <div className="hidden sm:flex h-12 w-12 shrink-0 items-center justify-center rounded-xl border border-azure-200/70 bg-azure-50 text-azure-600 shadow-xs">
-              <Sparkles className="h-6 w-6" aria-hidden />
+              <Compass className="h-6 w-6" aria-hidden />
             </div>
             <div>
               <h4 className="text-base sm:text-lg font-bold text-ink">
                 Not sure which service you need first?
               </h4>
               <p className="mt-1 text-xs sm:text-sm text-slate-600">
-                Our career counsellors assess your profile and map out the exact sequence — free of charge.
+                Our career counsellors assess your profile and map out the exact sequence, free of charge.
               </p>
             </div>
           </div>

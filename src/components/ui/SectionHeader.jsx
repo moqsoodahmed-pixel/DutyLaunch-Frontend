@@ -16,7 +16,9 @@ import { cn } from '../../utils/cn.js';
  * existing call sites keep working. `align="center"` centres everything.
  */
 export function SectionHeader({ label, title, lead, aside, align = 'start', className, tone = 'light' }) {
-  const dark = tone === 'dark';
+  // Dark section headers were retired: every section is now light, so `tone` is
+  // accepted for compatibility but headings are always dark text on light.
+  const dark = false;
   const muted = dark ? 'text-slate-200' : 'text-slate-600';
   const labelClass = dark
     ? 'inline-flex items-center gap-1.5 rounded-full border border-cyan-300/70 bg-[#0C3347] px-3.5 py-1 text-[11.5px] font-bold uppercase tracking-wider text-cyan-100'

@@ -83,7 +83,7 @@ export function PaymentRequiredModal({ tpl, open, onClose, onUnlockSuccess, reas
       <div className="space-y-4 pt-1">
         {reason === 'free-used' && (
           <p className="rounded-lg bg-azure-50 p-3 text-caption text-azure-800">
-            You've already used your one free resume template. You can still use this template — it just needs a one-time unlock like any other.
+            You've already used your one free resume template. You can still use this template, it just needs a one-time unlock like any other.
           </p>
         )}
         <div className="relative overflow-hidden rounded-xl border border-amber-400/40 bg-gradient-to-br from-amber-500/15 via-orange-500/10 to-slate-900/60 p-4">
@@ -122,7 +122,7 @@ export function PaymentRequiredModal({ tpl, open, onClose, onUnlockSuccess, reas
           </div>
           <div className="flex items-center gap-2 text-caption">
             <Check className="h-4 w-4 shrink-0 text-emerald-500" />
-            <span>Keep it unlocked on your account — no repeat payments</span>
+            <span>Keep it unlocked on your account, no repeat payments</span>
           </div>
         </div>
 
@@ -557,7 +557,7 @@ export function TemplateGallery({
       <Modal
         open={Boolean(preview)}
         onClose={() => setPreview(null)}
-        title={preview ? `${preview.name} — ${preview.industry || preview.tagline}` : ''}
+        title={preview ? `${preview.name}, ${preview.industry || preview.tagline}` : ''}
         description={preview ? preview.description : ''}
         size="lg"
       >

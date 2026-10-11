@@ -15,7 +15,7 @@ export function ContactMenu({ onClose }) {
             href: contact.phoneHref,
             icon: Phone,
             title: contact.phone,
-            sub: 'New enquiry — call us',
+            sub: 'New enquiry, call us',
         },
         {
             key: 'whatsapp',

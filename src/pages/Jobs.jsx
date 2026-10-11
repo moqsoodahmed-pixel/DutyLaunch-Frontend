@@ -87,7 +87,7 @@ export default function Jobs() {
             <p className="eyebrow">Jobs</p>
             <h1 className="mt-4 text-h1 font-extrabold">Roles that are actually open right now.</h1>
             <p className="mt-3 max-w-2xl text-lead text-slate-600">
-              Every listing here is live — nothing is posted to make the page look busier than the market is.
+              Every listing here is live, nothing is posted to make the page look busier than the market is.
             </p>
 
             <div className="mt-8 rounded-2xl border border-white/60 bg-white/70 p-2 shadow-crystal backdrop-blur-xl sm:p-2.5">
@@ -107,7 +107,7 @@ export default function Jobs() {
             <ul className="mt-6 flex flex-wrap gap-x-8 gap-y-2 text-small font-medium text-slate-600">
               <li className="inline-flex items-center gap-2">
                 <Briefcase className="h-4 w-4 text-azure-600" aria-hidden />
-                {meta?.total ?? '—'} live roles
+                {meta?.total ?? 0} live roles
               </li>
               <li className="inline-flex items-center gap-2">
                 <MapPin className="h-4 w-4 text-azure-600" aria-hidden />

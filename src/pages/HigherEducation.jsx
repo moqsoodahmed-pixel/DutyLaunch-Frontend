@@ -75,33 +75,25 @@ export default function HigherEducation() {
       </Section>
 
       {/* Education journey — a horizontal rail, deliberately unlike the homepage's vertical one. */}
-      <Section tone="ink">
+      <Section tone="mist">
         <Container>
           <Reveal>
             <SectionHeader
-              tone="dark"
               label="The process"
               title="Five stages, in this order."
               lead="Most applicants start at stage two and discover the first stage was the one that mattered."
             />
           </Reveal>
-          <RevealGroup as="ol" className="mt-12 grid gap-px overflow-hidden rounded-lg bg-white/10 md:grid-cols-5" staggerDelay={0.07}>
+          <RevealGroup as="ol" className="mt-12 grid gap-px overflow-hidden rounded-lg border border-mist-line bg-mist-line md:grid-cols-5" staggerDelay={0.07}>
             {educationJourney.map((stage, i) => (
               <RevealItem
                 as="li"
                 key={stage.stage}
-                // Was bg-ink-800/hover:bg-ink-700 — the section wrapping
-                // these cards (tone="ink" above) already shows the new
-                // indigo-violet dark-section colour, but these cards still
-                // used the old shared navy token directly, creating a
-                // mismatch between the section and the cards inside it.
-                // Matched to the same #241B42 as that section, with a
-                // lighter variant for hover feedback.
-                className="bg-[#241B42] p-5 transition-colors duration-200 hover:bg-[#332755]"
+                className="bg-white p-5 transition-colors duration-200 hover:bg-mist-soft"
               >
-                <span className="tabular text-caption font-bold text-azure-500">0{i + 1}</span>
-                <h3 className="mt-2 text-body font-bold text-white">{stage.stage}</h3>
-                <p className="mt-2 text-small text-slate-300">{stage.detail}</p>
+                <span className="tabular text-caption font-bold text-azure">0{i + 1}</span>
+                <h3 className="mt-2 text-body font-bold text-ink">{stage.stage}</h3>
+                <p className="mt-2 text-small text-slate-700">{stage.detail}</p>
               </RevealItem>
             ))}
           </RevealGroup>
@@ -114,7 +106,7 @@ export default function HigherEducation() {
             <SectionHeader
               label="Programmes"
               title="What we advise on."
-              lead="Indicative programme families rather than a list of institutions — the shortlist is built for your budget, intake and target market in the consultation."
+              lead="Indicative programme families rather than a list of institutions, the shortlist is built for your budget, intake and target market in the consultation."
               aside={
                 <div className="mt-6">
                   <Tabs options={levelOptions} value={level} onChange={setLevel} label="Filter by level" />
@@ -190,7 +182,7 @@ export default function HigherEducation() {
               <dl className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                 {[
                   ['Shortlisting', 'Against budget, entry requirements, intake dates and post-study work rules in each destination.'],
-                  ['Statement of purpose', 'Structured and edited, written by you with our editing rather than ghostwritten — admissions teams can tell.'],
+                  ['Statement of purpose', 'Structured and edited, written by you with our editing rather than ghostwritten, admissions teams can tell.'],
                   ['Academic CV and references', 'Formatted to the institution\u2019s expectations, with guidance on who to ask and how.'],
                   ['Funding', 'Scholarship search, financial documentation and what each country expects you to evidence.'],
                   ['Visa paperwork', 'Document checklists, attestation where required, and the sequence to do it in.'],

@@ -430,7 +430,7 @@ export function KeywordTable({ keywordResult }) {
         <h3 className="text-h3 font-bold">Keyword coverage</h3>
         <p className="mt-2 text-small text-slate-600">
           {summary.exact + summary.related} of {summary.total} terms from this job description are evidenced in your
-          resume ({summary.coverage}%). Only exact and related matches count — we do not credit a term you have not
+          resume ({summary.coverage}%). Only exact and related matches count, we do not credit a term you have not
           actually demonstrated.
         </p>
 
@@ -475,7 +475,7 @@ export function KeywordTable({ keywordResult }) {
                     <Badge tone={meta.tone} title={meta.help}>{meta.label}</Badge>
                   </td>
                   <td className="max-w-sm px-6 py-3.5 text-slate-600">
-                    {keyword.evidence ? `“${keyword.evidence}”` : <span className="text-slate-400">—</span>}
+                    {keyword.evidence ? `“${keyword.evidence}”` : <span className="text-slate-400">, </span>}
                   </td>
                 </tr>
               );

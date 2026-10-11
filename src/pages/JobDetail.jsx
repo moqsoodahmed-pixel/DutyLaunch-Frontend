@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { Bookmark, BriefcaseBusiness, Building2, Check, CircleAlert, FlaskConical, IndianRupee, MapPin, SearchX, Share2, Sparkles } from 'lucide-react';
+import { Bookmark, BriefcaseBusiness, Building2, Check, CircleAlert, FlaskConical, IndianRupee, MapPin, SearchX, Share2 } from 'lucide-react';
 import { Seo } from '../components/ui/Seo.jsx';
 import { Container, Section } from '../components/ui/Container.jsx';
 import { Badge } from '../components/ui/Badge.jsx';
@@ -32,7 +32,6 @@ function MatchSection({ user, job }) {
     <div className="tile mt-8 p-6">
       <div className="flex items-center justify-between gap-4">
         <h2 className="inline-flex items-center gap-2 text-h3 font-bold text-ink">
-          <Sparkles className="h-4.5 w-4.5 text-azure" aria-hidden />
           Your Match
         </h2>
         <span className="tabular rounded-full bg-azure-50 px-3 py-1 text-body font-extrabold text-azure-700">
@@ -59,16 +58,15 @@ function MatchSection({ user, job }) {
               <CircleAlert className="mt-0.5 h-4 w-4 shrink-0 text-danger" aria-hidden />
               <span>
                 <span className="font-semibold text-ink">{g.label}</span>{' '}
-                <span className="text-slate-500">— {g.source}</span>
+                <span className="text-slate-500">, {g.source}</span>
               </span>
             </p>
           ))}
           {match.suggested.map((g) => (
             <p key={g.label} className="flex items-start gap-2 text-small">
-              <Sparkles className="mt-0.5 h-4 w-4 shrink-0 text-azure" aria-hidden />
               <span>
                 <span className="font-semibold text-ink">{g.label}</span>{' '}
-                <span className="text-slate-500">— {g.source}</span>
+                <span className="text-slate-500">, {g.source}</span>
               </span>
             </p>
           ))}
@@ -147,7 +145,7 @@ function ProfileMatch({ user, job, isDemo }) {
         jobDescription,
         jobHints,
         kind: 'targeted',
-        label: `${job.title} — ${job.company}`,
+        label: `${job.title}, ${job.company}`,
         jobId: isDemo ? undefined : job._id,
       });
       setCreated(true);
@@ -163,7 +161,6 @@ function ProfileMatch({ user, job, isDemo }) {
     <div className="tile mt-8 p-6">
       <div className="flex items-center justify-between gap-4">
         <h2 className="inline-flex items-center gap-2 text-h3 font-bold text-ink">
-          <Sparkles className="h-4.5 w-4.5 text-azure" aria-hidden />
           Profile Match
         </h2>
         <span className="tabular rounded-full bg-azure-50 px-3 py-1 text-body font-extrabold text-azure-700">{match.overall}%</span>
@@ -194,13 +191,13 @@ function ProfileMatch({ user, job, isDemo }) {
                 <CircleAlert className={`mt-0.5 h-4 w-4 shrink-0 ${g.necessity === 'required' ? 'text-danger' : 'text-amber-500'}`} aria-hidden />
                 <span>
                   <span className="font-semibold text-ink">{g.skill}</span>{' '}
-                  <span className="text-slate-500">— {g.necessity === 'required' ? 'required by this job' : 'preferred by this job'}</span>
+                  <span className="text-slate-500">, {g.necessity === 'required' ? 'required by this job' : 'preferred by this job'}</span>
                 </span>
               </li>
             ))}
           </ul>
           <p className="mt-2 text-caption text-slate-500">
-            If you have this experience but it is not on your CV, add it — a targeted version will only use what your CV shows.
+            If you have this experience but it is not on your CV, add it, a targeted version will only use what your CV shows.
           </p>
         </div>
       )}
@@ -249,7 +246,7 @@ export default function JobDetail() {
   );
   const isSaved = (saved || []).some((j) => j._id === job?._id);
 
-  const demoNotice = () => toast.error('This is a demo listing — applying and saving are disabled.');
+  const demoNotice = () => toast.error('This is a demo listing, applying and saving are disabled.');
   const openApply = () => (isDemo ? demoNotice() : setApplyOpen(true));
 
   const toggleSave = async () => {
@@ -350,7 +347,7 @@ export default function JobDetail() {
           <Container className="flex items-center gap-2 py-2.5 text-small text-ink">
             <FlaskConical className="h-4 w-4 shrink-0 text-amber-600" aria-hidden />
             <span>
-              <span className="font-semibold">Demo listing.</span> This role is sample data for previewing the job page —
+              <span className="font-semibold">Demo listing.</span> This role is sample data for previewing the job page,
               applications are disabled.
             </span>
           </Container>
@@ -456,7 +453,6 @@ export default function JobDetail() {
                 <div className="tile mt-8 flex flex-col items-start gap-3 p-6 sm:flex-row sm:items-center sm:justify-between">
                   <div>
                     <p className="inline-flex items-center gap-2 text-body font-bold text-ink">
-                      <Sparkles className="h-4.5 w-4.5 text-azure" aria-hidden />
                       See your match for this role
                     </p>
                     <p className="mt-1 text-small text-slate-600">

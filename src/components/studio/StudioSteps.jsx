@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Upload, FileDown, Eye, Copy, RefreshCw, Save, Trash2, ChevronDown, ChevronUp, PlayCircle, Info, CheckCircle2, AlertTriangle, FileText, Sparkles, FileUp, PencilLine, Check } from 'lucide-react';
+import { Upload, FileDown, Eye, Copy, RefreshCw, Save, Trash2, ChevronDown, ChevronUp, PlayCircle, Info, CheckCircle2, AlertTriangle, FileText, FileUp, PencilLine, Check } from 'lucide-react';
 import { Button, Input, Textarea, Select, Badge, Spinner } from '../ui/index.js';
 import { ConsentCheckbox } from '../ui/ConsentCheckbox.jsx';
 import { ProfileEditor } from './ProfileEditor.jsx';
@@ -170,7 +170,7 @@ export function ImportStep({ studio, onDone, goTo }) {
   return (
     <Panel
       title="Import your LinkedIn profile"
-      lead="Your profile is built from your LinkedIn PDF. Adding your CV is optional — if you do, it only fills in what LinkedIn is missing, such as extra jobs, achievement bullet points and skills."
+      lead="Your profile is built from your LinkedIn PDF. Adding your CV is optional, if you do, it only fills in what LinkedIn is missing, such as extra jobs, achievement bullet points and skills."
     >
       {shown && (
         <div className="mb-5">
@@ -196,7 +196,7 @@ export function ImportStep({ studio, onDone, goTo }) {
           <div role="radiogroup" aria-label="How do you want to start?" className="mt-6 grid gap-4 md:grid-cols-2">
             {[
               { id: 'upload', icon: FileUp, title: 'Yes, upload my LinkedIn or resume', body: 'We read your LinkedIn PDF and/or CV and fill in your profile. You review and confirm it.', badge: 'Speed up your resume' },
-              { id: 'scratch', icon: PencilLine, title: 'No, start from scratch', body: 'Enter your details yourself — contact, experience, education and skills — on the next step.' },
+              { id: 'scratch', icon: PencilLine, title: 'No, start from scratch', body: 'Enter your details yourself, contact, experience, education and skills, on the next step.' },
             ].map(({ id, icon: Icon, title, body, badge }) => {
               const selected = startChoice === id;
               return (
@@ -267,7 +267,7 @@ export function ImportStep({ studio, onDone, goTo }) {
 
           <div>
             <h3 className="text-small font-bold text-ink">2. Your CV <span className="font-medium text-slate-500">(optional)</span></h3>
-            <p className="mt-1 text-caption text-slate-600">No CV? No problem — your resume is built from your LinkedIn profile. If you add one, it fills in what LinkedIn is missing.</p>
+            <p className="mt-1 text-caption text-slate-600">No CV? No problem, your resume is built from your LinkedIn profile. If you add one, it fills in what LinkedIn is missing.</p>
           </div>
           <FileDrop file={cvFile} onChange={setCvFile} title="Choose your CV (optional)" caption="PDF or DOCX · text-based · max 5 MB" />
 
@@ -285,7 +285,7 @@ export function ImportStep({ studio, onDone, goTo }) {
         <div className="space-y-5">
           <div>
             <h3 className="text-small font-bold text-ink">LinkedIn profile URL (optional)</h3>
-            <p className="mt-1 text-caption text-slate-600">Saved as a link on your profile. A URL alone does not let us read your LinkedIn data — upload the PDF for that.</p>
+            <p className="mt-1 text-caption text-slate-600">Saved as a link on your profile. A URL alone does not let us read your LinkedIn data, upload the PDF for that.</p>
             <div className="mt-2 flex gap-2">
               <Input aria-label="LinkedIn profile URL" placeholder="linkedin.com/in/your-name" value={url} onChange={(e) => setUrl(e.target.value)} className="flex-1" />
               <Button variant="quiet" onClick={saveUrl} loading={busy === 'url'} disabled={!url.trim()}>Save</Button>
@@ -385,10 +385,10 @@ export function ProfilePdfStep({ studio, onDone, goTo }) {
   }
 
   if (!studio.profile?.confirmedAt) {
-    return <Panel title="Download your LinkedIn profile as PDF"><Note tone="warn">Confirm your profile on the review step first — the PDF only contains information you have confirmed.</Note><Button className="mt-4" variant="quiet" onClick={() => goTo('review')}>Go to review</Button></Panel>;
+    return <Panel title="Download your LinkedIn profile as PDF"><Note tone="warn">Confirm your profile on the review step first, the PDF only contains information you have confirmed.</Note><Button className="mt-4" variant="quiet" onClick={() => goTo('review')}>Go to review</Button></Panel>;
   }
   return (
-    <Panel title="Download your LinkedIn profile as PDF" lead="A clean, multi-page profile document in LinkedIn’s section order, built from your confirmed information. It is a DutyLaunch document — not an official LinkedIn export, and it says so on every page.">
+    <Panel title="Download your LinkedIn profile as PDF" lead="A clean, multi-page profile document in LinkedIn’s section order, built from your confirmed information. It is a DutyLaunch document, not an official LinkedIn export, and it says so on every page.">
       <div className="flex flex-wrap items-center gap-3">
         <DocButtons busy={busy} onPreview={() => run('preview')} onDownload={run} />
         <Button variant="link" onClick={() => goTo('review')}>Edit profile</Button>
@@ -460,7 +460,7 @@ export function ResumeStep({ studio, onDone, goTo }) {
       const res = await careerService.createVersion({
         jobDescription: form.jobDescription.trim() || undefined,
         jobHints: { jobTitle: form.jobTitle.trim(), company: form.company.trim() || undefined, industry: form.industry.trim() || undefined, seniority: form.level },
-        label: form.label.trim() || [form.jobTitle.trim(), form.company.trim()].filter(Boolean).join(' — '),
+        label: form.label.trim() || [form.jobTitle.trim(), form.company.trim()].filter(Boolean).join(' | '),
       });
       setCreated(res);
       success(res.note || 'Resume version created.');
@@ -487,7 +487,7 @@ export function ResumeStep({ studio, onDone, goTo }) {
   if (!studio.profile?.confirmedAt) return <Panel title="Generate your professional resume"><Note tone="warn">Confirm your profile first.</Note><Button className="mt-4" variant="quiet" onClick={() => goTo('review')}>Go to review</Button></Panel>;
 
   return (
-    <Panel title="Generate your professional resume" lead="A job-targeted version built from your confirmed profile. Your master profile is never changed — each job gets its own version.">
+    <Panel title="Generate your professional resume" lead="A job-targeted version built from your confirmed profile. Your master profile is never changed, each job gets its own version.">
       <div className="grid gap-4 sm:grid-cols-2">
         <Input label="Target job title" required value={form.jobTitle} onChange={set('jobTitle')} placeholder="e.g. Frontend Developer" />
         <Input label="Target company (optional)" value={form.company} onChange={set('company')} />
@@ -511,13 +511,12 @@ export function ResumeStep({ studio, onDone, goTo }) {
       />
       <div className="mt-2 flex flex-wrap items-center gap-3">
         <Button size="sm" variant="quiet" onClick={writeJobDescription} loading={jdBusy} disabled={jdBusy}>
-          <Sparkles className="h-4 w-4" aria-hidden />
           {jdBusy ? 'Writing…' : form.jobDescription.trim() ? 'Rewrite with AI' : 'Write with AI'}
         </Button>
         {jdSource === 'ai' && !jdBusy && <Badge tone="azure">AI-written</Badge>}
       </div>
       <ErrorLine error={jdError} />
-      <Input className="mt-4" label="Name this version (optional)" value={form.label} onChange={set('label')} placeholder="e.g. MERN Stack — Acme" />
+      <Input className="mt-4" label="Name this version (optional)" value={form.label} onChange={set('label')} placeholder="e.g. MERN Stack: Acme" />
       <Button className="mt-5" onClick={generate} loading={busy === 'create'} disabled={jdBusy}>Generate my resume</Button>
       <ErrorLine error={error} />
 
@@ -528,7 +527,7 @@ export function ResumeStep({ studio, onDone, goTo }) {
               <p className="text-small font-bold text-ink">{created.version.label}</p>
               <p className="mt-1 text-caption text-slate-600">{created.note}</p>
               <div className="mt-3 flex flex-wrap gap-2">
-                <Badge tone="azure">Resume Health {created.version.health?.score ?? '—'}</Badge>
+                <Badge tone="azure">Resume Health {created.version.health?.score ?? 'N/A'}</Badge>
                 {created.version.match?.overall != null && <Badge tone="success">Job Match {created.version.match.overall}%</Badge>}
               </div>
             </div>
@@ -588,7 +587,7 @@ export function AtsStep({ onDone, refreshKey }) {
       setProposals(res.proposals || []);
       setEngineNote(res.engineNote || '');
       setDecisions({});
-      if (!res.proposals?.length) success('No changes to suggest — your bullets already read well for this job.');
+      if (!res.proposals?.length) success('No changes to suggest, your bullets already read well for this job.');
     } catch (err) {
       setError(errMsg(err, 'Could not generate improvements.'));
     } finally {
@@ -616,10 +615,10 @@ export function AtsStep({ onDone, refreshKey }) {
     }
   }
 
-  if (versions && !versions.length) return <Panel title="Check Resume Health and Job Match"><Note>Generate a resume first — the analysis runs on a saved version.</Note></Panel>;
+  if (versions && !versions.length) return <Panel title="Check Resume Health and Job Match"><Note>Generate a resume first, the analysis runs on a saved version.</Note></Panel>;
 
   return (
-    <Panel title="Check Resume Health and Job Match" lead="Scores come from DutyLaunch’s deterministic scoring engine — the same rules every time, never from an AI model. They estimate resume quality and fit with this job description; they are not scores from any employer’s ATS and do not guarantee an interview.">
+    <Panel title="Check Resume Health and Job Match" lead="Scores come from DutyLaunch’s deterministic scoring engine, the same rules every time, never from an AI model. They estimate resume quality and fit with this job description; they are not scores from any employer’s ATS and do not guarantee an interview.">
       <div className="grid gap-4 lg:grid-cols-[1fr_2fr]">
         <VersionSelect versions={versions} value={versionId} onChange={setVersionId} allowMaster={false} />
         <Textarea label="Job description" rows={4} value={jd} onChange={(e) => setJd(e.target.value)} hint="Required for a Job Match score." />
@@ -629,8 +628,8 @@ export function AtsStep({ onDone, refreshKey }) {
 
       {before && analysis && (
         <div className="mt-6"><Note tone="ok">
-          <strong>Before → after (recalculated):</strong> Resume Health {before.health ?? '—'} → {analysis.health?.score ?? '—'}
-          {before.match != null && <> · Job Match {before.match}% → {analysis.match?.overall ?? '—'}%</>}
+          <strong>Before → after (recalculated):</strong> Resume Health {before.health ?? 'N/A'} → {analysis.health?.score ?? 'N/A'}
+          {before.match != null && <> · Job Match {before.match}% → {analysis.match?.overall ?? 'N/A'}%</>}
         </Note></div>
       )}
 
@@ -846,7 +845,7 @@ export function CoverLetterStep({ onDone, refreshKey }) {
       setContent(res.coverLetter.content);
       setNote(
         res.engineNote ||
-          `Prepared from your saved resume: the job title${titleFromResume ? ' and tone come from your resume' : ' and tone were chosen by AI from your resume'}, and AI wrote the job description from your whole resume. Change anything — or paste a real job posting — and click “Generate a new letter”.`
+          `Prepared from your saved resume: the job title${titleFromResume ? ' and tone come from your resume' : ' and tone were chosen by AI from your resume'}, and AI wrote the job description from your whole resume. Change anything, or paste a real job posting, and click “Generate a new letter”.`
       );
       onDone();
     } finally {
@@ -882,7 +881,7 @@ export function CoverLetterStep({ onDone, refreshKey }) {
       await navigator.clipboard.writeText(content);
       success('Copied to clipboard.');
     } catch {
-      setError('Your browser blocked clipboard access — select the text and copy it instead.');
+      setError('Your browser blocked clipboard access, select the text and copy it instead.');
     }
   };
 
@@ -932,14 +931,14 @@ export function CoverLetterStep({ onDone, refreshKey }) {
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div className="max-w-xl">
               <p className="flex items-center gap-1.5 text-small font-bold text-ink">
-                <Sparkles className="h-4 w-4 text-azure" aria-hidden /> Generate everything with AI
+                Generate everything with AI
               </p>
               <p className="mt-1 text-caption text-slate-600">
-                Job title and tone come from your saved resume (AI fills them if missing), AI writes the job description from your whole resume — then your letter.
+                Job title and tone come from your saved resume (AI fills them if missing), AI writes the job description from your whole resume, then your letter.
               </p>
             </div>
             <Button onClick={generateEverything} loading={busy === 'ai-all'} disabled={Boolean(busy)}>
-              <Sparkles className="h-4 w-4" aria-hidden /> Generate everything with AI
+              Generate everything with AI
             </Button>
           </div>
           {aiPhase && (
@@ -963,7 +962,7 @@ export function CoverLetterStep({ onDone, refreshKey }) {
         hint="Paste the job posting for the best match. Leave it empty and AI writes a typical one for this job title from your resume."
       />
       {busy === 'create' && !letter ? (
-        <Note tone="info">We found the job details from your resume and are writing your letter now — no need to click anything.</Note>
+        <Note tone="info">We found the job details from your resume and are writing your letter now, no need to click anything.</Note>
       ) : (
         <>
           <Button className="mt-4" onClick={generate} loading={busy === 'create'} disabled={!canGenerate || !profile}>
@@ -1134,21 +1133,21 @@ export function InterviewStep({ onDone, refreshKey, existingSetId }) {
   const allOpen = set && set.questions.every((q) => open[q.number]);
 
   return (
-    <Panel title="Your top 10 interview questions & answers" lead="Ten practice questions built from your profile, resume and the job — with personalised sample answers. They are not real or leaked questions from any employer.">
+    <Panel title="Your top 10 interview questions & answers" lead="Ten practice questions built from your profile, resume and the job, with personalised sample answers. They are not real or leaked questions from any employer.">
       <SavedResumeSource profile={profile} label="Questions built from your saved resume" />
       {profile && (
         <div className="mb-5 rounded-xl border border-azure-200 bg-gradient-to-br from-azure-50 to-white p-4">
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div className="max-w-xl">
               <p className="flex items-center gap-1.5 text-small font-bold text-ink">
-                <Sparkles className="h-4 w-4 text-azure" aria-hidden /> Generate everything with AI
+                Generate everything with AI
               </p>
               <p className="mt-1 text-caption text-slate-600">
-                AI reads your saved resume, picks the job role, your experience level and a job description, fills them in below — then builds your ten questions and answers.
+                AI reads your saved resume, picks the job role, your experience level and a job description, fills them in below, then builds your ten questions and answers.
               </p>
             </div>
             <Button onClick={generateEverything} loading={busy === 'ai-all'} disabled={Boolean(busy)}>
-              <Sparkles className="h-4 w-4" aria-hidden /> Generate everything with AI
+              Generate everything with AI
             </Button>
           </div>
           {aiPhase && (
@@ -1256,7 +1255,7 @@ export function DocumentsStep({ studio, onDone }) {
           </Row>
         )}
         {d.resumes.map((v) => (
-          <Row key={v.id} title={v.label} meta={`Resume · Health ${v.health ?? '—'}${v.match != null ? ` · Match ${v.match}%` : ''} · ${date(v.updatedAt)}`}>
+          <Row key={v.id} title={v.label} meta={`Resume · Health ${v.health ?? 'N/A'}${v.match != null ? ` · Match ${v.match}%` : ''} · ${date(v.updatedAt)}`}>
             {['pdf', 'docx'].map((f) => <Button key={f} size="sm" variant="quiet" loading={busy === `${v.id}${f}`} onClick={() => run(`${v.id}${f}`, () => studioService.resumeDocument(v.id, { format: f, filename: `${v.label.replace(/[^\w-]+/g, '_')}.${f}` }))}>{f.toUpperCase()}</Button>)}
           </Row>
         ))}
@@ -1272,12 +1271,12 @@ export function DocumentsStep({ studio, onDone }) {
           </Row>
         ))}
         {d.mockInterviews.filter((m) => m.status === 'completed').map((m) => (
-          <Row key={m.id} title={m.title} meta={`Mock interview · practice score ${m.score ?? '—'} · ${date(m.completedAt)}`}>
+          <Row key={m.id} title={m.title} meta={`Mock interview · practice score ${m.score ?? 'N/A'} · ${date(m.completedAt)}`}>
             <Button as={Link} to={`/mock-interview?session=${m.id}`} size="sm" variant="link">View report</Button>
           </Row>
         ))}
       </ul>
-      {!d.resumes.length && !d.coverLetters.length && !d.interviewSets.length && !studio.profile?.confirmedAt && <Note>Nothing yet — complete the steps above and your documents will appear here.</Note>}
+      {!d.resumes.length && !d.coverLetters.length && !d.interviewSets.length && !studio.profile?.confirmedAt && <Note>Nothing yet, complete the steps above and your documents will appear here.</Note>}
       <ErrorLine error={error} />
     </Panel>
   );

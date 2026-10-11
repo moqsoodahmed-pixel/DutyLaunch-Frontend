@@ -2,13 +2,13 @@ import { Suspense } from 'react';
 import { Link, Outlet } from 'react-router-dom';
 import { PageFallback } from '../components/ui/PageFallback.jsx';
 import { company, legalLinks } from '../data/legal.js';
-import { ArrowLeft, BadgeCheck, Compass, ShieldCheck, Sparkles } from 'lucide-react';
+import { ArrowLeft, BadgeCheck, Briefcase, Compass, ShieldCheck } from 'lucide-react';
 import { Logo } from '../components/layout/Logo.jsx';
 import { images } from '../data/images.js';
 import { useMediaQuery } from '../hooks/useMediaQuery.js';
 
 const VALUE_POINTS = [
-  { icon: Sparkles, text: 'Build a stronger professional profile' },
+  { icon: Briefcase, text: 'Build a stronger professional profile' },
   { icon: Compass, text: 'Discover relevant career opportunities' },
   { icon: BadgeCheck, text: 'Learn and grow with the right resources' },
 ];
@@ -73,7 +73,7 @@ export default function AuthLayout() {
         </div>
       </div>
 
-      <aside className="relative hidden overflow-hidden bg-night-base px-12 py-16 text-white lg:flex lg:flex-col">
+      <aside className="surface-mist relative hidden overflow-hidden px-12 py-16 lg:flex lg:flex-col">
         {/* Blurred city-lights photo as a faint base layer, under the grid and
             glow. The navy gradient on top keeps the white copy at full
             contrast. loading="lazy" matters here: this panel is display:none
@@ -88,21 +88,21 @@ export default function AuthLayout() {
           aria-hidden
           loading="lazy"
           decoding="async"
-          className="pointer-events-none absolute inset-0 h-full w-full object-cover opacity-45"
+          className="pointer-events-none absolute inset-0 h-full w-full object-cover opacity-15"
         />
         )}
         <div
-          className="pointer-events-none absolute inset-0 bg-gradient-to-b from-black/60 via-black/45 to-black/80"
+          className="pointer-events-none absolute inset-0 bg-gradient-to-b from-mist-soft/60 via-transparent to-mist-deep/60"
           aria-hidden
         />
         {/* Faint grid + radial mask, same treatment used on the dark marketing
             surfaces — kept subtle deliberately, per brief: no heavy parallax
             or oversized illustration, just enough texture to not read flat. */}
         <div
-          className="pointer-events-none absolute inset-0 opacity-[0.16]"
+          className="pointer-events-none absolute inset-0 opacity-[0.07]"
           style={{
             backgroundImage:
-              'linear-gradient(to right, #ffffff 1px, transparent 1px), linear-gradient(to bottom, #ffffff 1px, transparent 1px)',
+              'linear-gradient(to right, #1D5DB8 1px, transparent 1px), linear-gradient(to bottom, #1D5DB8 1px, transparent 1px)',
             backgroundSize: '64px 64px',
             maskImage: 'radial-gradient(ellipse 70% 60% at 70% 30%, #000 10%, transparent 70%)',
             WebkitMaskImage: 'radial-gradient(ellipse 70% 60% at 70% 30%, #000 10%, transparent 70%)',
@@ -110,7 +110,7 @@ export default function AuthLayout() {
           aria-hidden
         />
         <div
-          className="pointer-events-none absolute -right-24 -top-24 h-96 w-96 rounded-full bg-azure-400/20 blur-3xl"
+          className="hidden"
           aria-hidden
         />
 
@@ -121,32 +121,32 @@ export default function AuthLayout() {
             mt-auto keeps this block's start position stable regardless of
             how much copy it holds. */}
         <div className="relative mt-[8vh] max-w-md xl:mt-[10vh]">
-          <span className="inline-flex items-center gap-1.5 rounded-full border border-white/15 bg-white/10 px-3 py-1 text-caption font-semibold text-azure-200">
+          <span className="inline-flex items-center gap-1.5 rounded-full border border-azure-200 bg-white px-3 py-1 text-caption font-semibold text-azure-700">
             <ShieldCheck className="h-3.5 w-3.5" aria-hidden />
             Empowering professionals across India &amp; UAE
           </span>
 
-          <h2 className="mt-6 text-h1 font-extrabold leading-[1.08] text-white">
+          <h2 className="mt-6 text-h1 font-extrabold leading-[1.08] text-ink">
             Your career journey starts here.
           </h2>
-          <p className="mt-4 text-body text-slate-300">
+          <p className="mt-4 text-body text-slate-700">
             DutyLaunch helps you build a professional profile, discover the right opportunities and learn the
-            skills that move your career forward — all from one account.
+            skills that move your career forward, all from one account.
           </p>
 
           <ul className="mt-9 space-y-4">
             {VALUE_POINTS.map(({ icon: Icon, text }) => (
               <li key={text} className="flex items-start gap-3">
-                <span className="mt-0.5 grid h-8 w-8 shrink-0 place-items-center rounded-sm bg-azure-400/15">
-                  <Icon className="h-4 w-4 text-azure-200" aria-hidden />
+                <span className="mt-0.5 grid h-8 w-8 shrink-0 place-items-center rounded-sm bg-white">
+                  <Icon className="h-4 w-4 text-azure" aria-hidden />
                 </span>
-                <span className="pt-1 text-body text-slate-200">{text}</span>
+                <span className="pt-1 text-body text-ink">{text}</span>
               </li>
             ))}
           </ul>
         </div>
 
-        <p className="relative mt-auto max-w-md border-t border-white/10 pt-6 text-small text-slate-400">
+        <p className="relative mt-auto max-w-md border-t border-mist-line pt-6 text-small text-slate-600">
           Accounts are free. Career services and courses are paid separately and never charged automatically.
         </p>
       </aside>

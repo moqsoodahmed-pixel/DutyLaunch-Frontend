@@ -60,7 +60,7 @@ export default function ProgrammeDetail({ track }) {
   return (
     <>
       <Seo
-        title={`${item} — partner institutes`}
+        title={`${item}: partner institutes`}
         description={`Partner institutes offering ${item}, with study mode and location. Enquire and a DutyLaunch counsellor will confirm eligibility and next steps.`}
       />
 
@@ -69,7 +69,7 @@ export default function ProgrammeDetail({ track }) {
         title={item}
         lead={
           groupDescription ||
-          `Compare partner institutes offering ${item} by study mode and location, then enquire — a counsellor will confirm eligibility and next steps within one working day.`
+          `Compare partner institutes offering ${item} by study mode and location, then enquire, a counsellor will confirm eligibility and next steps within one working day.`
         }
         breadcrumb={[{ label: t.label, to: t.basePath }, { label: item }]}
         actions={

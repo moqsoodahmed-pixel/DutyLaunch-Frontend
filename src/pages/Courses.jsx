@@ -78,7 +78,7 @@ export default function Courses() {
           <SearchBar
             value={q}
             onChange={setQ}
-            placeholder="Search courses — SQL, project management, IELTS…"
+            placeholder="Search courses: SQL, project management, IELTS…"
             label="Search courses"
           />
 

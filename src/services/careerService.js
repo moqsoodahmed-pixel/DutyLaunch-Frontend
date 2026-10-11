@@ -5,11 +5,10 @@ import { api, postForm } from './api.js';
  *
  * Two things worth knowing before using this:
  *
- * 1. Anonymous callers are supported everywhere except the profile and
- *    version endpoints. A visitor can upload a CV, get a full analysis
- *    and see their report without an account — but nothing is stored for
- *    them, so every subsequent call has to send the resume back with
- *    `resume`. `withResume()` handles that.
+ * 1. The ATS analysis endpoints (analyze, job/analyze, optimize, validate,
+ *    evidence) require a signed-in account. The profile and version
+ *    endpoints always did. `withResume()` sends the resume inline where a
+ *    call needs it.
  *
  * 2. Nothing here mutates the candidate's resume as a side effect.
  *    `optimize()` returns *proposals*; they only become part of the

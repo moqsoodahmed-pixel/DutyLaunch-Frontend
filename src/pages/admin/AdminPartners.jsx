@@ -52,7 +52,7 @@ export default function AdminPartners() {
   const setStatus = async (row, next) => {
     let reviewNote;
     if (next === 'rejected') {
-      reviewNote = window.prompt(`What should ${row.name} change? (shown to them — optional)`, '');
+      reviewNote = window.prompt(`What should ${row.name} change? (shown to them, optional)`, '');
       if (reviewNote === null) return; // cancelled
     }
     setBusyId(row._id);

@@ -58,7 +58,7 @@ export function ItemGroups({ groups, columns = 'md:grid-cols-2 lg:grid-cols-3', 
               <Link
                 to={itemHref(group.title, group.title)}
                 className="group block w-full rounded-[inherit] p-4 text-left focus-visible:outline focus-visible:outline-[3px] focus-visible:outline-azure-300 sm:p-5"
-                aria-label={`${group.title} — view partner institutes`}
+                aria-label={`${group.title}: view partner institutes`}
               >
                 {header}
               </Link>

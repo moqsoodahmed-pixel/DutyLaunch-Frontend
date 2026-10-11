@@ -129,7 +129,7 @@ export function analyzeJobMatch(user, job) {
   let recommendation;
   if (percent >= 75) {
     recommendation =
-      'Your profile aligns closely with this role. You can apply as you are — the gaps below are worth closing over time, not before applying.';
+      'Your profile aligns closely with this role. You can apply as you are, the gaps below are worth closing over time, not before applying.';
   } else if (mandatoryGaps.length > 0) {
     recommendation = `You can apply now, but strengthening ${mandatoryGaps
       .slice(0, 2)
@@ -201,7 +201,7 @@ export function recommendEducation(user) {
   return {
     program: 'Relevant certification in your functional area',
     why: 'A focused certification can close specific skill gaps faster than a full degree at this stage.',
-    relevance: 'Useful alongside — not instead of — hands-on experience.',
+    relevance: 'Useful alongside, not instead of, hands-on experience.',
   };
 }
 

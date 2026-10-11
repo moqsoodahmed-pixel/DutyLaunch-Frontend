@@ -30,7 +30,7 @@ export default function Faq() {
       <PageHero
         eyebrow="FAQ"
         title="Common questions, answered plainly."
-        lead="If your question isn't here, ask it directly — a free consultation covers it too."
+        lead="If your question isn't here, ask it directly, a free consultation covers it too."
         breadcrumb={[{ label: 'FAQ' }]}
       />
 

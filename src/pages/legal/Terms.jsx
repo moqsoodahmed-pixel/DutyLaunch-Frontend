@@ -33,8 +33,8 @@ export default function Terms() {
       <h2>Career and documentation services</h2>
       <p>
         Paid services are scoped as described on the relevant service page at the time of purchase. Delivery
-        timelines are estimates unless stated as guaranteed. Where a price depends on case-specific factors —
-        attestation is the clearest example — the final price is confirmed in writing before payment and is binding
+        timelines are estimates unless stated as guaranteed. Where a price depends on case-specific factors,
+        attestation is the clearest example, the final price is confirmed in writing before payment and is binding
         once confirmed.
       </p>
       <p>

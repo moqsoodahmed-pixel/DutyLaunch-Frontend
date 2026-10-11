@@ -99,7 +99,7 @@ export function useRazorpayCheckout() {
           handler: async (response) => {
             try {
               const verified = await paymentService.verify(response);
-              toast.success(`Payment successful. Thank you — ${order.itemName} is confirmed.`);
+              toast.success(`Payment successful. Thank you, ${order.itemName} is confirmed.`);
               if (onSuccess) await onSuccess(verified?.data);
               else if (user?.role !== 'admin') navigate('/payments');
             } catch (error) {

@@ -17,7 +17,7 @@ const TRUST_POINTS = [
   { icon: UserCheck, label: 'Written by career writers, not templates' },
   { icon: FileCheck2, label: 'ATS-checked before delivery' },
   { icon: ShieldCheck, label: 'Pay only after the brief is confirmed' },
-  { icon: Zap, label: '2–3 day turnaround' },
+  { icon: Zap, label: '2 to 3 day turnaround' },
 ];
 
 export default function CareerServices() {
@@ -125,7 +125,7 @@ export default function CareerServices() {
             {[
               ['You send what you have', 'Current CV, target roles and anything you have already been rejected from. No form-filling marathon.'],
               ['A short call', 'Twenty minutes to find the achievements that are missing from the document. This is where most of the value is.'],
-              ['First draft in 2–3 days', 'CV, cover letter and LinkedIn copy together, so the three tell one story.'],
+              ['First draft in 2 to 3 days', 'CV, cover letter and LinkedIn copy together, so the three tell one story.'],
               ['A month of revisions', 'Unlimited, without needing to justify the request. Applications teach you things; the document should keep up.'],
             ].map(([title, body], i) => (
               <RevealItem

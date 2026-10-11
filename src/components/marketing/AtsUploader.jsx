@@ -149,7 +149,7 @@ export function AtsUploader({ onResult }) {
             exit={{ opacity: 0 }}
             role="button"
             tabIndex={0}
-            aria-label="Upload your CV — drag and drop or browse files"
+            aria-label="Upload your CV, drag and drop or browse files"
             onClick={() => inputRef.current?.click()}
             onKeyDown={(e) => (e.key === 'Enter' || e.key === ' ') && inputRef.current?.click()}
             onDragOver={(e) => {

@@ -19,7 +19,7 @@ const SOCIALS = [
 // Services mirrors the navbar. Pages that are no longer in the navbar
 // (templates, ATS checker, employer) stay reachable from here.
 const NAV_COLS = [
-  { title: 'Services', links: [['Get Your CV', '/pricing'], ['Upskills', '/upskills'], ['Dubai Launch', '/dubai-launch'], ['Appostle Services', '/appostle-services']] },
+  { title: 'Services', links: [['Get Your CV', '/pricing'], ['Upskills', '/upskills'], ['Dubai Launch', '/dubai-launch'], ['Apostille', '/appostle-services']] },
   { title: 'Career', links: [['Career services', '/career-services'], ['CV templates', '/cv-templates'], ['ATS resume checker', '/resume-checker'], ['Interview preparation', '/career-services#interview'], ['Career counselling', '/career-services#counselling']] },
   { title: 'Learn', links: [['Higher education', '/higher-education'], ['Professional courses', '/professional-courses'], ['All courses', '/courses']] },
   { title: 'Company', links: [['About us', '/about'], ['Jobs', '/jobs'], ['For employers', '/employers'], ['Blog', '/blog'], ['FAQ', '/faq'], ['Partner with us', '/register?type=institute'], ['Contact', '/contact']] },
@@ -108,7 +108,7 @@ export function Footer() {
               Your Career. Your Move. Handled.
             </p>
             <p style={{ fontSize: 13, color: C.body, lineHeight: 1.75, marginBottom: 20 }}>
-              DutyLaunch helps students, professionals and job seekers with career services, education guidance and global mobility support — from your CV and interviews to studying and working abroad.
+              DutyLaunch helps students, professionals and job seekers with career services, education guidance and global mobility support, from your CV and interviews to studying and working abroad.
             </p>
             {/* Socials */}
             <div style={{ display: 'flex', gap: 10, marginBottom: 20 }}>
@@ -235,7 +235,7 @@ export function Footer() {
           <div className="dl-badges" style={{ display: 'flex', alignItems: 'center', gap: 18, flexWrap: 'wrap', marginBottom: 20 }}>
             <img
               src={msmeBadge}
-              alt="MSME registered — Micro, Small & Medium Enterprises"
+              alt="MSME registered: Micro, Small & Medium Enterprises"
               width={72}
               height={58}
               style={{ height: 58, width: 'auto', opacity: 0.95, transition: 'opacity .15s' }}

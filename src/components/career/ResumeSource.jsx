@@ -126,7 +126,7 @@ export function ResumeSourceCard({ source, className = '' }) {
 
   return (
     <div className={`tile p-5 ${className}`}>
-      <p className="text-small font-semibold text-ink">Step 1 — Add your CV</p>
+      <p className="text-small font-semibold text-ink">Step 1: Add your CV</p>
       <p className="mt-1 text-small text-slate-600">
         Everything this tool writes comes from your own CV, so it needs one to work from. PDF, DOCX or TXT.
       </p>

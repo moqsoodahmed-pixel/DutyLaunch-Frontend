@@ -23,7 +23,6 @@ import {
   Layers,
   Settings2,
   CheckCircle2,
-  Sparkles,
   Sliders,
   Image as ImageIcon,
   Share2,
@@ -222,7 +221,7 @@ const DEMO_PERSONA = {
       title: 'Lead Distributed Systems Architect',
       company: 'Apex Global Cloud Solutions',
       location: 'San Francisco, CA',
-      dates: '2021 – Present',
+      dates: '2021 to Present',
       bullets: [
         'Architected Kubernetes multi-region failover cluster processing 140,000 req/sec at sub-18ms p99 latency.',
         'Led 14 senior engineers in decoupling legacy monolith into 28 containerized microservices on AWS EKS and Kafka.',
@@ -234,7 +233,7 @@ const DEMO_PERSONA = {
       title: 'Senior Software Engineer (Core Platform)',
       company: 'HyperScale Systems Inc.',
       location: 'Mountain View, CA',
-      dates: '2018 – 2021',
+      dates: '2018 to 2021',
       bullets: [
         'Engineered high-throughput event processing pipeline handling 1.2B daily messages using Kafka, Go, and Redis.',
         'Optimized PostgreSQL queries, indexing, and connection pooling, boosting query execution performance by 45%.',
@@ -265,7 +264,7 @@ const DEMO_PERSONA = {
     tools: ['Docker', 'Terraform', 'Prometheus', 'Grafana', 'Git', 'Kafka'],
     soft: ['System Architecture', 'Technical Strategy', 'Cross-Functional Leadership', 'Mentorship'],
   },
-  certifications: [{ id: 'c-1', name: 'AWS Certified Solutions Architect – Professional', issuer: 'Amazon Web Services', year: '2023', credentialId: 'AWS-PSA-98214' }],
+  certifications: [{ id: 'c-1', name: 'AWS Certified Solutions Architect: Professional', issuer: 'Amazon Web Services', year: '2023', credentialId: 'AWS-PSA-98214' }],
   languages: [{ id: 'l-1', name: 'English', level: 'Native / Full Professional' }, { id: 'l-2', name: 'German', level: 'Professional Working Proficiency' }],
   awards: [{ id: 'a-1', title: 'Global Engineering Excellence Award', issuer: 'Apex Global Cloud Solutions', year: '2023', description: 'Awarded for zero-downtime migration of 42M active customer accounts.' }],
   achievements: [{ id: 'ach-1', title: 'Patent: Resilient Multi-Region State Synchronization', issuer: 'USPTO #11849201', year: '2022' }],
@@ -632,7 +631,7 @@ export default function CvBuilder() {
       setOptimizeEngine(result?.engine || 'model');
       setOptimizeNote(result?.engineNote || '');
       if (props.length === 0) {
-        setOptimizeError('No improvements were needed — your resume is already in good shape!');
+        setOptimizeError('No improvements were needed, your resume is already in good shape!');
       }
     } catch (err) {
       setOptimizeError(errMsg(err, 'AI optimization failed. Your original resume is unchanged.'));
@@ -1412,7 +1411,7 @@ export default function CvBuilder() {
                           {aiSummaryLoading ? (
                             <><Loader2 className="h-3 w-3 animate-spin" /> Generating…</>
                           ) : (
-                            <><Sparkles className="h-3 w-3" /> Generate</>
+                            <>Generate</>
                           )}
                         </button>
                       </div>
@@ -1526,7 +1525,7 @@ export default function CvBuilder() {
                           {aiSkillsLoading ? (
                             <><Loader2 className="h-3 w-3 animate-spin" /> Generating…</>
                           ) : (
-                            <><Sparkles className="h-3 w-3" /> Suggest Skills</>
+                            <>Suggest Skills</>
                           )}
                         </button>
                       </div>
@@ -1764,7 +1763,7 @@ export default function CvBuilder() {
                               <label className="text-[11px] font-bold text-slate-700 block mb-1">Dates of Employment</label>
                               <input
                                 type="text"
-                                placeholder="e.g. 2021 – Present"
+                                placeholder="e.g. 2021 to Present"
                                 value={exp.dates}
                                 onChange={(e) => {
                                   const next = [...experience];
@@ -1851,7 +1850,7 @@ export default function CvBuilder() {
                                   {aiBulletsLoading[idx] ? (
                                     <><Loader2 className="h-3 w-3 animate-spin" /> Generating…</>
                                   ) : (
-                                    <><Sparkles className="h-3 w-3" /> Generate</>
+                                    <>Generate</>
                                   )}
                                 </button>
                               </div>
@@ -2443,7 +2442,6 @@ export default function CvBuilder() {
                   className="flex w-full items-center justify-between p-4 text-left font-bold text-ink hover:bg-slate-50 transition-colors"
                 >
                   <span className="flex items-center gap-2 text-small">
-                    <Sparkles className="h-4 w-4 text-purple-600" />
                     Awards & Honors ({awards.length})
                   </span>
                   <span className="flex items-center gap-2">
@@ -2532,7 +2530,6 @@ export default function CvBuilder() {
                       ))
                     ) : (
                       <div className="rounded-xl border border-dashed border-slate-300 p-5 text-center bg-white">
-                        <Sparkles className="h-7 w-7 text-slate-300 mx-auto mb-1.5" />
                         <h4 className="text-small font-bold text-slate-700">No Awards Added</h4>
                         <p className="text-[12px] text-slate-500 mb-2.5">Highlight recognitions, hackathons, or company honors.</p>
                       </div>
@@ -2903,7 +2900,7 @@ export default function CvBuilder() {
                     <div>
                       <p className="text-small font-bold text-emerald-800">Changes applied to your resume!</p>
                       <p className="text-[12px] text-emerald-700">
-                        Your editor has been updated. Review the preview on the right — it reflects the approved changes.
+                        Your editor has been updated. Review the preview on the right, it reflects the approved changes.
                       </p>
                     </div>
                     <button
@@ -2920,7 +2917,7 @@ export default function CvBuilder() {
                 {!proposals.length && !approveSuccess && (
                   <div className="space-y-2">
                     <label className="text-[12px] font-bold text-slate-700">
-                      Job Description <span className="font-normal text-slate-500">(optional — for targeted optimization)</span>
+                      Job Description <span className="font-normal text-slate-500">(optional, for targeted optimization)</span>
                     </label>
                     <textarea
                       rows={4}
@@ -2932,7 +2929,7 @@ export default function CvBuilder() {
                     <div className="flex items-center gap-3 rounded-lg border border-amber-200 bg-amber-50 p-3">
                       <TrendingUp className="h-4 w-4 text-amber-600 shrink-0" />
                       <p className="text-[11.5px] text-amber-800">
-                        <strong>Factual accuracy is guaranteed.</strong> The AI improves wording only — it never adds employers, dates, qualifications, or metrics you have not provided.
+                        <strong>Factual accuracy is guaranteed.</strong> The AI improves wording only, it never adds employers, dates, qualifications, or metrics you have not provided.
                       </p>
                     </div>
                     <button
@@ -2944,7 +2941,7 @@ export default function CvBuilder() {
                       {optimizeLoading ? (
                         <><Loader2 className="h-4 w-4 animate-spin" /> Analyzing and rewriting your resume…</>
                       ) : (
-                        <><Sparkles className="h-4 w-4" /> Analyze &amp; Rewrite My Resume</>
+                        <>Analyze &amp; Rewrite My Resume</>
                       )}
                     </button>
                   </div>

@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { CheckCircle2, Circle, AlertTriangle, Loader, PlayCircle, Sparkles } from 'lucide-react';
+import { CheckCircle2, Circle, AlertTriangle, Loader, PlayCircle } from 'lucide-react';
 import { PanelHeader } from '../../layouts/AppShell.jsx';
 import { Button, Seo, LoadingBlock, ErrorState } from '../../components/ui/index.js';
 import { studioService } from '../../services/studioService.js';
@@ -70,8 +70,7 @@ export default function CareerStudio() {
 
       {!studio.ai.configured && (
         <div className="mb-6 flex gap-2.5 rounded-lg bg-amber-50 p-4 text-small text-amber-800" role="status">
-          <Sparkles className="mt-0.5 h-4 w-4 flex-none" aria-hidden />
-          <p>AI generation is not configured on this server, so cover letters, interview answers and feedback are built with rule-based templates from your own data. Scores are unaffected — they never use AI.</p>
+          <p>AI generation is not configured on this server, so cover letters, interview answers and feedback are built with rule-based templates from your own data. Scores are unaffected, they never use AI.</p>
         </div>
       )}
       {studio.ai.modelProblem && (

@@ -52,7 +52,7 @@ export default function Home() {
             <SectionHeader
               label="CV bundles"
               title="Priced by how much experience there is to write about."
-              lead="Every bundle includes an ATS-friendly CV, a customised cover letter, LinkedIn optimisation, a month of unlimited revisions and 2–3 day delivery."
+              lead="Every bundle includes an ATS-friendly CV, a customised cover letter, LinkedIn optimisation, a month of unlimited revisions and 2 to 3 day delivery."
               aside={
                 <div className="mt-6">
                   <Button to="/pricing" variant="outline">
@@ -97,7 +97,7 @@ export default function Home() {
 
       <CTASection
         title="Start with a conversation, not a purchase."
-        body="Tell us where you are and what you are aiming at. We will tell you what would actually move the needle — including when that is nothing we sell."
+        body="Tell us where you are and what you are aiming at. We will tell you what would actually move the needle, including when that is nothing we sell."
         primary={{ label: 'Book a free consultation', to: '/contact#consultation' }}
         secondary={{ label: 'See what we do', to: '/career-services' }}
       />

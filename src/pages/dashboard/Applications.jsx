@@ -87,7 +87,7 @@ export default function Applications() {
               </Link>
             ),
           },
-          { key: 'company', header: 'Company', render: (row) => row.job?.company || '—' },
+          { key: 'company', header: 'Company', render: (row) => row.job?.company || 'N/A' },
           { key: 'appliedAt', header: 'Applied', render: (row) => formatDate(row.appliedAt) },
           { key: 'status', header: 'Status', render: (row) => <StatusBadge status={row.status} /> },
           {
@@ -106,7 +106,7 @@ export default function Applications() {
                   Withdraw
                 </Button>
               ) : (
-                <span className="text-caption text-slate-400">—</span>
+                <span className="text-caption text-slate-400">, </span>
               ),
           },
         ]}

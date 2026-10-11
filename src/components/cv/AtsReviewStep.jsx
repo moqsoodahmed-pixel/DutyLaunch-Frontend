@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { Sparkles, RotateCcw, ShieldCheck } from 'lucide-react';
+import { RotateCcw, ShieldCheck } from 'lucide-react';
 import { Button, Textarea } from '../ui/index.js';
 import { careerService } from '../../services/careerService.js';
 import { describeOptimizeError } from '../../utils/optimizeErrors.js';
@@ -112,7 +112,7 @@ export function AtsReviewStep({ resume, autoRun, onRunStart, onResult, onUndo, c
       ? 'Reading everything you entered and checking it against ATS rules…'
       : elapsed < 40
         ? 'Writing ATS-friendly wording and matching keywords your experience supports…'
-        : 'Almost there — the AI is taking a little longer than usual…';
+        : 'Almost there, the AI is taking a little longer than usual…';
 
   return (
     <div className="space-y-5">
@@ -139,7 +139,7 @@ export function AtsReviewStep({ resume, autoRun, onRunStart, onResult, onUndo, c
 
       <div className="flex flex-wrap items-center gap-3">
         <Button onClick={run} loading={running} disabled={running}>
-          <Sparkles className="h-4 w-4" aria-hidden /> {hasResult ? 'Run again' : 'Analyze & optimize'}
+          {hasResult ? 'Run again' : 'Analyze & optimize'}
         </Button>
         {running && (
           <Button variant="quiet" onClick={() => abortRef.current?.abort()}>
@@ -155,7 +155,7 @@ export function AtsReviewStep({ resume, autoRun, onRunStart, onResult, onUndo, c
 
       {running && (
         <p className="text-small font-semibold text-azure-700" aria-live="polite">
-          {stage} <span className="font-normal text-slate-500">({elapsed}s — usually under a minute)</span>
+          {stage} <span className="font-normal text-slate-500">({elapsed}s, usually under a minute)</span>
         </p>
       )}
       {phase === 'error' && (

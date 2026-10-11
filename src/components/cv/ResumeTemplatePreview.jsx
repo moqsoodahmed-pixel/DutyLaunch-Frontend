@@ -851,7 +851,7 @@ function DLProjectPlus({ tpl }) {
               <ul style={{ margin: 0, paddingLeft: 14, textAlign: 'left' }}>
                 {(tpl.certs || tpl.certifications).map((c, i) => (
                   <li key={i} style={{ fontSize: 9.8, color: '#E0F2FE', lineHeight: 1.45, textAlign: 'left' }}>
-                    {typeof c === 'string' ? c : `${c.name} — ${c.issuer}`}
+                    {typeof c === 'string' ? c : `${c.name}, ${c.issuer}`}
                   </li>
                 ))}
               </ul>

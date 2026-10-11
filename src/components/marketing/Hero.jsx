@@ -16,7 +16,7 @@ const ACTIONS = [
   { to: '/resume-checker', label: 'Resume Checker', sub: 'Free Resume Health score', icon: ScanSearch, badge: 'FREE', grad: 'from-azure-500 to-azure-700' },
   { to: '/resume-builder', label: 'Resume Builder', sub: 'Upload yours or start from scratch', icon: Zap, grad: 'from-aurora-500 to-violet-600' },
   { to: '/dubai-launch', label: 'Dubai Launch', sub: 'Jobs & relocation in the Gulf', icon: Plane, grad: 'from-frost-500 to-frost-600' },
-  { to: '/appostle-services', label: 'Apostille & Attestation', sub: 'Documents, legalised & tracked', icon: FileCheck2, grad: 'from-night-tile to-night-base' },
+  { to: '/appostle-services', label: 'Apostille & Attestation', sub: 'Documents, legalised & tracked', icon: FileCheck2, grad: 'from-azure-600 to-azure-800' },
 ];
 
 /* Popular quick links — the chip row under the CTAs. */
@@ -34,7 +34,7 @@ const JOURNEYS = {
   career: {
     label: 'Career',
     steps: [
-      ['Check your resume', 'Upload your CV for a free Resume Health score — no account needed.'],
+      ['Check your resume', 'Sign in and upload your CV to get your free Resume Health score.'],
       ['Fix what matters', 'See exactly what a recruiter and the ATS miss, and how to fix it.'],
       ['Apply with confidence', 'A targeted resume, cover letter and LinkedIn that tell one story.'],
     ],
@@ -60,7 +60,7 @@ const JOURNEYS = {
 export function Hero({ tone = 'light' }) {
   const [tab, setTab] = useState('career');
   const journey = JOURNEYS[tab];
-  const isDark = tone === 'dark';
+  const isDark = false; // dark hero retired: the hero is the pale glacier blue
 
   return (
     <section
@@ -102,9 +102,9 @@ export function Hero({ tone = 'light' }) {
           >
             Your <span className={isDark ? 'text-frost-300' : 'text-azure-600'}>career</span>,{' '}
             <span className={isDark ? 'text-aurora-300' : 'text-aurora-500'}>qualification</span> and{' '}
-            <span className={isDark ? 'text-azure-300' : 'text-frost-600'}>paperwork</span>
+            <span className={isDark ? 'text-azure-300' : 'text-frost-600'}>paperwork.</span>
             <span className={`-mb-[0.14em] block bg-gradient-to-r ${isDark ? 'from-frost-300 via-azure-200 to-aurora-400' : 'from-frost-600 via-azure to-aurora-500'} bg-clip-text pb-[0.14em] text-transparent`}>
-              — one launchpad.
+              One launchpad.
             </span>
           </motion.h1>
 
@@ -117,7 +117,7 @@ export function Hero({ tone = 'light' }) {
             One team for <strong className={`font-semibold ${isDark ? 'text-white' : 'text-ink'}`}>CV writing</strong>,{' '}
             <strong className={`font-semibold ${isDark ? 'text-white' : 'text-ink'}`}>courses &amp; study abroad</strong>,{' '}
             <strong className={`font-semibold ${isDark ? 'text-white' : 'text-ink'}`}>jobs</strong>, and{' '}
-            <strong className={`font-semibold ${isDark ? 'text-white' : 'text-ink'}`}>apostille &amp; attestation</strong> — serving
+            <strong className={`font-semibold ${isDark ? 'text-white' : 'text-ink'}`}>apostille &amp; attestation</strong>, serving
             candidates across <strong className={`font-semibold ${isDark ? 'text-white' : 'text-ink'}`}>India and the Gulf</strong>.
           </motion.p>
 
@@ -187,7 +187,7 @@ export function Hero({ tone = 'light' }) {
           transition={{ duration: 0.7, delay: 0.18, ease }}
           className="xl:col-span-5"
         >
-          <div className={isDark ? 'rounded-2xl border-2 border-night-line bg-night-card p-5 sm:p-6 shadow-[0_18px_44px_-18px_rgba(0,0,0,0.65)] text-white' : 'glass-panel !p-5 sm:!p-6'}>
+          <div className={isDark ? 'rounded-2xl border-2 border-mist-line bg-white p-5 sm:p-6 shadow-[0_18px_44px_-18px_rgba(0,0,0,0.65)] text-white' : 'glass-panel !p-5 sm:!p-6'}>
             <div className="flex items-center justify-between gap-3">
               <p className={`inline-flex items-center gap-2 text-caption font-bold uppercase tracking-wider ${isDark ? 'text-frost-300' : 'text-azure'}`}>
                 <Check className="h-3.5 w-3.5" aria-hidden />

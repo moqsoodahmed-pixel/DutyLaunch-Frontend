@@ -64,8 +64,8 @@ export default function Disclaimers() {
 
       <h2>Partner and third-party services</h2>
       <p>
-        Some services — for example education programmes, education financing, relocation support under Dubai Launch
-        and parts of document processing — are provided by partner organisations. We tell you which organisation
+        Some services, for example education programmes, education financing, relocation support under Dubai Launch
+        and parts of document processing, are provided by partner organisations. We tell you which organisation
         provides a service before you engage it. Admission, accreditation, loan approval and similar decisions rest
         with that partner or institution, and their own terms apply.
       </p>

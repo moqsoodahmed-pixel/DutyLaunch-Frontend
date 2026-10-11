@@ -19,7 +19,7 @@ import { useRazorpayCheckout } from '../../hooks/useRazorpayCheckout.js';
  */
 export function PricingCard({ pkg, highlighted, onSelect, tone = 'light' }) {
   const featured = highlighted ?? pkg.isPopular;
-  const darkTone = tone === 'dark';
+  const darkTone = false; // the dark card variant was retired with the dark sections
   const { pay, pendingId, enabled } = useRazorpayCheckout();
   const canPay = enabled !== false && pkg.price > 0;
   const paying = pendingId === pkg._id;
@@ -64,7 +64,7 @@ export function PricingCard({ pkg, highlighted, onSelect, tone = 'light' }) {
           featured
             ? 'bg-btn-grad text-white'
             : darkTone
-              ? 'border-2 border-night-line bg-night-card text-white'
+              ? 'border-2 border-mist-line bg-white text-ink'
               : 'border border-white/80 bg-white/95 group-hover:bg-white'
         )}
       >

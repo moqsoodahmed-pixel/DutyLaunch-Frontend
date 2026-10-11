@@ -172,7 +172,7 @@ export default function ProfessionalCourses() {
               <h2 className="text-h2 font-bold">Built for Working Professionals</h2>
               <p className="mt-3 max-w-2xl text-lead text-slate-600">
                 Most of our education clients are already working. We help you fit higher studies around your job, not
-                the other way around, and guide you specifically toward qualifications that support your next move —
+                the other way around, and guide you specifically toward qualifications that support your next move,
                 whether that&apos;s a promotion, a career change, or a salary hike.
               </p>
             </div>
@@ -205,7 +205,7 @@ export default function ProfessionalCourses() {
                 <h2 className="text-h3 font-bold text-ink">Admission Guidance</h2>
                 <p className="mt-3 text-body text-slate-600">
                   Not sure which program fits your goals, timeline, and budget? Our counsellors walk you through your
-                  realistic options and help you shortlist, apply, and enroll with confidence — without the sales
+                  realistic options and help you shortlist, apply, and enroll with confidence, without the sales
                   pressure typical of education agents.
                 </p>
                 <Button to="/contact#consultation" variant="outline" className="mt-6">

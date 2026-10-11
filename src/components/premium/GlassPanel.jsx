@@ -12,7 +12,7 @@ import { cn } from '../../utils/cn.js';
 export function GlassPanel({ as: Tag = 'div', tone = 'light', className, children, ...rest }) {
     const tones = {
         light: 'border border-azure-200 bg-white text-ink shadow-[0_14px_36px_-16px_rgba(5,8,14,0.35)]',
-        dark: 'border-2 border-night-line bg-night-card text-white shadow-[0_18px_44px_-18px_rgba(0,0,0,0.65)]',
+        dark: 'border-2 border-mist-line bg-white text-ink shadow-[0_18px_44px_-18px_rgba(0,0,0,0.65)]',
     };
 
     return (

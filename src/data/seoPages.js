@@ -23,19 +23,19 @@
 export const seoPages = {
   home: {
     path: '/',
-    title: 'DutyLaunch — Career Intelligence & Opportunity Platform',
+    title: 'DutyLaunch: Career Intelligence & Opportunity Platform',
     description:
       'Analyse your resume free, find where it falls short against a real job description, close the gaps and apply with a profile that reflects your actual experience.',
     heading: 'Your Career. Your Next Opportunity. One Launchpad.',
     subheading:
-      'Upload your CV and get an honest read on where you stand — what a recruiter will see, what a job description is asking for that you have not evidenced, and what to do about it.',
+      'Upload your CV and get an honest read on where you stand, what a recruiter will see, what a job description is asking for that you have not evidenced, and what to do about it.',
     primaryCta: { label: 'Analyze My Resume Free', to: '/resume-checker' },
     secondaryCta: { label: 'Browse jobs', to: '/jobs' },
   },
 
   aiResumeBuilder: {
     path: '/resume-builder',
-    title: 'Resume Builder — Build a Resume That Matches the Job',
+    title: 'Resume Builder: Build a Resume That Matches the Job',
     description:
       'Upload your resume, add a job description, and DutyLaunch identifies gaps, strengthens your content from your own evidence and builds a clean, ATS-friendly resume.',
     heading: 'Build a Resume That Matches the Job',
@@ -47,7 +47,7 @@ export const seoPages = {
 
   resumeChecker: {
     path: '/resume-checker',
-    title: 'Free Resume Checker — Score Your CV in Minutes',
+    title: 'Free Resume Checker: Score Your CV in Minutes',
     description:
       'Get a free Resume Health score covering structure, readability, achievement strength and keyword coverage, with a specific fix for every issue found.',
     heading: 'Check your resume before a recruiter does',
@@ -59,7 +59,7 @@ export const seoPages = {
 
   jobs: {
     path: '/jobs',
-    title: 'Jobs — Search and Apply with a Matched Profile',
+    title: 'Jobs: Search and Apply with a Matched Profile',
     description:
       'Search open roles and see how your profile matches each one before you apply, with the gaps named so you can decide where your application is worth sending.',
     heading: 'Find roles worth applying to',
@@ -71,7 +71,7 @@ export const seoPages = {
 
   upskills: {
     path: '/upskills',
-    title: 'Upskills — Courses Chosen for the Gap You Actually Have',
+    title: 'Upskills: Courses Chosen for the Gap You Actually Have',
     description:
       'Short courses and certifications matched to the specific skills your target roles ask for and your resume does not yet evidence.',
     heading: 'Learn the thing that is actually holding you back',
@@ -83,19 +83,19 @@ export const seoPages = {
 
   higherEducation: {
     path: '/higher-education',
-    title: 'Higher Education — Degrees and Programmes with a Career Plan',
+    title: 'Higher Education: Degrees and Programmes with a Career Plan',
     description:
       'Undergraduate and postgraduate programmes with admissions support, financing options and an honest view of what each qualification opens up.',
     heading: 'Choose a programme for where it takes you',
     subheading:
-      'Degrees, diplomas and distance programmes, with admissions guidance and financing — matched to the career you are aiming at.',
+      'Degrees, diplomas and distance programmes, with admissions guidance and financing, matched to the career you are aiming at.',
     primaryCta: { label: 'Explore programmes', to: '/higher-education' },
     secondaryCta: { label: 'Talk to a counsellor', to: '/contact#consultation' },
   },
 
   professionalCourses: {
     path: '/professional-courses',
-    title: 'Professional Courses — Industry-Recognised Certifications',
+    title: 'Professional Courses: Industry-Recognised Certifications',
     description:
       'Structured, mentor-led certifications in the skills employers are hiring for, with the course chosen against your target role rather than a catalogue.',
     heading: 'Certifications that employers actually ask for',
@@ -107,23 +107,23 @@ export const seoPages = {
 
   dubaiLaunch: {
     path: '/dubai-launch',
-    title: 'Dubai Launch — Job Search Support for the UAE',
+    title: 'Dubai Launch: Job Search Support for the UAE',
     description:
       'CV and profile work to UAE conventions, employer outreach, documentation and relocation guidance for candidates targeting Dubai and the wider Gulf.',
     heading: 'Working in Dubai, planned properly',
     subheading:
-      'A UAE-format CV, the documentation in order and a realistic view of the market — before you spend money on a job-seeker visa.',
+      'A UAE-format CV, the documentation in order and a realistic view of the market, before you spend money on a job-seeker visa.',
     primaryCta: { label: 'See what is included', to: '/dubai-launch#package' },
     secondaryCta: { label: 'Talk to us first', to: '/contact#consultation' },
     /* Compliance: nothing on this page may imply a guaranteed job,
        guaranteed visa approval or a guaranteed timeline (spec §40). */
     disclaimer:
-      'We help you prepare and apply. We do not guarantee employment, visa approval or a processing timeline — those decisions sit with employers and authorities.',
+      'We help you prepare and apply. We do not guarantee employment, visa approval or a processing timeline, those decisions sit with employers and authorities.',
   },
 
   appostleServices: {
     path: '/appostle-services',
-    title: 'Apostille & Attestation Services — Tracked End to End',
+    title: 'Apostille & Attestation Services: Tracked End to End',
     description:
       'Apostille, embassy attestation and certified translation for educational and personal documents, handled and tracked from collection to delivery.',
     heading: 'Documents ready before the employer asks',
@@ -135,9 +135,9 @@ export const seoPages = {
 
   linkedinOptimization: {
     path: '/linkedin-optimization',
-    title: 'LinkedIn Optimization — Headline, About and Keywords',
+    title: 'LinkedIn Optimization: Headline, About and Keywords',
     description:
-      'Rewrite your LinkedIn headline, About section and experience so recruiters searching for your target role actually find you — using only your real evidence.',
+      'Rewrite your LinkedIn headline, About section and experience so recruiters searching for your target role actually find you, using only your real evidence.',
     heading: 'Be findable for the role you want',
     subheading:
       'Your LinkedIn and your resume should tell the same story. We align them, using the experience you already have.',
@@ -147,31 +147,31 @@ export const seoPages = {
 
   coverLetterGenerator: {
     path: '/cover-letter-generator',
-    title: 'Cover Letter Generator — Written from Your Real Experience',
+    title: 'Cover Letter Generator: Written from Your Real Experience',
     description:
       'Generate a cover letter built from your resume and the job description, with every claim traceable to something you have actually done.',
     heading: 'A cover letter that says something',
     subheading:
-      'Built from your resume and the job description — specific to the role, and free of the claims you would have to walk back in an interview.',
+      'Built from your resume and the job description, specific to the role, and free of the claims you would have to walk back in an interview.',
     primaryCta: { label: 'Draft my cover letter', to: '/cover-letter-generator#start' },
     secondaryCta: { label: 'Analyze My Resume Free', to: '/resume-checker' },
   },
 
   interviewPreparation: {
     path: '/interview-preparation',
-    title: 'Interview Preparation — Questions from Your Own Resume',
+    title: 'Interview Preparation: Questions from Your Own Resume',
     description:
       'Practise the questions this job description and your own resume claims are most likely to produce, including how to back up every number you have written.',
     heading: 'Prepare for the questions you will actually get',
     subheading:
-      'Role-specific questions, plus a challenge on every claim in your resume — because that is what a good interviewer does.',
+      'Role-specific questions, plus a challenge on every claim in your resume, because that is what a good interviewer does.',
     primaryCta: { label: 'Start interview prep', to: '/interview-preparation#start' },
     secondaryCta: { label: 'Review my resume', to: '/resume-checker' },
   },
 
   employers: {
     path: '/employers',
-    title: 'For Employers — Post Roles and Reach Matched Candidates',
+    title: 'For Employers: Post Roles and Reach Matched Candidates',
     description:
       'Post a role and reach candidates whose evidenced skills match your requirements, with structured profiles instead of a stack of inconsistent PDFs.',
     heading: 'Hire from evidence, not formatting',
@@ -183,7 +183,7 @@ export const seoPages = {
 
   partners: {
     path: '/partners',
-    title: 'Partner with DutyLaunch — Institutes, EdTech and Services',
+    title: 'Partner with DutyLaunch: Institutes, EdTech and Services',
     description:
       'List your programmes in front of candidates who have already identified the exact skill gap your course closes. For universities, training providers and service partners.',
     heading: 'Reach candidates at the moment they decide to learn',
@@ -195,9 +195,9 @@ export const seoPages = {
 
   about: {
     path: '/about',
-    title: 'About DutyLaunch — Career Intelligence, Honestly Done',
+    title: 'About DutyLaunch: Career Intelligence, Honestly Done',
     description:
-      'DutyLaunch helps candidates assess their career profile, improve applications, develop relevant skills and find opportunities — without fabricating anything.',
+      'DutyLaunch helps candidates assess their career profile, improve applications, develop relevant skills and find opportunities, without fabricating anything.',
     heading: 'We will not write a resume you cannot defend',
     subheading:
       'DutyLaunch is a career intelligence and opportunity platform. The resume is where most people meet us; it is not the whole product.',
@@ -205,7 +205,7 @@ export const seoPages = {
 
   contact: {
     path: '/contact',
-    title: 'Contact DutyLaunch — Talk to a Career Advisor',
+    title: 'Contact DutyLaunch: Talk to a Career Advisor',
     description:
       'Questions about your CV, a course, documentation or working abroad? Talk to a DutyLaunch advisor, or book a free consultation.',
     heading: 'Talk to someone who has seen your situation before',
@@ -214,7 +214,7 @@ export const seoPages = {
 
   faq: {
     path: '/faq',
-    title: 'Frequently Asked Questions — DutyLaunch',
+    title: 'Frequently Asked Questions | DutyLaunch',
     description:
       'How the resume analysis works, what we do with your data, what we can and cannot promise, and how pricing, courses and documentation services work.',
     heading: 'Questions, answered plainly',

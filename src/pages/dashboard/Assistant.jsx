@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion, useMotionValue, useTransform } from 'framer-motion';
-import { ArrowUpRight, Compass, MessageCircle, Paperclip, Send, Sparkles, User } from 'lucide-react';
+import { ArrowUpRight, Compass, MessageCircle, Paperclip, Send, Bot, User } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext.jsx';
 import { careerAssistant, calculateProfileStrength, recommendCourses } from '../../services/aiService.js';
 import { ProgressRing } from '../../components/ui/Progress.jsx';
@@ -136,7 +136,7 @@ function AiOrb({ size = 88, thinking = false, className }) {
         <div className="absolute inset-[3px] rounded-full bg-gradient-to-br from-white/40 via-white/5 to-transparent" />
         <div className="absolute inset-[3px] rounded-full bg-gradient-to-tl from-black/25 via-transparent to-transparent mix-blend-overlay" />
         <div className="absolute inset-[24%] grid place-items-center rounded-full bg-ink-900/85 backdrop-blur-sm">
-          <Sparkles className="h-[45%] w-[45%] text-violet-200" aria-hidden />
+          <span className="font-extrabold leading-none text-white" style={{ fontSize: size * 0.2 }}>AI</span>
         </div>
         {thinking && (
           <motion.div
@@ -287,7 +287,7 @@ function Bubble({ role, children }) {
           isUser ? 'bg-ink-800 text-white' : cn(AI_GRADIENT, 'text-white shadow-glow')
         )}
       >
-        {isUser ? <User className="h-4 w-4" aria-hidden /> : <Sparkles className="h-3.5 w-3.5" aria-hidden />}
+        {isUser ? <User className="h-4 w-4" aria-hidden /> : <Bot className="h-4 w-4" aria-hidden />}
       </span>
       <div
         className={cn(
@@ -470,13 +470,13 @@ export default function Assistant() {
       return;
     }
     if (file.size > MAX_UPLOAD_MB * 1024 * 1024) {
-      toast.error(`That file is over ${MAX_UPLOAD_MB} MB — try a smaller one.`);
+      toast.error(`That file is over ${MAX_UPLOAD_MB} MB, try a smaller one.`);
       return;
     }
     setMessages((m) => [
       ...m,
       { role: 'user', text: `📎 Uploaded ${file.name}` },
-      { role: 'assistant', text: "Got it! Opening the builder so you can review and finish your resume — I've already handed your file over." },
+      { role: 'assistant', text: "Got it! Opening the builder so you can review and finish your resume: I've already handed your file over." },
     ]);
     setPendingUpload(file);
     setTimeout(() => navigate('/resume-builder?upload=1'), 700);
@@ -494,20 +494,20 @@ export default function Assistant() {
   return (
     <>
       {/* Hero — the one deliberate bold moment on this page */}
-      <div className="surface-dark relative mb-6 overflow-hidden rounded-2xl px-6 py-8 sm:px-9 sm:py-10">
+      <div className="surface-mist relative mb-6 overflow-hidden rounded-2xl border border-mist-line px-6 py-8 sm:px-9 sm:py-10">
         <div className="relative z-[1] flex flex-col items-start gap-6 sm:flex-row sm:items-center">
           <AiOrb size={88} thinking={thinking} />
           <div className="min-w-0">
-            <h1 className="text-h2 font-extrabold text-white">AI Career Assistant</h1>
-            <p className="mt-2 max-w-prose text-small text-white/70">
-              Grounded entirely in DutyLaunch's live pricing, courses, jobs and documentation data — ask a
+            <h1 className="text-h2 font-extrabold text-ink">AI Career Assistant</h1>
+            <p className="mt-2 max-w-prose text-small text-slate-700">
+              Grounded entirely in DutyLaunch's live pricing, courses, jobs and documentation data, ask a
               direct question and get a direct, sourced answer, personalised to your profile.
             </p>
             <div className="mt-4 flex flex-wrap gap-1.5">
               {DATA_SOURCES.map((s) => (
                 <span
                   key={s}
-                  className="rounded-full border border-white/15 bg-white/10 px-2.5 py-1 text-caption font-medium text-white/70 backdrop-blur"
+                  className="rounded-full border border-azure-200 bg-white px-2.5 py-1 text-caption font-medium text-azure-700"
                 >
                   {s}
                 </span>
@@ -576,7 +576,6 @@ export default function Assistant() {
                         to={a.to}
                         className="inline-flex items-center gap-1.5 rounded-full border border-violet-200 bg-violet-50 px-3 py-1.5 text-caption font-semibold text-violet-700 hover:border-violet-300 hover:bg-violet-100"
                       >
-                        <Sparkles className="h-3 w-3" aria-hidden />
                         {a.label}
                         <ArrowUpRight className="h-3 w-3" aria-hidden />
                       </Link>
