@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { Download } from 'lucide-react';
+import { Seo } from '../../components/ui/Seo.jsx';
 import { PanelHeader } from '../../layouts/AppShell.jsx';
 import { DataTable } from '../../components/admin/DataTable.jsx';
 import { StatusBadge } from '../../components/ui/Badge.jsx';
@@ -59,6 +60,7 @@ export default function EmployerApplications() {
 
   return (
     <>
+      <Seo title="Applicants" noIndex />
       <PanelHeader title="Applicants" description="Everyone who has applied to your job posts." />
 
       <Tabs options={STATUS_FILTERS} value={status} onChange={(v) => update({ status: v })} label="Filter by status" className="mb-6" />

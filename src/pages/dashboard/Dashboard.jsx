@@ -244,13 +244,13 @@ function CandidateOverview() {
 }
 
 function EmployerOverview() {
-  const { data: jobs, loading } = useApi(() => employerService.listJobs({ limit: 5 }), []);
+  const { data: jobs, meta: jobsMeta, loading } = useApi(() => employerService.listJobs({ limit: 5 }), []);
   const { meta: applicationsMeta } = useApi(() => employerService.applications({ limit: 1 }), []);
 
   return (
     <>
       <div className="grid gap-4 sm:grid-cols-2">
-        <StatCard label="Job posts" value={jobs?.length ?? 0} icon="Briefcase" to="/employer/jobs" />
+        <StatCard label="Job posts" value={jobsMeta?.total ?? jobs?.length ?? 0} icon="Briefcase" to="/employer/jobs" />
         <StatCard label="Total applicants" value={applicationsMeta?.total ?? 0} icon="Users" to="/employer/applications" />
       </div>
 
@@ -266,7 +266,7 @@ function EmployerOverview() {
           {!loading && !jobs?.length && (
             <EmptyState
               title="No job posts yet"
-              description="Post a role and it will appear here once submitted for review."
+              description="Post your first role to start receiving applications."
               icon={Briefcase}
               action={
                 <Link to="/employer/jobs/new" className="text-small font-semibold text-azure hover:underline">

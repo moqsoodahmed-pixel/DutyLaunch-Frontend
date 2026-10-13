@@ -200,8 +200,15 @@ export default function Profile() {
 
   return (
     <>
-      <Seo title="Profile & Resume" noIndex />
-      <PanelHeader title="Profile" description="Kept private except for what you choose to share when you apply." />
+      <Seo title={isEmployer ? 'Employer Profile' : 'Profile & Resume'} noIndex />
+      <PanelHeader
+        title={isEmployer ? 'Employer Profile' : 'Profile'}
+        description={
+          isEmployer
+            ? 'Manage your company details and hiring contact information.'
+            : 'Kept private except for what you choose to share when you apply.'
+        }
+      />
 
       <AccountSummary />
 

@@ -27,7 +27,7 @@ export default function DashboardLayout() {
       title: 'Your account',
       items: [
         { to: '/dashboard', label: 'Overview', icon: 'LayoutDashboard', end: true },
-        { to: '/profile', label: 'Profile & resume', icon: 'UserRound' },
+        { to: '/profile', label: isEmployer ? 'Employer profile' : 'Profile & resume', icon: 'UserRound' },
         { to: '/payments', label: 'My payments', icon: 'CreditCard' },
       ],
     },

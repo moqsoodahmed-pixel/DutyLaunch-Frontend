@@ -118,12 +118,19 @@ export const TRACKS = {
     noun: 'course',
     groups: COURSE_GROUPS,
   },
+  both: {
+    basePath: '/all-courses',
+    label: 'Higher Education & Professional Courses',
+    service: 'Higher education & Professional courses',
+    noun: 'programme / course',
+    groups: [...SCHOOL, ...DEGREES, ...COURSE_GROUPS],
+  },
 };
 
 /** Every programme in a track as { item, group, slug }. Title-only groups
     (X / SSLC, XII / PUC) are programmes in their own right. */
 export function programmesIn(track) {
-  return TRACKS[track].groups.flatMap((g) =>
+  return (TRACKS[track] || TRACKS.education).groups.flatMap((g) =>
     g.items?.length
       ? g.items.map((item) => ({ item, group: g.title, groupDescription: g.description, slug: slugify(item) }))
       : [{ item: g.title, group: g.title, groupDescription: g.description, slug: slugify(g.title) }]
@@ -135,5 +142,9 @@ export function findProgramme(track, slug) {
 }
 
 export function programmeHref(track, item) {
-  return `${TRACKS[track].basePath}/${slugify(item)}`;
+  if (track === 'both') {
+    const isEdu = programmesIn('education').some((p) => p.item === item);
+    return isEdu ? `/higher-education/${slugify(item)}` : `/professional-courses/${slugify(item)}`;
+  }
+  return `${TRACKS[track]?.basePath || '/higher-education'}/${slugify(item)}`;
 }

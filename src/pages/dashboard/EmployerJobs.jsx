@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { PlusCircle, Trash2, Eye, Users, Pencil } from 'lucide-react';
+import { Seo } from '../../components/ui/Seo.jsx';
 import { PanelHeader } from '../../layouts/AppShell.jsx';
 import { DataTable } from '../../components/admin/DataTable.jsx';
 import { StatusBadge } from '../../components/ui/Badge.jsx';
@@ -55,6 +56,7 @@ export default function EmployerJobs() {
 
   return (
     <>
+      <Seo title="Your Job Posts" noIndex />
       <PanelHeader
         title="Your job posts"
         description="New and edited posts enter moderation before they go live."

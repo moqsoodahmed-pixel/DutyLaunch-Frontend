@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { Link } from 'react-router-dom';
 import { CheckCircle2, Clock, ExternalLink, XCircle } from 'lucide-react';
+import { Seo } from '../../components/ui/Seo.jsx';
 import { PanelHeader } from '../../layouts/AppShell.jsx';
 import { Input, Select, Textarea } from '../../components/ui/Field.jsx';
 import { Button } from '../../components/ui/Button.jsx';
@@ -121,8 +122,9 @@ export default function PartnerProfile() {
 
   const changeTrack = (next) => {
     setTrack(next);
-    // Programmes belong to one track — clear them when switching.
-    setSelected([]);
+    // Keep selections that belong to the new track
+    const validSlugs = new Set(programmesIn(next).map((p) => p.slug));
+    setSelected((cur) => cur.filter((s) => validSlugs.has(s)));
     setChoicesDirty(true);
   };
 
@@ -152,6 +154,7 @@ export default function PartnerProfile() {
 
   return (
     <>
+      <Seo title="Partner Profile" noIndex />
       <PanelHeader
         title="Partner profile"
         description="How your institute appears on DutyLaunch, and which programmes you're listed under."
@@ -215,7 +218,7 @@ export default function PartnerProfile() {
 
         <section className="tile p-5 sm:p-6">
           <h2 className="text-h3 font-bold text-ink">What do you offer?</h2>
-          <div className="mt-4 grid gap-3 sm:grid-cols-2" role="radiogroup" aria-label="Partner type">
+          <div className="mt-4 grid gap-3 sm:grid-cols-3" role="radiogroup" aria-label="Partner type">
             {Object.entries(TRACKS).map(([key, t]) => (
               <button
                 key={key}
@@ -232,7 +235,11 @@ export default function PartnerProfile() {
                   {t.label}
                 </span>
                 <span className="text-caption text-slate-500">
-                  {key === 'education' ? 'Schools, colleges and universities' : 'Training and certification providers'}
+                  {key === 'education'
+                    ? 'Schools, colleges and universities'
+                    : key === 'courses'
+                      ? 'Training and certification providers'
+                      : 'Academic programmes & professional courses'}
                 </span>
               </button>
             ))}

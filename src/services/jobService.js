@@ -14,6 +14,7 @@ export const jobService = {
 
 export const employerService = {
   listJobs: (params) => api.get('/employers/jobs', { params }),
+  getJob: (id) => api.get(`/employers/jobs/${id}`),
   createJob: (payload) => api.post('/employers/jobs', payload),
   updateJob: (id, payload) => api.patch(`/employers/jobs/${id}`, payload),
   deleteJob: (id) => api.delete(`/employers/jobs/${id}`),
