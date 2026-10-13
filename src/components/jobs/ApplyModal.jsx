@@ -9,8 +9,9 @@ import { useToast } from '../../context/ToastContext.jsx';
 import { useAuth } from '../../context/AuthContext.jsx';
 import { ConsentCheckbox } from '../ui/ConsentCheckbox.jsx';
 import { CONSENT_REQUIRED_MESSAGE } from '../../data/legal.js';
+import { formatJobTitle } from '../../utils/format.js';
 
-const MAX_MB = 5;
+const MAX_MB = 10;
 
 export function ApplyModal({ job, open, onClose, onApplied }) {
   const { isAuthenticated } = useAuth();
@@ -90,7 +91,7 @@ export function ApplyModal({ job, open, onClose, onApplied }) {
     <Modal
       open={open}
       onClose={onClose}
-      title={`Apply: ${job?.title || ''}`}
+      title={`Apply: ${formatJobTitle(job?.title) || ''}`}
       description={job?.company}
       footer={
         <div className="flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">

@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom';
 import { Bookmark } from 'lucide-react';
 import { PanelHeader } from '../../layouts/AppShell.jsx';
+import { Seo } from '../../components/ui/Seo.jsx';
 import { JobCard } from '../../components/jobs/JobCard.jsx';
 import { CardSkeleton, EmptyState, ErrorState } from '../../components/ui/States.jsx';
 import { useApi } from '../../hooks/useApi.js';
@@ -23,6 +24,7 @@ export default function SavedJobs() {
 
   return (
     <>
+      <Seo title="Saved Jobs" noIndex />
       <PanelHeader title="Saved jobs" description="Roles you have bookmarked to come back to." />
 
       {loading && <CardSkeleton count={3} />}

@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom';
 import { Bookmark, BriefcaseBusiness, Building2, IndianRupee, MapPin } from 'lucide-react';
 import { Badge } from '../ui/Badge.jsx';
-import { formatExperience, formatSalary, relativeTime } from '../../utils/format.js';
+import { formatExperience, formatJobTitle, formatSalary, relativeTime } from '../../utils/format.js';
 import { cn } from '../../utils/cn.js';
 
 /** First letters of the company name, for the logo-tile placeholder. */
@@ -21,6 +21,7 @@ function initials(name = '') {
  * and Apna rather than a generic content card.
  */
 export function JobCard({ job, saved, onToggleSave, compact }) {
+  const displayTitle = formatJobTitle(job.title);
   return (
     <article className="tile group relative flex gap-4 p-5">
       <span className="grid h-12 w-12 shrink-0 place-items-center rounded-xl bg-gradient-to-br from-azure-500 to-azure-700 text-small font-extrabold text-white shadow-blue">
@@ -32,7 +33,7 @@ export function JobCard({ job, saved, onToggleSave, compact }) {
           <div className="min-w-0">
             <h3 className="text-body font-bold leading-snug text-ink">
               <Link to={`/jobs/${job.slug || job._id}`} className="before:absolute before:inset-0">
-                {job.title}
+                {displayTitle}
               </Link>
             </h3>
             <p className="mt-0.5 truncate text-small font-medium text-slate-600">{job.company}</p>
@@ -45,7 +46,7 @@ export function JobCard({ job, saved, onToggleSave, compact }) {
                 onToggleSave(job);
               }}
               className="relative z-10 shrink-0 rounded p-1.5 text-slate-400 hover:bg-slate-100 hover:text-ink"
-              aria-label={saved ? `Remove ${job.title} from saved jobs` : `Save ${job.title}`}
+              aria-label={saved ? `Remove ${displayTitle} from saved jobs` : `Save ${displayTitle}`}
               aria-pressed={Boolean(saved)}
             >
               <Bookmark className={cn('h-4.5 w-4.5', saved && 'fill-amber-500 text-amber-500')} aria-hidden />

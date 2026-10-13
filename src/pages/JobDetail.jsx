@@ -13,7 +13,7 @@ import { useApi } from '../hooks/useApi.js';
 import { jobService } from '../services/jobService.js';
 import { useAuth } from '../context/AuthContext.jsx';
 import { useToast } from '../context/ToastContext.jsx';
-import { formatExperience, formatSalary, relativeTime } from '../utils/format.js';
+import { formatExperience, formatJobTitle, formatSalary, relativeTime } from '../utils/format.js';
 import { jobPostingSchema } from '../utils/seo.js';
 import { analyzeJobMatch } from '../services/aiService.js';
 import { findDemoJob } from '../data/demoJobs.js';
@@ -346,7 +346,7 @@ export default function JobDetail() {
   return (
     <>
       <Seo
-        title={`${job.title} at ${job.company}`}
+        title={`${formatJobTitle(job.title)} at ${job.company}`}
         description={job.summary || job.description?.slice(0, 155)}
         schema={schema}
         noIndex={isDemo}
@@ -366,13 +366,13 @@ export default function JobDetail() {
 
       <section className="surface-hero">
         <Container className="py-10 lg:py-14">
-          <Breadcrumb items={[{ label: 'Jobs', to: '/jobs' }, { label: job.title }]} />
+          <Breadcrumb items={[{ label: 'Jobs', to: '/jobs' }, { label: formatJobTitle(job.title) }]} />
           <div className="mt-4 flex items-start gap-4">
             <span className="hidden h-14 w-14 shrink-0 place-items-center rounded-xl bg-gradient-to-br from-azure-500 to-azure-700 text-lead font-extrabold text-white shadow-blue sm:grid">
               {initials(job.company) || <Building2 className="h-6 w-6" aria-hidden />}
             </span>
             <div className="min-w-0">
-              <h1 className="text-h1 font-extrabold text-ink">{job.title}</h1>
+              <h1 className="text-h1 font-extrabold text-ink">{formatJobTitle(job.title)}</h1>
               <p className="mt-2 inline-flex items-center gap-1.5 text-lead text-slate-600">
                 <Building2 className="h-4.5 w-4.5 text-slate-400" aria-hidden />
                 {job.company}

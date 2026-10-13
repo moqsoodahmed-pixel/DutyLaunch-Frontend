@@ -12,9 +12,10 @@ import { ConsentCheckbox } from '../../components/ui/ConsentCheckbox.jsx';
 import { CONSENT_REQUIRED_MESSAGE } from '../../data/legal.js';
 import { formatDate, initials } from '../../utils/format.js';
 import { Badge } from '../../components/ui/Badge.jsx';
+import { Seo } from '../../components/ui/Seo.jsx';
 import { roleLabel, roleTone } from '../../utils/roles.js';
 
-const MAX_MB = 5;
+const MAX_MB = 10;
 
 /** Who is signed in: name, email, account type and membership date. */
 function AccountSummary() {
@@ -199,6 +200,7 @@ export default function Profile() {
 
   return (
     <>
+      <Seo title="Profile & Resume" noIndex />
       <PanelHeader title="Profile" description="Kept private except for what you choose to share when you apply." />
 
       <AccountSummary />

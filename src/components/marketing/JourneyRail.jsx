@@ -45,7 +45,7 @@ export function JourneyRail() {
     <Section tone="mist">
       <Container>
         <SectionHeader
-          label="How it works"
+          label="Your journey"
           title="Five stages, and honest advice at each one"
           lead="Most people arrive mid-way through. Start wherever you actually are. You do not have to use all five."
         />

@@ -10,9 +10,10 @@ import { usePrefersReducedMotion } from '../../hooks/useMediaQuery.js';
 import { cn } from '../../utils/cn.js';
 import { setPendingUpload } from '../../utils/pendingUpload.js';
 import { useToast } from '../../context/ToastContext.jsx';
+import { Seo } from '../../components/ui/Seo.jsx';
 
 const UPLOAD_ACCEPT = '.pdf,.docx,.doc';
-const MAX_UPLOAD_MB = 5;
+const MAX_UPLOAD_MB = 10;
 
 const SUGGESTED_PROMPTS = [
   'I want to become an Operations Manager.',
@@ -493,6 +494,7 @@ export default function Assistant() {
 
   return (
     <>
+      <Seo title="AI Career Assistant" noIndex />
       {/* Hero — the one deliberate bold moment on this page */}
       <div className="surface-mist relative mb-6 overflow-hidden rounded-2xl border border-mist-line px-6 py-8 sm:px-9 sm:py-10">
         <div className="relative z-[1] flex flex-col items-start gap-6 sm:flex-row sm:items-center">

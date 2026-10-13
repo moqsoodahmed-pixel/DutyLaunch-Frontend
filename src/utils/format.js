@@ -52,3 +52,26 @@ export function initials(name = '') {
     .map((n) => n[0]?.toUpperCase())
     .join('');
 }
+
+const ACRONYMS = new Set(['QA', 'UI', 'UX', 'AI', 'ATS', 'IT', 'HR', 'SEO', 'SEM', 'CRM', 'API', 'VP', 'CTO', 'CEO', 'CFO', 'COO', 'US', 'UK', 'UAE', 'BD', 'CLM', 'BPO']);
+
+/** Normalizes job titles to proper Title Case while preserving recognized acronyms (BUG-04) */
+export function formatJobTitle(title = '') {
+  if (!title) return '';
+  const trimmed = title.trim();
+  const isAllUpper = trimmed === trimmed.toUpperCase() && /[A-Z]/.test(trimmed);
+  const isAllLower = trimmed === trimmed.toLowerCase() && /[a-z]/.test(trimmed);
+  if (isAllUpper || isAllLower) {
+    return trimmed
+      .split(/\s+/)
+      .map((word) => {
+        const clean = word.replace(/[^a-zA-Z]/g, '').toUpperCase();
+        if (ACRONYMS.has(clean)) {
+          return word.toUpperCase();
+        }
+        return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
+      })
+      .join(' ');
+  }
+  return trimmed;
+}

@@ -99,7 +99,10 @@ export default function Jobs() {
     setParams(next);
   };
 
-  const reset = () => setParams({});
+  const reset = () => {
+    setQ('');
+    setParams({});
+  };
 
   const handleToggleSave = async (job) => {
     if (!isAuthenticated) {
@@ -147,7 +150,7 @@ export default function Jobs() {
             <ul className="mt-6 flex flex-wrap gap-x-8 gap-y-2 text-small font-medium text-slate-600">
               <li className="inline-flex items-center gap-2">
                 <Briefcase className="h-4 w-4 text-azure-600" aria-hidden />
-                {totalCount} live roles
+                {totalCount} {totalCount === 1 ? 'live role' : 'live roles'}
               </li>
               <li className="inline-flex items-center gap-2">
                 <MapPin className="h-4 w-4 text-azure-600" aria-hidden />

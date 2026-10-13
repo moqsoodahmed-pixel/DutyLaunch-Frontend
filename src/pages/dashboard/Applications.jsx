@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { PanelHeader } from '../../layouts/AppShell.jsx';
+import { Seo } from '../../components/ui/Seo.jsx';
 import { DataTable } from '../../components/admin/DataTable.jsx';
 import { StatusBadge } from '../../components/ui/Badge.jsx';
 import { Tabs } from '../../components/ui/Tabs.jsx';
@@ -57,6 +58,7 @@ export default function Applications() {
 
   return (
     <>
+      <Seo title="My Applications" noIndex />
       <PanelHeader title="Your applications" description="Every role you have applied to, and where it stands." />
 
       <Tabs options={STATUS_FILTERS} value={status} onChange={(v) => update({ status: v })} label="Filter by status" className="mb-6" />

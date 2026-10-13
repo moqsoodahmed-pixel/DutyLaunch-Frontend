@@ -1,5 +1,6 @@
 import { CreditCard } from 'lucide-react';
 import { PanelHeader } from '../../layouts/AppShell.jsx';
+import { Seo } from '../../components/ui/Seo.jsx';
 import { Badge } from '../../components/ui/Badge.jsx';
 import { Button } from '../../components/ui/Button.jsx';
 import { LoadingBlock, ErrorState, EmptyState } from '../../components/ui/States.jsx';
@@ -51,6 +52,7 @@ export default function Payments() {
 
   return (
     <>
+      <Seo title="My Payments" noIndex />
       <PanelHeader
         title="My payments"
         description={panelDescription}

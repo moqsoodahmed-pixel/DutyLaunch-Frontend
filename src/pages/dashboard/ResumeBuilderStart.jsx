@@ -5,6 +5,7 @@ import {
   Loader2, Wand2, AlertTriangle, RefreshCw,
 } from 'lucide-react';
 import { PanelHeader } from '../../layouts/AppShell.jsx';
+import { Seo } from '../../components/ui/Seo.jsx';
 import { Button } from '../../components/ui/Button.jsx';
 import { ConsentCheckbox } from '../../components/ui/ConsentCheckbox.jsx';
 import { careerService } from '../../services/careerService.js';
@@ -287,6 +288,7 @@ export default function ResumeBuilderStart() {
 
   return (
     <>
+      <Seo title="Resume Builder" noIndex />
       <PanelHeader
         title="Resume Builder"
         description="Create a professional, ATS-friendly resume. Free templates are included; paid templates unlock after a one-time payment."
@@ -365,7 +367,7 @@ export default function ResumeBuilderStart() {
         <div className="rounded-lg border border-line bg-white p-6 sm:p-8">
           <h2 className="text-h3 font-bold text-ink">Upload your resume</h2>
           <p className="mt-1 text-small text-slate-600">
-            PDF or DOCX, text-based (not a scanned image), up to 5 MB. We fill in the builder, you review and edit everything.
+            PDF or DOCX, text-based (not a scanned image), up to 10 MB. We fill in the builder, you review and edit everything.
           </p>
 
           <div className="mt-4 flex items-start gap-3 rounded-lg border border-purple-200 bg-purple-50 px-4 py-3">
@@ -390,7 +392,7 @@ export default function ResumeBuilderStart() {
             <span className="mt-2 text-small font-semibold text-ink">
               {file ? file.name : 'Choose your resume file'}
             </span>
-            <span className="text-caption text-slate-500">PDF or DOCX · max 5 MB</span>
+            <span className="text-caption text-slate-500">PDF or DOCX · max 10 MB</span>
             <input
               type="file"
               accept=".pdf,.docx,.doc,.txt"

@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Download, FileStack, RotateCcw, Trash2 } from 'lucide-react';
 import { PanelHeader } from '../../layouts/AppShell.jsx';
+import { Seo } from '../../components/ui/Seo.jsx';
 import { Button } from '../../components/ui/Button.jsx';
 import { Badge } from '../../components/ui/Badge.jsx';
 import { Checkbox, Input, Textarea } from '../../components/ui/Field.jsx';
@@ -135,6 +136,7 @@ export default function MyResumes() {
   if (!profile?.exists || !profile.master) {
     return (
       <>
+        <Seo title="My Resumes" noIndex />
         <PanelHeader title="My resumes" description="Your master career profile and every version made from it." />
         <EmptyState
           icon={FileStack}
@@ -151,6 +153,7 @@ export default function MyResumes() {
 
   return (
     <>
+      <Seo title="My Resumes" noIndex />
       <PanelHeader
         title="My resumes"
         description="Your master career profile and every version made from it."

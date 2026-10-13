@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { PanelHeader } from '../../layouts/AppShell.jsx';
+import { Seo } from '../../components/ui/Seo.jsx';
 import { LoadingBlock, EmptyState } from '../../components/ui/States.jsx';
 import { Button } from '../../components/ui/Button.jsx';
 import { useApi } from '../../hooks/useApi.js';
@@ -16,6 +17,7 @@ export function CareerToolPage({ title, description, children }) {
 
   return (
     <>
+      <Seo title={title} noIndex />
       <PanelHeader title={title} description={description} />
       {loading && <LoadingBlock label="Loading your profile" />}
       {!loading && !hasProfile && (

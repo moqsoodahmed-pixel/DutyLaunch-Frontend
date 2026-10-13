@@ -263,13 +263,13 @@ export function ImportStep({ studio, onDone, goTo }) {
               <li>Upload that file here.</li>
             </ol>
           </div>
-          <FileDrop file={linkedinFile} onChange={setLinkedinFile} title="Choose your LinkedIn PDF" caption="The PDF from LinkedIn · max 5 MB" />
+          <FileDrop file={linkedinFile} onChange={setLinkedinFile} title="Choose your LinkedIn PDF" caption="The PDF from LinkedIn · max 10 MB" />
 
           <div>
             <h3 className="text-small font-bold text-ink">2. Your CV <span className="font-medium text-slate-500">(optional)</span></h3>
             <p className="mt-1 text-caption text-slate-600">No CV? No problem, your resume is built from your LinkedIn profile. If you add one, it fills in what LinkedIn is missing.</p>
           </div>
-          <FileDrop file={cvFile} onChange={setCvFile} title="Choose your CV (optional)" caption="PDF or DOCX · text-based · max 5 MB" />
+          <FileDrop file={cvFile} onChange={setCvFile} title="Choose your CV (optional)" caption="PDF or DOCX · text-based · max 10 MB" />
 
           {hasProfile && (
             <fieldset className="space-y-1.5 text-small">

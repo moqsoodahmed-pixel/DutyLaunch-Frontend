@@ -4,7 +4,7 @@ import { cn } from '../../utils/cn.js';
 import { Select } from '../ui/Field.jsx';
 import { Button } from '../ui/Button.jsx';
 
-const JOB_TYPES = ['Full-time', 'Part-time', 'Contract', 'Internship', 'Remote'];
+const JOB_TYPES = ['Full-time', 'Part-time', 'Contract', 'Internship'];
 const WORK_MODES = ['On-site', 'Hybrid', 'Remote'];
 const SORTS = [
   { value: 'relevance', label: 'Most relevant' },

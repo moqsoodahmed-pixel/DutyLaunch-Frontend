@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom';
 import { Bookmark, FileStack, Briefcase, Users, ArrowUpRight, ScanLine, Bot, CircleAlert } from 'lucide-react';
 import { PanelHeader } from '../../layouts/AppShell.jsx';
+import { Seo } from '../../components/ui/Seo.jsx';
 import { StatCard } from '../../components/admin/StatCard.jsx';
 import { LoadingBlock, EmptyState } from '../../components/ui/States.jsx';
 import { StatusBadge, Badge } from '../../components/ui/Badge.jsx';
@@ -347,6 +348,7 @@ export default function Dashboard() {
 
   return (
     <>
+      <Seo title={isEmployer ? 'Employer Dashboard' : 'Candidate Dashboard'} noIndex />
       <PanelHeader
         title={`Welcome back, ${user?.name?.split(' ')[0] || ''}`}
         description={isEmployer ? 'An overview of your job posts and applicants.' : 'An overview of your applications and saved roles.'}

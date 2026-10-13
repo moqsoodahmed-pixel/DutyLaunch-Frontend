@@ -15,7 +15,7 @@ export function FloatingContact() {
             rel="noopener noreferrer"
             id="floating-contact"
             aria-label="Chat with us on WhatsApp"
-            className="group fixed left-5 sm:left-6 z-50 inline-flex items-center rounded-full bg-[#25D366] p-3 text-white shadow-[0_10px_25px_-5px_rgba(37,211,102,0.6)] transition-all duration-300 ease-out hover:-translate-y-1 hover:shadow-[0_16px_35px_-6px_rgba(37,211,102,0.7)] hover:pr-4.5 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#25D366] print:hidden"
+            className="group fixed right-5 sm:right-6 z-40 inline-flex items-center rounded-full bg-[#25D366] p-3 text-white shadow-[0_10px_25px_-5px_rgba(37,211,102,0.6)] transition-all duration-300 ease-out hover:-translate-y-1 hover:shadow-[0_16px_35px_-6px_rgba(37,211,102,0.7)] hover:pr-4.5 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#25D366] print:hidden"
             style={{ bottom: 'calc(1.25rem + env(safe-area-inset-bottom, 0px))' }}
         >
             <svg viewBox="0 0 32 32" width={26} height={26} fill="currentColor" className="shrink-0" aria-hidden="true">

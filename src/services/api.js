@@ -14,20 +14,36 @@ const TOKEN_KEY = 'dl.token';
 export const tokenStore = {
   get: () => {
     try {
-      return window.localStorage.getItem(TOKEN_KEY);
+      return window.sessionStorage.getItem(TOKEN_KEY) || window.localStorage.getItem(TOKEN_KEY);
     } catch {
       return null;
     }
   },
   set: (token) => {
     try {
-      if (token) window.localStorage.setItem(TOKEN_KEY, token);
-      else window.localStorage.removeItem(TOKEN_KEY);
+      if (token) {
+        window.sessionStorage.setItem(TOKEN_KEY, token);
+        // Clear from localStorage to remove persistent XSS exfiltration target (BUG-13)
+        window.localStorage.removeItem(TOKEN_KEY);
+      } else {
+        window.sessionStorage.removeItem(TOKEN_KEY);
+        window.localStorage.removeItem(TOKEN_KEY);
+      }
     } catch {
       /* storage unavailable — the httpOnly cookie still carries the session */
     }
   },
 };
+// Migrate and clean legacy localStorage token on module load
+try {
+  const legacyToken = window.localStorage.getItem(TOKEN_KEY);
+  if (legacyToken) {
+    window.sessionStorage.setItem(TOKEN_KEY, legacyToken);
+    window.localStorage.removeItem(TOKEN_KEY);
+  }
+} catch {
+  /* ignore */
+}
 
 api.interceptors.request.use((config) => {
   const token = tokenStore.get();
