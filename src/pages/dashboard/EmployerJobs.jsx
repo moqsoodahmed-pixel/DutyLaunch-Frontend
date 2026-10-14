@@ -103,7 +103,7 @@ export default function EmployerJobs() {
                   <Users className="h-4 w-4" aria-hidden />
                 </Button>
                 {row.status === 'published' && (
-                  <Button to={`/jobs/${row.slug || row._id}`} target="_blank" rel="noopener noreferrer" variant="ghost" size="sm" aria-label="Preview public job" title="Preview public job">
+                  <Button to={`/jobs/${row.slug || row._id}`} state={{ from: '/employer/jobs' }} variant="ghost" size="sm" aria-label="Preview public job" title="Preview public job">
                     <Eye className="h-4 w-4" aria-hidden />
                   </Button>
                 )}
