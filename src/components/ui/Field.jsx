@@ -4,7 +4,7 @@ import { cn } from '../../utils/cn.js';
 /* min-w-0: a <select>'s intrinsic width is its longest option, which would
    otherwise stop a grid/flex column shrinking on small screens. */
 const control =
-  'w-full min-w-0 rounded border bg-white px-3.5 text-body text-ink placeholder:text-slate-400 transition-colors focus:border-azure-400 disabled:bg-slate-100';
+  'w-full min-w-0 rounded-xl border border-slate-200/90 bg-white/95 text-body text-ink shadow-[0_1px_2px_rgba(15,28,46,0.04)] placeholder:text-slate-400 transition-all duration-200 hover:border-slate-300 focus:bg-white focus:border-azure-500 focus:ring-4 focus:ring-azure-500/10 focus:shadow-sm disabled:bg-slate-100/70 disabled:cursor-not-allowed';
 
 export function FormField({ label, hint, error, required, htmlFor, children, className }) {
   return (
@@ -26,18 +26,31 @@ export function FormField({ label, hint, error, required, htmlFor, children, cla
   );
 }
 
-export const Input = forwardRef(function Input({ label, hint, error, className, id, ...rest }, ref) {
+export const Input = forwardRef(function Input({ label, hint, error, icon: Icon, className, id, ...rest }, ref) {
   const generated = useId();
   const inputId = id || generated;
   const input = (
-    <input
-      ref={ref}
-      id={inputId}
-      aria-invalid={error ? 'true' : undefined}
-      aria-describedby={error ? `${inputId}-error` : undefined}
-      className={cn(control, 'h-11', error ? 'border-danger' : 'border-line', className)}
-      {...rest}
-    />
+    <div className="relative">
+      {Icon && (
+        <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3.5 text-slate-400">
+          <Icon className="h-4.5 w-4.5" aria-hidden="true" />
+        </div>
+      )}
+      <input
+        ref={ref}
+        id={inputId}
+        aria-invalid={error ? 'true' : undefined}
+        aria-describedby={error ? `${inputId}-error` : undefined}
+        className={cn(
+          control,
+          'h-11 pr-3.5',
+          Icon ? 'pl-11' : 'pl-3.5',
+          error ? 'border-danger focus:border-danger focus:ring-danger/10' : 'border-slate-200/90',
+          className
+        )}
+        {...rest}
+      />
+    </div>
   );
   if (!label && !error && !hint) return input;
   return (
@@ -57,7 +70,7 @@ export const Textarea = forwardRef(function Textarea({ label, hint, error, class
         id={inputId}
         rows={rows}
         aria-invalid={error ? 'true' : undefined}
-        className={cn(control, 'py-2.5 leading-relaxed', error ? 'border-danger' : 'border-line', className)}
+        className={cn(control, 'px-3.5 py-2.5 leading-relaxed', error ? 'border-danger' : 'border-line', className)}
         {...rest}
       />
     </FormField>
@@ -75,7 +88,7 @@ export const Select = forwardRef(function Select(
       ref={ref}
       id={inputId}
       aria-invalid={error ? 'true' : undefined}
-      className={cn(control, 'h-11 appearance-none bg-[length:16px] pr-9', error ? 'border-danger' : 'border-line', className)}
+      className={cn(control, 'h-11 px-3.5 appearance-none bg-[length:16px] pr-9', error ? 'border-danger' : 'border-line', className)}
       style={{
         backgroundImage:
           "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2347566E' stroke-width='2'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E\")",

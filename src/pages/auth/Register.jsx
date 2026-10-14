@@ -1,7 +1,17 @@
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
-import { Briefcase, Building2, UserRound } from 'lucide-react';
+import {
+  ArrowRight,
+  Briefcase,
+  Building2,
+  CheckCircle2,
+  Lock,
+  Mail,
+  Phone,
+  UserRound,
+  Zap,
+} from 'lucide-react';
 import { Input } from '../../components/ui/Field.jsx';
 import { Button } from '../../components/ui/Button.jsx';
 import { Badge } from '../../components/ui/Badge.jsx';
@@ -17,18 +27,31 @@ import { ConsentCheckbox } from '../../components/ui/ConsentCheckbox.jsx';
 import { CONSENT_REQUIRED_MESSAGE } from '../../data/legal.js';
 import { homePathFor } from '../../utils/homePath.js';
 
-// Three self-service account types. Admin accounts are never self-registered.
-//   user      — candidates: job seekers and anyone buying a career service.
-//   employer  — companies and recruitment consultants who post jobs. Every
-//               job they publish waits for an admin before it goes live.
-//   institute — colleges and training companies; their partner profile goes
-//               live on the programme pages once an admin approves it.
 const ACCOUNT_TYPES = [
-  { value: 'user', label: 'Candidate', hint: "I'm looking for work", icon: UserRound, supported: true },
-  { value: 'employer', label: 'Employer', hint: 'Company or recruitment consultant', icon: Briefcase, supported: true },
-  // Colleges, universities and training companies. After signing up they
-  // complete a partner profile at /partner; it goes live once approved.
-  { value: 'institute', label: 'Institute', hint: 'College or training partner', icon: Building2, supported: true },
+  {
+    value: 'user',
+    label: 'Candidate',
+    hint: 'Looking for jobs & career growth',
+    icon: UserRound,
+    perk: 'Free ATS score analyzer, verified UAE & India job applications, career mentorship.',
+    supported: true,
+  },
+  {
+    value: 'employer',
+    label: 'Employer',
+    hint: 'Company or hiring consultant',
+    icon: Briefcase,
+    perk: 'Post verified roles, access screened talent pipelines, and manage candidates.',
+    supported: true,
+  },
+  {
+    value: 'institute',
+    label: 'Institute',
+    hint: 'College or training partner',
+    icon: Building2,
+    perk: 'List accredited degree/training programmes and showcase campus credentials.',
+    supported: true,
+  },
 ];
 
 export default function Register() {
@@ -36,11 +59,10 @@ export default function Register() {
   const toast = useToast();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  // /register?type=institute preselects the Institute card (linked from the
-  // "Partner with DutyLaunch" calls to action).
-  // /register?type=institute or ?type=employer preselects that card (linked
-  // from "Become a partner" and the Employer page).
-  const [role, setRole] = useState(['institute', 'employer'].includes(searchParams.get('type')) ? searchParams.get('type') : 'user');
+
+  const [role, setRole] = useState(
+    ['institute', 'employer'].includes(searchParams.get('type')) ? searchParams.get('type') : 'user'
+  );
   const {
     register,
     handleSubmit,
@@ -57,9 +79,6 @@ export default function Register() {
       setError('acceptTerms', { message: CONSENT_REQUIRED_MESSAGE });
       return;
     }
-    // Confirm Password is a frontend-only guard — the API has never accepted
-    // this field, so it is validated here and then stripped before the
-    // request is built rather than being forwarded as an extra payload key.
     if (values.password !== values.confirmPassword) {
       setError('confirmPassword', { message: 'Passwords do not match.' });
       return;
@@ -68,7 +87,6 @@ export default function Register() {
       const payload = { ...values, role };
       delete payload.acceptTerms;
       delete payload.confirmPassword;
-      // Phone is optional — don't send an empty string.
       if (!payload.phone?.trim()) delete payload.phone;
 
       const user = await doRegister(payload);
@@ -84,23 +102,32 @@ export default function Register() {
     }
   };
 
+  const currentRoleConfig = ACCOUNT_TYPES.find((t) => t.value === role) || ACCOUNT_TYPES[0];
+
   return (
     <>
       <Seo title="Create an account" description="Create a free DutyLaunch account." noIndex />
 
       <div>
-        <h1 className="text-h1 font-extrabold text-ink">Create your DutyLaunch account</h1>
-        <p className="mt-2 text-body text-slate-600">
+        <div className="inline-flex items-center gap-1.5 rounded-full border border-azure-200/80 bg-azure-50/80 px-3 py-1 text-xs font-semibold text-azure-700">
+          <Zap className="h-3.5 w-3.5 text-azure-600" aria-hidden="true" />
+          <span>Fast 60-Second Onboarding</span>
+        </div>
+        <h1 className="mt-3 text-2xl font-extrabold tracking-tight text-ink sm:text-3xl">Create your account</h1>
+        <p className="mt-1.5 text-small text-slate-500">
           Already registered?{' '}
-          <Link to="/login" className="font-semibold text-azure hover:underline">
+          <Link to="/login" className="font-semibold text-azure-600 hover:text-azure-700 hover:underline">
             Sign in
           </Link>
         </p>
       </div>
 
+      {/* Account Type Selector */}
       <fieldset className="mt-6">
-        <legend className="mb-2 text-small font-semibold text-ink">I am signing up as</legend>
-        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+        <legend className="mb-2.5 text-xs font-bold uppercase tracking-wider text-slate-500">
+          I am registering as
+        </legend>
+        <div className="grid grid-cols-3 gap-2.5">
           {ACCOUNT_TYPES.map(({ value, label, hint, icon: Icon, supported }) => {
             const active = role === value;
             return (
@@ -110,76 +137,89 @@ export default function Register() {
                 onClick={() => setRole(value)}
                 aria-pressed={active}
                 className={cn(
-                  'relative flex flex-col items-start gap-2 rounded-lg border-[1.5px] p-4 text-left transition-all',
+                  'group relative flex flex-col items-center rounded-2xl border p-3 text-center transition-all duration-200 cursor-pointer sm:p-3.5',
                   active
-                    ? 'border-azure-500 bg-azure-50 shadow-xs'
-                    : 'border-line bg-white hover:border-azure-300 hover:bg-azure-50/40'
+                    ? 'border-azure-500 bg-azure-50/90 shadow-[0_4px_16px_rgba(29,93,184,0.12)] ring-2 ring-azure-500/20'
+                    : 'border-slate-200/90 bg-white/70 hover:border-slate-300 hover:bg-slate-50/60 shadow-xs'
                 )}
               >
                 {!supported && (
-                  <Badge tone="amber" className="absolute right-3 top-3">
-                    Coming soon
+                  <Badge tone="amber" className="absolute right-2 top-2 text-[10px]">
+                    Soon
                   </Badge>
                 )}
                 <span
                   className={cn(
-                    'grid h-9 w-9 place-items-center rounded-sm',
-                    active ? 'bg-azure-500 text-white' : 'bg-paper text-slate-500'
+                    'mb-2 grid h-10 w-10 place-items-center rounded-xl transition-all duration-200',
+                    active
+                      ? 'bg-azure-600 text-white shadow-sm scale-105'
+                      : 'bg-slate-100 text-slate-600 group-hover:bg-slate-200/80 group-hover:text-ink'
                   )}
                 >
-                  <Icon className="h-4.5 w-4.5" aria-hidden />
+                  <Icon className="h-5 w-5" aria-hidden="true" />
                 </span>
-                <span className={cn('text-small font-bold', active ? 'text-azure-700' : 'text-ink')}>{label}</span>
-                <span className="text-caption text-slate-500">{hint}</span>
+                <span className={cn('text-xs font-bold tracking-tight', active ? 'text-azure-900' : 'text-slate-800')}>
+                  {label}
+                </span>
+                <span className="mt-0.5 hidden text-[10.5px] leading-tight text-slate-500 sm:block">
+                  {hint}
+                </span>
+                {active && (
+                  <span className="absolute -top-1 -right-1 flex h-3 w-3">
+                    <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-azure-400 opacity-75" />
+                    <span className="relative inline-flex h-3 w-3 rounded-full bg-azure-600" />
+                  </span>
+                )}
               </button>
             );
           })}
         </div>
-        {role === 'institute' && (
-          <p className="mt-2 text-caption text-slate-600">
-            After creating your account you&rsquo;ll add your institute&rsquo;s details and the programmes you offer.
-            Your listing goes live on DutyLaunch once our team has reviewed it.
-          </p>
-        )}
-        {role === 'employer' && (
-          <p className="mt-2 text-caption text-slate-600">
-            You&rsquo;ll post jobs and review applicants from your dashboard. Each job goes live on DutyLaunch once our
-            team has reviewed it.
-          </p>
-        )}
+
+        {/* Dynamic role capability banner */}
+        <div className="mt-3 flex items-start gap-2.5 rounded-xl border border-azure-100 bg-azure-50/70 p-3 text-caption text-azure-900">
+          <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-azure-600" aria-hidden="true" />
+          <span className="leading-relaxed">{currentRoleConfig.perk}</span>
+        </div>
       </fieldset>
 
-      <form onSubmit={handleSubmit(onSubmit)} className="mt-6 space-y-5" noValidate>
+      <form onSubmit={handleSubmit(onSubmit)} className="mt-6 space-y-4" noValidate>
         <Input
           label={role === 'user' ? 'Full name' : 'Your name (contact person)'}
           autoComplete="name"
+          icon={UserRound}
           error={errors.name?.message}
           {...register('name', { required: 'Enter your name' })}
         />
+
         <Input
           label="Email address"
           type="email"
           autoComplete="email"
+          icon={Mail}
           error={errors.email?.message}
           {...register('email', {
             required: 'Enter your email address',
             pattern: { value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/, message: 'Enter a valid email address' },
           })}
         />
+
         <Input
           label="Phone number"
           type="tel"
           autoComplete="tel"
-          hint="Optional, but useful if a counsellor needs to reach you."
+          icon={Phone}
+          hint="Optional, used for priority interview notifications."
           error={errors.phone?.message}
           {...register('phone', {
             pattern: { value: /^[+\d][\d\s-]{7,}$/, message: 'Enter a valid phone number' },
           })}
         />
+
         <div>
           <PasswordInput
             label="Password"
             autoComplete="new-password"
+            icon={Lock}
             error={errors.password?.message}
             {...register('password', {
               required: 'Create a password',
@@ -192,6 +232,7 @@ export default function Register() {
         <PasswordInput
           label="Confirm password"
           autoComplete="new-password"
+          icon={Lock}
           error={errors.confirmPassword?.message}
           success={confirmPassword && confirmPassword === password ? 'Passwords match.' : undefined}
           {...register('confirmPassword', {
@@ -202,19 +243,27 @@ export default function Register() {
 
         <ConsentCheckbox error={errors.acceptTerms?.message} {...register('acceptTerms')} />
 
-        <Button type="submit" fullWidth loading={isSubmitting} disabled={isSubmitting}>
-          {isSubmitting ? 'Creating Account…' : 'Create Account'}
+        <Button
+          type="submit"
+          fullWidth
+          loading={isSubmitting}
+          disabled={isSubmitting}
+          size="lg"
+          className="font-bold shadow-blue hover:shadow-blue-lg transition-all"
+        >
+          <span>{isSubmitting ? 'Creating Account…' : 'Create Account'}</span>
+          {!isSubmitting && <ArrowRight className="h-4 w-4" aria-hidden="true" />}
         </Button>
       </form>
 
       <AuthDivider />
 
-      <p className="text-center text-body text-slate-600">
+      <div className="rounded-2xl border border-slate-100 bg-slate-50/80 p-3.5 text-center text-small text-slate-600">
         Already have an account?{' '}
-        <Link to="/login" className="font-semibold text-azure hover:underline">
+        <Link to="/login" className="font-bold text-azure-600 hover:text-azure-700 hover:underline">
           Sign in
         </Link>
-      </p>
+      </div>
     </>
   );
 }
