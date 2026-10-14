@@ -10,47 +10,10 @@ import { LoadingBlock, ErrorState } from '../../components/ui/States.jsx';
 import { useApi } from '../../hooks/useApi.js';
 import { useToast } from '../../context/ToastContext.jsx';
 import { partnerService } from '../../services/contentService.js';
-import { TRACKS, programmesIn, programmeHref, slugify } from '../../data/programmes.js';
-import { SectionProgrammeDropdown } from '../../components/partner/SectionProgrammeDropdown.jsx';
+import { TRACKS, programmesIn, programmeHref } from '../../data/programmes.js';
 import { cn } from '../../utils/cn.js';
 
 const MODES = ['Online', 'Distance', 'Regular', 'Classroom', 'Hybrid'];
-const CUSTOM_STORAGE_KEY = 'dl:partner_custom_entries';
-
-function loadCustomEntries() {
-  try {
-    const raw = localStorage.getItem(CUSTOM_STORAGE_KEY);
-    return raw ? JSON.parse(raw) : [];
-  } catch {
-    return [];
-  }
-}
-
-function saveCustomEntries(entries) {
-  try {
-    localStorage.setItem(CUSTOM_STORAGE_KEY, JSON.stringify(entries));
-  } catch {
-    /* ignore */
-  }
-}
-
-function unslugify(slug) {
-  if (!slug) return '';
-  return slug
-    .split('-')
-    .map((w) => {
-      const lower = w.toLowerCase();
-      if (
-        ['ug', 'pg', 'iti', 'btech', 'mtech', 'mba', 'bba', 'bca', 'mca', 'bsc', 'msc', 'ba', 'ma', 'llb', 'llm', 'ai', 'ml', 'ui', 'ux', 'gst', 'hr', 'sap', 'aws'].includes(
-          lower
-        )
-      ) {
-        return lower.toUpperCase();
-      }
-      return w.charAt(0).toUpperCase() + w.slice(1);
-    })
-    .join(' ');
-}
 
 function StatusBanner({ profile }) {
   if (!profile) {
@@ -125,7 +88,6 @@ export default function PartnerProfile() {
   const [track, setTrack] = useState('education');
   const [selected, setSelected] = useState([]);
   const [choicesDirty, setChoicesDirty] = useState(false);
-  const [customEntries, setCustomEntries] = useState(() => loadCustomEntries());
 
   // Load the saved profile into the form once it arrives.
   useEffect(() => {
@@ -140,38 +102,14 @@ export default function PartnerProfile() {
         about: profile.about || '',
       });
       setTrack(profile.track || 'education');
-      const savedProgrammes = profile.programmes || [];
-      setSelected(savedProgrammes);
+      setSelected(profile.programmes || []);
       setChoicesDirty(false);
-
-      // Detect any saved programme slugs that aren't in the predefined catalogue
-      const allPredefined = new Map(programmesIn('both').map((p) => [p.slug, p]));
-      const existingCustom = loadCustomEntries();
-      const existingCustomSlugs = new Set(existingCustom.map((c) => c.slug));
-      const newlyDiscovered = [];
-
-      for (const slug of savedProgrammes) {
-        if (!allPredefined.has(slug) && !existingCustomSlugs.has(slug)) {
-          newlyDiscovered.push({
-            item: unslugify(slug),
-            group: 'Other',
-            slug,
-            isCustom: true,
-          });
-        }
-      }
-
-      if (newlyDiscovered.length > 0) {
-        const merged = [...existingCustom, ...newlyDiscovered];
-        setCustomEntries(merged);
-        saveCustomEntries(merged);
-      }
     }
   }, [profile, reset]);
 
   const about = watch('about') || '';
 
-  // Group this track's programmes the same way the public pages do, plus custom entries
+  // Group this track's programmes the same way the public pages do.
   const groups = useMemo(() => {
     const out = [];
     for (const p of programmesIn(track)) {
@@ -179,26 +117,14 @@ export default function PartnerProfile() {
       if (!g) out.push((g = { title: p.group, items: [] }));
       g.items.push(p);
     }
-
-    // Merge custom entries into their assigned group
-    for (const c of customEntries) {
-      let g = out.find((x) => x.title.toLowerCase() === c.group?.toLowerCase());
-      if (!g && out.length > 0) {
-        g = out[out.length - 1];
-      }
-      if (g && !g.items.some((i) => i.slug === c.slug)) {
-        g.items.push(c);
-      }
-    }
-
     return out;
-  }, [track, customEntries]);
+  }, [track]);
 
   const changeTrack = (next) => {
     setTrack(next);
-    // Keep selections that belong to the new track or are custom
+    // Keep selections that belong to the new track
     const validSlugs = new Set(programmesIn(next).map((p) => p.slug));
-    setSelected((cur) => cur.filter((s) => validSlugs.has(s) || customEntries.some((c) => c.slug === s)));
+    setSelected((cur) => cur.filter((s) => validSlugs.has(s)));
     setChoicesDirty(true);
   };
 
@@ -206,33 +132,6 @@ export default function PartnerProfile() {
     setSelected((cur) => (cur.includes(slug) ? cur.filter((s) => s !== slug) : [...cur, slug]));
     setChoicesDirty(true);
     clearErrors('programmes');
-  };
-
-  const handleAddCustom = (groupTitle, customName) => {
-    const trimmed = customName.trim();
-    if (!trimmed) return;
-    const slug = slugify(trimmed);
-    if (!slug) return;
-
-    const newItem = {
-      item: trimmed,
-      group: groupTitle,
-      slug,
-      isCustom: true,
-    };
-
-    setCustomEntries((prev) => {
-      const exists = prev.some((x) => x.slug === slug);
-      if (exists) return prev;
-      const next = [...prev, newItem];
-      saveCustomEntries(next);
-      return next;
-    });
-
-    setSelected((prev) => (prev.includes(slug) ? prev : [...prev, slug]));
-    setChoicesDirty(true);
-    clearErrors('programmes');
-    toast.success(`Added "${trimmed}" to ${groupTitle}`);
   };
 
   const onSubmit = async (values) => {
@@ -352,16 +251,31 @@ export default function PartnerProfile() {
           </p>
           {errors.programmes && <p className="mt-1 text-caption text-danger">{errors.programmes.message}</p>}
 
-          <div className="mt-4 space-y-4">
+          <div className="mt-4 space-y-5">
             {groups.map((g) => (
-              <SectionProgrammeDropdown
-                key={g.title}
-                groupTitle={g.title}
-                items={g.items}
-                selectedSlugs={selected}
-                onToggle={toggle}
-                onAddCustom={handleAddCustom}
-              />
+              <fieldset key={g.title}>
+                <legend className="mb-2 text-caption font-semibold uppercase tracking-wide text-slate-500">{g.title}</legend>
+                <div className="flex flex-wrap gap-2">
+                  {g.items.map((p) => {
+                    const on = selected.includes(p.slug);
+                    return (
+                      <button
+                        key={p.slug}
+                        type="button"
+                        aria-pressed={on}
+                        onClick={() => toggle(p.slug)}
+                        className={cn(
+                          'inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-small font-medium transition-colors',
+                          on ? 'border-azure-500 bg-azure-500 text-white' : 'border-line bg-paper text-slate-700 hover:border-azure-300'
+                        )}
+                      >
+                        {on && <CheckCircle2 className="h-3.5 w-3.5" aria-hidden />}
+                        {p.item}
+                      </button>
+                    );
+                  })}
+                </div>
+              </fieldset>
             ))}
           </div>
         </section>
