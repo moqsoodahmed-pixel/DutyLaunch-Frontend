@@ -1,13 +1,14 @@
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useNavigate, useParams } from 'react-router-dom';
+import { ArrowLeft } from 'lucide-react';
 import { Seo } from '../../components/ui/Seo.jsx';
 import { PanelHeader } from '../../layouts/AppShell.jsx';
 import { Input, Textarea, Select, Checkbox, FormField } from '../../components/ui/Field.jsx';
 import { Button } from '../../components/ui/Button.jsx';
 import { LoadingBlock, ErrorState } from '../../components/ui/States.jsx';
 import { useToast } from '../../context/ToastContext.jsx';
-import { employerService } from '../../services/jobService.js';
+import { employerService, jobService } from '../../services/jobService.js';
 
 const JOB_TYPES = ['Full-time', 'Part-time', 'Contract', 'Internship'];
 const WORK_MODES = ['On-site', 'Hybrid', 'Remote'];
@@ -35,9 +36,46 @@ export default function EmployerJobForm() {
     if (!isEdit) return;
     (async () => {
       try {
-        const res = await employerService.getJob(id);
-        const found = res?.data ?? res;
-        if (!found) throw new Error('Job not found');
+        let found = null;
+        // 1. Try dedicated employer GET endpoint
+        try {
+          const res = await employerService.getJob(id);
+          const candidate = res?.data ?? res;
+          if (candidate && (candidate.title || candidate._id)) {
+            found = candidate;
+          }
+        } catch {
+          // If server returns 404 (route not found on older deploys), fall through
+          found = null;
+        }
+
+        // 2. Try fetching from public/authenticated job endpoint
+        if (!found) {
+          try {
+            const res = await jobService.get(id);
+            const candidate = res?.job ?? res?.data?.job ?? (res?.title ? res : null);
+            if (candidate && (candidate.title || candidate._id)) {
+              found = candidate;
+            }
+          } catch {
+            found = null;
+          }
+        }
+
+        // 3. Fallback: find it in employer's jobs list
+        if (!found) {
+          try {
+            const res = await employerService.listJobs({ limit: 100 });
+            const list = res?.data ?? res ?? [];
+            if (Array.isArray(list)) {
+              found = list.find((j) => j._id === id || j.slug === id);
+            }
+          } catch {
+            found = null;
+          }
+        }
+
+        if (!found) throw new Error('Job post not found or could not be loaded.');
         setExisting(found);
       } catch (err) {
         setLoadError(err);
@@ -151,7 +189,18 @@ export default function EmployerJobForm() {
   };
 
   if (loadingExisting) return <LoadingBlock label="Loading job" />;
-  if (loadError) return <ErrorState error={loadError} />;
+  if (loadError)
+    return (
+      <div className="space-y-4">
+        <ErrorState error={loadError} />
+        <div className="flex justify-center">
+          <Button to="/employer/jobs" variant="outline" size="sm">
+            <ArrowLeft className="h-4 w-4 mr-1.5" />
+            Back to job posts
+          </Button>
+        </div>
+      </div>
+    );
 
   return (
     <>
@@ -159,6 +208,12 @@ export default function EmployerJobForm() {
       <PanelHeader
         title={isEdit ? 'Edit job post' : 'Post a job'}
         description="Fields marked required are needed for candidates to make sense of the role."
+        action={
+          <Button to="/employer/jobs" variant="outline" size="sm">
+            <ArrowLeft className="h-4 w-4 mr-1.5" />
+            Back to job posts
+          </Button>
+        }
       />
 
       <form onSubmit={handleSubmit(onSubmit)} className="max-w-3xl space-y-6 rounded-lg border border-line bg-white p-6" noValidate>

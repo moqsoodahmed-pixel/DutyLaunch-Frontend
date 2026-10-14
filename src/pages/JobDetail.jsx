@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
-import { useParams, Link } from 'react-router-dom';
-import { Bookmark, BriefcaseBusiness, Building2, Check, CircleAlert, FlaskConical, IndianRupee, MapPin, SearchX, Share2 } from 'lucide-react';
+import { useParams, Link, useLocation } from 'react-router-dom';
+import { ArrowLeft, Bookmark, BriefcaseBusiness, Building2, Check, CircleAlert, FlaskConical, IndianRupee, MapPin, Pencil, SearchX, Share2 } from 'lucide-react';
 import { Seo } from '../components/ui/Seo.jsx';
 import { Container, Section } from '../components/ui/Container.jsx';
 import { Badge } from '../components/ui/Badge.jsx';
@@ -228,7 +228,9 @@ function initials(name = '') {
 export default function JobDetail() {
   const { id, idOrSlug } = useParams();
   const lookupId = id || idOrSlug;
+  const location = useLocation();
   const { isAuthenticated, user } = useAuth();
+  const isEmployerViewer = user?.role === 'employer' || user?.role === 'admin' || location.state?.from === '/employer/jobs';
   const toast = useToast();
   const [applyOpen, setApplyOpen] = useState(false);
   // GET /jobs/:idOrSlug responds with { job, related, hasApplied } — read the
@@ -359,9 +361,60 @@ export default function JobDetail() {
         </div>
       )}
 
+      {isEmployerViewer && (
+        <div className="border-b border-azure-300 bg-gradient-to-r from-azure-50 via-sky-50 to-indigo-50 py-3 shadow-xs">
+          <Container className="flex flex-wrap items-center justify-between gap-3 text-small">
+            <div className="flex items-center gap-2 font-medium text-azure-900">
+              <span className="flex h-2.5 w-2.5 rounded-full bg-azure-600 animate-pulse" />
+              <span>
+                <strong>Employer Preview:</strong> You are previewing this job post as an employer.
+              </span>
+            </div>
+            <div className="flex items-center gap-2">
+              <Button
+                to={`/employer/jobs/${job._id}/edit`}
+                variant="outline"
+                size="sm"
+                className="!py-1.5 !px-3.5 text-caption font-semibold"
+              >
+                <Pencil className="mr-1 h-3.5 w-3.5" aria-hidden />
+                Edit post
+              </Button>
+              <Button
+                to="/employer/jobs"
+                variant="primary"
+                size="sm"
+                className="!py-1.5 !px-3.5 text-caption font-semibold"
+              >
+                <ArrowLeft className="mr-1 h-3.5 w-3.5" aria-hidden />
+                Back to your job posts
+              </Button>
+            </div>
+          </Container>
+        </div>
+      )}
+
       <section className="surface-hero">
         <Container className="py-10 lg:py-14">
-          <Breadcrumb items={[{ label: 'Jobs', to: '/jobs' }, { label: formatJobTitle(job.title) }]} />
+          {isEmployerViewer ? (
+            <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+              <Breadcrumb
+                items={[
+                  { label: 'Your job posts', to: '/employer/jobs' },
+                  { label: formatJobTitle(job.title) },
+                ]}
+              />
+              <Link
+                to="/employer/jobs"
+                className="inline-flex items-center gap-1.5 text-small font-semibold text-azure-700 hover:text-azure-900 hover:underline"
+              >
+                <ArrowLeft className="h-4 w-4" aria-hidden />
+                Back to your job posts
+              </Link>
+            </div>
+          ) : (
+            <Breadcrumb items={[{ label: 'Jobs', to: '/jobs' }, { label: formatJobTitle(job.title) }]} />
+          )}
           <div className="mt-4 flex items-start gap-4">
             <span className="hidden h-14 w-14 shrink-0 place-items-center rounded-xl bg-gradient-to-br from-azure-500 to-azure-700 text-lead font-extrabold text-white shadow-blue sm:grid">
               {initials(job.company) || <Building2 className="h-6 w-6" aria-hidden />}

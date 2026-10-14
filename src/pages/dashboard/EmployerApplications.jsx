@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { Download } from 'lucide-react';
+import { ArrowLeft, Download } from 'lucide-react';
 import { Seo } from '../../components/ui/Seo.jsx';
 import { PanelHeader } from '../../layouts/AppShell.jsx';
 import { DataTable } from '../../components/admin/DataTable.jsx';
@@ -29,13 +29,14 @@ const NEXT_STATUS = ['under-review', 'shortlisted', 'interviewing', 'offered', '
 export default function EmployerApplications() {
   const [params, setParams] = useSearchParams();
   const status = params.get('status') || '';
+  const jobId = params.get('job') || '';
   const page = Number(params.get('page') || 1);
   const toast = useToast();
   const [updatingId, setUpdatingId] = useState(null);
 
   const { data, meta, loading, error, refetch } = useApi(
-    () => employerService.applications({ status: status || undefined, page }),
-    [status, page]
+    () => employerService.applications({ status: status || undefined, job: jobId || undefined, page }),
+    [status, jobId, page]
   );
 
   const update = (patch) => {
@@ -61,7 +62,16 @@ export default function EmployerApplications() {
   return (
     <>
       <Seo title="Applicants" noIndex />
-      <PanelHeader title="Applicants" description="Everyone who has applied to your job posts." />
+      <PanelHeader
+        title="Applicants"
+        description="Everyone who has applied to your job posts."
+        action={
+          <Button to="/employer/jobs" variant="outline" size="sm">
+            <ArrowLeft className="mr-1.5 h-4 w-4" aria-hidden />
+            Back to job posts
+          </Button>
+        }
+      />
 
       <Tabs options={STATUS_FILTERS} value={status} onChange={(v) => update({ status: v })} label="Filter by status" className="mb-6" />
 
