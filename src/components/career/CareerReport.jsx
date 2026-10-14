@@ -837,7 +837,7 @@ export function TemplateGallery({ templates = [], selectedId, onSelect, suggeste
             <div className="relative overflow-hidden rounded-lg border border-glacier-300/80 bg-glacier-100/50 p-1 h-[215px]">
               <ResumeTemplatePreview template={tpl} crop={true} />
               {selected && (
-                <span className="absolute right-2 top-2 z-10 inline-flex items-center gap-1 rounded-full bg-emerald-600 px-2 py-0.5 text-[10px] font-bold text-white shadow-xs">
+                <span className="absolute right-2 top-2 z-10 inline-flex items-center gap-1 rounded-full bg-emerald-700 px-2 py-0.5 text-[10px] font-bold text-white shadow-xs">
                   <Check className="h-3 w-3" /> Selected
                 </span>
               )}

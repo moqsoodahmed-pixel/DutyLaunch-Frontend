@@ -20,7 +20,7 @@ export default {
           700: '#374151', // --text-2
           600: '#4B5768',
           500: '#6B7280', // --text-3
-          400: '#9CA3AF', // --text-4
+          400: '#6B7280', // darkened from #9CA3AF (2.5:1) so text/icons in this shade pass WCAG AA // --text-4
           300: '#C6CCD6',
           200: '#E2E5EA',
           100: '#F1F5F9', // --bg-2
@@ -64,7 +64,9 @@ export default {
           chip: '#E4F1FA', // chips / tags
         },
         paper: '#F8FAFC', // --bg
-        line: 'rgba(15,28,46,0.09)',
+        /* Default border/divider — the brand's pale silver-blue (#D7E4F3, same value as
+           glacier-400). Was a translucent ink rgba, which rendered as an unrelated grey. */
+        line: '#D7E4F3',
         success: '#059669',
         danger: '#DC2626',
         /* Second accent — used only for the ATS/product glow, so it reads as
@@ -173,6 +175,9 @@ export default {
       },
       boxShadow: {
         xs: '0 1px 3px rgba(15,28,46,.06), 0 1px 2px rgba(15,28,46,.04)',
+        /* Standard card resting / hover shadows — restrained, neutral. */
+        card: '0 1px 2px rgba(15,28,46,.04), 0 4px 12px -4px rgba(15,28,46,.06)',
+        'card-hover': '0 2px 4px rgba(15,28,46,.04), 0 12px 28px -10px rgba(15,28,46,.14)',
         raise: '0 2px 8px rgba(15,28,46,.06), 0 1px 3px rgba(15,28,46,.04)',
         panel: '0 32px 64px rgba(15,28,46,.16), 0 8px 24px rgba(15,28,46,.08)',
         lift: '0 8px 24px rgba(15,28,46,.08), 0 2px 8px rgba(15,28,46,.04)',

@@ -113,78 +113,125 @@
     @apply inline-flex items-center gap-2 rounded-full border border-azure-200 bg-white px-3 py-1 text-caption font-bold uppercase tracking-wider text-azure-700;
   }
 
-  /* Frosted surface for cards that sit on top of the dark/gradient sections.
-     visionOS-style: real backdrop blur + saturation, a bright inner top edge
-     to read as glass thickness, and a deep soft drop shadow. */
-  .glass-card {
-    @apply rounded-2xl border border-mist-line bg-white;
-    box-shadow: 0 14px 36px -18px rgba(29, 93, 184, 0.35);
+  /* ================================================================
+   * CARD SYSTEM — one family, used everywhere.
+   *   .card              standard: white, 1px #D7E4F3 border, 16px radius
+   *   .card-interactive  add to a clickable card: small lift on hover
+   *   .card-panel        secondary panel on glacier blue (selected / grouped)
+   *   .card-featured     deep-navy feature card — use sparingly
+   *   .card-dashboard    denser padding for dashboard widgets
+   * .tile, .glass-card and .glass-panel are kept as aliases so the ~30
+   * files that already use them pick up the same look automatically.
+   * ================================================================ */
+  .card,
+  .glass-card,
+  .glass-panel,
+  .tile,
+  .card-dashboard {
+    @apply rounded-2xl border border-glacier-400 bg-white;
+    box-shadow: 0 1px 2px rgba(15, 28, 46, 0.04), 0 4px 12px -4px rgba(15, 28, 46, 0.06);
   }
 
-  /* Light frosted panel — the Apple "control surface": a translucent white
-     pane with heavy backdrop blur, a bright top highlight and a cool floating
-     shadow. Meant to sit over a coloured/mesh (glacier) section, where the
-     blur has something to work with. Use sparingly (one or two per view) so
-     the blur cost stays low. */
-  .glass-panel {
-    @apply rounded-2xl border p-6;
-    border-color: #D7E4F3;
-    background: #ffffff;
-    box-shadow: 0 18px 44px -22px rgba(5, 8, 14, 0.35);
-  }
-
-  /* Standard content card — ported from the LauncherDesk design system: a
-     thin top accent bar and a soft radial highlight sweep in on hover.
-     Kept fully opaque (not glass) deliberately: this class is used across
-     ~27 files on a mix of white/paper/sand backgrounds, and translucent
-     glass only reads correctly over a colourful backdrop it can blur — on
-     a flat section it just looks muddy. The Glacier touch here is the
-     cool-toned shadow and the frost→aurora accent line, which read well
-     regardless of what's behind the card. */
+  .card,
+  .glass-panel,
   .tile {
-    @apply relative block overflow-hidden rounded-xl border p-6 transition-all duration-300 ease-entrance hover:-translate-y-1.5;
-    border-color: rgba(215, 228, 243, 0.90);
-    /* A whisper of vertical gradient rather than flat white — reads as a
-       lit glass surface even on a plain white section, without the muddiness
-       real translucency gets on non-coloured backgrounds. */
-    background: linear-gradient(180deg, #ffffff 0%, rgba(241, 246, 252, 0.72) 100%);
-    box-shadow:
-      inset 0 1px 0 rgba(255, 255, 255, 0.90),
-      0 1px 1px rgba(15, 28, 46, 0.03),
-      0 22px 55px -28px rgba(93, 146, 214, 0.38),
-      0 8px 20px -12px rgba(93, 146, 214, 0.16);
+    @apply p-6;
   }
 
-  .tile:hover {
-    border-color: rgba(125, 211, 239, 0.60);
-    box-shadow:
-      inset 0 1px 0 rgba(255, 255, 255, 0.95),
-      0 40px 90px -30px rgba(93, 146, 214, 0.46),
-      0 14px 34px -14px rgba(93, 146, 214, 0.26);
+  .card-dashboard {
+    @apply p-5 sm:p-6;
   }
 
-  .tile::before {
-    content: '';
-    @apply pointer-events-none absolute inset-x-0 top-0 h-[3px] origin-left scale-x-[0.4] bg-gradient-to-r from-frost-500 to-aurora-500 opacity-0 transition-all duration-200;
+  .tile {
+    @apply relative block overflow-hidden transition-[transform,box-shadow,border-color] duration-200 ease-entrance;
   }
 
-  .tile:hover::before {
-    @apply scale-x-100 opacity-100;
+  .card-interactive,
+  a.tile,
+  button.tile {
+    @apply transition-[transform,box-shadow,border-color] duration-200 ease-entrance motion-safe:hover:-translate-y-1 motion-safe:hover:scale-[1.02] hover:border-azure-200;
+  }
+
+  .card-interactive:hover,
+  a.tile:hover,
+  button.tile:hover {
+    box-shadow: 0 2px 4px rgba(15, 28, 46, 0.04), 0 12px 28px -10px rgba(15, 28, 46, 0.14);
+  }
+
+  .card-interactive:focus-visible,
+  a.tile:focus-visible {
+    @apply outline-none ring-2 ring-azure-400 ring-offset-2 ring-offset-white;
+  }
+
+  /* Non-link tiles are static containers: no lift, so they don't suggest a click. */
+  div.tile:hover,
+  article.tile:hover,
+  li.tile:hover,
+  section.tile:hover {
+    @apply border-glacier-400;
+    box-shadow: 0 1px 2px rgba(15, 28, 46, 0.04), 0 4px 12px -4px rgba(15, 28, 46, 0.06);
+  }
+
+  .card-panel {
+    @apply rounded-2xl border border-glacier-400 bg-glacier-200 p-6;
+  }
+
+  .card-featured {
+    @apply rounded-2xl border border-ink-600 bg-ink-800 p-6 text-white shadow-lift;
+  }
+
+  .card-featured :where(h1, h2, h3, h4) {
+    @apply text-white;
   }
 
   .tile-icon {
-    @apply mb-4 grid h-12 w-12 shrink-0 place-items-center rounded-2xl border border-white/60 transition-all duration-300;
-    background: linear-gradient(160deg, rgba(255, 255, 255, 0.92) 0%, rgba(219, 234, 254, 0.72) 100%);
-    box-shadow:
-      inset 0 1px 0 rgba(255, 255, 255, 0.95),
-      0 8px 18px -8px rgba(29, 93, 184, 0.35);
+    @apply mb-4 grid h-12 w-12 shrink-0 place-items-center rounded-xl border border-glacier-400 bg-glacier-200 text-azure;
   }
 
-  .tile:hover .tile-icon {
-    @apply scale-105;
-    box-shadow:
-      inset 0 1px 0 rgba(255, 255, 255, 1),
-      0 12px 26px -8px rgba(29, 93, 184, 0.45);
+  /* ---- Typography hierarchy (Manrope throughout) ---- */
+  .type-page {
+    @apply text-h1 font-extrabold text-ink;
+  }
+
+  .type-section {
+    @apply text-2xl font-extrabold tracking-tight text-ink sm:text-3xl;
+  }
+
+  .type-card {
+    @apply text-lg font-bold leading-snug text-ink;
+  }
+
+  .type-body {
+    @apply text-body text-slate-700;
+  }
+
+  .type-label {
+    @apply text-small font-semibold text-ink;
+  }
+
+  .type-meta {
+    @apply text-caption text-slate-600;
+  }
+
+  /* ---- Alerts: semantic colour, never "blue for everything" ---- */
+  .alert {
+    @apply flex items-start gap-3 rounded-xl border px-4 py-3 text-small;
+  }
+
+  .alert-info {
+    @apply border-azure-200 bg-azure-50 text-azure-900;
+  }
+
+  .alert-success {
+    @apply border-emerald-200 bg-emerald-50 text-emerald-900;
+  }
+
+  .alert-warning {
+    @apply border-amber-200 bg-amber-50 text-amber-900;
+  }
+
+  .alert-danger {
+    @apply border-red-200 bg-red-50 text-red-900;
   }
 
   /* Page-level hero band — soft radial glow + hairline grid, masked to the
@@ -340,28 +387,15 @@
     scrollbar-width: none;
   }
 
-  /* Dynamic Edge Glow: subtle continuous travelling border light for important cards, navbar and sections */
+  /* Edge glow — RETIRED. The travelling conic-gradient perimeter light was a
+     constant animation on the navbar, cards, modals and the auth panel. It
+     is now a plain 1px pale-blue border so every wrapper that still uses the
+     old markup renders a calm static frame (see the compat rule at the end
+     of this file). */
   .edge-glow-container {
     position: relative;
     overflow: hidden;
-    padding: 1.5px;
-  }
-
-  .edge-glow-container::before {
-    content: '';
-    position: absolute;
-    inset: -200%;
-    background: conic-gradient(
-      from 0deg,
-      transparent 0deg,
-      transparent 260deg,
-      rgba(79, 193, 230, 0.75) 300deg,
-      rgba(169, 140, 234, 0.9) 340deg,
-      rgba(255, 255, 255, 0.95) 355deg,
-      transparent 360deg
-    );
-    animation: edge-orbit 8s linear infinite;
-    pointer-events: none;
+    padding: 1px;
   }
 
   /* Anti-screenshot & Content Protection */
@@ -373,52 +407,10 @@
     -webkit-touch-callout: none;
   }
 
-  /* Clean Glass Sweep Hover Effect for buttons across the entire website */
-  @keyframes dl-glass-sweep {
-    0% {
-      transform: translate3d(-160%, 0, 0) skewX(-25deg);
-      opacity: 0;
-    }
-    15% {
-      opacity: 0.95;
-    }
-    70% {
-      opacity: 0.95;
-    }
-    100% {
-      transform: translate3d(280%, 0, 0) skewX(-25deg);
-      opacity: 0;
-    }
-  }
-
+  /* Glass-sweep hover shimmer — RETIRED. The class is kept (it is on several
+     buttons) but no longer animates. */
   .dl-glass-btn {
     position: relative;
-    overflow: hidden;
-  }
-
-  .dl-glass-btn::after {
-    content: '';
-    position: absolute;
-    top: -50%;
-    left: 0;
-    width: 60%;
-    height: 200%;
-    background: linear-gradient(
-      90deg,
-      transparent 0%,
-      rgba(255, 255, 255, 0.2) 25%,
-      rgba(255, 255, 255, 0.75) 50%,
-      rgba(255, 255, 255, 0.2) 75%,
-      transparent 100%
-    );
-    transform: translate3d(-160%, 0, 0) skewX(-25deg);
-    pointer-events: none;
-    opacity: 0;
-    z-index: 20;
-  }
-
-  .dl-glass-btn:hover::after {
-    animation: dl-glass-sweep 0.75s cubic-bezier(0.16, 1, 0.3, 1) forwards;
   }
 
   .dl-resume-preview-box,
@@ -465,4 +457,15 @@
 [class*="blur-3xl"],
 [class*="blur-2xl"]:not([class*="backdrop-blur"]) {
   display: none !important;
+}
+
+/* Legacy wrappers: any element still carrying `animate-edge-orbit` is turned
+   into a static 1px pale-blue frame (the wrapper's own padding becomes the
+   border). Covers the modal, pricing cards, dashboard strength card, auth
+   panel and ATS uploader without touching each file's markup. */
+.animate-edge-orbit {
+  animation: none !important;
+  inset: 0 !important;
+  opacity: 1 !important;
+  background: #D7E4F3 !important;
 }

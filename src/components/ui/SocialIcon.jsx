@@ -165,17 +165,19 @@ export function SocialIcon({
         background: brand.bg,
         backgroundColor: brand.color,
         color: '#FFFFFF',
-        boxShadow: hovered ? brand.glow : brand.shadow,
-        transform: hovered ? 'translateY(-4px) scale(1.08)' : 'translateY(0) scale(1)',
-        filter: hovered ? 'brightness(1.08)' : 'brightness(1)',
-        transition: 'transform 0.24s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.24s cubic-bezier(0.34, 1.56, 0.64, 1), filter 0.2s ease',
+        // Brand colours are kept; the hover is a 2px lift and slight darkening
+        // (no spring scale, no coloured glow).
+        boxShadow: hovered ? '0 6px 14px -6px rgba(15,28,46,0.35)' : '0 1px 2px rgba(15,28,46,0.18)',
+        transform: hovered ? 'translateY(-2px)' : 'none',
+        filter: hovered ? 'brightness(0.94)' : 'none',
+        transition: 'transform 0.2s ease-out, box-shadow 0.2s ease-out, filter 0.2s ease',
         textDecoration: 'none',
         flexShrink: 0,
         cursor: 'pointer',
         border: '1px solid rgba(255, 255, 255, 0.2)',
         ...style,
       }}
-      className={`dl-social-icon focus-visible:outline focus-visible:outline-2 focus-visible:outline-azure ${className}`}
+      className={`dl-social-icon focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-azure ${className}`}
     >
       {brand.renderIcon(iconDim)}
     </a>

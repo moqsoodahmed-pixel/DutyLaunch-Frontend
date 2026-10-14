@@ -61,7 +61,7 @@ export function Modal({ open, onClose, title, description, children, footer, siz
             exit={{ opacity: 0, y: 16 }}
             transition={{ duration: 0.22, ease: [0.16, 0.84, 0.44, 1] }}
             className={cn(
-              'relative flex max-h-[92vh] w-full flex-col rounded-t-2xl p-[1.5px] overflow-hidden shadow-panel sm:rounded-2xl',
+              'relative flex max-h-[92vh] w-full flex-col rounded-t-2xl p-px overflow-hidden shadow-panel sm:rounded-2xl',
               widths[size]
             )}
           >
@@ -74,7 +74,7 @@ export function Modal({ open, onClose, title, description, children, footer, siz
               }}
               aria-hidden="true"
             />
-            <div className="relative flex flex-col w-full h-full rounded-t-[14.5px] sm:rounded-[14.5px] bg-white overflow-hidden">
+            <div className="relative flex flex-col w-full h-full rounded-t-[15px] sm:rounded-[15px] bg-white overflow-hidden">
               <div className="flex items-start justify-between gap-4 border-b border-line px-6 py-5">
                 <div>
                   <h2 className="text-h3 font-semibold text-ink">{title}</h2>

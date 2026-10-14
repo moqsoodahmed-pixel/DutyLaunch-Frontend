@@ -236,7 +236,7 @@ export function TemplateCard({ tpl, selected, onSelect, onOpen, className, tone 
 
           {/* Top-Right Corner Free Badge for free templates only */}
           {!pricing.isPremium && (
-            <span className="absolute right-2 top-2 z-10 inline-flex items-center gap-1 rounded-full bg-emerald-600 border border-emerald-300/60 px-2.5 py-0.5 text-[10.5px] font-extrabold uppercase tracking-wide text-white shadow-[0_2px_10px_rgba(5,150,105,0.45)] backdrop-blur-xs">
+            <span className="absolute right-2 top-2 z-10 inline-flex items-center gap-1 rounded-full bg-emerald-700 border border-emerald-300/60 px-2.5 py-0.5 text-[10.5px] font-extrabold uppercase tracking-wide text-white shadow-[0_2px_10px_rgba(5,150,105,0.45)] backdrop-blur-xs">
               Free
             </span>
           )}

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
 import { ChevronDown, X } from 'lucide-react';
@@ -16,7 +16,36 @@ import { homePathFor } from '../../utils/homePath.js';
 export function MobileMenu({ open, onClose }) {
   const [expanded, setExpanded] = useState(null);
   const { isAuthenticated, user } = useAuth();
+  const closeRef = useRef(null);
+  const panelRef = useRef(null);
   useLockBodyScroll(open);
+
+  // Escape closes; focus moves into the dialog on open and is trapped inside
+  // it while open, so Tab never wanders onto the page behind the drawer.
+  useEffect(() => {
+    if (!open) return undefined;
+    closeRef.current?.focus();
+    const onKey = (e) => {
+      if (e.key === 'Escape') {
+        onClose();
+        return;
+      }
+      if (e.key !== 'Tab' || !panelRef.current) return;
+      const focusable = panelRef.current.querySelectorAll('a[href], button:not([disabled])');
+      if (!focusable.length) return;
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      if (e.shiftKey && document.activeElement === first) {
+        e.preventDefault();
+        last.focus();
+      } else if (!e.shiftKey && document.activeElement === last) {
+        e.preventDefault();
+        first.focus();
+      }
+    };
+    document.addEventListener('keydown', onKey);
+    return () => document.removeEventListener('keydown', onKey);
+  }, [open, onClose]);
 
   /* Rendered without an outer AnimatePresence on purpose — the same fix
      the desktop dropdown in Navbar.jsx already uses. With an exit
@@ -35,14 +64,15 @@ export function MobileMenu({ open, onClose }) {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.18 }}
-          className="fixed inset-0 z-[80] lg:hidden sm:bg-ink-900/40"
+          className="fixed inset-0 z-[80] sm:bg-ink-900/40 lg:hidden"
           onClick={onClose}
         >
         <motion.div
           initial={{ x: 24 }}
           animate={{ x: 0 }}
           transition={{ duration: 0.22, ease: [0.16, 0.84, 0.44, 1] }}
-          className="ml-auto flex h-full w-full flex-col bg-white sm:max-w-sm sm:shadow-panel"
+          ref={panelRef}
+          className="ml-auto flex h-full w-full flex-col bg-white pb-[env(safe-area-inset-bottom)] sm:max-w-sm sm:shadow-panel"
           onClick={(e) => e.stopPropagation()}
           role="dialog"
           aria-modal="true"
@@ -50,7 +80,13 @@ export function MobileMenu({ open, onClose }) {
         >
           <div className="flex items-center justify-between border-b border-line px-gutter py-4">
             <Logo />
-            <button type="button" onClick={onClose} className="rounded p-2 text-slate-500 hover:bg-paper" aria-label="Close menu">
+            <button
+              ref={closeRef}
+              type="button"
+              onClick={onClose}
+              className="grid h-11 w-11 place-items-center rounded-xl border border-glacier-400 text-ink transition-colors hover:bg-glacier-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-azure-400"
+              aria-label="Close menu"
+            >
               <X className="h-5 w-5" aria-hidden />
             </button>
           </div>
@@ -62,7 +98,7 @@ export function MobileMenu({ open, onClose }) {
                 if (!navItem.menu) {
                   return (
                     <li key={navItem.path}>
-                      <Link to={navItem.path} onClick={onClose} className="block py-4 text-body font-semibold text-ink">
+                      <Link to={navItem.path} onClick={onClose} className="flex min-h-[3.25rem] items-center text-body font-semibold text-ink transition-colors hover:text-azure aria-[current=page]:text-azure">
                         {navItem.label}
                       </Link>
                     </li>
@@ -78,10 +114,10 @@ export function MobileMenu({ open, onClose }) {
                       type="button"
                       onClick={() => setExpanded(isOpen ? null : navItem.label)}
                       aria-expanded={isOpen}
-                      className="flex w-full items-center justify-between py-4 text-left"
+                      className="flex min-h-[3.25rem] w-full items-center justify-between text-left transition-colors hover:text-azure"
                     >
                       <span className="text-body font-semibold text-ink">{navItem.label}</span>
-                      <ChevronDown className={cn('h-4.5 w-4.5 text-slate-400 transition-transform', isOpen && 'rotate-180')} aria-hidden />
+                      <ChevronDown className={cn('h-4.5 w-4.5 text-slate-500 transition-transform', isOpen && 'rotate-180')} aria-hidden />
                     </button>
                     <AnimatePresence initial={false}>
                       {isOpen && (
@@ -94,7 +130,7 @@ export function MobileMenu({ open, onClose }) {
                         >
                           {items.map((item) => (
                             <li key={item.path}>
-                              <Link to={item.path} onClick={onClose} className="block py-2.5 pl-3 text-small text-slate-600">
+                              <Link to={item.path} onClick={onClose} className="flex min-h-11 items-center rounded-lg pl-3 text-small text-slate-700 transition-colors hover:bg-glacier-200 hover:text-azure">
                                 {item.label}
                               </Link>
                             </li>
@@ -112,13 +148,13 @@ export function MobileMenu({ open, onClose }) {
             <Button to={primaryCta.to} fullWidth onClick={onClose}>
               {primaryCta.label}
             </Button>
-            <Button to="/contact#consultation" variant="ghost" fullWidth onClick={onClose}>
+            <Button to="/contact#consultation" variant="secondary" fullWidth onClick={onClose}>
               Book a free consultation
             </Button>
             {isAuthenticated ? (
               <>
-                <div className="flex items-center gap-3 rounded-xl border border-line bg-glacier-100 px-3 py-3">
-                  <span className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-gradient-to-br from-azure-500 to-azure-700 text-small font-bold text-white">
+                <div className="flex items-center gap-3 rounded-xl border border-glacier-400 bg-glacier-200 px-3 py-3">
+                  <span className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-azure text-small font-bold text-white">
                     {initials(user?.name) || '?'}
                   </span>
                   <div className="min-w-0 flex-1">
@@ -129,12 +165,12 @@ export function MobileMenu({ open, onClose }) {
                     {roleLabel(user?.role)}
                   </Badge>
                 </div>
-                <Button to={homePathFor(user?.role)} variant="outline" fullWidth onClick={onClose}>
+                <Button to={homePathFor(user?.role)} variant="secondary" fullWidth onClick={onClose}>
                   Go to my dashboard
                 </Button>
               </>
             ) : (
-              <Button to="/login" variant="outline" fullWidth onClick={onClose}>
+              <Button to="/login" variant="secondary" fullWidth onClick={onClose}>
                 Sign in
               </Button>
             )}

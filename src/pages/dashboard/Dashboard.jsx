@@ -25,7 +25,7 @@ function ProfileStrengthCard({ user }) {
   const tone = strength.score >= 80 ? 'success' : strength.score >= 50 ? 'azure' : 'amber';
 
   return (
-    <div className="relative overflow-hidden rounded-2xl p-[1.5px] shadow-crystal">
+    <div className="relative overflow-hidden rounded-2xl p-px shadow-card">
       <div
         className="pointer-events-none absolute -inset-[200%] animate-edge-orbit opacity-60"
         style={{
@@ -34,7 +34,7 @@ function ProfileStrengthCard({ user }) {
         }}
         aria-hidden="true"
       />
-      <div className="relative flex flex-col gap-5 rounded-[14.5px] border border-white/80 bg-white/95 p-6 backdrop-blur-xl sm:flex-row sm:items-center">
+      <div className="relative flex flex-col gap-5 rounded-[15px] bg-white p-6 sm:flex-row sm:items-center">
         <ProgressRing value={strength.score} tone={tone} sublabel="/ 100" />
         <div className="min-w-0 flex-1">
           <p className="eyebrow">DutyLaunch Profile Strength</p>
@@ -112,6 +112,11 @@ function RecommendedJobs({ user }) {
   );
 }
 
+/* Score colour carries meaning (same bands as the ATS report). */
+const scoreBadge = (n) =>
+  n >= 85 ? 'bg-emerald-50 text-emerald-700' : n >= 70 ? 'bg-azure-50 text-azure-700' : n >= 50 ? 'bg-amber-50 text-amber-600' : 'bg-red-50 text-red-700';
+const scoreWord = (n) => (n >= 85 ? 'excellent' : n >= 70 ? 'good' : n >= 50 ? 'needs work' : 'weak');
+
 function ResumeAnalysisHistory() {
   const { data: history, loading } = useApi(() => resumeService.history({ limit: 5 }), []);
   const runs = history || [];
@@ -147,20 +152,21 @@ function ResumeAnalysisHistory() {
               <p className="mb-3 text-small text-slate-600">
                 Previous score <span className="tabular font-semibold text-ink">{previous.score}</span> → Current score{' '}
                 <span className="tabular font-semibold text-ink">{latest.score}</span>{' '}
-                <span className={`tabular font-semibold ${trend >= 0 ? 'text-success' : 'text-danger'}`}>
+                <span className={`tabular font-semibold ${trend >= 0 ? 'text-emerald-700' : 'text-danger'}`}>
                   ({trend >= 0 ? '+' : ''}{trend})
                 </span>
               </p>
             )}
-            <ul className="divide-y divide-line rounded-lg border border-line bg-white">
+            <ul className="divide-y divide-glacier-400 overflow-hidden rounded-2xl border border-glacier-400 bg-white shadow-card">
               {runs.map((run) => (
                 <li key={run._id} className="flex items-center justify-between gap-4 px-4 py-3.5">
                   <div className="min-w-0">
                     <p className="truncate text-small font-semibold text-ink">{run.fileName}</p>
-                    <p className="truncate text-caption text-slate-500">{relativeTime(run.createdAt)}</p>
+                    <p className="truncate text-caption text-slate-600">{relativeTime(run.createdAt)}</p>
                   </div>
-                  <span className="tabular shrink-0 rounded bg-azure-50 px-2.5 py-1 text-small font-bold text-azure">
+                  <span className={`tabular shrink-0 rounded px-2.5 py-1 text-small font-bold ${scoreBadge(run.score)}`}>
                     {run.score}/100
+                    <span className="sr-only">, {scoreWord(run.score)}</span>
                   </span>
                 </li>
               ))}
@@ -187,12 +193,12 @@ function CandidateOverview() {
         <StatCard label="Applications" value={meta?.total ?? applications?.length ?? 0} icon="FileStack" to="/applications" />
         <StatCard label="Saved jobs" value={saved?.length ?? 0} icon="Bookmark" to="/saved-jobs" />
         <Link to="/assistant" className="tile flex items-center gap-3 p-5">
-          <span className="tile-icon grid h-10 w-10 shrink-0 place-items-center rounded-lg bg-azure-50">
+          <span className="grid h-10 w-10 shrink-0 place-items-center rounded-lg border border-glacier-400 bg-glacier-200">
             <Bot className="h-5 w-5 text-azure" aria-hidden />
           </span>
           <div>
             <p className="text-small font-bold text-ink">AI Career Assistant</p>
-            <p className="text-caption text-slate-500">Ask what to do next</p>
+            <p className="text-caption text-slate-600">Ask what to do next</p>
           </div>
         </Link>
       </div>
@@ -221,7 +227,7 @@ function CandidateOverview() {
             />
           )}
           {!loading && applications?.length > 0 && (
-            <ul className="divide-y divide-line rounded-lg border border-line bg-white">
+            <ul className="divide-y divide-glacier-400 overflow-hidden rounded-2xl border border-glacier-400 bg-white shadow-card">
               {applications.map((app) => (
                 <li key={app._id} className="flex items-center justify-between gap-4 px-4 py-3.5">
                   <div className="min-w-0">
@@ -276,7 +282,7 @@ function EmployerOverview() {
             />
           )}
           {!loading && jobs?.length > 0 && (
-            <ul className="divide-y divide-line rounded-lg border border-line bg-white">
+            <ul className="divide-y divide-glacier-400 overflow-hidden rounded-2xl border border-glacier-400 bg-white shadow-card">
               {jobs.map((job) => (
                 <li key={job._id} className="flex items-center justify-between gap-4 px-4 py-3.5">
                   <div className="min-w-0">

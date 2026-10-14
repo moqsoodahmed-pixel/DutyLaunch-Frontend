@@ -42,29 +42,30 @@ export function ContactMenu({ onClose }) {
     ];
 
     const rowClass =
-        'group flex items-start gap-3 rounded-xl px-3 py-2.5 transition-all duration-200 hover:-translate-y-0.5 hover:bg-glacier-200 hover:shadow-frost-inset';
+        'group flex min-h-11 items-start gap-3 rounded-xl px-3 py-2.5 transition-colors duration-200 hover:bg-glacier-200 focus-visible:bg-glacier-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-azure-400';
 
     const Body = ({ icon: Icon, title, sub }) => (
         <>
-            <span className="grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-gradient-to-br from-frost-400 to-aurora-500 text-white shadow-crystal">
+            <span className="grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-azure-50 text-azure">
                 <Icon className="h-4 w-4" aria-hidden />
             </span>
             <span className="min-w-0 flex-1">
                 <span className="block text-small font-bold text-ink">{title}</span>
-                <span className="block text-caption text-slate-500">{sub}</span>
+                <span className="block text-caption text-slate-600">{sub}</span>
             </span>
         </>
     );
 
     return (
         <motion.div
-            initial={{ opacity: 0, y: -6, scale: 0.98 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
+            initial={{ opacity: 0, y: -6 }}
+            animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.16 }}
-            role="menu"
-            className="absolute right-0 top-full z-[80] mt-2 w-[min(20rem,calc(100vw-2rem))] overflow-hidden rounded-2xl border-2 border-azure-200 bg-white p-2 shadow-[0_18px_44px_-10px_rgba(5,8,14,0.45)]"
+            role="region"
+            aria-label="Contact options"
+            className="absolute right-0 top-full z-[80] mt-2 w-[min(20rem,calc(100vw-2rem))] overflow-hidden rounded-2xl border border-glacier-400 bg-white p-2 shadow-card-hover"
         >
-            <p className="px-3 pb-1 pt-1 text-caption font-bold uppercase tracking-wider text-slate-400">Talk to us</p>
+            <p className="px-3 pb-1 pt-1 text-caption font-bold uppercase tracking-wider text-slate-600">Talk to us</p>
             <ul className="grid gap-0.5">
                 {rows.map((r) => (
                     <li key={r.key}>

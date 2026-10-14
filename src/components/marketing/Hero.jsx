@@ -5,13 +5,14 @@ import {
   ArrowRight, ArrowUpRight, Check, FileCheck2, Mail, Phone, Plane, ScanSearch, Zap,
 } from 'lucide-react';
 import { Container } from '../ui/Container.jsx';
+import { Button } from '../ui/Button.jsx';
 import { GlacierBackdrop } from '../premium/GlacierBackdrop.jsx';
 import { contact } from '../../data/site.js';
 
 const ease = [0.16, 0.84, 0.44, 1];
 
-/* The four headline actions, each a vivid gradient tile — the edrafter-style
-   multi-CTA grid, mapped to DutyLaunch's real primary journeys and routes. */
+/* The four headline actions, each a vivid gradient tile, mapped to
+   DutyLaunch's real primary journeys and routes. */
 const ACTIONS = [
   { to: '/resume-checker', label: 'Resume Checker', sub: 'Free Resume Health score', icon: ScanSearch, badge: 'FREE', grad: 'from-azure-500 to-azure-700' },
   { to: '/resume-builder', label: 'Resume Builder', sub: 'Upload yours or start from scratch', icon: Zap, grad: 'from-aurora-500 to-violet-600' },
@@ -57,93 +58,73 @@ const JOURNEYS = {
   },
 };
 
-export function Hero({ tone = 'light' }) {
+export function Hero() {
   const [tab, setTab] = useState('career');
   const journey = JOURNEYS[tab];
-  const isDark = false; // dark hero retired: the hero is the pale glacier blue
 
   return (
-    <section
-      className={`seam ${isDark ? 'seam-tone-ink900 seam-top-dark seam-bottom-dark text-white' : 'seam-tone-glacier'} relative overflow-hidden pb-16 pt-10 sm:pb-20 lg:pb-24 lg:pt-16`}
-    >
-      <GlacierBackdrop tone={isDark ? 'dark' : 'light'} dense />
-
-      <div
-        className="pointer-events-none absolute inset-0 opacity-[0.25]"
-        style={{
-          backgroundImage: isDark
-            ? 'linear-gradient(to right, rgba(255,255,255,.05) 1px, transparent 1px), linear-gradient(to bottom, rgba(255,255,255,.05) 1px, transparent 1px)'
-            : 'linear-gradient(to right, rgba(15,28,46,.05) 1px, transparent 1px), linear-gradient(to bottom, rgba(15,28,46,.05) 1px, transparent 1px)',
-          backgroundSize: '72px 72px',
-          maskImage: 'radial-gradient(ellipse 80% 60% at 30% 20%, #000 20%, transparent 75%)',
-          WebkitMaskImage: 'radial-gradient(ellipse 80% 60% at 30% 20%, #000 20%, transparent 75%)',
-        }}
-        aria-hidden
-      />
+    <section className="seam seam-tone-glacier relative overflow-hidden pb-14 pt-10 sm:pb-20 lg:pb-24 lg:pt-16">
+      <GlacierBackdrop />
 
       <Container className="relative z-[1] grid items-center gap-10 xl:grid-cols-12 xl:gap-12">
-        {/* ---------------- Left: copy + multi-CTA grid ---------------- */}
+        {/* ---------------- Left: copy + CTAs ---------------- */}
         <div className="xl:col-span-7">
           <motion.p
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, ease }}
-            className={isDark ? 'eyebrow-dark' : 'eyebrow'}
+            transition={{ duration: 0.4, ease }}
+            className="eyebrow"
           >
             <Zap className="h-3.5 w-3.5" aria-hidden />
             Career · Education · Global mobility · Documentation
           </motion.p>
 
           <motion.h1
-            initial={{ opacity: 0, y: 14 }}
+            initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.06, ease }}
-            className={`mt-5 text-h1 font-extrabold leading-[1.05] ${isDark ? 'text-white' : ''}`}
+            transition={{ duration: 0.5, delay: 0.04, ease }}
+            className="mt-5 text-h1 font-extrabold leading-[1.05]"
           >
-            Your <span className={isDark ? 'text-frost-300' : 'text-azure-600'}>career</span>,{' '}
-            <span className={isDark ? 'text-aurora-300' : 'text-aurora-500'}>qualification</span> and{' '}
-            <span className={isDark ? 'text-azure-300' : 'text-frost-600'}>paperwork.</span>
-            <span className={`-mb-[0.14em] block bg-gradient-to-r ${isDark ? 'from-frost-300 via-azure-200 to-aurora-400' : 'from-frost-600 via-azure to-aurora-500'} bg-clip-text pb-[0.14em] text-transparent`}>
-              One launchpad.
-            </span>
+            Your career, qualification and paperwork.{' '}
+            <span className="block text-azure">One launchpad.</span>
           </motion.h1>
 
           <motion.p
-            initial={{ opacity: 0, y: 14 }}
+            initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.14, ease }}
-            className={`mt-5 max-w-xl text-lead ${isDark ? 'text-slate-300' : 'text-slate-600'}`}
+            transition={{ duration: 0.5, delay: 0.1, ease }}
+            className="mt-5 max-w-xl text-lead text-slate-700"
           >
-            One team for <strong className={`font-semibold ${isDark ? 'text-white' : 'text-ink'}`}>CV writing</strong>,{' '}
-            <strong className={`font-semibold ${isDark ? 'text-white' : 'text-ink'}`}>courses &amp; study abroad</strong>,{' '}
-            <strong className={`font-semibold ${isDark ? 'text-white' : 'text-ink'}`}>jobs</strong>, and{' '}
-            <strong className={`font-semibold ${isDark ? 'text-white' : 'text-ink'}`}>apostille &amp; attestation</strong>, serving
-            candidates across <strong className={`font-semibold ${isDark ? 'text-white' : 'text-ink'}`}>India and the Gulf</strong>.
+            One team for <strong className="font-semibold text-ink">CV writing</strong>,{' '}
+            <strong className="font-semibold text-ink">courses &amp; study abroad</strong>,{' '}
+            <strong className="font-semibold text-ink">jobs</strong>, and{' '}
+            <strong className="font-semibold text-ink">apostille &amp; attestation</strong>, serving
+            candidates across <strong className="font-semibold text-ink">India and the Gulf</strong>.
           </motion.p>
 
-          {/* Four vivid gradient action tiles with dynamic glassy animation */}
+          {/* Four vivid gradient action tiles */}
           <motion.div
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.22, ease }}
+            transition={{ duration: 0.5, delay: 0.18, ease }}
             className="mt-7 grid gap-3.5 sm:grid-cols-2"
           >
             {ACTIONS.map(({ to, label, sub, icon: Icon, badge, grad }) => (
               <Link
                 key={to}
                 to={to}
-                className={`group relative dl-glass-btn flex items-center gap-3.5 overflow-hidden rounded-2xl bg-gradient-to-br ${grad} p-4 text-white shadow-crystal border border-white/25 backdrop-blur-xl transition-all duration-300 hover:-translate-y-1.5 hover:scale-[1.025] hover:border-white/60 hover:shadow-[0_20px_45px_-12px_rgba(43,114,212,0.5),0_0_24px_rgba(255,255,255,0.25)] active:scale-[0.98] active:translate-y-0 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white`}
+                className={`group relative flex items-center gap-3.5 overflow-hidden rounded-2xl bg-gradient-to-br ${grad} border border-white/25 p-4 text-white shadow-crystal transition-[transform,box-shadow,border-color] duration-300 ease-out hover:border-white/60 hover:shadow-[0_20px_45px_-12px_rgba(43,114,212,0.5)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-azure motion-safe:hover:-translate-y-1.5 motion-safe:hover:scale-[1.025] motion-safe:active:translate-y-0 motion-safe:active:scale-[0.98]`}
               >
-                {/* Glassy icon bubble with refraction and scale */}
-                <span className="relative grid h-11 w-11 shrink-0 place-items-center rounded-xl border border-white/40 bg-white/20 shadow-inner backdrop-blur-md transition-all duration-300 group-hover:scale-110 group-hover:bg-white/35 group-hover:border-white/70 group-hover:shadow-[0_0_18px_rgba(255,255,255,0.4)]">
-                  <Icon className="h-5 w-5 transition-transform duration-300 group-hover:scale-105" aria-hidden />
+                {/* Glassy icon bubble */}
+                <span className="relative grid h-11 w-11 shrink-0 place-items-center rounded-xl border border-white/40 bg-white/20 shadow-inner transition-[background-color,border-color,transform] duration-300 group-hover:border-white/70 group-hover:bg-white/35 motion-safe:group-hover:scale-110">
+                  <Icon className="h-5 w-5" aria-hidden />
                 </span>
 
                 <span className="relative min-w-0 flex-1">
                   <span className="flex items-center gap-2">
-                    <span className="text-body font-bold leading-tight drop-shadow-xs">{label}</span>
+                    <span className="text-body font-bold leading-tight">{label}</span>
                     {badge && (
-                      <span className="rounded-full border border-white/40 bg-white/25 px-2 py-0.5 text-[10px] font-extrabold uppercase tracking-wide shadow-2xs backdrop-blur-xs">
+                      <span className="rounded-full border border-white/40 bg-white/25 px-2 py-0.5 text-[10px] font-extrabold uppercase tracking-wide">
                         {badge}
                       </span>
                     )}
@@ -151,28 +132,24 @@ export function Hero({ tone = 'light' }) {
                   <span className="mt-0.5 block text-caption text-white/90">{sub}</span>
                 </span>
 
-                <ArrowRight className="relative h-4.5 w-4.5 shrink-0 text-white/80 transition-all duration-300 group-hover:translate-x-1.5 group-hover:text-white" aria-hidden />
+                <ArrowRight className="relative h-4.5 w-4.5 shrink-0 text-white/80 transition-[transform,color] duration-300 group-hover:text-white motion-safe:group-hover:translate-x-1.5" aria-hidden />
               </Link>
             ))}
           </motion.div>
 
           {/* Popular quick links */}
           <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.3 }}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.5, delay: 0.3 }}
             className="mt-6 flex flex-wrap items-center gap-2"
           >
-            <span className={`text-caption font-bold uppercase tracking-wider ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>Popular</span>
+            <span className="text-caption font-bold uppercase tracking-wider text-slate-600">Popular</span>
             {POPULAR.map((p) => (
               <Link
                 key={p.to}
                 to={p.to}
-                className={`rounded-full border px-3.5 py-1.5 text-small font-semibold shadow-frost-inset backdrop-blur transition-all duration-200 hover:-translate-y-0.5 hover:shadow-crystal ${
-                  isDark
-                    ? 'border-white/15 bg-white/10 text-slate-300 hover:border-frost-400 hover:text-white'
-                    : 'border-white/70 bg-white/60 text-slate-700 hover:border-frost-400 hover:text-ink'
-                }`}
+                className="inline-flex min-h-9 items-center rounded-full border border-glacier-400 bg-white px-3.5 text-small font-semibold text-slate-700 hover:border-azure-200 hover:bg-glacier-200 hover:text-azure transition-[transform,box-shadow,background-color,border-color,color] duration-200 ease-out motion-safe:hover:-translate-y-0.5 motion-safe:hover:scale-[1.04] hover:shadow-card-hover motion-safe:active:scale-95"
               >
                 {p.label}
               </Link>
@@ -180,36 +157,33 @@ export function Hero({ tone = 'light' }) {
           </motion.div>
         </div>
 
-        {/* ---------------- Right: glass process card ---------------- */}
+        {/* ---------------- Right: process card ---------------- */}
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.7, delay: 0.18, ease }}
+          transition={{ duration: 0.55, delay: 0.14, ease }}
           className="xl:col-span-5"
         >
-          <div className={isDark ? 'rounded-2xl border-2 border-mist-line bg-white p-5 sm:p-6 shadow-[0_18px_44px_-18px_rgba(0,0,0,0.65)] text-white' : 'glass-panel !p-5 sm:!p-6'}>
+          <div className="card !p-5 sm:!p-6">
             <div className="flex items-center justify-between gap-3">
-              <p className={`inline-flex items-center gap-2 text-caption font-bold uppercase tracking-wider ${isDark ? 'text-frost-300' : 'text-azure'}`}>
+              <p className="inline-flex items-center gap-2 text-caption font-bold uppercase tracking-wider text-azure-700">
                 <Check className="h-3.5 w-3.5" aria-hidden />
                 How it works
               </p>
-              <span className={`rounded-full px-2.5 py-1 text-caption font-bold ${isDark ? 'border border-white/15 bg-white/10 text-frost-300' : 'bg-azure-50 text-azure-700'}`}>
-                Free to start
-              </span>
+              <span className="rounded-full bg-azure-50 px-2.5 py-1 text-caption font-bold text-azure-700">Free to start</span>
             </div>
 
-            {/* Tab pills */}
-            <div className={`mt-4 flex gap-1.5 rounded-full border p-1 backdrop-blur ${isDark ? 'border-white/10 bg-white/[0.06]' : 'border-glacier-300 bg-white/70'}`}>
+            {/* Journey tabs */}
+            <div className="mt-4 flex gap-1 rounded-xl border border-glacier-400 bg-glacier-200 p-1" role="group" aria-label="Choose a journey">
               {Object.entries(JOURNEYS).map(([key, j]) => (
                 <button
                   key={key}
                   type="button"
                   onClick={() => setTab(key)}
                   aria-pressed={tab === key}
-                  className={`flex-1 rounded-full px-3 py-1.5 text-caption font-bold transition-all duration-200 ${tab === key
-                    ? 'bg-gradient-to-r from-frost-500 to-aurora-500 text-white shadow-crystal'
-                    : isDark ? 'text-slate-400 hover:text-white' : 'text-slate-600 hover:text-ink'
-                    }`}
+                  className={`min-h-9 flex-1 rounded-lg px-3 text-caption font-bold transition-[transform,background-color,color] duration-200 motion-safe:hover:-translate-y-0.5 motion-safe:active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-azure-400 ${
+                    tab === key ? 'bg-azure text-white shadow-xs' : 'text-slate-700 hover:bg-white hover:text-ink'
+                  }`}
                 >
                   {j.label}
                 </button>
@@ -220,50 +194,39 @@ export function Hero({ tone = 'light' }) {
             <ol className="mt-5 space-y-3.5">
               {journey.steps.map(([title, body], i) => (
                 <li key={title} className="flex gap-3.5">
-                  <span className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-gradient-to-br from-azure-500 to-azure-700 text-small font-extrabold text-white shadow-blue">
+                  <span className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-azure text-small font-extrabold text-white">
                     {i + 1}
                   </span>
                   <div className="min-w-0">
-                    <p className={`text-small font-bold ${isDark ? 'text-white' : 'text-ink'}`}>{title}</p>
-                    <p className={`mt-0.5 text-small ${isDark ? 'text-slate-300' : 'text-slate-600'}`}>{body}</p>
+                    <p className="text-small font-bold text-ink">{title}</p>
+                    <p className="mt-0.5 text-small text-slate-600">{body}</p>
                   </div>
                 </li>
               ))}
             </ol>
 
             {/* Contact chips */}
-            <div className={`mt-5 flex flex-wrap gap-2 border-t pt-4 ${isDark ? 'border-white/10' : 'border-glacier-300'}`}>
+            <div className="mt-5 flex flex-wrap gap-2 border-t border-glacier-400 pt-4">
               <a
                 href={contact.phoneHref}
-                className={`inline-flex items-center gap-2 rounded-full border px-3 py-1.5 text-caption font-semibold backdrop-blur transition ${
-                  isDark
-                    ? 'border-white/15 bg-white/10 text-slate-300 hover:border-frost-400 hover:text-white'
-                    : 'border-glacier-300 bg-white/70 text-slate-700 hover:border-frost-400 hover:text-ink'
-                }`}
+                className="inline-flex min-h-9 items-center gap-2 rounded-full border border-glacier-400 bg-white px-3 text-caption font-semibold text-slate-700 hover:border-azure-200 hover:text-azure transition-[transform,box-shadow,background-color,border-color,color] duration-200 ease-out motion-safe:hover:-translate-y-0.5 motion-safe:hover:scale-[1.04] hover:shadow-card-hover motion-safe:active:scale-95"
               >
-                <Phone className={`h-3.5 w-3.5 ${isDark ? 'text-frost-300' : 'text-azure'}`} aria-hidden />
+                <Phone className="h-3.5 w-3.5 text-azure" aria-hidden />
                 {contact.phone}
               </a>
               <a
                 href={`mailto:${contact.email}`}
-                className={`inline-flex items-center gap-2 rounded-full border px-3 py-1.5 text-caption font-semibold backdrop-blur transition ${
-                  isDark
-                    ? 'border-white/15 bg-white/10 text-slate-300 hover:border-frost-400 hover:text-white'
-                    : 'border-glacier-300 bg-white/70 text-slate-700 hover:border-frost-400 hover:text-ink'
-                }`}
+                className="inline-flex min-h-9 items-center gap-2 rounded-full border border-glacier-400 bg-white px-3 text-caption font-semibold text-slate-700 hover:border-azure-200 hover:text-azure transition-[transform,box-shadow,background-color,border-color,color] duration-200 ease-out motion-safe:hover:-translate-y-0.5 motion-safe:hover:scale-[1.04] hover:shadow-card-hover motion-safe:active:scale-95"
               >
-                <Mail className={`h-3.5 w-3.5 ${isDark ? 'text-frost-300' : 'text-azure'}`} aria-hidden />
+                <Mail className="h-3.5 w-3.5 text-azure" aria-hidden />
                 {contact.email}
               </a>
             </div>
 
-            <Link
-              to="/resume-checker"
-              className="group dl-glass-btn mt-4 flex items-center justify-center gap-2 rounded-xl bg-btn-grad px-5 py-3 text-small font-bold text-white shadow-blue transition-all duration-200 hover:-translate-y-0.5 hover:shadow-blue-lg"
-            >
+            <Button to="/resume-checker" fullWidth variant="secondary" className="mt-4">
               Start with a free Resume Health check
-              <ArrowUpRight className="h-4 w-4 transition-transform duration-200 group-hover:-translate-y-0.5 group-hover:translate-x-0.5" aria-hidden />
-            </Link>
+              <ArrowUpRight className="h-4 w-4" aria-hidden />
+            </Button>
           </div>
         </motion.div>
       </Container>

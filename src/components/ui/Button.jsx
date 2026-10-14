@@ -9,41 +9,44 @@ import { cn } from '../../utils/cn.js';
    line and the button grows, instead of pushing the page wider than the
    screen. max-w-full keeps any button inside its container. */
 const base =
-  'relative overflow-hidden dl-glass-btn group/btn inline-flex max-w-full items-center justify-center gap-2 text-center leading-tight sm:whitespace-nowrap rounded font-semibold cursor-pointer transition-all duration-[250ms] ease-out disabled:cursor-not-allowed disabled:opacity-55 active:scale-[0.98] active:translate-y-0 hover:scale-[1.04] hover:-translate-y-0.5 [&>svg]:transition-transform [&>svg]:duration-[250ms] [&>svg]:ease-out group-hover/btn:[&>svg]:scale-110';
+  'relative inline-flex max-w-full items-center justify-center gap-2 text-center leading-tight sm:whitespace-nowrap rounded font-semibold cursor-pointer select-none transition-[background-color,border-color,color,box-shadow,transform] duration-200 ease-out disabled:cursor-not-allowed disabled:opacity-55 aria-disabled:pointer-events-none aria-disabled:opacity-55 motion-safe:hover:-translate-y-0.5 motion-safe:hover:scale-[1.04] motion-safe:active:translate-y-0 motion-safe:active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-azure-400 focus-visible:ring-offset-2 focus-visible:ring-offset-white';
+
+/* Variant guide (DutyLaunch design system):
+     primary    solid brand blue #1D5DB8, white text — the one dominant action
+     secondary  white, brand-blue text, pale-blue border — supporting action
+     ghost/quiet  low emphasis, glacier fill
+   Legacy names (premium, outline, onInk, outlineInk) are kept so existing
+   call sites keep working, but they now resolve to the same two looks above
+   instead of each carrying its own gradient/glow. */
+const PRIMARY =
+  'bg-azure text-white shadow-xs hover:bg-ink-600 hover:shadow-raise active:bg-ink-700';
+const SECONDARY =
+  'border border-glacier-400 bg-white text-azure hover:border-azure-200 hover:bg-glacier-200 hover:text-ink-600 active:bg-glacier-300';
 
 const variants = {
-  // Glossy gradient fill, matching the LauncherDesk primary button exactly.
-  primary:
-    'bg-btn-grad text-white shadow-blue ring-1 ring-inset ring-white/15 hover:brightness-105 hover:ring-white/30 hover:shadow-[0_16px_40px_-8px_rgba(29,93,184,0.7)] focus-visible:outline focus-visible:outline-[3px] focus-visible:outline-azure-300 focus-visible:outline-offset-2',
-  secondary:
-    'bg-ink-800 text-white shadow-lift ring-1 ring-inset ring-white/10 hover:bg-ink-700 hover:brightness-110 hover:ring-white/20 hover:shadow-[0_14px_34px_-10px_rgba(5,8,14,0.75)]',
-  outline:
-    'border-[1.5px] border-azure-400 bg-azure-50/90 text-azure-800 hover:border-azure-500 hover:bg-azure-100 hover:text-azure-900 hover:shadow-[0_10px_26px_-10px_rgba(29,93,184,0.5)]',
-  quiet:
-    'border-[1.5px] border-slate-300 bg-slate-100/90 text-slate-800 hover:border-slate-400 hover:bg-slate-200 hover:text-ink',
-  ghost: 'bg-slate-100/80 text-ink hover:bg-slate-200/90',
-  onInk:
-    'bg-white text-ink shadow-xs hover:brightness-[1.02] hover:shadow-crystal',
-  outlineInk:
-    'border border-sky-200/70 bg-gradient-to-r from-sky-700 via-cyan-700 to-sky-800 text-white hover:brightness-110 hover:shadow-[0_8px_22px_-6px_rgba(0,0,0,0.6)]',
-  danger:
-    'bg-danger text-white ring-1 ring-inset ring-white/10 hover:brightness-105 hover:ring-white/25 hover:shadow-[0_12px_30px_-10px_rgba(220,38,38,0.65)]',
-  link: 'text-azure underline-offset-4 hover:underline px-0 hover:scale-100 hover:translate-y-0 before:hidden after:hidden',
-  /* Glacier premium variant: frost→aurora gradient, glow shadow, and a
-     shimmer sweep on hover matching official Analyze My Resume Free button. */
-  premium:
-    'bg-gradient-to-r from-[#0E7FB8] via-[#2557C9] to-[#6A47D9] text-white border border-white/30 shadow-[0_6px_16px_-4px_rgba(5,8,14,0.55)] hover:brightness-110 hover:shadow-[0_10px_24px_-6px_rgba(5,8,14,0.65)] focus-visible:outline focus-visible:outline-[3px] focus-visible:outline-frost-400 focus-visible:outline-offset-2',
+  primary: PRIMARY,
+  premium: PRIMARY,
+  secondary: SECONDARY,
+  outline: SECONDARY,
+  quiet: 'border border-glacier-400 bg-glacier-200 text-ink hover:bg-glacier-300',
+  ghost: 'bg-glacier-200 text-ink hover:bg-glacier-300',
+  onInk: 'bg-white text-ink shadow-xs hover:bg-glacier-100 hover:shadow-raise',
+  outlineInk: 'bg-ink-800 text-white shadow-xs hover:bg-ink-700',
+  /* Outlined button for use on a navy (card-featured / closing CTA) surface. */
+  onInkOutline: 'border border-white/40 bg-transparent text-white hover:border-white hover:bg-white/10 focus-visible:ring-offset-ink-800',
+  danger: 'bg-danger text-white shadow-xs hover:bg-red-700 active:bg-red-800',
+  link: 'text-azure underline-offset-4 hover:underline px-0 motion-safe:hover:translate-y-0 motion-safe:hover:scale-100 motion-safe:active:scale-100',
 };
 
 
 const sizes = {
-  sm: 'min-h-[38px] py-2 px-4 text-[13.5px] rounded-xs',
-  md: 'min-h-12 py-2.5 px-[22px] text-[14.5px]',
-  lg: 'min-h-[54px] py-3 px-6 sm:px-[30px] text-[15.5px] rounded-lg',
+  sm: 'min-h-[40px] py-2 px-4 text-[13.5px] rounded',
+  md: 'min-h-12 py-2.5 px-5 text-[14.5px]',
+  lg: 'min-h-[52px] py-3 px-6 sm:px-7 text-[15.5px]',
 };
 
 export const Button = forwardRef(function Button(
-  { as, to, href, variant = 'primary', size = 'md', loading = false, fullWidth, magnetic = false, className, children, ...rest },
+  { as, to, href, variant = 'primary', size = 'md', loading = false, fullWidth, magnetic: _magnetic, className, children, ...rest },
   ref
 ) {
   const classes = cn(base, variants[variant], variant !== 'link' && sizes[size], fullWidth && 'w-full', className);
@@ -54,7 +57,10 @@ export const Button = forwardRef(function Button(
     </>
   );
 
-  /* Magnetic interaction — opt-in only. The element leans a few pixels
+  /* Magnetic cursor-follow is retired (the prop is still accepted so existing
+     call sites don't break). Kept below as dead-simple no-op handlers. */
+  const magnetic = false;
+  /* Magnetic interaction — opt-in only (disabled). The element leans a few pixels
      toward the cursor while hovered, and eases back to rest on leave. Plain
      inline transform + CSS transition (no motion library dependency here),
      clamped to a small range so it reads as a subtle premium detail rather
@@ -110,6 +116,7 @@ export const Button = forwardRef(function Button(
       className={classes}
       style={magneticStyle}
       disabled={loading || rest.disabled}
+      aria-busy={loading || undefined}
       {...magneticHandlers}
       {...rest}
     >

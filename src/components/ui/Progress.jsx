@@ -4,21 +4,22 @@ import { cn } from '../../utils/cn.js';
  * Simple horizontal progress meter — used for profile completion, profile
  * strength and match scores so those numbers read consistently everywhere.
  */
-export function Progress({ value = 0, max = 100, tone = 'azure', className, trackClassName }) {
+export function Progress({ value = 0, max = 100, tone = 'azure', className, trackClassName, label = 'Progress' }) {
   const percent = Math.max(0, Math.min(100, (value / max) * 100));
   const tones = {
-    azure: 'bg-btn-grad',
-    success: 'bg-success',
+    azure: 'bg-azure',
+    success: 'bg-emerald-600',
     amber: 'bg-amber-500',
     danger: 'bg-danger',
   };
 
   return (
-    <div className={cn('h-2 w-full overflow-hidden rounded-full bg-slate-100', trackClassName, className)}>
+    <div className={cn('h-2 w-full overflow-hidden rounded-full bg-glacier-300', trackClassName, className)}>
       <div
         className={cn('h-full rounded-full transition-all', tones[tone] || tones.azure)}
         style={{ width: `${percent}%` }}
         role="progressbar"
+        aria-label={label}
         aria-valuenow={value}
         aria-valuemin={0}
         aria-valuemax={max}
@@ -33,12 +34,12 @@ export function ProgressRing({ value = 0, max = 100, size = 88, strokeWidth = 8,
   const radius = (size - strokeWidth) / 2;
   const circumference = 2 * Math.PI * radius;
   const offset = circumference - (percent / 100) * circumference;
-  const colors = { azure: '#1D5DB8', success: '#059669', amber: '#D97706', danger: '#DC2626' };
+  const colors = { azure: '#1D5DB8', success: '#047857', amber: '#D97706', danger: '#DC2626' };
 
   return (
     <div className="relative inline-flex items-center justify-center" style={{ width: size, height: size }}>
       <svg width={size} height={size} className="-rotate-90" aria-hidden>
-        <circle cx={size / 2} cy={size / 2} r={radius} stroke="#D6E6F5" strokeWidth={strokeWidth} fill="none" />
+        <circle cx={size / 2} cy={size / 2} r={radius} stroke="#D7E4F3" strokeWidth={strokeWidth} fill="none" />
         <circle
           cx={size / 2}
           cy={size / 2}

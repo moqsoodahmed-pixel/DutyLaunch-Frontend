@@ -113,7 +113,7 @@ export default function Register() {
                   'relative flex flex-col items-start gap-2 rounded-lg border-[1.5px] p-4 text-left transition-all',
                   active
                     ? 'border-azure-500 bg-azure-50 shadow-xs'
-                    : 'border-line bg-white hover:border-azure-300 hover:bg-azure-50/40'
+                    : 'border-glacier-400 bg-white hover:border-azure-300 hover:bg-azure-50/40'
                 )}
               >
                 {!supported && (
@@ -130,7 +130,7 @@ export default function Register() {
                   <Icon className="h-4.5 w-4.5" aria-hidden />
                 </span>
                 <span className={cn('text-small font-bold', active ? 'text-azure-700' : 'text-ink')}>{label}</span>
-                <span className="text-caption text-slate-500">{hint}</span>
+                <span className="text-caption text-slate-600">{hint}</span>
               </button>
             );
           })}

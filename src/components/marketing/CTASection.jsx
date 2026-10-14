@@ -19,33 +19,38 @@ export function CTASection({
   secondary = { label: 'Read common questions', to: '/faq' },
   tone = 'ink',
 }) {
-  // The closing band used to be dark. It is now the pale mist blue with dark text.
-  const mist = tone === 'ink' || tone === 'mist';
+  // Closing band: one of the few deep-navy surfaces on the site, so the final
+  // action is visually distinct from the pale sections above it. `sand` keeps
+  // its warm light tone for the pages that asked for it.
+  const navy = tone === 'ink' || tone === 'mist';
 
   return (
-    // Dark: fades in from the light page colour at the top (pt-16 keeps the
-    // copy below that 7rem fade) and straight into the footer's own colour
-    // at the bottom. `cta-dark` tells the footer to skip its own light-to-
-    // dark fade when this is the last block on the page (see index.css).
+    // `cta-dark` tells the footer to skip its top fade when this is the last block.
     <section
       className={
-        mist
-          ? 'surface-mist cta-dark border-y border-mist-line'
+        navy
+          ? 'cta-dark relative overflow-hidden bg-ink-800 text-white'
           : 'seam seam-tone-sand'
       }
     >
-      <Container className="py-12 lg:py-14">
+      {navy && (
+        <div
+          className="pointer-events-none absolute inset-0"
+          style={{ background: 'radial-gradient(60% 90% at 90% 0%, rgba(79,193,230,0.16), transparent 65%)' }}
+          aria-hidden
+        />
+      )}
+      <Container className="relative py-12 lg:py-14">
         <Reveal className="grid items-center gap-8 xl:grid-cols-[minmax(0,1fr)_auto] xl:gap-14">
           <div>
-            <h2 className={`max-w-[24ch] text-h2 font-bold text-ink`}>{title}</h2>
-            <p className={`mt-3 max-w-prose text-lead text-slate-700`}>{body}</p>
+            <h2 className={`max-w-[24ch] text-h2 font-bold ${navy ? 'text-white' : 'text-ink'}`}>{title}</h2>
+            <p className={`mt-3 max-w-prose text-lead ${navy ? 'text-slate-200' : 'text-slate-700'}`}>{body}</p>
           </div>
           <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap xl:flex-nowrap xl:justify-end">
             <Button
               to={primary.to}
               size="lg"
-              variant="premium"
-              magnetic
+              variant={navy ? 'onInk' : 'primary'}
               className="w-full sm:w-auto"
             >
               {primary.label}
@@ -54,7 +59,7 @@ export function CTASection({
               <Button
                 to={secondary.to}
                 size="lg"
-                variant="outline"
+                variant={navy ? 'onInkOutline' : 'secondary'}
                 className="w-full sm:w-auto"
               >
                 {secondary.label}

@@ -21,7 +21,7 @@ export function PageHero({ eyebrow, title, lead, breadcrumb, actions, aside, ton
 
   return (
     <section className={surfaceClass}>
-      <Container className="py-6 lg:py-8">
+      <Container className="py-8 lg:py-12">
         {breadcrumb && <Breadcrumb items={breadcrumb} />}
         <motion.div
           variants={stagger(0.08)}
@@ -44,7 +44,7 @@ export function PageHero({ eyebrow, title, lead, breadcrumb, actions, aside, ton
             {lead && (
               <motion.p
                 variants={fadeUp}
-                className={`mt-3.5 max-w-prose text-lead leading-relaxed ${dark ? 'text-slate-300' : 'text-slate-600'}`}
+                className={`mt-3.5 max-w-prose text-lead leading-relaxed ${dark ? 'text-slate-300' : 'text-slate-700'}`}
               >
                 {lead}
               </motion.p>
@@ -70,12 +70,12 @@ export function HeroActions({ primary, secondary, dark }) {
   return (
     <>
       {primary && (
-        <Button to={primary.to} size="lg" variant="premium" className="shadow-crystal hover:shadow-crystal-lg">
+        <Button to={primary.to} size="lg">
           {primary.label}
         </Button>
       )}
       {secondary && (
-        <Button to={secondary.to} size="lg" variant="outline" className="bg-white">
+        <Button to={secondary.to} size="lg" variant="secondary">
           {secondary.label}
         </Button>
       )}

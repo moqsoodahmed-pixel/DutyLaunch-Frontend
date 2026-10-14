@@ -27,11 +27,11 @@ export function PricingCard({ pkg, highlighted, onSelect, tone = 'light' }) {
   return (
     <article
       className={cn(
-        'group relative flex h-full flex-col rounded-2xl p-[1.5px] transition-all duration-300 ease-out cursor-default',
-        'hover:z-20 hover:-translate-y-2.5 hover:scale-[1.025]',
+        'group relative flex h-full flex-col rounded-2xl p-px transition-[transform,box-shadow] duration-200 ease-out cursor-default',
+        'hover:z-20 hover:-translate-y-0.5',
         featured
-          ? 'shadow-[0_24px_60px_-15px_rgba(29,93,184,0.45),0_0_24px_rgba(79,193,230,0.4)] sm:-translate-y-1.5 hover:-translate-y-4 hover:shadow-[0_32px_70px_-12px_rgba(29,93,184,0.6),0_0_35px_rgba(79,193,230,0.55)]'
-          : 'shadow-crystal hover:shadow-[0_20px_45px_-10px_rgba(15,23,42,0.18),0_0_20px_rgba(79,193,230,0.25)]'
+          ? 'shadow-card-hover'
+          : 'shadow-card hover:shadow-card-hover'
       )}
     >
       {/* Continuous Travelling Border Glow - contained cleanly so outer badge is never clipped */}
@@ -50,8 +50,8 @@ export function PricingCard({ pkg, highlighted, onSelect, tone = 'light' }) {
 
       {/* Prominently placed, unclipped Most Popular badge without any star/twinkle logo */}
       {featured && (
-        <div className="pointer-events-none absolute -top-3.5 left-1/2 -translate-x-1/2 z-30 transition-transform duration-300 ease-out group-hover:scale-105">
-          <span className="inline-flex items-center justify-center whitespace-nowrap rounded-full bg-gradient-to-r from-amber-400 via-amber-300 to-amber-400 px-3.5 py-1 text-[11px] font-black uppercase tracking-wider text-ink-950 shadow-[0_4px_14px_rgba(245,158,11,0.45)] ring-2 ring-white">
+        <div className="pointer-events-none absolute -top-3.5 left-1/2 -translate-x-1/2 z-30 ">
+          <span className="inline-flex items-center justify-center whitespace-nowrap rounded-full bg-amber-300 px-3.5 py-1 text-[11px] font-black uppercase tracking-wider text-ink ring-2 ring-white">
             Most Popular
           </span>
         </div>
@@ -60,12 +60,10 @@ export function PricingCard({ pkg, highlighted, onSelect, tone = 'light' }) {
       {/* Card Inner Body */}
       <div
         className={cn(
-          'relative flex h-full flex-col rounded-[14.5px] p-6 sm:p-7 backdrop-blur-xl transition-all duration-300',
+          'relative flex h-full flex-col rounded-[15px] p-6 sm:p-7',
           featured
-            ? 'bg-btn-grad text-white'
-            : darkTone
-              ? 'border-2 border-mist-line bg-white text-ink'
-              : 'border border-white/80 bg-white/95 group-hover:bg-white'
+            ? 'bg-ink-800 text-white'
+            : 'bg-white text-ink'
         )}
       >
         <div>

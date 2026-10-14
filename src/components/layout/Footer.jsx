@@ -3,6 +3,7 @@ import { contact } from '../../data/site.js'
 import { company, legalLinks } from '../../data/legal.js'
 import { GlacierBackdrop } from '../premium/GlacierBackdrop.jsx'
 import { SocialIcon } from '../ui/SocialIcon.jsx'
+import { cn } from '../../utils/cn.js'
 import msmeBadge from '../../assets/badges/msme.png'
 import startupIndiaBadge from '../../assets/badges/startup-india.png'
 
@@ -26,20 +27,6 @@ const NAV_COLS = [
   // Mandatory compliance links, shown on every public page.
   { title: 'Legal & Policies', links: legalLinks.map((l) => [l.label, l.path]) },
 ]
-
-// Light-theme palette — matches the same glacier/ink tokens used across the
-// rest of the site's light sections (see tailwind.config.js), rather than
-// inventing new colours just for the footer.
-const C = {
-  bg: '#F8FBFE',       // glacier-100 — same as <body>
-  ink: '#0F1C2E',       // ink DEFAULT — primary text
-  heading: '#1E4080',   // ink-600 — section labels (SERVICES, CONTACT, ...)
-  body: '#4B5768',      // slate-600 — paragraph / nav-link text
-  muted: '#6B7280',     // slate-500 — legal disclaimer, fine print
-  link: '#1D5DB8',      // azure DEFAULT — link hover / accents
-  chip: '#F1F6FC',      // glacier-200 — icon chip background
-  border: 'rgba(15,28,46,0.09)', // line token
-}
 
 function IndiaFlag({ width = 24, height = 16, style = {} }) {
   return (
@@ -84,215 +71,174 @@ function IndiaFlag({ width = 24, height = 16, style = {} }) {
   )
 }
 
+const colHeading = 'mb-4 text-caption font-bold uppercase tracking-[0.1em] text-ink-600';
+const footerLink =
+  'inline-block py-1 text-[13.5px] leading-snug text-slate-600 transition-colors hover:text-azure hover:underline hover:underline-offset-4 focus-visible:rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-azure-400';
+const contactLink =
+  'flex items-center gap-2 text-small text-ink transition-colors hover:text-azure focus-visible:rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-azure-400';
+const mapLink =
+  'inline-flex items-center gap-1.5 text-[12.5px] font-semibold text-azure hover:underline hover:underline-offset-4 focus-visible:rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-azure-400';
+const pin = (
+  <svg viewBox="0 0 24 24" width={14} height={14} fill="none" stroke="currentColor" strokeWidth={2} className="mt-1 shrink-0 text-ink-600" aria-hidden="true"><path d="M21 10c0 7-9 12-9 12s-9-5-9-12a9 9 0 0 1 18 0z" /><circle cx="12" cy="10" r="3" /></svg>
+)
+const external = (
+  <svg viewBox="0 0 24 24" width={12} height={12} fill="none" stroke="currentColor" strokeWidth={2} aria-hidden="true"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6M15 3h6v6M10 14 21 3" /></svg>
+)
+const mailIcon = (
+  <svg viewBox="0 0 24 24" width={14} height={14} fill="none" stroke="currentColor" strokeWidth={2} aria-hidden="true"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" /><polyline points="22,6 12,13 2,6" /></svg>
+)
+
 export function Footer() {
   const year = new Date().getFullYear()
 
   return (
-    <footer style={{ background: C.bg, color: C.ink, position: 'relative', overflow: 'hidden' }}>
-      {/* Same signature ambient background used behind the homepage's light
-          "glacier" sections (Hero, ServiceMatrix) — this is
-          what actually ties the footer to the rest of the page's theme,
-          rather than approximating it with a flat colour. */}
-      <GlacierBackdrop dense />
+    <footer className="relative overflow-hidden border-t border-glacier-400 bg-glacier-100 text-ink" aria-labelledby="footer-heading">
+      <h2 id="footer-heading" className="sr-only">DutyLaunch site footer</h2>
 
-      {/* ── MAIN BODY ── */}
-      <div className="footer-main mx-auto w-full max-w-shell px-gutter" style={{ paddingTop: 56, position: 'relative', zIndex: 1 }}>
-        <div className="footer-grid" style={{ display: 'grid', gridTemplateColumns: '1.6fr 1fr 1fr 1fr 1fr 1.15fr', gap: '40px 28px' }}>
+      {/* Calm, static glacier tint behind the footer (same backdrop as the hero). */}
+      <GlacierBackdrop />
 
-          {/* Col 1 — Brand */}
-          <div className="footer-brand-col">
-            <Link to="/" style={{ display: 'inline-flex', textDecoration: 'none', marginBottom: 16 }}>
-              <img src="/logo.png" alt="DutyLaunch" style={{ height: 40, width: 'auto' }} />
+      <div className="relative z-[1] mx-auto w-full max-w-shell px-gutter pt-12 sm:pt-14">
+        {/* Main columns: 6-up on wide screens, 3-up on tablet, 2-up on phones. */}
+        <div className="grid grid-cols-2 gap-x-6 gap-y-9 sm:grid-cols-3 xl:grid-cols-[1.7fr_1fr_1fr_1fr_1fr_1.15fr] xl:gap-x-8">
+
+          {/* Brand */}
+          <div className="col-span-2 max-w-xl sm:col-span-3 xl:col-span-1">
+            <Link to="/" className="mb-4 inline-flex" aria-label="DutyLaunch, home">
+              <img src="/logo.png" alt="DutyLaunch" width={167} height={40} style={{ height: 40, width: 'auto' }} />
             </Link>
-            <p style={{ fontSize: 12, fontWeight: 700, color: C.link, letterSpacing: '.04em', marginBottom: 8 }}>
-              Your Career. Your Move. Handled.
-            </p>
-            <p style={{ fontSize: 13, color: C.body, lineHeight: 1.75, marginBottom: 20 }}>
+            <p className="mb-2 text-caption font-bold tracking-[0.04em] text-azure">Your Career. Your Move. Handled.</p>
+            <p className="mb-5 text-small text-slate-600">
               DutyLaunch helps students, professionals and job seekers with career services, education guidance and global mobility support, from your CV and interviews to studying and working abroad.
             </p>
-            {/* Socials */}
-            <div style={{ display: 'flex', gap: 10, marginBottom: 20 }}>
-              {SOCIALS.map(s => (
-                <SocialIcon key={s.label} social={s} size="sm" rounded="md" />
+            <ul className="mb-5 flex flex-wrap gap-2.5" aria-label="DutyLaunch on social media">
+              {SOCIALS.map((s) => (
+                <li key={s.label}>
+                  <SocialIcon social={s} size="sm" rounded="md" />
+                </li>
               ))}
-            </div>
-            {/* Made in India — sized to match the LauncherDesk footer badge.
-                lineHeight is set explicitly: otherwise both lines inherit the
-                body's fixed 27.2px line height (meant for 16px text), which
-                made this badge ~73px tall instead of ~54px. */}
-            <div style={{ display: 'inline-flex', alignItems: 'center', gap: 10, padding: '8px 14px', background: C.chip, border: `1px solid ${C.border}`, borderRadius: 10, lineHeight: 1.6 }}>
+            </ul>
+            <div className="inline-flex items-center gap-2.5 rounded-xl border border-glacier-400 bg-glacier-200 px-3.5 py-2 leading-snug">
               <IndiaFlag width={24} height={16} />
               <div>
-                <div style={{ fontSize: 11.5, fontWeight: 700, letterSpacing: '.04em', lineHeight: 1.6 }}>
-                  <span style={{ color: '#D9720A' }}>Proudly </span>
-                  <span style={{ color: C.ink }}>Made in </span>
+                <div className="text-[11.5px] font-bold tracking-[0.04em]">
+                  <span style={{ color: '#B45309' }}>Proudly </span>
+                  <span className="text-ink">Made in </span>
                   <span style={{ color: '#0E7A2E' }}>India</span>
                 </div>
-                <div style={{ fontSize: 11, color: C.muted, lineHeight: 1.6 }}>Built for Indian talent</div>
+                <div className="text-[11px] text-slate-600">Built for Indian talent</div>
               </div>
             </div>
           </div>
 
-          {/* Nav cols */}
-          {NAV_COLS.map(col => (
-            <div key={col.title}>
-              <h5 style={{ fontSize: 11, fontWeight: 700, letterSpacing: '.1em', textTransform: 'uppercase', color: C.heading, marginBottom: 16 }}>{col.title}</h5>
-              {col.links.map(([label, href]) => (
-                <Link key={href} to={href} style={{ display: 'block', fontSize: 13.5, color: C.body, marginBottom: 10, textDecoration: 'none', transition: 'color .15s' }}
-                  onMouseEnter={e => e.currentTarget.style.color = C.link}
-                  onMouseLeave={e => e.currentTarget.style.color = C.body}>
-                  {label}
-                </Link>
-              ))}
-            </div>
+          {/* Link columns */}
+          {NAV_COLS.map((col) => (
+            <nav key={col.title} aria-label={col.title}>
+              <h3 className={colHeading}>{col.title}</h3>
+              <ul>
+                {col.links.map(([label, href]) => (
+                  <li key={href}>
+                    <Link to={href} className={footerLink}>{label}</Link>
+                  </li>
+                ))}
+              </ul>
+            </nav>
           ))}
-
         </div>
 
-        {/* ── CONTACT + ADDRESS BAR ── */}
-        <div className="dl-contactbar" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 24, margin: '40px 0 0', padding: '28px 0', borderTop: `1px solid ${C.border}`, borderBottom: `1px solid ${C.border}` }}>
-          {/* Contact */}
+        {/* Contact + addresses */}
+        <div className="mt-10 grid gap-8 border-y border-glacier-400 py-8 md:grid-cols-3">
           <div>
-            <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: '.1em', textTransform: 'uppercase', color: C.heading, marginBottom: 14 }}>Contact</div>
-            <a href={contact.phoneHref} style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 14, color: C.ink, textDecoration: 'none', marginBottom: 10, transition: 'color .15s' }}
-              onMouseEnter={e => e.currentTarget.style.color = C.link} onMouseLeave={e => e.currentTarget.style.color = C.ink}>
-              <svg viewBox="0 0 24 24" width={14} height={14} fill="none" stroke="currentColor" strokeWidth={2}><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.6 1.27h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9a16 16 0 0 0 6.1 6.1l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z" /></svg>
+            <h3 className={colHeading}>Contact</h3>
+            <a href={contact.phoneHref} className={cn(contactLink, 'mb-2.5')}>
+              <svg viewBox="0 0 24 24" width={14} height={14} fill="none" stroke="currentColor" strokeWidth={2} aria-hidden="true"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.6 1.27h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9a16 16 0 0 0 6.1 6.1l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z" /></svg>
               {contact.phone}
             </a>
-            <a href="mailto:contact@dutylaunch.com" style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 13.5, color: C.ink, textDecoration: 'none', marginBottom: 16, transition: 'color .15s' }}
-              onMouseEnter={e => e.currentTarget.style.color = C.link} onMouseLeave={e => e.currentTarget.style.color = C.ink}>
-              <svg viewBox="0 0 24 24" width={14} height={14} fill="none" stroke="currentColor" strokeWidth={2}><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" /><polyline points="22,6 12,13 2,6" /></svg>
+            <a href="mailto:contact@dutylaunch.com" className={cn(contactLink, 'mb-4')}>
+              {mailIcon}
               contact@dutylaunch.com
             </a>
-            <div style={{ display: 'flex', gap: 8 }}>
-              <a href={`https://wa.me/${contact.whatsapp}?text=Hi%20DutyLaunch%2C%20I%20need%20assistance.`} target="_blank" rel="noopener noreferrer"
-                style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '8px 14px', background: '#25D366', color: '#fff', borderRadius: 8, fontWeight: 700, fontSize: 12.5, textDecoration: 'none', transition: 'opacity .15s' }}>
-                <svg viewBox="0 0 32 32" width={14} height={14} fill="currentColor"><path d={WA_PATH} /></svg>
+            <div className="flex flex-wrap gap-2">
+              <a
+                href={`https://wa.me/${contact.whatsapp}?text=Hi%20DutyLaunch%2C%20I%20need%20assistance.`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex min-h-10 items-center gap-1.5 rounded-lg bg-[#0F7A40] px-3.5 text-[12.5px] font-bold text-white transition-colors hover:bg-[#0B6633] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-azure-400 focus-visible:ring-offset-2"
+              >
+                <svg viewBox="0 0 32 32" width={14} height={14} fill="currentColor" aria-hidden="true"><path d={WA_PATH} /></svg>
                 WhatsApp
+                <span className="sr-only"> (opens in a new tab)</span>
               </a>
-              <a href="mailto:contact@dutylaunch.com"
-                style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '8px 14px', background: 'linear-gradient(135deg, #1D6FE0, #1656B0)', color: '#fff', borderRadius: 8, fontWeight: 600, fontSize: 12.5, textDecoration: 'none', boxShadow: '0 2px 8px rgba(29,111,224,.28)', border: '1px solid rgba(255,255,255,.15)', transition: 'all .15s' }}
-                onMouseEnter={e => { e.currentTarget.style.filter = 'brightness(1.1)'; e.currentTarget.style.transform = 'translateY(-1px)' }}
-                onMouseLeave={e => { e.currentTarget.style.filter = 'none'; e.currentTarget.style.transform = 'none' }}>
-                <svg viewBox="0 0 24 24" width={14} height={14} fill="none" stroke="currentColor" strokeWidth={2}><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" /><polyline points="22,6 12,13 2,6" /></svg>
+              <a
+                href="mailto:contact@dutylaunch.com"
+                className="inline-flex min-h-10 items-center gap-1.5 rounded-lg bg-azure px-3.5 text-[12.5px] font-semibold text-white transition-colors hover:bg-ink-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-azure-400 focus-visible:ring-offset-2"
+              >
+                {mailIcon}
                 Email us
               </a>
             </div>
           </div>
 
-          {/* Corporate Office */}
           <div>
-            <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: '.1em', textTransform: 'uppercase', color: C.heading, marginBottom: 14 }}>Corporate Office</div>
-            <div style={{ display: 'flex', gap: 10, alignItems: 'flex-start', marginBottom: 10 }}>
-              <svg viewBox="0 0 24 24" width={14} height={14} fill="none" stroke={C.heading} strokeWidth={2} style={{ flexShrink: 0, marginTop: 2 }}><path d="M21 10c0 7-9 12-9 12s-9-5-9-12a9 9 0 0 1 18 0z" /><circle cx="12" cy="10" r="3" /></svg>
-              <span style={{ fontSize: 13, color: C.body, lineHeight: 1.7 }}>
+            <h3 className={colHeading}>Corporate Office</h3>
+            <div className="mb-2.5 flex items-start gap-2.5">
+              {pin}
+              <address className="text-small not-italic text-slate-600">
                 {contact.addressLines.map((line, i) => (
                   <span key={i}>{line}{i < contact.addressLines.length - 1 && <br />}</span>
                 ))}
-              </span>
+              </address>
             </div>
             {contact.addressMapUrl && (
-              <a href={contact.addressMapUrl} target="_blank" rel="noopener noreferrer"
-                style={{ display: 'inline-flex', alignItems: 'center', gap: 5, fontSize: 12.5, fontWeight: 600, color: C.link, textDecoration: 'none' }}>
-                <svg viewBox="0 0 24 24" width={12} height={12} fill="none" stroke="currentColor" strokeWidth={2}><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6M15 3h6v6M10 14 21 3" /></svg>
-                Open on Google Maps →
+              <a href={contact.addressMapUrl} target="_blank" rel="noopener noreferrer" className={mapLink}>
+                {external}
+                Open on Google Maps
+                <span className="sr-only"> (opens in a new tab)</span>
               </a>
             )}
           </div>
 
-          {/* Registered Office — sits beside Corporate Office, same pattern
-              as the LauncherDesk footer this was modelled on. */}
           <div>
-            <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: '.1em', textTransform: 'uppercase', color: C.heading, marginBottom: 14 }}>Registered Office</div>
-            <div style={{ display: 'flex', gap: 10, alignItems: 'flex-start', marginBottom: 10 }}>
-              <svg viewBox="0 0 24 24" width={14} height={14} fill="none" stroke={C.heading} strokeWidth={2} style={{ flexShrink: 0, marginTop: 2 }}><path d="M21 10c0 7-9 12-9 12s-9-5-9-12a9 9 0 0 1 18 0z" /><circle cx="12" cy="10" r="3" /></svg>
-              <span style={{ fontSize: 13, color: C.body, lineHeight: 1.7 }}>
+            <h3 className={colHeading}>Registered Office</h3>
+            <div className="mb-2.5 flex items-start gap-2.5">
+              {pin}
+              <address className="text-small not-italic text-slate-600">
                 {company.registeredOfficeName && (
                   <>
-                    <span style={{ fontWeight: 700, color: C.ink }}>{company.registeredOfficeName}</span>
+                    <span className="font-bold text-ink">{company.registeredOfficeName}</span>
                     <br />
                   </>
                 )}
                 {company.registeredOffice}
-              </span>
+              </address>
             </div>
             {company.registeredOfficeMapUrl && (
-              <a href={company.registeredOfficeMapUrl} target="_blank" rel="noopener noreferrer"
-                style={{ display: 'inline-flex', alignItems: 'center', gap: 5, fontSize: 12.5, fontWeight: 600, color: C.link, textDecoration: 'none' }}>
-                <svg viewBox="0 0 24 24" width={12} height={12} fill="none" stroke="currentColor" strokeWidth={2}><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6M15 3h6v6M10 14 21 3" /></svg>
-                Open on Google Maps →
+              <a href={company.registeredOfficeMapUrl} target="_blank" rel="noopener noreferrer" className={mapLink}>
+                {external}
+                Open on Google Maps
+                <span className="sr-only"> (opens in a new tab)</span>
               </a>
             )}
           </div>
         </div>
 
-        {/* ── BOTTOM BAR ── */}
-        <div style={{ padding: '20px 0 28px' }}>
-          {/* Government registration marks — both badges keep their natural
-              artwork colours here (gold/black MSME, navy/orange DPIIT),
-              since a light footer needs no recolouring the way the previous
-              dark footer did. */}
-          <div className="dl-badges" style={{ display: 'flex', alignItems: 'center', gap: 18, flexWrap: 'wrap', marginBottom: 20 }}>
-            <img
-              src={msmeBadge}
-              alt="MSME registered: Micro, Small & Medium Enterprises"
-              width={72}
-              height={58}
-              style={{ height: 58, width: 'auto', opacity: 0.95, transition: 'opacity .15s' }}
-              onMouseEnter={e => (e.currentTarget.style.opacity = '1')}
-              onMouseLeave={e => (e.currentTarget.style.opacity = '0.95')}
-            />
-            <img
-              src={startupIndiaBadge}
-              alt="DPIIT recognised, Startup India"
-              width={90}
-              height={36}
-              style={{ height: 36, width: 'auto', opacity: 0.95, transition: 'opacity .15s' }}
-              onMouseEnter={e => (e.currentTarget.style.opacity = '1')}
-              onMouseLeave={e => (e.currentTarget.style.opacity = '0.95')}
-            />
+        {/* Bottom bar: registrations, entity line, disclaimer, copyright */}
+        <div className="pb-8 pt-6">
+          <div className="mb-5 flex flex-wrap items-center gap-5">
+            <img src={msmeBadge} alt="MSME registered: Micro, Small & Medium Enterprises" width={72} height={58} className="h-12 w-auto sm:h-[58px]" />
+            <img src={startupIndiaBadge} alt="DPIIT recognised, Startup India" width={90} height={36} className="h-8 w-auto sm:h-9" />
           </div>
-          {/* Corporate entity block — required above the copyright line. */}
-          <p style={{ fontSize: 12.5, color: C.body, lineHeight: 1.7, maxWidth: 900, margin: '0 0 10px' }}>
+          <p className="mb-3 max-w-[900px] text-[12.5px] leading-relaxed text-slate-600">
             {company.brand} is operated by {company.legalName} (CIN: {company.cin}).
           </p>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 12 }}>
-            <p style={{ fontSize: 12, color: C.muted, lineHeight: 1.6, maxWidth: 700, margin: 0 }}>
+          <div className="flex flex-wrap items-start justify-between gap-3">
+            <p className="max-w-[700px] text-caption text-slate-600">
               Career, education and mobility outcomes depend on individual eligibility and third-party decisions (employers, institutions, embassies). DutyLaunch does not guarantee job offers, admissions or visa approvals.
             </p>
-            <span style={{ fontSize: 12, color: C.muted, whiteSpace: 'nowrap' }}>
-              © {year} {company.legalName}
-            </span>
+            <span className="text-caption text-slate-600 sm:whitespace-nowrap">© {year} {company.legalName}</span>
           </div>
         </div>
       </div>
-
-      <style>{`
-        @media(max-width:900px){
-          .footer-grid {
-            grid-template-columns: 1fr 1fr !important;
-            gap: 32px 24px !important;
-          }
-          .footer-brand-col {
-            grid-column: 1 / -1 !important;
-            max-width: 560px;
-          }
-          .dl-contactbar {
-            grid-template-columns: 1fr !important;
-            gap: 24px !important;
-          }
-        }
-        @media(max-width:600px){
-          .footer-grid {
-            grid-template-columns: 1fr 1fr !important;
-            gap: 28px 16px !important;
-          }
-          .footer-brand-col {
-            grid-column: 1 / -1 !important;
-          }
-          .dl-badges img { height: 30px !important; }
-        }
-      `}</style>
     </footer>
   )
 }

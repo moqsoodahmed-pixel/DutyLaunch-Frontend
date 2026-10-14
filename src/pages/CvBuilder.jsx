@@ -1108,7 +1108,7 @@ export default function CvBuilder() {
                             <div className="flex items-center justify-between">
                               <span className="text-small font-bold text-ink">{tpl.name}</span>
                               {isSelected && (
-                                <span className="flex h-5 w-5 place-items-center rounded-full bg-emerald-600 text-white">
+                                <span className="flex h-5 w-5 place-items-center rounded-full bg-emerald-700 text-white">
                                   <Check className="h-3 w-3 mx-auto" />
                                 </span>
                               )}
@@ -1520,7 +1520,7 @@ export default function CvBuilder() {
                           type="button"
                           onClick={fetchAiSkills}
                           disabled={aiSkillsLoading}
-                          className="inline-flex items-center gap-1.5 rounded bg-emerald-600 px-2.5 py-1 text-[11px] font-bold text-white hover:bg-emerald-700 transition-colors disabled:opacity-60 cursor-pointer"
+                          className="inline-flex items-center gap-1.5 rounded bg-emerald-700 px-2.5 py-1 text-[11px] font-bold text-white hover:bg-emerald-700 transition-colors disabled:opacity-60 cursor-pointer"
                         >
                           {aiSkillsLoading ? (
                             <><Loader2 className="h-3 w-3 animate-spin" /> Generating…</>
@@ -1548,7 +1548,7 @@ export default function CvBuilder() {
                                   'inline-flex items-center gap-1 rounded-md px-2 py-1 text-[11px] font-semibold transition-all cursor-pointer',
                                   isAdded
                                     ? 'bg-slate-200 text-slate-400 cursor-not-allowed'
-                                    : 'border border-emerald-300 bg-white text-emerald-800 hover:bg-emerald-600 hover:text-white'
+                                    : 'border border-emerald-300 bg-white text-emerald-800 hover:bg-emerald-700 hover:text-white'
                                 )}
                               >
                                 {isAdded ? <Check className="h-2.5 w-2.5" /> : <Plus className="h-2.5 w-2.5" />}
@@ -2216,7 +2216,7 @@ export default function CvBuilder() {
                         ]);
                         setOpenSections((prev) => ({ ...prev, certifications: true }));
                       }}
-                      className="rounded bg-emerald-50 px-2 py-0.5 text-[11px] font-bold text-emerald-700 hover:bg-emerald-600 hover:text-white transition-colors cursor-pointer"
+                      className="rounded bg-emerald-50 px-2 py-0.5 text-[11px] font-bold text-emerald-700 hover:bg-emerald-700 hover:text-white transition-colors cursor-pointer"
                     >
                       + Add Certification
                     </button>
@@ -2248,7 +2248,7 @@ export default function CvBuilder() {
                                 { id: `c-${Date.now()}`, name: c.name, issuer: c.issuer, year: new Date().getFullYear().toString() },
                               ]);
                             }}
-                            className="rounded-md border border-emerald-200 bg-white px-2 py-1 text-[11px] font-semibold text-emerald-900 hover:bg-emerald-600 hover:text-white transition-all cursor-pointer"
+                            className="rounded-md border border-emerald-200 bg-white px-2 py-1 text-[11px] font-semibold text-emerald-900 hover:bg-emerald-700 hover:text-white transition-all cursor-pointer"
                           >
                             + {c.name.split('(')[0]}
                           </button>
@@ -2906,7 +2906,7 @@ export default function CvBuilder() {
                     <button
                       type="button"
                       onClick={() => { setApproveSuccess(false); setOptimizeOpen(false); }}
-                      className="ml-auto rounded-lg bg-emerald-600 px-3 py-1.5 text-[12px] font-bold text-white hover:bg-emerald-700 transition-colors cursor-pointer"
+                      className="ml-auto rounded-lg bg-emerald-700 px-3 py-1.5 text-[12px] font-bold text-white hover:bg-emerald-700 transition-colors cursor-pointer"
                     >
                       Close & review
                     </button>
@@ -3047,7 +3047,7 @@ export default function CvBuilder() {
                                     className={cn(
                                       'rounded px-2 py-0.5 text-[10.5px] font-bold transition-colors cursor-pointer',
                                       action === act
-                                        ? act === 'accept' ? 'bg-emerald-600 text-white'
+                                        ? act === 'accept' ? 'bg-emerald-700 text-white'
                                           : act === 'reject' ? 'bg-slate-500 text-white'
                                           : 'bg-indigo-600 text-white'
                                         : 'bg-white border border-slate-200 text-slate-500 hover:border-slate-400'

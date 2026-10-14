@@ -11,21 +11,21 @@ export function StatCard({ label, value, hint, icon = 'Circle', to, tone = 'defa
   const body = (
     <>
       <div className="flex items-start justify-between gap-3">
-        <p className="text-caption font-semibold uppercase tracking-wide text-slate-500">{label}</p>
+        <p className="text-caption font-semibold uppercase tracking-wide text-slate-600">{label}</p>
         <Icon
-          className={cn('h-4 w-4 shrink-0', tone === 'alert' ? 'text-amber-500' : 'text-slate-300')}
+          className={cn('h-4 w-4 shrink-0', tone === 'alert' ? 'text-amber-600' : 'text-azure')}
           aria-hidden
         />
       </div>
-      <p className="tabular mt-3 text-h1 font-extrabold leading-none text-ink">{value ?? 0}</p>
-      {hint && <p className="mt-2 text-caption text-slate-500">{hint}</p>}
+      <p className="tabular mt-3 text-3xl font-extrabold leading-none text-ink">{value ?? 0}</p>
+      {hint && <p className="mt-2 text-caption text-slate-600">{hint}</p>}
     </>
   );
 
   const classes = cn(
-    'block rounded-lg border bg-white p-5',
-    tone === 'alert' ? 'border-amber-200' : 'border-line',
-    to && 'transition-colors hover:border-slate-300'
+    'block rounded-2xl border bg-white p-5 shadow-card',
+    tone === 'alert' ? 'border-amber-200' : 'border-glacier-400',
+    to && 'transition-[transform,box-shadow,border-color] duration-200 hover:-translate-y-0.5 hover:border-azure-200 hover:shadow-card-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-azure-400'
   );
 
   return to ? (

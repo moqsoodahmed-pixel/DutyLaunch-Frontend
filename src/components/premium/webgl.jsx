@@ -44,6 +44,7 @@ export class SceneErrorBoundary extends Component {
     }
 
     render() {
-        return this.state.hasError ? null : this.props.children;
+        // `fallback` (optional) replaces the failed scene; without it nothing is rendered.
+        return this.state.hasError ? (this.props.fallback ?? null) : this.props.children;
     }
 }
