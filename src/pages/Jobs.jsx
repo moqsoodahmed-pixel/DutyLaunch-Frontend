@@ -18,7 +18,7 @@ import { useToast } from '../context/ToastContext.jsx';
 import { images } from '../data/images.js';
 import { SiteImage } from '../components/ui/SiteImage.jsx';
 import { useMediaQuery } from '../hooks/useMediaQuery.js';
-import { DEMO_JOBS } from '../data/demoJobs.js';
+import { cn } from '../utils/cn.js';
 
 export default function Jobs() {
   const isDesktop = useMediaQuery('(min-width: 1024px)');
@@ -50,44 +50,10 @@ export default function Jobs() {
   );
   const savedIds = new Set((savedJobs || []).map((j) => j._id));
 
-  // Fallback facets derived from bundled catalog when the API is unreachable
-  const fallbackFacets = useMemo(() => {
-    const categories = Array.from(new Set(DEMO_JOBS.map((j) => j.category).filter(Boolean))).sort();
-    const locations = Array.from(new Set(DEMO_JOBS.map((j) => j.location).filter(Boolean))).sort();
-    return { categories, locations };
-  }, []);
+  const displayFacets = facets?.categories?.length ? facets : { categories: [], locations: [] };
 
-  const displayFacets = facets?.categories?.length ? facets : fallbackFacets;
-
-  // Fallback filtering when the backend API is unreachable or returns an error
-  const fallbackFiltered = useMemo(() => {
-    let list = DEMO_JOBS;
-    if (filters.q) {
-      const qLower = filters.q.toLowerCase().trim();
-      list = list.filter((j) =>
-        j.title?.toLowerCase().includes(qLower) ||
-        j.company?.toLowerCase().includes(qLower) ||
-        j.description?.toLowerCase().includes(qLower) ||
-        j.skills?.some((s) => s.toLowerCase().includes(qLower))
-      );
-    }
-    if (filters.category) {
-      list = list.filter((j) => j.category?.toLowerCase() === filters.category.toLowerCase());
-    }
-    if (filters.location) {
-      list = list.filter((j) => j.location?.toLowerCase().includes(filters.location.toLowerCase()));
-    }
-    if (filters.jobType) {
-      list = list.filter((j) => j.jobType?.toLowerCase() === filters.jobType.toLowerCase());
-    }
-    if (filters.workMode) {
-      list = list.filter((j) => j.workMode?.toLowerCase() === filters.workMode.toLowerCase());
-    }
-    return list;
-  }, [filters.q, filters.category, filters.location, filters.jobType, filters.workMode]);
-
-  const jobsList = data?.length ? data : (error || !data?.length ? fallbackFiltered : []);
-  const totalCount = meta?.total ?? (data?.length ? data.length : fallbackFiltered.length);
+  const jobsList = Array.isArray(data) ? data : [];
+  const totalCount = meta?.total ?? (data ? jobsList.length : 0);
 
   const updateFilters = (patch) => {
     const next = new URLSearchParams(params);
@@ -150,7 +116,11 @@ export default function Jobs() {
             <ul className="mt-6 flex flex-wrap gap-x-8 gap-y-2 text-small font-medium text-slate-600">
               <li className="inline-flex items-center gap-2">
                 <Briefcase className="h-4 w-4 text-azure-600" aria-hidden />
-                {totalCount} {totalCount === 1 ? 'live role' : 'live roles'}
+                {loading && data === null ? (
+                  <span className="inline-block h-4 w-16 animate-pulse rounded bg-slate-200" />
+                ) : (
+                  `${totalCount} ${totalCount === 1 ? 'live role' : 'live roles'}`
+                )}
               </li>
               <li className="inline-flex items-center gap-2">
                 <MapPin className="h-4 w-4 text-azure-600" aria-hidden />
@@ -187,15 +157,15 @@ export default function Jobs() {
             </div>
 
             <div className="min-w-0 lg:col-span-9">
-              {loading && !jobsList.length && (
+              {loading && data === null && (
                 <div className="space-y-4">
                   {Array.from({ length: 4 }).map((_, i) => (
                     <CardSkeleton key={i} />
                   ))}
                 </div>
               )}
-              {error && !jobsList.length && <ErrorState error={error} onRetry={refetch} />}
-              {!loading && !jobsList.length && (
+              {error && !loading && !jobsList.length && <ErrorState error={error} onRetry={refetch} />}
+              {!loading && !error && !jobsList.length && (
                 <EmptyState
                   title="No roles match these filters"
                   description="Try widening your search, or clear filters to see everything open."
@@ -207,7 +177,7 @@ export default function Jobs() {
                 />
               )}
               {jobsList.length > 0 && (
-                <div className="space-y-4">
+                <div className={cn('space-y-4', loading && 'opacity-60 pointer-events-none')}>
                   {jobsList.map((job) => (
                     <JobCard
                       key={job._id}
@@ -218,9 +188,11 @@ export default function Jobs() {
                   ))}
                 </div>
               )}
-              <div className="mt-8">
-                <Pagination meta={meta || { page: 1, limit: 12, total: totalCount, totalPages: Math.ceil(totalCount / 12) }} onChange={(page) => updateFilters({ page: String(page) })} />
-              </div>
+              {totalCount > 0 && (
+                <div className="mt-8">
+                  <Pagination meta={meta || { page: 1, limit: 12, total: totalCount, totalPages: Math.ceil(totalCount / 12) }} onChange={(page) => updateFilters({ page: String(page) })} />
+                </div>
+              )}
             </div>
           </div>
         </Container>

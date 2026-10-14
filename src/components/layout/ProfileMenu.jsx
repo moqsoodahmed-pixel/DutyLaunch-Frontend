@@ -24,7 +24,7 @@ function profilePathFor(role) {
  *                the full name, email, account type and account links.
  */
 export function ProfileMenu({ dark = false, iconClassName }) {
-  const { isAuthenticated, user, logout } = useAuth();
+  const { isAuthenticated, user, logout, initialising } = useAuth();
   const toast = useToast();
   const navigate = useNavigate();
   const location = useLocation();
@@ -48,6 +48,13 @@ export function ProfileMenu({ dark = false, iconClassName }) {
   }, [open]);
 
   if (!isAuthenticated) {
+    if (initialising) {
+      return (
+        <div className={cn(iconClassName, 'opacity-40 pointer-events-none')}>
+          <UserRound className="h-4.5 w-4.5 text-slate-400" aria-hidden />
+        </div>
+      );
+    }
     return (
       <Link to="/login" aria-label="Sign in" className={cn(iconClassName, 'relative')}>
         <UserRound className="h-4.5 w-4.5" aria-hidden />

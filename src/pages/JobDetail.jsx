@@ -16,7 +16,6 @@ import { useToast } from '../context/ToastContext.jsx';
 import { formatExperience, formatJobTitle, formatSalary, relativeTime } from '../utils/format.js';
 import { jobPostingSchema } from '../utils/seo.js';
 import { analyzeJobMatch } from '../services/aiService.js';
-import { findDemoJob } from '../data/demoJobs.js';
 import { careerService } from '../services/careerService.js';
 
 /**
@@ -235,11 +234,7 @@ export default function JobDetail() {
   // GET /jobs/:idOrSlug responds with { job, related, hasApplied } — read the
   // job out of that envelope (tolerating a bare job object too).
   const { data: jobData, loading } = useApi(() => jobService.get(lookupId), [lookupId]);
-  const apiJob = jobData?.job ?? (jobData?.title ? jobData : null);
-  // If the API has no record (the live DB is seeded without demo jobs), fall
-  // back to the bundled demo copy for [DEMO] slugs so those links still show
-  // a complete page. Real jobs always come from the API.
-  const job = apiJob || (!loading ? findDemoJob(lookupId) : null);
+  const job = jobData?.job ?? (jobData?.title ? jobData : null);
   const isDemo = Boolean(job?.isDemo);
   const { data: saved, refetch: refetchSaved } = useApi(
     () => (isAuthenticated ? jobService.savedJobs() : Promise.resolve({ data: [] })),
