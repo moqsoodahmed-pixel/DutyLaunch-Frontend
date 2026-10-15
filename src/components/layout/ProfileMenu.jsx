@@ -23,8 +23,8 @@ function profilePathFor(role) {
  *   Signed in  → avatar with first name and account type; opens a menu with
  *                the full name, email, account type and account links.
  */
-export function ProfileMenu({ dark = false, iconClassName }) {
-  const { isAuthenticated, user, logout, initialising } = useAuth();
+export function ProfileMenu({ iconClassName }) {
+  const { isAuthenticated, user, logout } = useAuth();
   const toast = useToast();
   const navigate = useNavigate();
   const location = useLocation();
@@ -48,13 +48,6 @@ export function ProfileMenu({ dark = false, iconClassName }) {
   }, [open]);
 
   if (!isAuthenticated) {
-    if (initialising) {
-      return (
-        <div className={cn(iconClassName, 'opacity-40 pointer-events-none')}>
-          <UserRound className="h-4.5 w-4.5 text-slate-400" aria-hidden />
-        </div>
-      );
-    }
     return (
       <Link to="/login" aria-label="Sign in" className={cn(iconClassName, 'relative')}>
         <UserRound className="h-4.5 w-4.5" aria-hidden />
@@ -84,7 +77,7 @@ export function ProfileMenu({ dark = false, iconClassName }) {
   ].filter(Boolean);
 
   const rowClass =
-    'flex min-h-11 items-center gap-3 rounded-xl px-3 py-2.5 text-small font-semibold text-slate-700 transition-colors hover:bg-glacier-200 hover:text-ink focus-visible:bg-glacier-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-azure-400';
+    'flex items-center gap-3 rounded-xl px-3 py-2.5 text-small font-semibold text-dl-ink transition-colors hover:bg-dl-hover hover:text-dl-blue focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-dl-blue';
 
   return (
     <div ref={wrapRef} className="relative">
@@ -95,36 +88,36 @@ export function ProfileMenu({ dark = false, iconClassName }) {
         aria-expanded={open}
         aria-label={`${user?.name}, ${label} account`}
         className={cn(
-          'flex h-11 items-center gap-2 rounded-xl border border-glacier-400 bg-white py-0.5 pl-1 pr-1 text-ink transition-[transform,box-shadow,background-color,border-color] duration-200 ease-out hover:border-azure-200 hover:bg-glacier-200 motion-safe:hover:-translate-y-0.5 motion-safe:hover:scale-[1.04] hover:shadow-card-hover motion-safe:active:translate-y-0 motion-safe:active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-azure-400 focus-visible:ring-offset-2 focus-visible:ring-offset-white lg:h-10 xl:pr-2.5',
-          open && 'border-azure-200 bg-glacier-200'
+          'flex h-11 items-center gap-2 rounded-full border border-dl-border bg-white py-0.5 pl-0.5 pr-0.5 text-dl-ink transition-colors duration-150 hover:border-dl-blue hover:bg-dl-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-dl-blue focus-visible:ring-offset-2 xl:h-10 xl:pr-2.5',
+          open && 'border-dl-blue bg-dl-hover'
         )}
       >
-        <span className="relative grid h-8 w-8 shrink-0 place-items-center rounded-full bg-azure text-caption font-bold text-white">
+        <span className="relative grid h-8 w-8 shrink-0 place-items-center rounded-full bg-dl-blue text-caption font-bold text-white">
           {initials(user?.name) || '?'}
           <span className="absolute -bottom-0.5 -right-0.5 h-2.5 w-2.5 rounded-full border-2 border-white bg-success" aria-hidden />
         </span>
         <span className="hidden min-w-0 text-left leading-tight xl:block">
           <span className="block max-w-[7rem] truncate text-[13px] font-bold">{firstName}</span>
-          <span className={cn('block text-[11px] font-medium', 'text-slate-600')}>{label}</span>
+          <span className="block text-[11px] font-medium text-dl-muted">{label}</span>
         </span>
         <ChevronDown className={cn('hidden h-3.5 w-3.5 transition-transform xl:block', open && 'rotate-180')} aria-hidden />
       </button>
 
       {open && (
         <motion.div
-          initial={{ opacity: 0, y: -6 }}
+          initial={{ opacity: 0, y: -4 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.16 }}
           role="menu"
-          className="absolute right-0 top-full z-[80] mt-2 w-[min(18rem,calc(100vw-2rem))] overflow-hidden rounded-2xl border border-glacier-400 bg-white p-2 shadow-card-hover"
+          className="absolute right-0 top-full z-[80] mt-3 w-[min(18rem,calc(100vw-2rem))] overflow-hidden rounded-2xl border border-dl-border bg-white p-2 shadow-dl-menu"
         >
-          <div className="flex items-center gap-3 rounded-xl bg-glacier-200 px-3 py-3">
-            <span className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-azure text-small font-bold text-white">
+          <div className="flex items-center gap-3 rounded-xl bg-dl-hover px-3 py-3">
+            <span className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-dl-blue text-small font-bold text-white">
               {initials(user?.name) || '?'}
             </span>
             <div className="min-w-0 flex-1">
-              <p className="truncate text-small font-bold text-ink">{user?.name}</p>
-              <p className="truncate text-caption text-slate-600">{user?.email}</p>
+              <p className="truncate text-small font-bold text-dl-ink">{user?.name}</p>
+              <p className="truncate text-caption text-dl-muted">{user?.email}</p>
               <Badge tone={roleTone(user?.role)} className="mt-1.5 !py-0.5">
                 {label} account
               </Badge>
@@ -135,14 +128,14 @@ export function ProfileMenu({ dark = false, iconClassName }) {
             {items.map(({ to, label: text, icon: Icon }) => (
               <li key={to}>
                 <Link to={to} role="menuitem" className={rowClass} onClick={() => setOpen(false)}>
-                  <Icon className="h-4 w-4 text-azure" aria-hidden />
+                  <Icon className="h-4 w-4 text-dl-blue" aria-hidden />
                   {text}
                 </Link>
               </li>
             ))}
-            <li className="mt-1 border-t border-line pt-1">
+            <li className="mt-1 border-t border-dl-border pt-1">
               <button type="button" role="menuitem" onClick={signOut} className={cn(rowClass, 'w-full')}>
-                <LogOut className="h-4 w-4 text-slate-500" aria-hidden />
+                <LogOut className="h-4 w-4 text-dl-muted" aria-hidden />
                 Sign out
               </button>
             </li>

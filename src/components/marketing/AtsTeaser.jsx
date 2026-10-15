@@ -1,6 +1,9 @@
-import { useState } from 'react';
-import { Check, LogIn, ScanLine } from 'lucide-react';
+import { useEffect, useRef, useState } from 'react';
+import { motion, useInView } from 'framer-motion';
+import { Check, ScanLine } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext.jsx';
+import { HIGHLIGHT_EVENT, HIGHLIGHT_KEY, hasFlag, setFlag } from '../../utils/atsWelcome.js';
+import { usePrefersReducedMotion } from '../../hooks/useMediaQuery.js';
 import { Container, Section } from '../ui/Container.jsx';
 import { Button } from '../ui/Button.jsx';
 import { Reveal } from '../ui/Reveal.jsx';
@@ -8,9 +11,10 @@ import { GlacierBackdrop } from '../premium/GlacierBackdrop.jsx';
 import { GlassPanel } from '../premium/GlassPanel.jsx';
 import { AtsUploader } from './AtsUploader.jsx';
 import { AtsScoreReport } from './AtsScoreReport.jsx';
+import AtsResumeVisual from './AtsResumeVisual.jsx';
 
 const ASSURANCES = [
-  'Your resume is analyzed to calculate a real, on-the-spot score, nothing is pre-filled or hard-coded.',
+  'Your resume is analyzed to calculate a real, on-the-spot score — nothing is pre-filled or hard-coded.',
   'We don\u2019t keep your uploaded document longer than it takes to analyze it.',
 ];
 
@@ -28,23 +32,60 @@ function GateSkeleton() {
   );
 }
 
-function GuestGate() {
+function GuestGate({ highlight, replayKey }) {
+  const reduce = usePrefersReducedMotion();
+
   return (
-    <div className="flex flex-col items-center justify-center px-6 py-14 text-center sm:px-8">
-      <span className="grid h-14 w-14 place-items-center rounded-full bg-gradient-to-br from-frost-400 via-azure-400 to-aurora-500 text-white shadow-crystal">
-        <LogIn className="h-6 w-6" aria-hidden />
-      </span>
-      <h3 className="mt-5 text-lead font-bold text-ink">Sign in to check your resume</h3>
-      <p className="mt-2 max-w-xs text-small text-slate-500">
-        Create a free account or sign in to run your ATS check and save your results.
-      </p>
-      <div className="mt-6 flex flex-col gap-3 sm:flex-row">
-        <Button to="/login" state={{ from: '/resume-checker' }} variant="premium" size="sm" magnetic>
-          Sign in
-        </Button>
-        <Button to="/register?next=/resume-checker" variant="quiet" size="sm">
-          Create free account
-        </Button>
+    <div className="grid items-center gap-6 px-1 py-4 sm:px-3 md:grid-cols-2 md:gap-4 lg:grid-cols-1 lg:gap-6 lg:py-6 xl:grid-cols-2 xl:gap-8">
+      {/* Illustration — above the copy on small screens, beside it from md up.
+          It sits in its own grid cell, so it can never cover the buttons. */}
+      <div className="md:order-2 lg:order-1 xl:order-2">
+        <div className="mx-auto w-full max-w-[16rem] sm:max-w-[19rem] md:max-w-[21rem]">
+          <AtsResumeVisual replayKey={replayKey} />
+          <p className="mt-1 text-center text-caption text-slate-500">
+            Illustrative preview — your real score appears after you upload.
+          </p>
+        </div>
+      </div>
+
+      <div className="text-center md:order-1 md:text-left lg:order-2 lg:mx-auto lg:max-w-md lg:text-center xl:order-1 xl:mx-0 xl:max-w-none xl:text-left">
+        <p className="text-caption font-bold uppercase tracking-[0.14em] text-azure-700">Free AI resume check</p>
+        <h3 className="mt-2 text-lead font-bold leading-snug text-ink">
+          Is Your Resume Ready for the Next Opportunity?
+        </h3>
+        <p className="mt-2 text-small text-slate-600">
+          Discover how ATS-friendly your resume is and get actionable recommendations to improve it.
+        </p>
+        <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:justify-center md:justify-start lg:justify-center xl:justify-start">
+          <motion.span
+            className="flex rounded sm:inline-flex"
+            animate={
+              highlight && !reduce
+                ? {
+                    boxShadow: [
+                      '0 0 0 0 rgba(79,193,230,0)',
+                      '0 0 0 7px rgba(79,193,230,0.45)',
+                      '0 0 0 0 rgba(79,193,230,0)',
+                    ],
+                  }
+                : { boxShadow: '0 0 0 0 rgba(79,193,230,0)' }
+            }
+            transition={{ duration: 1.5, delay: highlight ? 1.2 : 0, ease: 'easeInOut' }}
+          >
+            <Button
+              to="/register?next=/resume-checker"
+              variant="premium"
+              size="sm"
+              magnetic
+              className="w-full sm:w-auto"
+            >
+              Create Free Account
+            </Button>
+          </motion.span>
+          <Button to="/login" state={{ from: '/resume-checker' }} variant="quiet" size="sm">
+            Sign In
+          </Button>
+        </div>
       </div>
     </div>
   );
@@ -60,13 +101,59 @@ function GuestGate() {
  */
 export function AtsTeaser() {
   const { user, initialising } = useAuth();
+  const reduce = usePrefersReducedMotion();
   const [result, setResult] = useState(null);
 
-  let body;
-  if (result) body = <AtsScoreReport result={result} onReset={() => setResult(null)} />;
-  else if (initialising) body = <GateSkeleton />;
-  else if (user) body = <AtsUploader onResult={setResult} />;
-  else body = <GuestGate />;
+  // ── Temporary first-visit highlight ────────────────────────────────────
+  // Fires once, the first time a signed-out visitor actually has the panel on
+  // screen (or when the welcome dialog asks for it). It lasts a few seconds,
+  // never loops, and never blocks clicks.
+  const panelRef = useRef(null);
+  const onScreen = useInView(panelRef, { amount: 0.55 });
+  const guest = !result && !initialising && !user;
+  const [highlight, setHighlight] = useState(false);
+  const [replayKey, setReplayKey] = useState(0);
+  const [pending, setPending] = useState(false);
+
+  useEffect(() => {
+    const request = () => setPending(true);
+    window.addEventListener(HIGHLIGHT_EVENT, request);
+    return () => window.removeEventListener(HIGHLIGHT_EVENT, request);
+  }, []);
+
+  // A request from the welcome dialog stays valid for a few seconds, so a
+  // slow smooth-scroll still ends in a highlight but a stale request can't.
+  useEffect(() => {
+    if (!pending) return undefined;
+    const id = window.setTimeout(() => setPending(false), 7000);
+    return () => window.clearTimeout(id);
+  }, [pending]);
+
+  useEffect(() => {
+    if (!guest || !onScreen) return;
+    if (pending) {
+      setPending(false);
+      setFlag(HIGHLIGHT_KEY);
+      setReplayKey((k) => k + 1);
+      setHighlight(true);
+    } else if (!hasFlag(HIGHLIGHT_KEY)) {
+      setFlag(HIGHLIGHT_KEY);
+      setHighlight(true);
+    }
+  }, [guest, onScreen, pending]);
+
+  useEffect(() => {
+    if (!highlight) return undefined;
+    const id = window.setTimeout(() => setHighlight(false), 4800);
+    return () => window.clearTimeout(id);
+  }, [highlight, replayKey]);
+
+  const body = (() => {
+    if (result) return <AtsScoreReport result={result} onReset={() => setResult(null)} />;
+    if (initialising) return <GateSkeleton />;
+    if (user) return <AtsUploader onResult={setResult} />;
+    return <GuestGate highlight={highlight} replayKey={replayKey} />;
+  })();
 
   return (
     <Section tone="glacier" id="ats-checker" backdrop={<GlacierBackdrop />}>
@@ -81,7 +168,7 @@ export function AtsTeaser() {
               </span>
             </h2>
             <p className="mt-4 text-lead text-slate-600">
-              Upload your CV and discover how well it performs against ATS systems, plus get
+              Upload your CV and discover how well it performs against ATS systems — plus get
               actionable recommendations to improve it.
             </p>
             <ul className="mt-6 space-y-3 text-small text-slate-600">
@@ -97,6 +184,20 @@ export function AtsTeaser() {
           </Reveal>
 
           <div className="min-w-0 lg:col-span-7">
+            {/* The glow lives on this wrapper (outside the panel's own
+                overflow-hidden) and is purely visual: it carries no pointer
+                events of its own and is removed after a few seconds. */}
+            <div
+              ref={panelRef}
+              data-ats-panel
+              className={`rounded-xl transition-[box-shadow,transform] duration-500 ease-out ${
+                highlight
+                  ? `shadow-[0_0_0_2px_rgba(79,193,230,0.55),0_26px_64px_-14px_rgba(79,193,230,0.60)] ${
+                      reduce ? '' : '-translate-y-1.5'
+                    }`
+                  : ''
+              }`}
+            >
             <GlassPanel className="overflow-hidden">
               {/* Product-window header */}
               <div className="flex items-center justify-between border-b border-glacier-400/60 bg-white/50 px-5 py-3">
@@ -112,6 +213,7 @@ export function AtsTeaser() {
                 {body}
               </div>
             </GlassPanel>
+            </div>
           </div>
         </div>
       </Container>

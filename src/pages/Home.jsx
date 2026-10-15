@@ -1,9 +1,10 @@
+import { useState } from 'react';
 import { Seo } from '../components/ui/Seo.jsx';
 import { Container, Section } from '../components/ui/Container.jsx';
 import { SectionHeader } from '../components/ui/SectionHeader.jsx';
 import { Button } from '../components/ui/Button.jsx';
 import { Hero } from '../components/marketing/Hero.jsx';
-import { OneProfile } from '../components/marketing/OneProfile.jsx';
+import AtsWelcomeExperience from '../components/marketing/AtsWelcomeExperience.jsx';
 import { AiAssistantPreview } from '../components/marketing/AiAssistantPreview.jsx';
 import { ServiceMatrix } from '../components/marketing/ServiceMatrix.jsx';
 import { JourneyRail } from '../components/marketing/JourneyRail.jsx';
@@ -16,12 +17,20 @@ import { BlogCard } from '../components/blog/BlogCard.jsx';
 import { TransformationHorizon } from '../components/ui/TransformationHorizon.jsx';
 import { GlacierBackdrop } from '../components/premium/GlacierBackdrop.jsx';
 import { useApi } from '../hooks/useApi.js';
+import { useAuth } from '../context/AuthContext.jsx';
+import { WELCOME_KEY, hasFlag } from '../utils/atsWelcome.js';
 import { pricingService, blogService } from '../services/contentService.js';
 import { organizationSchema } from '../utils/seo.js';
 import { seoFor } from '../data/seoPages.js';
 import { contact } from '../data/site.js';
 
 export default function Home() {
+  const { initialising, isAuthenticated } = useAuth();
+  // Decided once, when Home mounts: has this visitor already seen the welcome
+  // dialog? Held in state so it can't flip mid-way and unmount the dialog
+  // during its own close animation.
+  const [welcomeEligible] = useState(() => !hasFlag(WELCOME_KEY));
+  const showWelcome = welcomeEligible && !initialising && !isAuthenticated;
   const { data: packages } = useApi(() => pricingService.cvPackages(), []);
   const { data: posts } = useApi(() => blogService.list({ limit: 3 }), []);
 
@@ -37,7 +46,6 @@ export default function Home() {
       />
 
       <Hero />
-      <OneProfile />
       <AiAssistantPreview />
       <ServiceMatrix />
       <TransformationHorizon />
@@ -52,7 +60,7 @@ export default function Home() {
             <SectionHeader
               label="CV bundles"
               title="Priced by how much experience there is to write about."
-              lead="Every bundle includes an ATS-friendly CV, a customised cover letter, LinkedIn optimisation, a month of unlimited revisions and 2 to 3 day delivery."
+              lead="Every bundle includes an ATS-friendly CV, a customised cover letter, LinkedIn optimisation, a month of unlimited revisions and 2–3 day delivery."
               aside={
                 <div className="mt-6">
                   <Button to="/pricing" variant="outline">
@@ -95,9 +103,11 @@ export default function Home() {
         </Section>
       )}
 
+      {showWelcome && <AtsWelcomeExperience />}
+
       <CTASection
         title="Start with a conversation, not a purchase."
-        body="Tell us where you are and what you are aiming at. We will tell you what would actually move the needle, including when that is nothing we sell."
+        body="Tell us where you are and what you are aiming at. We will tell you what would actually move the needle — including when that is nothing we sell."
         primary={{ label: 'Book a free consultation', to: '/contact#consultation' }}
         secondary={{ label: 'See what we do', to: '/career-services' }}
       />

@@ -4,18 +4,19 @@ import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import { useMediaQuery, usePrefersReducedMotion } from '../../hooks/useMediaQuery.js';
 import { isWebGLAvailable, SceneErrorBoundary } from './webgl.jsx';
 import { GlobeFallback } from './GlobeFallback.jsx';
-import { Pause, Play } from 'lucide-react';
 import { cn } from '../../utils/cn.js';
 import { INDIA_BOUNDARY } from './indiaMapData.js';
 import {
   CITIES,
+  FLIGHT,
   GLOBE_ROTATION_Y,
   ORIGIN_ID,
   RADIUS,
   TILT_X,
-  createFlightPlan,
+  createFlights,
   latLonToVector,
-  samplePath,
+  routePoints,
+  sampleFlight,
 } from './globeFlight.js';
 
 /* ------------------------------------------------------------------ *
@@ -23,27 +24,32 @@ import {
  *
  *   • A textured, lit Earth held at a fixed orientation (it does not rotate), with
  *     India and the three Gulf destinations facing the viewer.
- *   • A plane glyph (the same Lucide Plane used across the site) that flies
- *     great-circle round trips from Bengaluru to Dubai, Doha and Riyadh — the
- *     three cities named in this section's cards. Plane, trail and markers are
- *     CHILDREN of the globe, so they stay locked to the geography.
+ *   • THREE planes (the same Lucide Plane used across the site) leave India at the
+ *     same moment and fly at the same time, each on its own arc, to Dubai, Riyadh
+ *     and Doha — the three cities named in this section's cards. None waits for
+ *     another. Each plane has its own glowing trail and a faint guide line along
+ *     its route. Planes, trails, routes and markers are CHILDREN of the globe, so
+ *     they stay locked to the geography.
  *   • India (the starting point) is highlighted from its real boundary and marked
  *     with a larger cyan marker; the three destinations carry smaller blue-white
- *     markers. Everything is a child of the globe.
- *   • A thin cyan → blue trail behind the plane.
- *   • Motion preferences: with "reduce motion" on, the plane still flies, just at
- *     45 % speed with no pulsing rings; a Pause button is always available.
- *     (Freezing the scene entirely made it look broken.)
+ *     markers.
+ *   • The animation always runs while the globe is on screen; there is no
+ *     play/pause control. Motion preferences: with "reduce motion" on, the planes
+ *     still fly, just at 45 % speed with no pulsing rings. (Freezing the scene
+ *     entirely made it look broken.)
  *
- * The route maths lives in ./globeFlight.js (pure, unit-tested in Node).
- * Loaded lazily by GlobalSpotlight so three.js stays out of the main bundle.
+ * The route maths lives in ./globeFlight.js (pure; tested in Node by
+ * tests/globeFlight.test.mjs). Loaded lazily by GlobalSpotlight so three.js stays
+ * out of the main bundle.
  * ------------------------------------------------------------------ */
 
 const CYAN = '#4FC1E6';
-const PLANE_SIZE = 0.26; // world units; ≈ 30 px at the globe's on-screen size
+const PLANE_SIZE = 0.18; // world units; ≈ 20 px at the globe's on-screen size. Smaller than
+//   a single plane would need to be, because three share the Gulf and its cities are close together
+const PLANE_SIZE_SMALL = 0.22; // phones render the globe much smaller, so the plane gets a little more
 const REDUCED_MOTION_SPEED = 0.45; // animation-clock speed when the OS asks for less motion
 const TRAIL_POINTS = 80;
-const TRAIL_SECONDS = 3.6; // how far back in time the trail reaches (most of the current leg)
+const TRAIL_SECONDS = 3.0; // how far back in time each trail reaches
 const TRAIL_WIDTH = 0.024; // world units at the head (tapers to ~35 %)
 const LUCIDE_PLANE =
   'M17.8 19.2 16 11l3.5-3.5C21 6 21.5 4 21 3c-1-.5-3 0-4.5 1.5L13 8 4.8 6.2c-.5-.1-.9.1-1.1.5l-.3.5c-.2.5-.1 1 .3 1.3L9 12l-2 3H4l-1 1 3 2 2 3 1-1v-3l3-2 3.5 5.3c.3.4.8.5 1.3.3l.5-.2c.4-.3.6-.7.5-1.2z';
@@ -163,11 +169,12 @@ const TRAIL_VERT = /* glsl */ `
 const TRAIL_FRAG = /* glsl */ `
   uniform vec3 uHead;
   uniform vec3 uTail;
+  uniform float uFade;
   varying float vAlpha;
   varying float vSide;
   void main() {
     float core = 1.0 - smoothstep(0.0, 1.0, abs(vSide));
-    float a = vAlpha * (0.25 + 0.75 * core);
+    float a = vAlpha * (0.25 + 0.75 * core) * uFade;
     gl_FragColor = vec4(mix(uTail, uHead, vAlpha), a);
   }
 `;
@@ -202,6 +209,7 @@ function createTrail() {
     uniforms: {
       uHead: { value: new THREE.Color(CYAN) },
       uTail: { value: new THREE.Color('#2B72D4') },
+      uFade: { value: 1 },
     },
     transparent: true,
     depthWrite: false,
@@ -399,18 +407,25 @@ function LocationMarker({ city, variant, halo, simRef, reduceMotion }) {
   );
 }
 
-/* ------------------------------ the Earth ---------------------------- */
+/* ------------------------------ flights ------------------------------ */
 
-function Earth({ simRef, reduceMotion, paused, small, onReady, onFail }) {
-  const gl = useThree((s) => s.gl);
-  const invalidate = useThree((s) => s.invalidate);
-  const textures = useEarthTextures(gl, onFail);
+/** A faint line along a flight's whole route, so each plane's path is readable
+ *  even before and after the plane passes. */
+function createRouteLine(flight) {
+  const geometry = new THREE.BufferGeometry().setFromPoints(routePoints(flight, 64));
+  const material = new THREE.LineBasicMaterial({ color: '#7FD6F5', transparent: true, opacity: 0.3, depthWrite: false, toneMapped: false });
+  const line = new THREE.Line(geometry, material);
+  line.renderOrder = 2;
+  return { line, dispose: () => { geometry.dispose(); material.dispose(); } };
+}
 
-  const plan = useMemo(() => createFlightPlan(), []);
-  const planeTexture = useMemo(() => makePlaneTexture(), []);
+/** One plane with its own trail and route line. Each Flight reads the shared
+ *  clock and nothing else, so the three never wait for or depend on each other. */
+function Flight({ flight, planeTexture, simRef, size }) {
+  const planeRef = useRef(null);
+  const planeMatRef = useRef(null);
   const trail = useMemo(() => createTrail(), []);
-  const india = useMemo(() => createIndiaHighlight(), []);
-  const halo = useMemo(() => makeHaloTexture(), []);
+  const route = useMemo(() => createRouteLine(flight), [flight]);
   const scratch = useMemo(
     () => ({
       pos: new THREE.Vector3(),
@@ -424,52 +439,35 @@ function Earth({ simRef, reduceMotion, paused, small, onReady, onFail }) {
       m: new THREE.Matrix4(),
       q: new THREE.Quaternion(),
       points: Array.from({ length: TRAIL_POINTS + 1 }, () => new THREE.Vector3()),
-      planePlaced: false,
+      placed: false,
+      lastLocal: 0,
     }),
     []
   );
 
-  const groupRef = useRef(null);
-  const planeRef = useRef(null);
-
-  // Free everything we created by hand (r3f disposes the JSX-declared objects itself).
   useEffect(
     () => () => {
-      planeTexture.dispose();
       trail.geometry.dispose();
       trail.material.dispose();
-      india.dispose();
-      halo.dispose();
+      route.dispose();
     },
-    [planeTexture, trail, india, halo]
+    [trail, route]
   );
 
-  // First render with textures → reveal the canvas and draw once (matters for demand mode).
-  useEffect(() => {
-    if (!textures) return;
-    onReady();
-    invalidate();
-  }, [textures, onReady, invalidate]);
-
   useFrame((_, delta) => {
-    const group = groupRef.current;
     const plane = planeRef.current;
-    if (!group || !plane) return;
-
-    // ONE shared animation clock drives the globe, the plane and the trail, so
-    // they can never drift apart. It is clamped, so a tab switch or a slow frame
-    // can never make anything jump when rendering resumes. "Reduce motion" slows
-    // it down (it does not stop it); only the Pause button stops it.
+    if (!plane) return;
     const dt = Math.min(delta, 0.05);
-    const sim = simRef.current;
-    if (!paused) sim.t += dt * (reduceMotion ? REDUCED_MOTION_SPEED : 1);
-    const t = sim.t;
-
-    // 1) The Earth stays still (fixed orientation); only the plane and its trail move.
-
-    // 2) The plane: position on the great-circle leg (globe-local coordinates)…
     const { pos, tan, x, y, z, m, q, lastTan, radial, side, points } = scratch;
-    samplePath(plan, t, pos, tan);
+
+    // Where we are in the shared cycle. When the cycle restarts the plane is
+    // invisible, so snap its heading instead of easing across the whole globe.
+    const local = simRef.current.t % FLIGHT.cycle;
+    if (local < scratch.lastLocal - 1) scratch.placed = false;
+    scratch.lastLocal = local;
+
+    // 1) The plane: position on its own arc (globe-local coordinates)…
+    const { alpha } = sampleFlight(flight, local, pos, tan);
     plane.position.copy(pos);
 
     // …oriented so its nose follows the direction of travel, lying flat on the
@@ -479,18 +477,26 @@ function Earth({ simRef, reduceMotion, paused, small, onReady, onFail }) {
     x.crossVectors(y, z).normalize();
     m.makeBasis(x, y, z);
     q.setFromRotationMatrix(m);
-    if (!scratch.planePlaced) {
+    if (!scratch.placed) {
       plane.quaternion.copy(q);
-      scratch.planePlaced = true;
+      scratch.placed = true;
     } else {
-      // Ease towards the heading: turns at each destination are smooth, never a snap.
+      // Ease towards the heading: curves are smooth, never a snap.
       plane.quaternion.slerp(q, 1 - Math.exp(-dt * 9));
     }
 
-    // 3) The trail: where the plane was over the last couple of seconds.
+    // Fade in as it leaves India, out after landing; hide when fully faded.
+    planeMatRef.current.opacity = alpha;
+    plane.visible = alpha > 0.002;
+    trail.mesh.visible = alpha > 0.002;
+    trail.material.uniforms.uFade.value = alpha;
+    if (alpha <= 0.002) return;
+
+    // 2) The trail: where this plane was over the last few seconds. Times before
+    // take-off clamp to 0, so the trail gathers at India as the flight begins.
     const step = TRAIL_SECONDS / TRAIL_POINTS;
-    for (let k = 0; k <= TRAIL_POINTS; k += 1) samplePath(plan, t - k * step, points[k], scratch.tan);
-    samplePath(plan, t, pos, tan); // restore heading scratch
+    for (let k = 0; k <= TRAIL_POINTS; k += 1) sampleFlight(flight, Math.max(local - k * step, 0), points[k], scratch.tan);
+    sampleFlight(flight, local, pos, tan); // restore heading scratch
     lastTan.copy(tan);
     const out = trail.positions;
     for (let k = 0; k <= TRAIL_POINTS; k += 1) {
@@ -512,6 +518,61 @@ function Earth({ simRef, reduceMotion, paused, small, onReady, onFail }) {
       out[i + 5] = p.z + side.z;
     }
     trail.geometry.attributes.position.needsUpdate = true;
+  });
+
+  return (
+    <>
+      <primitive object={route.line} />
+      <primitive object={trail.mesh} />
+      <group ref={planeRef} renderOrder={4}>
+        <mesh renderOrder={4}>
+          <planeGeometry args={[size, size]} />
+          <meshBasicMaterial ref={planeMatRef} map={planeTexture} transparent depthWrite={false} toneMapped={false} />
+        </mesh>
+      </group>
+    </>
+  );
+}
+
+/* ------------------------------ the Earth ---------------------------- */
+
+function Earth({ simRef, reduceMotion, small, onReady, onFail }) {
+  const gl = useThree((s) => s.gl);
+  const invalidate = useThree((s) => s.invalidate);
+  const textures = useEarthTextures(gl, onFail);
+
+  const flights = useMemo(() => createFlights(), []);
+  const planeTexture = useMemo(() => makePlaneTexture(), []);
+  const india = useMemo(() => createIndiaHighlight(), []);
+  const halo = useMemo(() => makeHaloTexture(), []);
+
+  const groupRef = useRef(null);
+
+  // Free everything we created by hand (r3f disposes the JSX-declared objects itself).
+  useEffect(
+    () => () => {
+      planeTexture.dispose();
+      india.dispose();
+      halo.dispose();
+    },
+    [planeTexture, india, halo]
+  );
+
+  // First render with textures → reveal the canvas and draw once.
+  useEffect(() => {
+    if (!textures) return;
+    onReady();
+    invalidate();
+  }, [textures, onReady, invalidate]);
+
+  // ONE shared animation clock drives every plane, trail and marker, so they can
+  // never drift apart. It is clamped, so a tab switch or a slow frame can never
+  // make anything jump when rendering resumes. "Reduce motion" slows it down. It
+  // only starts once the globe has its textures, so the flights begin from India
+  // the moment the Earth appears.
+  useFrame((_, delta) => {
+    if (!groupRef.current) return;
+    simRef.current.t += Math.min(delta, 0.05) * (reduceMotion ? REDUCED_MOTION_SPEED : 1);
   });
 
   const segW = small ? 64 : 112;
@@ -557,16 +618,16 @@ function Earth({ simRef, reduceMotion, paused, small, onReady, onFail }) {
             />
           ))}
 
-          {/* Flight trail */}
-          <primitive object={trail.mesh} />
-
-          {/* The plane */}
-          <group ref={planeRef} renderOrder={4}>
-            <mesh renderOrder={4}>
-              <planeGeometry args={[PLANE_SIZE, PLANE_SIZE]} />
-              <meshBasicMaterial map={planeTexture} transparent depthWrite={false} toneMapped={false} />
-            </mesh>
-          </group>
+          {/* The three flights: India → Dubai, Riyadh and Doha, all at once */}
+          {flights.map((flight) => (
+            <Flight
+              key={flight.id}
+              flight={flight}
+              planeTexture={planeTexture}
+              simRef={simRef}
+              size={small ? PLANE_SIZE_SMALL : PLANE_SIZE}
+            />
+          ))}
         </group>
       )}
 
@@ -585,7 +646,6 @@ function GlobeStage({ className }) {
   const [inView, setInView] = useState(true);
   const [ready, setReady] = useState(false);
   const [failed, setFailed] = useState(false);
-  const [paused, setPaused] = useState(false);
   const reduceMotion = usePrefersReducedMotion();
   const small = useMediaQuery('(max-width: 767px)');
 
@@ -605,12 +665,12 @@ function GlobeStage({ className }) {
 
   if (failed) return <GlobeFallback className={className} />;
 
-  // Render loop: runs while visible and playing; idles when paused or off-screen.
-  const frameloop = !inView ? 'never' : paused ? 'demand' : 'always';
+  // Render loop: runs while the globe is on screen, idles when it is not.
+  const frameloop = inView ? 'always' : 'never';
 
   return (
     <div ref={wrapRef} className={cn('relative', className)}>
-      {/* The picture itself is decorative; the controls below are not. */}
+      {/* The picture is decorative. */}
       <div className="absolute inset-0" aria-hidden>
         {/* Static globe stays visible until the real one has loaded, then cross-fades away. */}
         <GlobeFallback
@@ -641,27 +701,12 @@ function GlobeStage({ className }) {
           <Earth
             simRef={simRef}
             reduceMotion={reduceMotion}
-            paused={paused}
             small={small}
             onReady={onReady}
             onFail={onFail}
           />
         </Canvas>
       </div>
-
-      {/* WCAG 2.2.2: moving content that starts automatically can be paused (the plane and trail). */}
-      {ready && (
-        <button
-          type="button"
-          onClick={() => setPaused((p) => !p)}
-          aria-pressed={paused}
-          aria-label={paused ? 'Play flight animation' : 'Pause flight animation'}
-          title={paused ? 'Play flight animation' : 'Pause flight animation'}
-          className="pointer-events-auto absolute right-1 top-1 z-20 grid h-10 w-10 place-items-center rounded-full border border-glacier-400 bg-white/90 text-ink shadow-card transition-colors hover:bg-white hover:text-azure focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-azure-400 sm:right-3 sm:top-3"
-        >
-          {paused ? <Play className="h-4 w-4" aria-hidden /> : <Pause className="h-4 w-4" aria-hidden />}
-        </button>
-      )}
     </div>
   );
 }

@@ -42,30 +42,29 @@ export function ContactMenu({ onClose }) {
     ];
 
     const rowClass =
-        'group flex min-h-11 items-start gap-3 rounded-xl px-3 py-2.5 transition-colors duration-200 hover:bg-glacier-200 focus-visible:bg-glacier-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-azure-400';
+        'group flex items-start gap-3 rounded-xl px-3 py-2.5 transition-colors duration-150 hover:bg-dl-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-dl-blue';
 
     const Body = ({ icon: Icon, title, sub }) => (
         <>
-            <span className="grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-azure-50 text-azure">
+            <span className="grid h-9 w-9 shrink-0 place-items-center rounded-lg border border-dl-border/70 bg-dl-hover text-dl-blue transition-colors group-hover:bg-white">
                 <Icon className="h-4 w-4" aria-hidden />
             </span>
             <span className="min-w-0 flex-1">
-                <span className="block text-small font-bold text-ink">{title}</span>
-                <span className="block text-caption text-slate-600">{sub}</span>
+                <span className="block text-small font-bold text-dl-ink">{title}</span>
+                <span className="block text-caption text-dl-muted">{sub}</span>
             </span>
         </>
     );
 
     return (
         <motion.div
-            initial={{ opacity: 0, y: -6 }}
+            initial={{ opacity: 0, y: -4 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.16 }}
-            role="region"
             aria-label="Contact options"
-            className="absolute right-0 top-full z-[80] mt-2 w-[min(20rem,calc(100vw-2rem))] overflow-hidden rounded-2xl border border-glacier-400 bg-white p-2 shadow-card-hover"
+            className="absolute right-0 top-full z-[80] mt-3 w-[min(20rem,calc(100vw-2rem))] overflow-hidden rounded-2xl border border-dl-border bg-white p-2 shadow-dl-menu"
         >
-            <p className="px-3 pb-1 pt-1 text-caption font-bold uppercase tracking-wider text-slate-600">Talk to us</p>
+            <p className="px-3 pb-1 pt-1 text-caption font-bold uppercase tracking-wider text-dl-navy">Talk to us</p>
             <ul className="grid gap-0.5">
                 {rows.map((r) => (
                     <li key={r.key}>
@@ -86,7 +85,7 @@ export function ContactMenu({ onClose }) {
                     </li>
                 ))}
             </ul>
-            <p className="border-t border-glacier-300 px-3 pb-1 pt-2.5 text-caption text-slate-400">{contact.hours}</p>
+            <p className="border-t border-dl-border px-3 pb-1 pt-2.5 text-caption text-dl-muted">{contact.hours}</p>
         </motion.div>
     );
 }

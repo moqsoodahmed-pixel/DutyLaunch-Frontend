@@ -136,22 +136,155 @@ export const navGroups = [
 export const menuGroups = [...pillars, ...navGroups];
 
 /**
- * Top-level navigation:
- * Career+ ▾ | Upskills ▾ | Dubai Launch | Apostille | Jobs
+ * The nine document services DutyLaunch handles, in the live site's order.
+ * One list feeds both the Apostille page (its service cards) and the Apostille
+ * dropdown, so the menu can never offer a service the page does not.
+ */
+export const documentServices = [
+  { title: 'Educational Certificate Attestation', icon: 'GraduationCap' },
+  { title: 'Degree & Diploma Apostille', icon: 'Stamp' },
+  { title: 'PCC (Police Clearance Certificate)', icon: 'ShieldCheck' },
+  { title: 'Birth & Marriage Certificate Attestation', icon: 'FileHeart' },
+  { title: 'Employment & Experience Certificates', icon: 'Briefcase' },
+  { title: 'MEA Attestation', icon: 'Landmark' },
+  { title: 'Embassy Attestation', icon: 'Building2' },
+  { title: 'Commercial Document Attestation', icon: 'FileText' },
+  { title: 'Translation Assistance', icon: 'Languages' },
+];
+
+/** Deep link into the Apostille page: opens the enquiry for one service. */
+export const documentServicePath = (title) =>
+  `/apostille-services?service=${encodeURIComponent(title)}#services`;
+
+/**
+ * Dropdown content for the top navigation. Every `path` below is a route that
+ * exists in routes/AppRoutes.jsx; nothing here is invented. Desktop dropdowns
+ * and the mobile menu both render from this one object.
  *
- * Desktop navbar and mobile menu both read from this one array, so the
- * information architecture changes here and nowhere else.
+ *   sections[]   a titled group of links, or of sub-groups (`groups`)
+ *   viewAll      the parent landing page, shown as the panel's footer link
+ *   width        panel width token used by the desktop dropdown
+ */
+export const navMenus = {
+  career: {
+    label: 'Career',
+    width: 'md',
+    viewAll: { label: 'Explore all career services', path: '/career-services' },
+    sections: [
+      {
+        heading: 'Career services',
+        items: [
+          { label: 'Career services', path: '/career-services', description: 'CV, cover letter, LinkedIn, interviews', icon: 'Compass' },
+          { label: 'CV pricing', path: '/pricing', description: 'Bundles by years of experience', icon: 'CreditCard' },
+          { label: 'CV templates', path: '/cv-templates', description: 'ATS-friendly templates by role', icon: 'FileText' },
+          { label: 'Free consultation', path: '/contact#consultation', description: 'A counsellor calls within a working day', icon: 'CalendarCheck' },
+        ],
+      },
+      {
+        heading: 'Career tools',
+        items: [
+          { label: 'Resume Checker', path: '/resume-checker', description: 'Free Resume Health score', icon: 'FileCheck2' },
+          { label: 'Resume Builder', path: '/resume-builder', description: 'Upload yours or start from scratch', icon: 'FileStack' },
+          { label: 'LinkedIn Optimization', path: '/linkedin-optimization', description: 'Headline, About and keyword review', icon: 'Linkedin' },
+          { label: 'Cover Letter Generator', path: '/cover-letter-generator', description: 'A draft built from your own evidence', icon: 'ScrollText' },
+          { label: 'Interview Preparation', path: '/interview-preparation', description: 'Questions from the job and your resume', icon: 'MessagesSquare' },
+          { label: 'Career Profile', path: '/profile', description: 'The master profile every tool reads from', icon: 'UserRound' },
+        ],
+      },
+    ],
+  },
+
+  upskills: {
+    label: 'Upskills',
+    width: 'sm',
+    viewAll: { label: 'Explore upskilling', path: '/upskills' },
+    sections: [
+      {
+        heading: 'Programmes',
+        items: [
+          { label: 'Higher Education', path: '/higher-education', description: 'From X / SSLC to postgraduate degrees', icon: 'GraduationCap' },
+          { label: 'Professional Courses', path: '/professional-courses', description: 'Industry-recognised certifications', icon: 'BookOpen' },
+        ],
+      },
+      {
+        heading: 'Browse',
+        items: [
+          { label: 'All courses', path: '/courses', description: 'Browse the full catalogue', icon: 'School' },
+          { label: 'Upskilling', path: '/upskills', description: 'Short courses for a specific gap', icon: 'Lightbulb' },
+        ],
+      },
+    ],
+  },
+
+  apostille: {
+    label: 'Apostille',
+    width: 'lg',
+    viewAll: { label: 'All apostille & attestation services', path: '/apostille-services' },
+    sections: [
+      {
+        heading: 'Apostille services',
+        compact: true,
+        items: documentServices.map((svc) => ({
+          label: svc.title,
+          path: documentServicePath(svc.title),
+          icon: svc.icon,
+        })),
+      },
+      {
+        heading: 'Partner with us',
+        groups: [
+          {
+            label: 'For institutions & service partners',
+            items: [
+              { label: 'Partner with DutyLaunch', path: '/partners', description: 'Universities, training providers, service partners', icon: 'Building2' },
+              { label: 'Register as a partner', path: '/register?type=institute', description: 'List your programmes after review', icon: 'Send' },
+            ],
+          },
+          {
+            label: 'For employers',
+            items: [
+              { label: 'Hire through DutyLaunch', path: '/employers', description: 'Post a role and manage applicants', icon: 'Briefcase' },
+              { label: 'Employer sign-up', path: '/register?type=employer', description: 'Create an employer account', icon: 'Users' },
+            ],
+          },
+        ],
+      },
+    ],
+  },
+};
+
+/**
+ * Top-level navigation:
+ * Career ▾ | Upskills ▾ | Dubai Launch | Apostille ▾ | Jobs
+ *
+ * Desktop navbar and mobile menu both read from this one array. An item with
+ * a `menu` opens the matching entry of `navMenus`; its `path` is the landing
+ * page the label itself links to, so a click on the label still navigates.
  *
  * The ordering is the funnel, not the org chart: the free tool a visitor
- * came for sits second, the things they might buy sit after it, and the
- * company page sits last.
+ * came for sits first, the things they might buy sit after it, and the
+ * marketplace sits last.
  */
 export const primaryNav = [
-  { label: 'Career+', menu: ['career-tools'] },
-  { label: 'Upskills', menu: ['upskills'] },
-  { label: 'Dubai Launch', path: '/dubai-launch' },
-  { label: 'Apostille', path: '/apostille-services' },
-  { label: 'Jobs', path: '/jobs' },
+  {
+    label: 'Career',
+    path: '/career-services',
+    menu: 'career',
+    // Routes on which this item shows as the active one.
+    match: [
+      '/career-services', '/pricing', '/cv-templates', '/resume-checker', '/resume-builder',
+      '/linkedin-optimization', '/cover-letter-generator', '/interview-preparation',
+    ],
+  },
+  {
+    label: 'Upskills',
+    path: '/upskills',
+    menu: 'upskills',
+    match: ['/upskills', '/higher-education', '/professional-courses', '/courses'],
+  },
+  { label: 'Dubai Launch', path: '/dubai-launch', match: ['/dubai-launch'] },
+  { label: 'Apostille', path: '/apostille-services', menu: 'apostille', match: ['/apostille-services'] },
+  { label: 'Jobs', path: '/jobs', match: ['/jobs'] },
 ];
 
 /**
