@@ -26,7 +26,7 @@ export function SearchModal({ onClose }) {
   useEffect(() => setActive(0), [query]);
 
   const go = (entry) => {
-    if (!entry) return;
+    if (!entry || !entry.path) return;
     onClose?.();
 
     if (entry.path.startsWith('http')) {
@@ -35,12 +35,24 @@ export function SearchModal({ onClose }) {
     }
 
     if (entry.path.includes('#')) {
-      const [route, hash] = entry.path.split('#');
-      navigate(route || '/');
-      setTimeout(() => {
+      const [, hash] = entry.path.split('#');
+      navigate(entry.path);
+
+      const scrollToTarget = () => {
+        if (!hash) return false;
         const el = document.getElementById(hash);
-        if (el) el.scrollIntoView({ behavior: 'smooth' });
-      }, 150);
+        if (el) {
+          el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          return true;
+        }
+        return false;
+      };
+
+      if (!scrollToTarget()) {
+        setTimeout(scrollToTarget, 100);
+        setTimeout(scrollToTarget, 300);
+        setTimeout(scrollToTarget, 600);
+      }
       return;
     }
 
@@ -166,6 +178,9 @@ export function SearchModal({ onClose }) {
                     type="button"
                     data-idx={i}
                     onMouseEnter={() => setActive(i)}
+                    onMouseDown={(e) => {
+                      e.preventDefault();
+                    }}
                     onClick={() => go(r)}
                     className={`flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left transition-colors duration-100 cursor-pointer ${
                       i === active

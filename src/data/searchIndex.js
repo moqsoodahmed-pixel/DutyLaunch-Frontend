@@ -34,12 +34,16 @@ const CURATED = [
     { title: 'Privacy Policy', path: '/privacy-policy', group: 'Legal', description: 'How we handle your data.', keywords: 'privacy policy data protection' },
     { title: 'Terms & Conditions', path: '/terms-and-conditions', group: 'Legal', description: 'The terms of using DutyLaunch.', keywords: 'terms conditions legal agreement' },
     { title: 'Refund Policy', path: '/refund-policy', group: 'Legal', description: 'Payment and refund conditions.', keywords: 'refund cancellation payment policy money back' },
+    { title: 'Career Counselling', path: '/career-services#counselling', group: 'Career Services', description: 'Direction before applications and personalized advice.', keywords: 'counselling guidance career advice direction session planning' },
+    { title: 'Job Search Assistance', path: '/career-services#job-search', group: 'Career Services', description: 'Targeting and outreach to get shortlisted.', keywords: 'job search assistance outreach targeting applications outreach' },
+    { title: 'Visa & Relocation Guidance', path: '/dubai-launch#relocation', group: 'Dubai Launch', description: 'Paperwork, housing, arrival and relocation support.', keywords: 'visa relocation guidance housing dubai uae gulf arrival move overseas' },
+    { title: 'Book Free Consultation', path: '/contact#consultation', group: 'Contact', description: 'Schedule a free conversation with a career counsellor.', keywords: 'consultation book call talk expert counselling schedule appointment speak' },
 ];
 
 function build() {
     const byPath = new Map();
     const add = (e) => {
-        if (!e.path || e.path.includes('#')) return; // skip in-page anchors
+        if (!e.path) return;
         const prev = byPath.get(e.path);
         if (prev) {
             prev.keywords = `${prev.keywords} ${(e.keywords || '')} ${(e.title || '')} ${(e.description || '')}`.toLowerCase();

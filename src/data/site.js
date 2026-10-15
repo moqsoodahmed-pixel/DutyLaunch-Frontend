@@ -105,6 +105,7 @@ export const pillars = [
     summary: 'Everything that turns your experience into a stronger application.',
     items: [
       { label: 'Resume Builder', path: '/resume-builder', description: 'Upload your resume or start from scratch (sign in)' },
+      { label: 'CV Templates', path: '/cv-templates', description: 'ATS-friendly resume templates by role' },
       { label: 'LinkedIn Optimization', path: '/linkedin-optimization', description: 'Headline, About and keyword review' },
       { label: 'Cover Letter Generator', path: '/cover-letter-generator', description: 'A draft built from your own evidence' },
       { label: 'Interview Preparation', path: '/interview-preparation', description: 'Questions from the job and your resume' },

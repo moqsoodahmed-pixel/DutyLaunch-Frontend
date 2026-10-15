@@ -81,9 +81,6 @@ export function Navbar() {
       if (contactRef.current && !contactRef.current.contains(e.target)) {
         setContactOpen(false);
       }
-      if (searchRef.current && !searchRef.current.contains(e.target)) {
-        setSearchOpen(false);
-      }
     };
     document.addEventListener('keydown', onKey);
     document.addEventListener('mousedown', onClickAway);
