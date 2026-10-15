@@ -91,10 +91,18 @@ export default function EmployerJobForm() {
     reset,
     setError,
     clearErrors,
+    watch,
     formState: { errors, isSubmitting },
   } = useForm({
     defaultValues: { status: 'draft', jobType: 'Full-time', workMode: 'On-site', currency: 'INR', period: 'year' },
   });
+
+  // The backend (validators/schemas.js) rejects a description under 40
+  // characters. Matching that here, with a live count, means someone finds
+  // out while they are still typing — not after a round trip to the server
+  // that comes back with "Some fields need attention" and no clue which one.
+  const DESCRIPTION_MIN = 40;
+  const descriptionLength = (watch('description') || '').trim().length;
 
   useEffect(() => {
     if (!existing) return;
@@ -218,17 +226,38 @@ export default function EmployerJobForm() {
 
       <form onSubmit={handleSubmit(onSubmit)} className="max-w-3xl space-y-6 rounded-lg border border-line bg-white p-6" noValidate>
         <div className="grid gap-5 sm:grid-cols-2">
-          <Input label="Job title" required error={errors.title?.message} {...register('title', { required: 'Enter a job title' })} />
-          <Input label="Company name" required error={errors.company?.message} {...register('company', { required: 'Enter the company name' })} />
+          <Input
+            label="Job title"
+            required
+            error={errors.title?.message}
+            {...register('title', { required: 'Enter a job title', minLength: { value: 3, message: 'Use at least 3 characters' } })}
+          />
+          <Input
+            label="Company name"
+            required
+            error={errors.company?.message}
+            {...register('company', { required: 'Enter the company name', minLength: { value: 2, message: 'Use at least 2 characters' } })}
+          />
         </div>
 
         <div className="grid gap-5 sm:grid-cols-2">
-          <Input label="Location" required error={errors.location?.message} {...register('location', { required: 'Enter a location' })} />
+          <Input
+            label="Location"
+            required
+            error={errors.location?.message}
+            {...register('location', { required: 'Enter a location', minLength: { value: 2, message: 'Use at least 2 characters' } })}
+          />
           <Input label="Country" {...register('country')} />
         </div>
 
         <div className="grid gap-5 sm:grid-cols-3">
-          <Input label="Category" required hint="e.g. Data & Analytics" error={errors.category?.message} {...register('category', { required: 'Enter a category' })} />
+          <Input
+            label="Category"
+            required
+            hint="e.g. Data & Analytics"
+            error={errors.category?.message}
+            {...register('category', { required: 'Enter a category', minLength: { value: 2, message: 'Use at least 2 characters' } })}
+          />
           <Select label="Job type" options={JOB_TYPES} {...register('jobType')} />
           <Select label="Work mode" options={WORK_MODES} {...register('workMode')} />
         </div>
@@ -253,9 +282,12 @@ export default function EmployerJobForm() {
           label="Description"
           rows={6}
           required
-          hint="At least a few sentences describing the role."
+          hint={`At least ${DESCRIPTION_MIN} characters — ${descriptionLength}/${DESCRIPTION_MIN} so far.`}
           error={errors.description?.message}
-          {...register('description', { required: 'Describe the role' })}
+          {...register('description', {
+            required: 'Describe the role',
+            minLength: { value: DESCRIPTION_MIN, message: `Add a bit more detail — at least ${DESCRIPTION_MIN} characters` },
+          })}
         />
         <Textarea label="Responsibilities" rows={4} hint="One per line" {...register('responsibilities')} />
         <Textarea label="Requirements" rows={4} hint="One per line" {...register('requirements')} />

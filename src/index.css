@@ -294,16 +294,6 @@
     display: none;
   }
 
-  /* DUTYLAUNCH HERO SURFACE — the flat glacier blue (#EAF5FC) from the brand
-     palette, used by the Global Mobility hero. The only gradient is one very
-     faint white lift behind the right-hand visual, so the globe has something
-     to sit against; there is no tint, no grid and no glow. */
-  .surface-dl-hero {
-    @apply relative text-dl-ink;
-    background-color: theme('colors.dl.hero');
-    background-image: radial-gradient(48% 62% at 74% 46%, rgba(255, 255, 255, 0.55), rgba(255, 255, 255, 0) 70%);
-  }
-
   .surface-hero {
     @apply relative overflow-hidden;
     background: radial-gradient(900px 450px at 75% -10%, rgba(79, 193, 230, 0.16), transparent 65%),

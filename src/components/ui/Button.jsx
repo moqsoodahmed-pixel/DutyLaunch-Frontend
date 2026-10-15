@@ -9,11 +9,7 @@ import { cn } from '../../utils/cn.js';
    line and the button grows, instead of pushing the page wider than the
    screen. max-w-full keeps any button inside its container. */
 const base =
-  'relative overflow-hidden group/btn inline-flex max-w-full items-center justify-center gap-2 text-center leading-tight sm:whitespace-nowrap rounded font-semibold cursor-pointer transition-all duration-[250ms] ease-out disabled:cursor-not-allowed disabled:opacity-55 active:scale-[0.98] active:translate-y-0 [&>svg]:transition-transform [&>svg]:duration-[250ms] [&>svg]:ease-out group-hover/btn:[&>svg]:scale-110';
-
-/* The site's original button motion: a lift, a 4% grow and a glass sweep on
-   hover. Every variant keeps it except the calm corporate ones below. */
-const lively = 'dl-glass-btn hover:scale-[1.04] hover:-translate-y-0.5';
+  'relative overflow-hidden dl-glass-btn group/btn inline-flex max-w-full items-center justify-center gap-2 text-center leading-tight sm:whitespace-nowrap rounded font-semibold cursor-pointer transition-all duration-[250ms] ease-out disabled:cursor-not-allowed disabled:opacity-55 active:scale-[0.98] active:translate-y-0 hover:scale-[1.04] hover:-translate-y-0.5 [&>svg]:transition-transform [&>svg]:duration-[250ms] [&>svg]:ease-out group-hover/btn:[&>svg]:scale-110';
 
 const variants = {
   // Glossy gradient fill, matching the LauncherDesk primary button exactly.
@@ -37,17 +33,7 @@ const variants = {
      shimmer sweep on hover matching official Analyze My Resume Free button. */
   premium:
     'bg-gradient-to-r from-[#0E7FB8] via-[#2557C9] to-[#6A47D9] text-white border border-white/30 shadow-[0_6px_16px_-4px_rgba(5,8,14,0.55)] hover:brightness-110 hover:shadow-[0_10px_24px_-6px_rgba(5,8,14,0.65)] focus-visible:outline focus-visible:outline-[3px] focus-visible:outline-frost-400 focus-visible:outline-offset-2',
-  /* DutyLaunch corporate pair (see the `dl` tokens in tailwind.config.js).
-     Flat action blue and a white outline: no gradient, no glow, and a hover
-     that only changes colour. Used by the navbar CTA and the Global
-     Mobility hero. */
-  solid:
-    'bg-dl-blue text-white border border-dl-blue shadow-[0_1px_2px_rgba(23,74,117,0.18)] hover:bg-dl-blue-hover hover:border-dl-blue-hover focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-dl-blue',
-  solidOutline:
-    'bg-white text-dl-navy border border-dl-border shadow-[0_1px_2px_rgba(23,74,117,0.04)] hover:border-dl-blue hover:bg-dl-hover hover:text-dl-blue focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-dl-blue',
 };
-
-const CALM_VARIANTS = new Set(['solid', 'solidOutline']);
 
 
 const sizes = {
@@ -60,14 +46,7 @@ export const Button = forwardRef(function Button(
   { as, to, href, variant = 'primary', size = 'md', loading = false, fullWidth, magnetic = false, className, children, ...rest },
   ref
 ) {
-  const classes = cn(
-    base,
-    !CALM_VARIANTS.has(variant) && lively,
-    variants[variant],
-    variant !== 'link' && sizes[size],
-    fullWidth && 'w-full',
-    className
-  );
+  const classes = cn(base, variants[variant], variant !== 'link' && sizes[size], fullWidth && 'w-full', className);
   const content = (
     <>
       {loading && <Loader2 className="h-4 w-4 animate-spin" aria-hidden />}

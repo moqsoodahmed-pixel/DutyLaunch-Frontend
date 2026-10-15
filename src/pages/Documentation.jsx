@@ -1,9 +1,7 @@
-import { useEffect, useState } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useState } from 'react';
 import { Icons } from '../utils/iconMap.js';
 import { Seo } from '../components/ui/Seo.jsx';
 import { seoFor } from '../data/seoPages.js';
-import { documentServices as DOCUMENT_SERVICES } from '../data/site.js';
 import { Container, Section } from '../components/ui/Container.jsx';
 import { SectionHeader } from '../components/ui/SectionHeader.jsx';
 import { PageHero, HeroActions } from '../components/marketing/PageHero.jsx';
@@ -19,8 +17,18 @@ import { Check } from 'lucide-react';
 import { Modal } from '../components/ui/Modal.jsx';
 import { ConsultationForm } from '../components/marketing/ConsultationForm.jsx';
 
-/* The nine document services live in data/site.js (documentServices) so the
-   Apostille dropdown in the navbar and the cards below can never drift apart. */
+/* Content from dutylaunch.com's Apostille services page, in the live site's order. */
+const DOCUMENT_SERVICES = [
+  { title: 'Educational Certificate Attestation', icon: 'GraduationCap' },
+  { title: 'Degree & Diploma Apostille', icon: 'Stamp' },
+  { title: 'PCC (Police Clearance Certificate)', icon: 'ShieldCheck' },
+  { title: 'Birth & Marriage Certificate Attestation', icon: 'FileHeart' },
+  { title: 'Employment & Experience Certificates', icon: 'Briefcase' },
+  { title: 'MEA Attestation', icon: 'Landmark' },
+  { title: 'Embassy Attestation', icon: 'Building2' },
+  { title: 'Commercial Document Attestation', icon: 'FileText' },
+  { title: 'Translation Assistance', icon: 'Languages' },
+];
 
 const WHY_CHOOSE = [
   '100% Genuine Documentation Process',
@@ -33,27 +41,6 @@ const WHY_CHOOSE = [
 export default function Documentation() {
   // Clicking a document-service card opens an enquiry for that service.
   const [serviceChoice, setServiceChoice] = useState(null);
-
-  // Navbar deep link: /apostille-services?service=MEA%20Attestation opens the
-  // same enquiry a click on that service card opens. Unknown values are ignored.
-  const [searchParams, setSearchParams] = useSearchParams();
-  const requestedService = searchParams.get('service');
-  useEffect(() => {
-    if (!requestedService) return;
-    const match = DOCUMENT_SERVICES.find((svc) => svc.title === requestedService);
-    if (match) setServiceChoice(match.title);
-  }, [requestedService]);
-
-  // Closing the enquiry also clears ?service=, so the same menu item can be
-  // chosen again afterwards.
-  const closeServiceChoice = () => {
-    setServiceChoice(null);
-    if (searchParams.has('service')) {
-      const next = new URLSearchParams(searchParams);
-      next.delete('service');
-      setSearchParams(next, { replace: true });
-    }
-  };
   const { data, loading, error, refetch } = useApi(() => documentationService.list(), []);
   const services = data || [];
 
@@ -72,7 +59,7 @@ export default function Documentation() {
         actions={<HeroActions primary={{ label: 'Check Your Document Requirements', to: '/contact#consultation' }} />}
       />
 
-      <Section tone="paper" id="services">
+      <Section tone="paper">
         <Container>
           <Reveal>
             <SectionHeader
@@ -170,7 +157,7 @@ export default function Documentation() {
       />
       <Modal
         open={Boolean(serviceChoice)}
-        onClose={closeServiceChoice}
+        onClose={() => setServiceChoice(null)}
         title={serviceChoice || ''}
         description="Tell us what the document is for and where it is going. A counsellor will call you within one working day with the exact steps, time and cost."
         size="lg"

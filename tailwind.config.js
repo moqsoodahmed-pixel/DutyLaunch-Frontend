@@ -133,25 +133,6 @@ export default {
           300: '#CFF7F1',
           400: '#A9EEE3',
         },
-
-        /* ================================================================
-         * DUTYLAUNCH CORPORATE PALETTE — navbar, dropdowns and the Global
-         * Mobility hero. One source of truth: every value below comes from
-         * the supplied brand sheet, so these surfaces never hard-code hex.
-         *   bg-dl-nav · text-dl-navy · bg-dl-blue · bg-dl-hero
-         *   border-dl-border · text-dl-ink · text-dl-muted · bg-dl-hover
-         * ================================================================ */
-        dl: {
-          nav: '#FFFFFF', // navigation + dropdown surface
-          navy: '#174A75', // primary navy — headings, nav text, icons
-          blue: '#205CB9', // primary action blue — CTAs, active links, hover accents
-          'blue-hover': '#1B4E9C', // pressed/hover state of dl-blue (one step darker)
-          hero: '#EAF5FC', // hero background
-          border: '#D5E4F2', // borders on nav, cards and menus
-          ink: '#142238', // main text
-          muted: '#526579', // secondary text
-          hover: '#F0F7FD', // dropdown / icon-button hover background
-        },
       },
       fontFamily: {
         sans: ['Manrope', 'system-ui', '-apple-system', 'Segoe UI', 'sans-serif'],
@@ -206,10 +187,6 @@ export default {
         'crystal-lg': '0 40px 100px -30px rgba(93,146,214,.42), 0 12px 32px -10px rgba(93,146,214,.24)',
         // Inner top highlight + bottom shade, simulating glass thickness on a frosted panel.
         'frost-inset': 'inset 0 1px 0 rgba(255,255,255,.65), inset 0 -1px 0 rgba(15,28,46,.04)',
-        /* DutyLaunch corporate shadows — one subtle blue tone, rgba(23,74,117,.08). */
-        dl: '0 1px 2px rgba(23, 74, 117, 0.06), 0 6px 20px -6px rgba(23, 74, 117, 0.08)',
-        'dl-menu': '0 2px 4px rgba(23, 74, 117, 0.04), 0 16px 40px -12px rgba(23, 74, 117, 0.16)',
-        'dl-card': '0 1px 2px rgba(23, 74, 117, 0.05), 0 8px 24px -10px rgba(23, 74, 117, 0.08)',
       },
       backgroundImage: {
         'grid-fade':
