@@ -1,7 +1,7 @@
 import { useMemo, useRef } from 'react';
 import * as THREE from 'three';
 import { Canvas, useFrame } from '@react-three/fiber';
-import { Line } from '@react-three/drei';
+import { Line, Html } from '@react-three/drei';
 import { usePrefersReducedMotion } from '../../hooks/useMediaQuery.js';
 import { isWebGLAvailable, SceneErrorBoundary } from './webgl.jsx';
 import { IndiaMapMesh } from './IndiaMapMesh.jsx';
@@ -101,7 +101,7 @@ function FlightArc({ from, to, color, delay, reduceMotion }) {
     );
 }
 
-function CityMarker({ city, color, size = 0.05, reduceMotion }) {
+function CityMarker({ city, color, size = 0.05, reduceMotion, label = null }) {
     const haloRef = useRef(null);
     const position = useMemo(() => latLonToVector(city.lat, city.lon, RADIUS * 1.01), [city]);
 
@@ -122,6 +122,33 @@ function CityMarker({ city, color, size = 0.05, reduceMotion }) {
                 <sphereGeometry args={[size, 16, 16]} />
                 <meshBasicMaterial color={color} toneMapped={false} />
             </mesh>
+            {/* City-name pill, matching the reference design. Html renders
+                real DOM (crisp at any zoom, no 3D font loading needed) but
+                stays correctly positioned and occluded as the globe moves. */}
+            {label && (
+                <Html distanceFactor={8} center={false} style={{ pointerEvents: 'none' }}>
+                    <span
+                        style={{
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            gap: '4px',
+                            transform: 'translate(10px, -10px)',
+                            background: 'rgba(255,255,255,0.95)',
+                            color: '#0F1C2E',
+                            fontFamily: 'inherit',
+                            fontSize: '11px',
+                            fontWeight: 700,
+                            padding: '2px 8px 2px 4px',
+                            borderRadius: '999px',
+                            boxShadow: '0 2px 8px rgba(15,28,46,0.25)',
+                            whiteSpace: 'nowrap',
+                        }}
+                    >
+                        <span style={{ width: 6, height: 6, borderRadius: '50%', background: color, display: 'inline-block' }} />
+                        {label}
+                    </span>
+                </Html>
+            )}
         </group>
     );
 }
@@ -147,6 +174,17 @@ function Globe() {
         return tex;
     }, []);
 
+    // City-lights texture (already an asset in the project, previously
+    // unused) — applied as an emissive map so cities glow warmly, matching
+    // the requested reference look, regardless of which side faces the
+    // scene's directional light.
+    const lightsTexture = useMemo(() => {
+        const loader = new THREE.TextureLoader();
+        const tex = loader.load('/images/globe/earth_lights.png');
+        tex.colorSpace = THREE.SRGBColorSpace;
+        return tex;
+    }, []);
+
     // Gentle sway around the facing angle (turns India + Gulf toward the camera)
     useFrame(({ clock }, delta) => {
         if (reduceMotion || !groupRef.current) return;
@@ -161,13 +199,18 @@ function Globe() {
 
     return (
         <group ref={groupRef} rotation={[TILT_X, FACE_REGION_Y, 0]}>
-            {/* 1. True Colors Earth World Map Globe */}
+            {/* 1. True Colors Earth World Map Globe, with city lights glowing
+                on top via an emissive map — a warm tint rather than pure
+                white so it reads as lit windows/streets, not a flat glow. */}
             <mesh>
                 <sphereGeometry args={[RADIUS, 64, 64]} />
                 <meshStandardMaterial
                     map={earthTexture}
                     roughness={0.65}
                     metalness={0.06}
+                    emissiveMap={lightsTexture}
+                    emissive="#ffcf87"
+                    emissiveIntensity={1.4}
                 />
             </mesh>
 
@@ -186,24 +229,19 @@ function Globe() {
             {/* 3. Highlighted India Map & Regional Hubs */}
             <IndiaMapMesh radius={RADIUS} reduceMotion={reduceMotion} />
 
-            {/* 4. Atmospheric Rayleigh Scattering Limb Glow */}
-            <mesh scale={1.12}>
+            {/* 4. Atmospheric Rayleigh Scattering Limb Glow.
+                Was scale 1.12/opacity 0.22 and scale 1.24/opacity 0.08 --
+                read as a thick, shiny blue ring rather than a natural
+                atmosphere, and the reference has no visible ring at all.
+                Pulled in to right at the surface and down to a faint 0.06;
+                removed the second, larger outer layer entirely, since that
+                was the layer extending past the Earth's own edge. */}
+            <mesh scale={1.02}>
                 <sphereGeometry args={[RADIUS, 48, 48]} />
                 <meshBasicMaterial
                     color="#38BDF8"
                     transparent
-                    opacity={0.22}
-                    side={THREE.BackSide}
-                    blending={THREE.AdditiveBlending}
-                    depthWrite={false}
-                />
-            </mesh>
-            <mesh scale={1.24}>
-                <sphereGeometry args={[RADIUS, 48, 48]} />
-                <meshBasicMaterial
-                    color="#818CF8"
-                    transparent
-                    opacity={0.08}
+                    opacity={0.06}
                     side={THREE.BackSide}
                     blending={THREE.AdditiveBlending}
                     depthWrite={false}
@@ -224,7 +262,7 @@ function Globe() {
 
             <CityMarker city={ORIGIN} color="#FBBF24" size={0.065} reduceMotion={reduceMotion} />
             {DESTINATIONS.map((dest) => (
-                <CityMarker key={dest.name} city={dest} color="#FFFFFF" reduceMotion={reduceMotion} />
+                <CityMarker key={dest.name} city={dest} color="#FFFFFF" reduceMotion={reduceMotion} label={dest.name} />
             ))}
         </group>
     );

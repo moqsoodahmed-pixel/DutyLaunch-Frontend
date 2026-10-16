@@ -105,7 +105,6 @@ export const pillars = [
     summary: 'Everything that turns your experience into a stronger application.',
     items: [
       { label: 'Resume Builder', path: '/resume-builder', description: 'Upload your resume or start from scratch (sign in)' },
-      { label: 'CV Templates', path: '/cv-templates', description: 'ATS-friendly resume templates by role' },
       { label: 'LinkedIn Optimization', path: '/linkedin-optimization', description: 'Headline, About and keyword review' },
       { label: 'Cover Letter Generator', path: '/cover-letter-generator', description: 'A draft built from your own evidence' },
       { label: 'Interview Preparation', path: '/interview-preparation', description: 'Questions from the job and your resume' },
@@ -131,6 +130,22 @@ export const navGroups = [
       { label: 'Professional Courses', path: '/professional-courses', description: 'Industry-recognised certifications' },
     ],
   },
+  {
+    // Nav-only (like 'upskills' above), not a pillar — the 'documentation'
+    // pillar further up also feeds the homepage service matrix and the
+    // About page, so adding items there would show them in both of those
+    // too, not just this dropdown.
+    id: 'apostille-nav',
+    label: 'Apostille',
+    path: '/apostille-services',
+    icon: 'FileCheck2',
+    summary: 'Document legalisation, plus other ways to work with DutyLaunch.',
+    items: [
+      { label: 'Apostille & attestation', path: '/apostille-services', description: 'Document legalisation, tracked' },
+      { label: 'For employers', path: '/employers', description: 'Post roles and reach matched candidates' },
+      { label: 'Partner with us', path: '/partners', description: 'Institutes, EdTech and service partners' },
+    ],
+  },
 ];
 
 /** Every group a dropdown can open: the pillars plus nav-only groups. */
@@ -151,7 +166,7 @@ export const primaryNav = [
   { label: 'Career+', menu: ['career-tools'] },
   { label: 'Upskills', menu: ['upskills'] },
   { label: 'Dubai Launch', path: '/dubai-launch' },
-  { label: 'Apostille', path: '/apostille-services' },
+  { label: 'Apostille', menu: ['apostille-nav'] },
   { label: 'Jobs', path: '/jobs' },
 ];
 

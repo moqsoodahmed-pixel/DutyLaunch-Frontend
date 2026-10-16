@@ -61,6 +61,7 @@ const Assistant = lazyWithReload(() => import('../pages/dashboard/Assistant.jsx'
 const Profile = lazyWithReload(() => import('../pages/dashboard/Profile.jsx'));
 const Payments = lazyWithReload(() => import('../pages/dashboard/Payments.jsx'));
 const ResumeBuilderStart = lazyWithReload(() => import('../pages/dashboard/ResumeBuilderStart.jsx'));
+const CvTemplatesPage = lazyWithReload(() => import('../pages/dashboard/CvTemplatesPage.jsx'));
 const ResumeWizard = lazyWithReload(() => import('../pages/ResumeWizard.jsx'));
 const CoverLetterTool = lazyWithReload(() => import('../pages/dashboard/CoverLetter.jsx'));
 const InterviewPrepTool = lazyWithReload(() => import('../pages/dashboard/InterviewPrep.jsx'));
@@ -203,6 +204,9 @@ export function AppRoutes() {
                   <Route path="cover-letter" element={<CoverLetterTool />} />
                   <Route path="interview-prep" element={<InterviewPrepTool />} />
                   <Route path="resume-builder" element={<ResumeBuilderStart />} />
+                  {/* Authenticated dashboard template gallery — separate from the
+                      public /cv-templates marketing page, which is untouched. */}
+                  <Route path="resume-templates" element={<CvTemplatesPage />} />
                   <Route path="mock-interview" element={<MockInterview />} />
                 </Route>
                 <Route element={<ProtectedRoute roles={['employer']} />}>

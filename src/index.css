@@ -133,6 +133,23 @@
     box-shadow: 0 18px 44px -22px rgba(5, 8, 14, 0.35);
   }
 
+  /* .card: used by exactly two places (the "How it works" box in Hero.jsx
+     and the main ATS report panel in AtsScoreReport.jsx) — but was never
+     actually defined anywhere, so both have only ever had their padding
+     utilities applied, no border, background or shadow of their own. A
+     thin, elegant blue border per the design brief, using the project's
+     own azure token rather than an unrelated hex value. Radius is smaller
+     on narrow screens so it doesn't look oversized on a small card. */
+  .card {
+    @apply relative rounded-[20px] sm:rounded-[24px] border p-6;
+    border-width: 1.5px;
+    border-color: rgba(43, 114, 212, 0.35); /* azure-400 at low opacity */
+    background: linear-gradient(180deg, #ffffff 0%, #f4f9fe 100%);
+    box-shadow:
+      0 1px 1px rgba(15, 28, 46, 0.03),
+      0 18px 44px -24px rgba(29, 93, 184, 0.28);
+  }
+
   /* Standard content card — ported from the LauncherDesk design system: a
      thin top accent bar and a soft radial highlight sweep in on hover.
      Kept fully opaque (not glass) deliberately: this class is used across

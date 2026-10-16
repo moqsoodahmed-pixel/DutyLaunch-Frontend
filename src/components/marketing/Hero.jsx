@@ -2,10 +2,9 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import {
-  ArrowRight, ArrowUpRight, Check, FileCheck2, Mail, Phone, Plane, ScanSearch, Zap,
+  ArrowRight, Check, FileCheck2, Mail, Phone, Plane, ScanSearch, Zap,
 } from 'lucide-react';
 import { Container } from '../ui/Container.jsx';
-import { Button } from '../ui/Button.jsx';
 import { GlacierBackdrop } from '../premium/GlacierBackdrop.jsx';
 import { contact } from '../../data/site.js';
 
@@ -222,11 +221,6 @@ export function Hero() {
                 {contact.email}
               </a>
             </div>
-
-            <Button to="/resume-checker" fullWidth variant="secondary" className="mt-4">
-              Start with a free Resume Health check
-              <ArrowUpRight className="h-4 w-4" aria-hidden />
-            </Button>
           </div>
         </motion.div>
       </Container>

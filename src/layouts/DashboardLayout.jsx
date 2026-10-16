@@ -44,6 +44,7 @@ export default function DashboardLayout() {
           title: 'Job search',
           items: [
             { to: '/resume-builder', label: 'Resume builder', icon: 'FileCheck2' },
+            { to: '/resume-templates', label: 'CV Templates', icon: 'LayoutTemplate' },
             { to: '/cover-letter', label: 'Cover letter', icon: 'Mail' },
             { to: '/interview-prep', label: 'Interview prep', icon: 'Lightbulb' },
             { to: '/mock-interview', label: 'Mock interview', icon: 'MessagesSquare' },
