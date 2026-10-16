@@ -23,7 +23,14 @@ const Courses = lazyWithReload(() => import('../pages/Courses.jsx'));
 const CourseDetail = lazyWithReload(() => import('../pages/CourseDetail.jsx'));
 const ProfessionalCourses = lazyWithReload(() => import('../pages/ProfessionalCourses.jsx'));
 const ProgrammeDetail = lazyWithReload(() => import('../pages/ProgrammeDetail.jsx'));
-const PartnerProfile = lazyWithReload(() => import('../pages/dashboard/PartnerProfile.jsx'));
+const UniversityProfile = lazyWithReload(() => import('../pages/UniversityProfile.jsx'));
+const CandidateEnrolments = lazyWithReload(() => import('../pages/dashboard/CandidateEnrolments.jsx'));
+const PartnerOverview = lazyWithReload(() => import('../pages/dashboard/partner/PartnerOverview.jsx'));
+const PartnerOrganizationProfile = lazyWithReload(() => import('../pages/dashboard/partner/PartnerOrganizationProfile.jsx'));
+const PartnerHigherEducation = lazyWithReload(() => import('../pages/dashboard/partner/PartnerHigherEducation.jsx'));
+const PartnerCourses = lazyWithReload(() => import('../pages/dashboard/partner/PartnerCourses.jsx'));
+const PartnerEnrolments = lazyWithReload(() => import('../pages/dashboard/partner/PartnerEnrolments.jsx'));
+const PartnerSettlements = lazyWithReload(() => import('../pages/dashboard/partner/PartnerSettlements.jsx'));
 const AdminPartners = lazyWithReload(() => import('../pages/admin/AdminPartners.jsx'));
 const AdminScoring = lazyWithReload(() => import('../pages/admin/AdminScoring.jsx'));
 const AdminResumeChecks = lazyWithReload(() => import('../pages/admin/AdminResumeChecks.jsx'));
@@ -121,6 +128,7 @@ export function AppRoutes() {
               <Route path="upskills" element={<Upskills />} />
               <Route path="higher-education" element={<HigherEducation />} />
               <Route path="higher-education/:slug" element={<ProgrammeDetail track="education" />} />
+              <Route path="universities/:id" element={<UniversityProfile />} />
               <Route path="courses" element={<Courses />} />
               <Route path="courses/:slug" element={<CourseDetail />} />
               <Route path="professional-courses" element={<ProfessionalCourses />} />
@@ -193,9 +201,15 @@ export function AppRoutes() {
                   <Route path="profile" element={<Profile />} />
                 </Route>
                 <Route element={<ProtectedRoute roles={['institute']} />}>
-                  <Route path="partner" element={<PartnerProfile />} />
+                  <Route path="partner" element={<PartnerOverview />} />
+                  <Route path="partner/profile" element={<PartnerOrganizationProfile />} />
+                  <Route path="partner/higher-education" element={<PartnerHigherEducation />} />
+                  <Route path="partner/courses" element={<PartnerCourses />} />
+                  <Route path="partner/enrolments" element={<PartnerEnrolments />} />
+                  <Route path="partner/settlements" element={<PartnerSettlements />} />
                 </Route>
                 <Route element={<ProtectedRoute roles={['user']} />}>
+                  <Route path="enrolments" element={<CandidateEnrolments />} />
                   <Route path="applications" element={<Applications />} />
                   <Route path="saved-jobs" element={<SavedJobs />} />
                   <Route path="my-resumes" element={<MyResumes />} />

@@ -1,21 +1,38 @@
 import AppShell from './AppShell.jsx';
 import { useAuth } from '../context/AuthContext.jsx';
+import { useApi } from '../hooks/useApi.js';
+import { partnerService } from '../services/contentService.js';
 
 export default function DashboardLayout() {
   const { isEmployer, isInstitute } = useAuth();
+  const { data: partnerProfile } = useApi(
+    () => (isInstitute ? partnerService.mine() : Promise.resolve(null)),
+    [isInstitute]
+  );
+  const orgType = partnerProfile?.orgType;
 
-  // Partner institutes only manage their listing — no job-search or hiring menus.
+  // Partner institutes navigation
   if (isInstitute) {
+    const partnerNavItems = [
+      { to: '/partner', label: 'Overview', icon: 'LayoutDashboard', end: true },
+      { to: '/partner/profile', label: 'Organization profile', icon: 'Building2', end: true },
+      ...(orgType !== 'edtech'
+        ? [{ to: '/partner/higher-education', label: 'Higher Education', icon: 'GraduationCap', end: true }]
+        : []),
+      ...(orgType !== 'university'
+        ? [{ to: '/partner/courses', label: 'Courses & Training', icon: 'BookOpen', end: true }]
+        : []),
+      { to: '/partner/enrolments', label: 'Enrolments & Orders', icon: 'Users', end: true },
+      { to: '/partner/settlements', label: 'Settlements & Payouts', icon: 'Landmark', end: true },
+    ];
+
     return (
       <AppShell
-        title="Partner"
+        title="Partner Portal"
         groups={[
           {
-            title: 'Partner account',
-            items: [
-              { to: '/partner', label: 'Partner profile', icon: 'Building2', end: true },
-              { to: '/payments', label: 'My payments', icon: 'CreditCard' },
-            ],
+            title: 'Partner Portal',
+            items: partnerNavItems,
           },
         ]}
       />
@@ -29,6 +46,7 @@ export default function DashboardLayout() {
         { to: '/dashboard', label: 'Overview', icon: 'LayoutDashboard', end: true },
         { to: '/profile', label: isEmployer ? 'Employer profile' : 'Profile & resume', icon: 'UserRound' },
         { to: '/payments', label: 'My payments', icon: 'CreditCard' },
+        ...(!isEmployer ? [{ to: '/enrolments', label: 'My enrolments', icon: 'GraduationCap' }] : []),
       ],
     },
     isEmployer

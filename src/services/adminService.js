@@ -20,7 +20,12 @@ export const adminService = {
   deleteScoring: (id) => api.delete(`/admin/scoring/${id}`),
 
   partners: (params) => api.get('/admin/partners', { params }),
+  getPartner: (id) => api.get(`/admin/partners/${id}`),
   setPartnerStatus: (id, payload) => api.patch(`/admin/partners/${id}/status`, payload),
+
+  programmes: (params) => api.get('/admin/education/all', { params }),
+  moderateProgramme: (id, payload) => api.patch(`/admin/education/${id}/moderate`, payload),
+  moderateCourse: (id, payload) => api.patch(`/admin/courses/${id}/moderate`, payload),
 
   blogs: (params) => api.get('/blogs/admin/all', { params }),
   createBlog: (payload) => api.post('/blogs', payload),

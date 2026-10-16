@@ -46,10 +46,10 @@ const ACCOUNT_TYPES = [
   },
   {
     value: 'institute',
-    label: 'Institute',
-    hint: 'College or training partner',
+    label: 'Partner',
+    hint: 'Universities & education providers',
     icon: Building2,
-    perk: 'List accredited degree/training programmes and showcase campus credentials.',
+    perk: 'Universities, higher education institutions and training companies.',
     supported: true,
   },
 ];
@@ -60,9 +60,14 @@ export default function Register() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
 
-  const [role, setRole] = useState(
-    ['institute', 'employer'].includes(searchParams.get('type')) ? searchParams.get('type') : 'user'
-  );
+  const paramType = searchParams.get('type') || searchParams.get('role');
+  const initialRole = ['institute', 'partner'].includes(paramType)
+    ? 'institute'
+    : paramType === 'employer'
+      ? 'employer'
+      : 'user';
+
+  const [role, setRole] = useState(initialRole);
   const {
     register,
     handleSubmit,

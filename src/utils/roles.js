@@ -5,7 +5,8 @@
 export const ROLE_LABELS = {
   user: 'Candidate',
   employer: 'Employer',
-  institute: 'Institute',
+  institute: 'Partner',
+  partner: 'Partner',
   admin: 'Admin',
 };
 
@@ -14,6 +15,7 @@ export const ROLE_TONES = {
   user: 'azure',
   employer: 'amber',
   institute: 'success',
+  partner: 'success',
   admin: 'ink',
 };
 

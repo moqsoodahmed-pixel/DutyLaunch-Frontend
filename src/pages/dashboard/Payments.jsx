@@ -16,7 +16,13 @@ const STATUS = {
   created: { tone: 'amber', label: 'Not completed' },
 };
 
-const ITEM_TYPE = { 'cv-package': 'CV bundle', course: 'Course', template: 'Resume template' };
+const ITEM_TYPE = {
+  'cv-package': 'CV bundle',
+  course: 'Course',
+  template: 'Resume template',
+  'education-program': 'Higher Ed Programme',
+  education_program: 'Higher Ed Programme',
+};
 
 /** Amounts arrive in paise, exactly as charged by Razorpay. */
 const rupees = (paise, currency) => formatCurrency(paise / 100, currency || 'INR');

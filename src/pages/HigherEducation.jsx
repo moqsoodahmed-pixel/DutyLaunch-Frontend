@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { GraduationCap, MapPin, CalendarDays } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { GraduationCap, MapPin, CalendarDays, Clock, FileText, Building2 } from 'lucide-react';
 import { Seo } from '../components/ui/Seo.jsx';
 import { seoFor } from '../data/seoPages.js';
 import { Container, Section } from '../components/ui/Container.jsx';
@@ -125,42 +126,120 @@ export default function HigherEducation() {
               />
             )}
             {!loading && data?.length > 0 && (
-              <RevealGroup className="grid gap-4 md:grid-cols-2 lg:grid-cols-3" staggerDelay={0.06}>
-                {data.map((program) => (
-                  <RevealItem as="article" key={program._id} className="tile flex flex-col p-5">
-                    <div className="flex flex-wrap items-center gap-2">
-                      <Badge tone="azure">{program.level}</Badge>
-                      <Badge tone="outline">{program.field}</Badge>
-                    </div>
-                    <h3 className="mt-3.5 text-h3 font-bold leading-snug text-ink">{program.title}</h3>
-                    <p className="mt-2 flex-1 text-small text-slate-600">{program.summary}</p>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                {data.map((program) => {
+                  const inst = program.institution;
+                  const instName = inst?.displayName || inst?.name || 'Partner University';
+                  const instId = inst?._id || inst;
+                  const targetUrl = instId ? `/universities/${instId}` : `/higher-education/${program.slug || program._id}`;
+                  const hasSyllabus = Boolean(program.syllabusUrl);
 
-                    <dl className="mt-5 space-y-2 border-t border-line pt-4 text-caption text-slate-500">
-                      {program.duration && (
-                        <div className="flex items-center gap-2">
-                          <GraduationCap className="h-3.5 w-3.5" aria-hidden />
-                          <dt className="sr-only">Duration</dt>
-                          <dd>{program.duration}</dd>
+                  return (
+                    <article
+                      key={program._id}
+                      className="group flex flex-col justify-between rounded-2xl border border-line bg-white shadow-sm hover:shadow-md transition-all duration-200 overflow-hidden"
+                    >
+                      <div>
+                        {/* Top Image with Overlapping Circular University Logo */}
+                        <div className="relative aspect-[16/10] w-full bg-slate-100 overflow-hidden">
+                          {program.image ? (
+                            <img
+                              src={program.image}
+                              alt={program.title}
+                              className="h-full w-full object-cover group-hover:scale-105 transition-transform duration-300"
+                              loading="lazy"
+                            />
+                          ) : (
+                            <div className="h-full w-full bg-gradient-to-tr from-azure-800 to-indigo-900 flex items-center justify-center p-4">
+                              <GraduationCap className="h-12 w-12 text-white/50" />
+                            </div>
+                          )}
+
+                          {/* Circular Logo Overlapping Bottom-Right */}
+                          <div className="absolute -bottom-2.5 right-3 h-12 w-12 rounded-full border-2 border-white bg-white shadow-md overflow-hidden flex items-center justify-center">
+                            {inst?.logoUrl ? (
+                              <img
+                                src={inst.logoUrl}
+                                alt={instName}
+                                className="h-full w-full object-contain p-1"
+                              />
+                            ) : (
+                              <Building2 className="h-6 w-6 text-azure-700" />
+                            )}
+                          </div>
                         </div>
-                      )}
-                      {program.intakes?.length > 0 && (
-                        <div className="flex items-center gap-2">
-                          <CalendarDays className="h-3.5 w-3.5" aria-hidden />
-                          <dt className="sr-only">Intakes</dt>
-                          <dd>{program.intakes.join(', ')}</dd>
+
+                        {/* Card Body */}
+                        <div className="p-4 pt-5">
+                          {/* University Name */}
+                          <p className="text-caption font-semibold text-slate-500 uppercase tracking-wide truncate">
+                            {instName}
+                          </p>
+
+                          {/* Programme Name */}
+                          <h3
+                            className="mt-1 text-body font-bold text-ink leading-snug line-clamp-2 min-h-[2.75rem]"
+                            title={program.title}
+                          >
+                            {program.title}
+                          </h3>
+
+                          {/* Relevant Qualification or Programme Type */}
+                          <div className="mt-2.5 flex flex-wrap items-center gap-1.5">
+                            <span className="inline-flex items-center rounded-md bg-azure-50 px-2 py-0.5 text-caption font-medium text-azure-700">
+                              {program.qualification || program.level || 'Degree'}
+                            </span>
+                            {program.deliveryFormat && (
+                              <span className="inline-flex items-center rounded-md bg-slate-100 px-2 py-0.5 text-caption text-slate-600 capitalize">
+                                {program.deliveryFormat}
+                              </span>
+                            )}
+                          </div>
+
+                          {/* Course Duration / Programme Detail */}
+                          <div className="mt-3 flex items-center gap-1.5 text-caption text-slate-500">
+                            <Clock className="h-3.5 w-3.5 text-slate-400 shrink-0" />
+                            <span className="truncate">{program.duration || 'Flexible duration'}</span>
+                          </div>
                         </div>
-                      )}
-                      {program.destinations?.length > 0 && (
-                        <div className="flex items-start gap-2">
-                          <MapPin className="mt-0.5 h-3.5 w-3.5 shrink-0" aria-hidden />
-                          <dt className="sr-only">Destinations</dt>
-                          <dd>{program.destinations.join(' · ')}</dd>
-                        </div>
-                      )}
-                    </dl>
-                  </RevealItem>
-                ))}
-              </RevealGroup>
+                      </div>
+
+                      {/* Card Footer: View Program & Syllabus Buttons */}
+                      <div className="p-4 pt-0 mt-2 border-t border-line/60 flex items-center gap-2">
+                        <Link
+                          to={targetUrl}
+                          className="flex-1 inline-flex items-center justify-center rounded-lg bg-azure-600 hover:bg-azure-700 text-white px-3 py-2 text-caption font-semibold transition-colors shadow-sm text-center"
+                        >
+                          View Program
+                        </Link>
+
+                        {hasSyllabus ? (
+                          <a
+                            href={program.syllabusUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="inline-flex items-center justify-center rounded-lg border border-red-200 bg-red-50 hover:bg-red-100 text-red-700 px-3 py-2 text-caption font-semibold transition-colors shrink-0"
+                            title="Download programme syllabus"
+                          >
+                            <FileText className="h-3.5 w-3.5 mr-1" />
+                            Syllabus
+                          </a>
+                        ) : (
+                          <button
+                            type="button"
+                            disabled
+                            className="inline-flex items-center justify-center rounded-lg border border-slate-200 bg-slate-50 text-slate-400 px-2.5 py-2 text-caption font-medium cursor-not-allowed opacity-60 shrink-0"
+                            title="Syllabus not available for this programme"
+                          >
+                            <FileText className="h-3.5 w-3.5 mr-1" />
+                            Syllabus
+                          </button>
+                        )}
+                      </div>
+                    </article>
+                  );
+                })}
+              </div>
             )}
           </div>
         </Container>
