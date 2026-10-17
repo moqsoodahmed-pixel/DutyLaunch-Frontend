@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import {
   Building2,
@@ -26,10 +27,26 @@ import { cn } from '../../../utils/cn.js';
 
 export default function PartnerOverview() {
   const { data, loading, error, refetch } = useApi(() => partnerService.mine(), []);
-  const profile = data?._id ? data : null;
-  const stats = data?.stats || {};
-  const isVerified = profile?.status === 'approved';
+  const profile = data?._id ? data : data?.data?._id ? data.data : data?.partner?._id ? data.partner : null;
+  const stats = profile?.stats || data?.stats || {};
+  const isVerified = (profile?.status || '').toLowerCase() === 'approved';
   const isUniversity = (profile?.orgType || 'university') === 'university';
+
+  // Automatically refresh when window gains focus or tab becomes visible (e.g. after approval in admin tab)
+  useEffect(() => {
+    const handleFocus = () => {
+      refetch();
+    };
+    window.addEventListener('focus', handleFocus);
+    const handleVisibility = () => {
+      if (document.visibilityState === 'visible') refetch();
+    };
+    document.addEventListener('visibilitychange', handleVisibility);
+    return () => {
+      window.removeEventListener('focus', handleFocus);
+      document.removeEventListener('visibilitychange', handleVisibility);
+    };
+  }, [refetch]);
 
   if (loading) return <LoadingBlock label="Loading Partner Portal..." />;
   if (error) return <ErrorState error={error} onRetry={refetch} />;
@@ -74,7 +91,7 @@ export default function PartnerOverview() {
         isUniversity ? 'University / Higher Education Institution' : 'EdTech / Training Provider'
       }. You have full access to create and manage programme listings.`,
       ctaText: 'View Public Profile',
-      ctaTo: profile?._id ? `/partners/${profile._id}` : '#',
+      ctaTo: profile?._id ? `/universities/${profile._id}` : '#',
     },
     rejected: {
       icon: XCircle,
@@ -139,8 +156,8 @@ export default function PartnerOverview() {
             <div>
               <div className="flex items-center gap-2">
                 <h2 className="text-body font-bold text-ink">{statusCfg.title}</h2>
-                <Badge tone={statusCfg.badgeTone} className="capitalize">
-                  {profile?.status || 'incomplete'}
+                <Badge tone={statusCfg.badgeTone} className="capitalize font-semibold">
+                  {isVerified ? 'Verified' : (profile?.status || 'incomplete')}
                 </Badge>
               </div>
               <p className="mt-1 text-small max-w-3xl leading-relaxed text-slate-700">{statusCfg.desc}</p>
@@ -148,7 +165,7 @@ export default function PartnerOverview() {
           </div>
           <Button
             to={statusCfg.ctaTo}
-            target={statusCfg.ctaTo.startsWith('/partners') ? '_blank' : undefined}
+            target={statusCfg.ctaTo.startsWith('/universities') || statusCfg.ctaTo.startsWith('/partners') ? '_blank' : undefined}
             variant="outline"
             className="shrink-0 bg-white"
           >

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import {
   Plus,
@@ -35,10 +35,17 @@ const APPROVAL_TONE = {
 
 export default function PartnerHigherEducation() {
   const toast = useToast();
-  const { data: partnerData } = useApi(() => partnerService.mine(), []);
+  const { data: partnerData, refetch: refetchPartner } = useApi(() => partnerService.mine(), []);
   const { data: programmes, loading, error, refetch } = useApi(() => educationService.mine(), []);
 
-  const isVerified = partnerData?.status === 'approved';
+  const partner = partnerData?._id ? partnerData : partnerData?.data?._id ? partnerData.data : null;
+  const isVerified = (partner?.status || '').toLowerCase() === 'approved';
+
+  useEffect(() => {
+    const onFocus = () => refetchPartner();
+    window.addEventListener('focus', onFocus);
+    return () => window.removeEventListener('focus', onFocus);
+  }, [refetchPartner]);
 
   const [editing, setEditing] = useState(null);
   const [deletingId, setDeletingId] = useState(null);

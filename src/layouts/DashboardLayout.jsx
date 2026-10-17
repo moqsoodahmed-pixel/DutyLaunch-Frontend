@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import AppShell from './AppShell.jsx';
 import { useAuth } from '../context/AuthContext.jsx';
 import { useApi } from '../hooks/useApi.js';
@@ -5,11 +6,23 @@ import { partnerService } from '../services/contentService.js';
 
 export default function DashboardLayout() {
   const { isEmployer, isInstitute } = useAuth();
-  const { data: partnerProfile } = useApi(
+  const { data: partnerProfile, refetch: refetchPartner } = useApi(
     () => (isInstitute ? partnerService.mine() : Promise.resolve(null)),
     [isInstitute]
   );
-  const orgType = partnerProfile?.orgType;
+  const profile = partnerProfile?._id
+    ? partnerProfile
+    : partnerProfile?.data?._id
+    ? partnerProfile.data
+    : null;
+  const orgType = profile?.orgType;
+
+  useEffect(() => {
+    if (!isInstitute) return;
+    const onFocus = () => refetchPartner();
+    window.addEventListener('focus', onFocus);
+    return () => window.removeEventListener('focus', onFocus);
+  }, [isInstitute, refetchPartner]);
 
   // Partner institutes navigation
   if (isInstitute) {

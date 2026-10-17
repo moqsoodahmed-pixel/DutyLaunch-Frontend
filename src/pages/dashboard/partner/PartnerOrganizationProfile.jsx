@@ -27,7 +27,24 @@ const STUDY_MODES = ['Online', 'Distance', 'Regular', 'Classroom', 'Hybrid'];
 export default function PartnerOrganizationProfile() {
   const toast = useToast();
   const { data, loading, error, refetch } = useApi(() => partnerService.mine(), []);
-  const profile = data?._id ? data : null;
+  const profile = data?._id ? data : data?.data?._id ? data.data : data?.partner || null;
+  const isVerified = (profile?.status || '').toLowerCase() === 'approved';
+
+  // Automatically refresh when window gains focus (e.g. after approval in admin tab)
+  useEffect(() => {
+    const handleFocus = () => {
+      refetch();
+    };
+    window.addEventListener('focus', handleFocus);
+    const handleVisibility = () => {
+      if (document.visibilityState === 'visible') refetch();
+    };
+    document.addEventListener('visibilitychange', handleVisibility);
+    return () => {
+      window.removeEventListener('focus', handleFocus);
+      document.removeEventListener('visibilitychange', handleVisibility);
+    };
+  }, [refetch]);
 
   const [orgType, setOrgType] = useState('university');
   const [logoUploading, setLogoUploading] = useState(false);
@@ -195,13 +212,46 @@ export default function PartnerOrganizationProfile() {
         </div>
       )}
 
-      {/* Verification Status Summary */}
+      {/* Verification Status Summary & Verified Banner */}
+      {isVerified && (
+        <div className="rounded-2xl border border-emerald-400 bg-emerald-50/70 p-5 sm:p-6 text-emerald-950 shadow-sm">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex items-start gap-3.5">
+              <span className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-emerald-600 text-white shadow-xs">
+                <CheckCircle2 className="h-6 w-6" aria-hidden />
+              </span>
+              <div>
+                <div className="flex items-center gap-2">
+                  <h3 className="text-body font-bold text-emerald-950">Verified Partner Organization</h3>
+                  <Badge tone="success" className="font-semibold">Verified</Badge>
+                </div>
+                <p className="mt-1 text-small text-emerald-800 leading-relaxed">
+                  Your credentials and verification documents have been officially evaluated and approved by DutyLaunch. Your institution holds full verified status across the platform.
+                </p>
+              </div>
+            </div>
+            {profile?._id && (
+              <Button
+                to={`/universities/${profile._id}`}
+                target="_blank"
+                variant="outline"
+                size="sm"
+                className="shrink-0 border-emerald-600 text-emerald-900 hover:bg-emerald-100 bg-white shadow-xs"
+              >
+                <ExternalLink className="h-4 w-4" aria-hidden />
+                View Public Profile
+              </Button>
+            )}
+          </div>
+        </div>
+      )}
+
       <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-line bg-white p-4">
         <div className="flex items-center gap-2.5">
           <span className="text-small font-semibold text-ink">Verification Status:</span>
           <Badge
             tone={
-              profile?.status === 'approved'
+              isVerified
                 ? 'success'
                 : profile?.status === 'pending'
                 ? 'azure'
@@ -211,9 +261,9 @@ export default function PartnerOrganizationProfile() {
                 ? 'danger'
                 : 'neutral'
             }
-            className="capitalize"
+            className="capitalize font-semibold"
           >
-            {profile?.status || 'Incomplete'}
+            {isVerified ? 'Verified' : (profile?.status || 'Incomplete')}
           </Badge>
         </div>
         {profile?.reviewedAt && (
@@ -482,26 +532,40 @@ export default function PartnerOrganizationProfile() {
 
         {/* Action Buttons */}
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-          <div className="flex items-center gap-3">
+          <div className="flex flex-wrap items-center gap-3">
             <Button type="submit" size="lg" loading={isSubmitting} disabled={isSubmitting}>
-              Save Profile
+              {isVerified ? 'Save Profile Changes' : 'Save Profile'}
             </Button>
-            <Button
-              type="button"
-              variant="outline"
-              size="lg"
-              loading={isSubmitting}
-              disabled={isSubmitting}
-              onClick={handleSubmit((vals) => onSubmit(vals, true))}
-              className="border-azure-500 text-azure-700 hover:bg-azure-50"
-            >
-              Submit for Verification
-            </Button>
+            {!isVerified && (
+              <Button
+                type="button"
+                variant="outline"
+                size="lg"
+                loading={isSubmitting}
+                disabled={isSubmitting}
+                onClick={handleSubmit((vals) => onSubmit(vals, true))}
+                className="border-azure-500 text-azure-700 hover:bg-azure-50"
+              >
+                Submit for Verification
+              </Button>
+            )}
+            {isVerified && profile?._id && (
+              <Button
+                to={`/universities/${profile._id}`}
+                target="_blank"
+                variant="outline"
+                size="lg"
+                className="border-line text-ink hover:bg-slate-50"
+              >
+                <ExternalLink className="h-4 w-4" aria-hidden />
+                View Public Profile
+              </Button>
+            )}
           </div>
 
           <p className="text-caption text-slate-500">
-            {profile?.status === 'approved'
-              ? 'Changing name or registration details will initiate a re-evaluation review.'
+            {isVerified
+              ? 'Your organization is verified. Changing name, legal identity or registration details will initiate a re-evaluation review.'
               : 'Our compliance team reviews credentials within 1-2 business days.'}
           </p>
         </div>
