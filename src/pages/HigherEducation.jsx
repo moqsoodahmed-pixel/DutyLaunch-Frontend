@@ -163,7 +163,8 @@ export default function HigherEducation() {
                                 src={getMediaUrl(inst.logoUrl)}
                                 alt=""
                                 onError={(e) => {
-                                  e.currentTarget.style.display = 'none';
+                                  e.currentTarget.onerror = null;
+                                  e.currentTarget.src = '/favicon-192.png';
                                 }}
                                 className="h-full w-full object-contain p-1"
                               />

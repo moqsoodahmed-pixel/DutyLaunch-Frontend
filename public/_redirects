@@ -26,6 +26,9 @@
 # Query strings are preserved by Pages, so /documentation?category=Apostille
 # lands on /apostille-services?category=Apostille without a second rule.
 
+# Proxy all API and upload requests to Railway backend
+/api/*                         https://dutylaunch-backend-production.up.railway.app/api/:splat  200
+
 # SPA fallback: every other path is served the shell so the router can
 # resolve it. This must stay last — rules are matched in order.
 /*                             /index.html                200

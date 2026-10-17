@@ -48,6 +48,16 @@ try {
 api.interceptors.request.use((config) => {
   const token = tokenStore.get();
   if (token) config.headers.Authorization = `Bearer ${token}`;
+  // For multipart/form-data, delete Content-Type so the browser automatically sets the multipart boundary
+  if (typeof FormData !== 'undefined' && config.data instanceof FormData) {
+    if (config.headers?.delete) {
+      config.headers.delete('Content-Type');
+      config.headers.delete('content-type');
+    } else if (config.headers) {
+      delete config.headers['Content-Type'];
+      delete config.headers['content-type'];
+    }
+  }
   return config;
 });
 
@@ -80,10 +90,9 @@ function normalise({ message, errors = [], status = 0 }) {
   return err;
 }
 
-/** Multipart helper — axios sets the boundary itself. */
+/** Multipart helper — allows browser to automatically generate multipart boundary */
 export function postForm(url, formData, onProgress) {
   return api.post(url, formData, {
-    headers: { 'Content-Type': 'multipart/form-data' },
     onUploadProgress: onProgress
       ? (evt) => onProgress(evt.total ? Math.round((evt.loaded / evt.total) * 100) : 0)
       : undefined,

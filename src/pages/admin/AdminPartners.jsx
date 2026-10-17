@@ -35,6 +35,24 @@ const STATUS_TONE = {
   suspended: 'danger',
 };
 
+function PartnerLogoCell({ logoUrl, className = 'h-10 w-10' }) {
+  const [error, setError] = useState(false);
+  return (
+    <div className={`${className} rounded-lg bg-slate-100 border border-line flex items-center justify-center shrink-0 overflow-hidden`}>
+      {logoUrl && !error ? (
+        <img
+          src={getMediaUrl(logoUrl)}
+          alt=""
+          onError={() => setError(true)}
+          className="h-full w-full object-contain p-1"
+        />
+      ) : (
+        <Building2 className="h-5 w-5 text-slate-400" />
+      )}
+    </div>
+  );
+}
+
 export default function AdminPartners() {
   const [params, setParams] = useSearchParams();
   const [q, setQ] = useState(params.get('q') || '');
@@ -121,20 +139,7 @@ export default function AdminPartners() {
             primary: true,
             render: (row) => (
               <div className="flex items-start gap-3">
-                <div className="h-10 w-10 rounded-lg bg-slate-100 border border-line flex items-center justify-center shrink-0 overflow-hidden">
-                  {row.logoUrl ? (
-                    <img
-                      src={getMediaUrl(row.logoUrl)}
-                      alt=""
-                      onError={(e) => {
-                        e.currentTarget.style.display = 'none';
-                      }}
-                      className="h-full w-full object-contain p-1"
-                    />
-                  ) : (
-                    <Building2 className="h-5 w-5 text-slate-400" />
-                  )}
-                </div>
+                <PartnerLogoCell logoUrl={row.logoUrl} />
                 <div>
                   <p className="font-semibold text-ink">{row.displayName || row.name}</p>
                   {row.legalName && row.legalName !== (row.displayName || row.name) && (
@@ -247,32 +252,49 @@ export default function AdminPartners() {
           size="lg"
         >
           <div className="space-y-6">
+            {/* Campus Cover Banner */}
+            {inspecting.coverImageUrl && (
+              <div className="relative h-32 w-full rounded-xl overflow-hidden border border-line bg-slate-900">
+                <img
+                  src={getMediaUrl(inspecting.coverImageUrl)}
+                  alt=""
+                  className="w-full h-full object-cover"
+                />
+              </div>
+            )}
+
             {/* Header summary */}
-            <div className="rounded-xl border border-line bg-paper p-4 space-y-2">
+            <div className="rounded-xl border border-line bg-paper p-4 space-y-3">
               <div className="flex items-center justify-between">
                 <span className="text-caption font-semibold text-slate-500 uppercase">Organization Profile</span>
                 <Badge tone={STATUS_TONE[inspecting.status] || 'neutral'}>
                   {inspecting.status?.toUpperCase()}
                 </Badge>
               </div>
-              <h3 className="text-body font-bold text-ink">{inspecting.displayName || inspecting.name}</h3>
-              {inspecting.legalName && (
-                <p className="text-small text-slate-600 font-mono">Legal Name: {inspecting.legalName}</p>
-              )}
-              <p className="text-caption text-slate-500">
-                Type: {inspecting.orgType === 'university' ? 'University / Higher Education Institution' : 'EdTech / Training Provider'}
-              </p>
-              {inspecting.website && (
-                <a
-                  href={inspecting.website}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1 text-small text-azure-600 hover:underline"
-                >
-                  {inspecting.website}
-                  <ExternalLink className="h-3 w-3" />
-                </a>
-              )}
+
+              <div className="flex items-start gap-4">
+                <PartnerLogoCell logoUrl={inspecting.logoUrl} className="h-16 w-16" />
+                <div className="min-w-0 flex-1">
+                  <h3 className="text-body font-bold text-ink">{inspecting.displayName || inspecting.name}</h3>
+                  {inspecting.legalName && (
+                    <p className="text-small text-slate-600 font-mono mt-0.5">Legal Name: {inspecting.legalName}</p>
+                  )}
+                  <p className="text-caption text-slate-500 mt-0.5">
+                    Type: {inspecting.orgType === 'university' ? 'University / Higher Education Institution' : 'EdTech / Training Provider'}
+                  </p>
+                  {inspecting.website && (
+                    <a
+                      href={inspecting.website}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1 text-small text-azure-600 hover:underline mt-1"
+                    >
+                      {inspecting.website}
+                      <ExternalLink className="h-3 w-3" />
+                    </a>
+                  )}
+                </div>
+              </div>
             </div>
 
             {/* Verification Credentials */}

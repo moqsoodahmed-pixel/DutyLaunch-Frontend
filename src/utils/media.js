@@ -25,5 +25,15 @@ export function getMediaUrl(url) {
     }
   }
 
+  // If running in browser on a production domain (e.g. dutylaunch.com or Cloudflare Pages),
+  // fallback to production Railway backend origin so relative media paths stream properly
+  if (typeof window !== 'undefined' && window.location) {
+    const host = window.location.hostname;
+    const isLocal = host === 'localhost' || host === '127.0.0.1' || host.endsWith('.local');
+    if (!isLocal) {
+      return `https://dutylaunch-backend-production.up.railway.app${trimmed.startsWith('/') ? '' : '/'}${trimmed}`;
+    }
+  }
+
   return trimmed;
 }

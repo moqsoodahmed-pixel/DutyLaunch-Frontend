@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useForm } from 'react-hook-form';
 import {
   Building2,
@@ -32,28 +32,16 @@ export default function PartnerOrganizationProfile() {
   const profile = data?._id ? data : data?.data?._id ? data.data : data?.partner || null;
   const isVerified = (profile?.status || '').toLowerCase() === 'approved';
 
-  // Automatically refresh when window gains focus (e.g. after approval in admin tab)
-  useEffect(() => {
-    const handleFocus = () => {
-      refetch();
-    };
-    window.addEventListener('focus', handleFocus);
-    const handleVisibility = () => {
-      if (document.visibilityState === 'visible') refetch();
-    };
-    document.addEventListener('visibilitychange', handleVisibility);
-    return () => {
-      window.removeEventListener('focus', handleFocus);
-      document.removeEventListener('visibilitychange', handleVisibility);
-    };
-  }, [refetch]);
+  const initializedRef = useRef(false);
 
   const [orgType, setOrgType] = useState('university');
   const [logoUploading, setLogoUploading] = useState(false);
   const [logoUrl, setLogoUrl] = useState('');
+  const [logoPreview, setLogoPreview] = useState('');
   const [logoError, setLogoError] = useState(false);
   const [coverUploading, setCoverUploading] = useState(false);
   const [coverImageUrl, setCoverImageUrl] = useState('');
+  const [coverPreview, setCoverPreview] = useState('');
   const [coverError, setCoverError] = useState(false);
   const [docUploading, setDocUploading] = useState(false);
   const [docUrl, setDocUrl] = useState('');
@@ -87,10 +75,13 @@ export default function PartnerOrganizationProfile() {
   });
 
   useEffect(() => {
-    if (profile) {
+    if (profile && !initializedRef.current) {
+      initializedRef.current = true;
       setOrgType(profile.orgType || 'university');
       setLogoUrl(profile.logoUrl || '');
+      setLogoPreview(profile.logoUrl ? getMediaUrl(profile.logoUrl) : '');
       setCoverImageUrl(profile.coverImageUrl || '');
+      setCoverPreview(profile.coverImageUrl ? getMediaUrl(profile.coverImageUrl) : '');
       setDocUrl(profile.verificationDetails?.documentUrl || '');
       setDocName(profile.verificationDetails?.documentName || '');
 
@@ -116,14 +107,23 @@ export default function PartnerOrganizationProfile() {
   }, [profile, reset]);
 
   const handleLogoUpload = async (e) => {
-    const file = e.target.files?.[0];
+    const file = e.target?.files?.[0];
     if (!file) return;
-    setLogoUploading(true);
+
+    // Immediate local preview so the user sees their chosen photo right away
+    const localUrl = URL.createObjectURL(file);
+    setLogoPreview(localUrl);
     setLogoError(false);
+    setLogoUploading(true);
+
     try {
       const res = await uploadService.image(file);
-      setLogoUrl(res.data?.url || '');
-      toast.success('Logo uploaded');
+      const serverUrl = res.data?.url || res.url || '';
+      if (!serverUrl) throw new Error('No URL returned from server');
+      setLogoUrl(serverUrl);
+      // Auto-save the logo to the database so it persists immediately
+      await partnerService.saveMine({ logoUrl: serverUrl });
+      toast.success('Logo uploaded and saved successfully');
     } catch (err) {
       toast.error(err.message || 'Logo upload failed');
     } finally {
@@ -131,31 +131,73 @@ export default function PartnerOrganizationProfile() {
     }
   };
 
+  const handleRemoveLogo = async () => {
+    setLogoUrl('');
+    setLogoPreview('');
+    setLogoError(false);
+    try {
+      await partnerService.saveMine({ logoUrl: '' });
+      toast.success('Logo removed');
+    } catch (err) {
+      toast.error('Failed to remove logo');
+    }
+  };
+
   const handleCoverUpload = async (e) => {
-    const file = e.target.files?.[0];
+    const file = e.target?.files?.[0];
     if (!file) return;
-    setCoverUploading(true);
+
+    // Immediate local preview so the user sees their chosen banner right away
+    const localUrl = URL.createObjectURL(file);
+    setCoverPreview(localUrl);
     setCoverError(false);
+    setCoverUploading(true);
+
     try {
       const res = await uploadService.image(file);
-      setCoverImageUrl(res.data?.url || '');
-      toast.success('Cover image uploaded');
+      const serverUrl = res.data?.url || res.url || '';
+      if (!serverUrl) throw new Error('No URL returned from server');
+      setCoverImageUrl(serverUrl);
+      // Auto-save the cover banner to the database so it persists immediately
+      await partnerService.saveMine({ coverImageUrl: serverUrl });
+      toast.success('Cover banner uploaded and saved successfully');
     } catch (err) {
-      toast.error(err.message || 'Cover image upload failed');
+      toast.error(err.message || 'Cover banner upload failed');
     } finally {
       setCoverUploading(false);
     }
   };
 
+  const handleRemoveCover = async () => {
+    setCoverImageUrl('');
+    setCoverPreview('');
+    setCoverError(false);
+    try {
+      await partnerService.saveMine({ coverImageUrl: '' });
+      toast.success('Cover banner removed');
+    } catch (err) {
+      toast.error('Failed to remove cover banner');
+    }
+  };
+
   const handleDocUpload = async (e) => {
-    const file = e.target.files?.[0];
+    const file = e.target?.files?.[0];
     if (!file) return;
     setDocUploading(true);
     try {
       const res = await uploadService.document(file);
-      setDocUrl(res.data?.url || '');
-      setDocName(res.data?.originalname || file.name);
-      toast.success('Verification document uploaded');
+      const url = res.data?.url || '';
+      const name = res.data?.originalname || file.name;
+      setDocUrl(url);
+      setDocName(name);
+      await partnerService.saveMine({
+        verificationDetails: {
+          ...(profile?.verificationDetails || {}),
+          documentUrl: url,
+          documentName: name,
+        },
+      });
+      toast.success('Verification document uploaded and saved');
     } catch (err) {
       toast.error(err.message || 'Document upload failed');
     } finally {
@@ -187,6 +229,7 @@ export default function PartnerOrganizationProfile() {
       } else {
         toast.success('Organization profile saved successfully');
       }
+      initializedRef.current = false;
       refetch();
     } catch (err) {
       err.fieldErrors?.forEach((f) => setError(f.field, { message: f.message }));
@@ -389,42 +432,58 @@ export default function PartnerOrganizationProfile() {
           <div className="grid gap-6 sm:grid-cols-2 pt-2">
             <div className="rounded-xl border border-line bg-paper p-4">
               <label className="text-small font-bold text-ink block">Organization Logo</label>
-              <p className="text-caption text-slate-500 mb-3">Square aspect ratio (PNG/JPG/WebP)</p>
+              <p className="text-caption text-slate-500 mb-3">Square aspect ratio (PNG, JPG, WebP, SVG)</p>
               <div className="flex flex-wrap items-center gap-4">
-                {logoUrl && !logoError ? (
-                  <img
-                    src={getMediaUrl(logoUrl)}
-                    alt=""
-                    onError={() => setLogoError(true)}
-                    className="h-16 w-16 rounded-xl border border-line object-cover bg-white"
-                  />
-                ) : (
-                  <div className="grid h-16 w-16 place-items-center rounded-xl border border-dashed border-slate-300 bg-white">
-                    <Building2 className="h-6 w-6 text-slate-400" aria-hidden />
-                  </div>
-                )}
-                <div className="flex flex-wrap items-center gap-2">
-                  <label className="cursor-pointer">
-                    <span className="inline-flex items-center gap-1.5 rounded-lg border border-line bg-white px-3 py-1.5 text-small font-semibold text-slate-700 shadow-xs hover:bg-slate-50">
-                      <Upload className="h-4 w-4" aria-hidden />
-                      {logoUploading ? 'Uploading…' : 'Choose Logo'}
-                    </span>
-                    <input
-                      type="file"
-                      accept="image/*"
-                      onChange={handleLogoUpload}
-                      disabled={logoUploading}
-                      className="sr-only"
+                <label
+                  htmlFor="logo-file-input"
+                  title="Click to choose a new logo"
+                  className={cn(
+                    "relative group h-16 w-16 shrink-0 rounded-xl border border-line overflow-hidden bg-white cursor-pointer shadow-xs transition-all hover:ring-2 hover:ring-azure-500/40",
+                    logoUploading && "pointer-events-none opacity-60"
+                  )}
+                >
+                  {logoPreview && !logoError ? (
+                    <img
+                      src={logoPreview}
+                      alt="Logo preview"
+                      onError={() => setLogoError(true)}
+                      className="h-full w-full object-cover"
                     />
+                  ) : (
+                    <div className="grid h-full w-full place-items-center border border-dashed border-slate-300">
+                      <Building2 className="h-6 w-6 text-slate-400 group-hover:text-azure" aria-hidden />
+                    </div>
+                  )}
+                  <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white">
+                    <Upload className="h-5 w-5" />
+                  </div>
+                </label>
+
+                <div className="flex flex-wrap items-center gap-2">
+                  <label
+                    htmlFor="logo-file-input"
+                    className={cn(
+                      "inline-flex items-center gap-1.5 rounded-lg border border-line bg-white px-3 py-1.5 text-small font-semibold text-slate-700 shadow-xs hover:bg-slate-50 transition-colors cursor-pointer",
+                      logoUploading && "pointer-events-none opacity-50"
+                    )}
+                  >
+                    <Upload className="h-4 w-4" aria-hidden />
+                    {logoUploading ? 'Uploading…' : (logoPreview ? 'Change Logo' : 'Choose Logo')}
                   </label>
-                  {logoUrl && (
+                  <input
+                    id="logo-file-input"
+                    type="file"
+                    accept="image/*,.png,.jpg,.jpeg,.webp,.svg,.gif"
+                    onClick={(e) => { e.target.value = null; }}
+                    onChange={handleLogoUpload}
+                    disabled={logoUploading}
+                    className="sr-only"
+                  />
+                  {(logoPreview || logoUrl) && (
                     <button
                       type="button"
-                      onClick={() => {
-                        setLogoUrl('');
-                        setLogoError(false);
-                      }}
-                      className="inline-flex items-center gap-1 rounded-lg border border-line bg-white px-2.5 py-1.5 text-caption font-semibold text-rose-600 hover:bg-rose-50"
+                      onClick={handleRemoveLogo}
+                      className="inline-flex items-center gap-1 rounded-lg border border-line bg-white px-2.5 py-1.5 text-caption font-semibold text-rose-600 hover:bg-rose-50 cursor-pointer"
                     >
                       <Trash2 className="h-3.5 w-3.5" />
                       Remove
@@ -440,40 +499,56 @@ export default function PartnerOrganizationProfile() {
               </label>
               <p className="text-caption text-slate-500 mb-3">Wide aspect ratio (16:9 or 5:4)</p>
               <div className="flex flex-wrap items-center gap-4">
-                {coverImageUrl && !coverError ? (
-                  <img
-                    src={getMediaUrl(coverImageUrl)}
-                    alt=""
-                    onError={() => setCoverError(true)}
-                    className="h-16 w-28 rounded-xl border border-line object-cover bg-white"
-                  />
-                ) : (
-                  <div className="grid h-16 w-28 place-items-center rounded-xl border border-dashed border-slate-300 bg-white">
-                    <FileText className="h-6 w-6 text-slate-400" aria-hidden />
-                  </div>
-                )}
-                <div className="flex flex-wrap items-center gap-2">
-                  <label className="cursor-pointer">
-                    <span className="inline-flex items-center gap-1.5 rounded-lg border border-line bg-white px-3 py-1.5 text-small font-semibold text-slate-700 shadow-xs hover:bg-slate-50">
-                      <Upload className="h-4 w-4" aria-hidden />
-                      {coverUploading ? 'Uploading…' : 'Choose Banner'}
-                    </span>
-                    <input
-                      type="file"
-                      accept="image/*"
-                      onChange={handleCoverUpload}
-                      disabled={coverUploading}
-                      className="sr-only"
+                <label
+                  htmlFor="cover-file-input"
+                  title="Click to choose a new cover banner"
+                  className={cn(
+                    "relative group h-16 w-28 shrink-0 rounded-xl border border-line overflow-hidden bg-white cursor-pointer shadow-xs transition-all hover:ring-2 hover:ring-azure-500/40",
+                    coverUploading && "pointer-events-none opacity-60"
+                  )}
+                >
+                  {coverPreview && !coverError ? (
+                    <img
+                      src={coverPreview}
+                      alt="Cover banner preview"
+                      onError={() => setCoverError(true)}
+                      className="h-full w-full object-cover"
                     />
+                  ) : (
+                    <div className="grid h-full w-full place-items-center border border-dashed border-slate-300">
+                      <FileText className="h-6 w-6 text-slate-400 group-hover:text-azure" aria-hidden />
+                    </div>
+                  )}
+                  <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white">
+                    <Upload className="h-5 w-5" />
+                  </div>
+                </label>
+
+                <div className="flex flex-wrap items-center gap-2">
+                  <label
+                    htmlFor="cover-file-input"
+                    className={cn(
+                      "inline-flex items-center gap-1.5 rounded-lg border border-line bg-white px-3 py-1.5 text-small font-semibold text-slate-700 shadow-xs hover:bg-slate-50 transition-colors cursor-pointer",
+                      coverUploading && "pointer-events-none opacity-50"
+                    )}
+                  >
+                    <Upload className="h-4 w-4" aria-hidden />
+                    {coverUploading ? 'Uploading…' : (coverPreview ? 'Change Banner' : 'Choose Banner')}
                   </label>
-                  {coverImageUrl && (
+                  <input
+                    id="cover-file-input"
+                    type="file"
+                    accept="image/*,.png,.jpg,.jpeg,.webp,.svg,.gif"
+                    onClick={(e) => { e.target.value = null; }}
+                    onChange={handleCoverUpload}
+                    disabled={coverUploading}
+                    className="sr-only"
+                  />
+                  {(coverPreview || coverImageUrl) && (
                     <button
                       type="button"
-                      onClick={() => {
-                        setCoverImageUrl('');
-                        setCoverError(false);
-                      }}
-                      className="inline-flex items-center gap-1 rounded-lg border border-line bg-white px-2.5 py-1.5 text-caption font-semibold text-rose-600 hover:bg-rose-50"
+                      onClick={handleRemoveCover}
+                      className="inline-flex items-center gap-1 rounded-lg border border-line bg-white px-2.5 py-1.5 text-caption font-semibold text-rose-600 hover:bg-rose-50 cursor-pointer"
                     >
                       <Trash2 className="h-3.5 w-3.5" />
                       Remove
@@ -537,22 +612,28 @@ export default function PartnerOrganizationProfile() {
                 </p>
 
                 <div className="mt-3 flex flex-wrap items-center gap-3">
-                  <label className="cursor-pointer">
-                    <span className="inline-flex items-center gap-1.5 rounded-lg border border-line bg-white px-3 py-1.5 text-small font-semibold text-ink shadow-xs hover:bg-slate-50">
-                      <Upload className="h-4 w-4" aria-hidden />
-                      {docUploading ? 'Uploading…' : docUrl ? 'Replace Document' : 'Upload Verification Doc'}
-                    </span>
-                    <input
-                      type="file"
-                      accept=".pdf,.doc,.docx"
-                      onChange={handleDocUpload}
-                      disabled={docUploading}
-                      className="sr-only"
-                    />
+                  <label
+                    htmlFor="doc-file-input"
+                    className={cn(
+                      "inline-flex items-center gap-1.5 rounded-lg border border-line bg-white px-3 py-1.5 text-small font-semibold text-ink shadow-xs hover:bg-slate-50 transition-colors cursor-pointer",
+                      docUploading && "pointer-events-none opacity-50"
+                    )}
+                  >
+                    <Upload className="h-4 w-4" aria-hidden />
+                    {docUploading ? 'Uploading…' : docUrl ? 'Replace Document' : 'Upload Verification Doc'}
                   </label>
+                  <input
+                    id="doc-file-input"
+                    type="file"
+                    accept=".pdf,.doc,.docx"
+                    onClick={(e) => { e.target.value = null; }}
+                    onChange={handleDocUpload}
+                    disabled={docUploading}
+                    className="sr-only"
+                  />
                   {docUrl && (
                     <a
-                      href={docUrl}
+                      href={getMediaUrl(docUrl)}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="inline-flex items-center gap-1 text-caption font-semibold text-azure hover:underline"
@@ -571,7 +652,12 @@ export default function PartnerOrganizationProfile() {
         {/* Action Buttons */}
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex flex-wrap items-center gap-3">
-            <Button type="submit" size="lg" loading={isSubmitting} disabled={isSubmitting}>
+            <Button
+              type="submit"
+              size="lg"
+              loading={isSubmitting || logoUploading || coverUploading || docUploading}
+              disabled={isSubmitting || logoUploading || coverUploading || docUploading}
+            >
               {isVerified ? 'Save Profile Changes' : 'Save Profile'}
             </Button>
             {!isVerified && (
@@ -579,8 +665,8 @@ export default function PartnerOrganizationProfile() {
                 type="button"
                 variant="outline"
                 size="lg"
-                loading={isSubmitting}
-                disabled={isSubmitting}
+                loading={isSubmitting || logoUploading || coverUploading || docUploading}
+                disabled={isSubmitting || logoUploading || coverUploading || docUploading}
                 onClick={handleSubmit((vals) => onSubmit(vals, true))}
                 className="border-azure-500 text-azure-700 hover:bg-azure-50"
               >
