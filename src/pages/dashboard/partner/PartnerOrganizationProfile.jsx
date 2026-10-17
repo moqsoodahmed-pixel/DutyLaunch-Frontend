@@ -11,6 +11,7 @@ import {
   FileText,
   ShieldCheck,
   ExternalLink,
+  Trash2,
 } from 'lucide-react';
 import { PanelHeader } from '../../../layouts/AppShell.jsx';
 import { Input, Select, Textarea } from '../../../components/ui/Field.jsx';
@@ -20,6 +21,7 @@ import { LoadingBlock, ErrorState } from '../../../components/ui/States.jsx';
 import { useApi } from '../../../hooks/useApi.js';
 import { useToast } from '../../../context/ToastContext.jsx';
 import { partnerService, uploadService } from '../../../services/contentService.js';
+import { getMediaUrl } from '../../../utils/media.js';
 import { cn } from '../../../utils/cn.js';
 
 const STUDY_MODES = ['Online', 'Distance', 'Regular', 'Classroom', 'Hybrid'];
@@ -49,8 +51,10 @@ export default function PartnerOrganizationProfile() {
   const [orgType, setOrgType] = useState('university');
   const [logoUploading, setLogoUploading] = useState(false);
   const [logoUrl, setLogoUrl] = useState('');
+  const [logoError, setLogoError] = useState(false);
   const [coverUploading, setCoverUploading] = useState(false);
   const [coverImageUrl, setCoverImageUrl] = useState('');
+  const [coverError, setCoverError] = useState(false);
   const [docUploading, setDocUploading] = useState(false);
   const [docUrl, setDocUrl] = useState('');
   const [docName, setDocName] = useState('');
@@ -115,6 +119,7 @@ export default function PartnerOrganizationProfile() {
     const file = e.target.files?.[0];
     if (!file) return;
     setLogoUploading(true);
+    setLogoError(false);
     try {
       const res = await uploadService.image(file);
       setLogoUrl(res.data?.url || '');
@@ -130,6 +135,7 @@ export default function PartnerOrganizationProfile() {
     const file = e.target.files?.[0];
     if (!file) return;
     setCoverUploading(true);
+    setCoverError(false);
     try {
       const res = await uploadService.image(file);
       setCoverImageUrl(res.data?.url || '');
@@ -384,11 +390,12 @@ export default function PartnerOrganizationProfile() {
             <div className="rounded-xl border border-line bg-paper p-4">
               <label className="text-small font-bold text-ink block">Organization Logo</label>
               <p className="text-caption text-slate-500 mb-3">Square aspect ratio (PNG/JPG/WebP)</p>
-              <div className="flex items-center gap-4">
-                {logoUrl ? (
+              <div className="flex flex-wrap items-center gap-4">
+                {logoUrl && !logoError ? (
                   <img
-                    src={logoUrl}
-                    alt="Logo preview"
+                    src={getMediaUrl(logoUrl)}
+                    alt=""
+                    onError={() => setLogoError(true)}
                     className="h-16 w-16 rounded-xl border border-line object-cover bg-white"
                   />
                 ) : (
@@ -396,19 +403,34 @@ export default function PartnerOrganizationProfile() {
                     <Building2 className="h-6 w-6 text-slate-400" aria-hidden />
                   </div>
                 )}
-                <label className="cursor-pointer">
-                  <span className="inline-flex items-center gap-1.5 rounded-lg border border-line bg-white px-3 py-1.5 text-small font-semibold text-slate-700 shadow-xs hover:bg-slate-50">
-                    <Upload className="h-4 w-4" aria-hidden />
-                    {logoUploading ? 'Uploading…' : 'Choose Logo'}
-                  </span>
-                  <input
-                    type="file"
-                    accept="image/*"
-                    onChange={handleLogoUpload}
-                    disabled={logoUploading}
-                    className="sr-only"
-                  />
-                </label>
+                <div className="flex flex-wrap items-center gap-2">
+                  <label className="cursor-pointer">
+                    <span className="inline-flex items-center gap-1.5 rounded-lg border border-line bg-white px-3 py-1.5 text-small font-semibold text-slate-700 shadow-xs hover:bg-slate-50">
+                      <Upload className="h-4 w-4" aria-hidden />
+                      {logoUploading ? 'Uploading…' : 'Choose Logo'}
+                    </span>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={handleLogoUpload}
+                      disabled={logoUploading}
+                      className="sr-only"
+                    />
+                  </label>
+                  {logoUrl && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setLogoUrl('');
+                        setLogoError(false);
+                      }}
+                      className="inline-flex items-center gap-1 rounded-lg border border-line bg-white px-2.5 py-1.5 text-caption font-semibold text-rose-600 hover:bg-rose-50"
+                    >
+                      <Trash2 className="h-3.5 w-3.5" />
+                      Remove
+                    </button>
+                  )}
+                </div>
               </div>
             </div>
 
@@ -417,31 +439,47 @@ export default function PartnerOrganizationProfile() {
                 {orgType === 'university' ? 'Campus Cover Image' : 'Brand Cover Banner'}
               </label>
               <p className="text-caption text-slate-500 mb-3">Wide aspect ratio (16:9 or 5:4)</p>
-              <div className="flex items-center gap-4">
-                {coverImageUrl ? (
+              <div className="flex flex-wrap items-center gap-4">
+                {coverImageUrl && !coverError ? (
                   <img
-                    src={coverImageUrl}
-                    alt="Cover preview"
-                    className="h-16 w-24 rounded-xl border border-line object-cover bg-white"
+                    src={getMediaUrl(coverImageUrl)}
+                    alt=""
+                    onError={() => setCoverError(true)}
+                    className="h-16 w-28 rounded-xl border border-line object-cover bg-white"
                   />
                 ) : (
-                  <div className="grid h-16 w-24 place-items-center rounded-xl border border-dashed border-slate-300 bg-white">
+                  <div className="grid h-16 w-28 place-items-center rounded-xl border border-dashed border-slate-300 bg-white">
                     <FileText className="h-6 w-6 text-slate-400" aria-hidden />
                   </div>
                 )}
-                <label className="cursor-pointer">
-                  <span className="inline-flex items-center gap-1.5 rounded-lg border border-line bg-white px-3 py-1.5 text-small font-semibold text-slate-700 shadow-xs hover:bg-slate-50">
-                    <Upload className="h-4 w-4" aria-hidden />
-                    {coverUploading ? 'Uploading…' : 'Choose Banner'}
-                  </span>
-                  <input
-                    type="file"
-                    accept="image/*"
-                    onChange={handleCoverUpload}
-                    disabled={coverUploading}
-                    className="sr-only"
-                  />
-                </label>
+                <div className="flex flex-wrap items-center gap-2">
+                  <label className="cursor-pointer">
+                    <span className="inline-flex items-center gap-1.5 rounded-lg border border-line bg-white px-3 py-1.5 text-small font-semibold text-slate-700 shadow-xs hover:bg-slate-50">
+                      <Upload className="h-4 w-4" aria-hidden />
+                      {coverUploading ? 'Uploading…' : 'Choose Banner'}
+                    </span>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={handleCoverUpload}
+                      disabled={coverUploading}
+                      className="sr-only"
+                    />
+                  </label>
+                  {coverImageUrl && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setCoverImageUrl('');
+                        setCoverError(false);
+                      }}
+                      className="inline-flex items-center gap-1 rounded-lg border border-line bg-white px-2.5 py-1.5 text-caption font-semibold text-rose-600 hover:bg-rose-50"
+                    >
+                      <Trash2 className="h-3.5 w-3.5" />
+                      Remove
+                    </button>
+                  )}
+                </div>
               </div>
             </div>
           </div>

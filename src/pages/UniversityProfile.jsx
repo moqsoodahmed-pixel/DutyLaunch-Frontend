@@ -10,6 +10,7 @@ import { partnerService, enrolmentService } from '../services/contentService.js'
 import { useRazorpayCheckout } from '../hooks/useRazorpayCheckout.js';
 import { useToast } from '../context/ToastContext.jsx';
 import { useAuth } from '../context/AuthContext.jsx';
+import { getMediaUrl } from '../utils/media.js';
 import {
   GraduationCap,
   MapPin,
@@ -38,6 +39,8 @@ export default function UniversityProfile() {
   const courses = res?.courses || [];
 
   const [enrollingId, setEnrollingId] = useState(null);
+  const [logoError, setLogoError] = useState(false);
+  const [coverError, setCoverError] = useState(false);
 
   const handleEnrol = async (prog) => {
     const fee = Number(prog.fee || 0);
@@ -102,17 +105,18 @@ export default function UniversityProfile() {
       />
 
       {/* Hero / Header Section */}
-      <div className="relative bg-slate-900 text-white">
-        {partner.coverImageUrl ? (
-          <div className="absolute inset-0 opacity-25">
+      <div className="relative bg-slate-900 text-white overflow-hidden">
+        {partner.coverImageUrl && !coverError ? (
+          <div className="absolute inset-0 opacity-30">
             <img
-              src={partner.coverImageUrl}
-              alt={universityName}
+              src={getMediaUrl(partner.coverImageUrl)}
+              alt=""
+              onError={() => setCoverError(true)}
               className="w-full h-full object-cover"
             />
           </div>
         ) : (
-          <div className="absolute inset-0 bg-gradient-to-r from-azure-900 via-slate-900 to-indigo-950 opacity-90" />
+          <div className="absolute inset-0 bg-gradient-to-r from-slate-950 via-azure-950 to-indigo-950 opacity-95" />
         )}
 
         <Container className="relative py-12 md:py-16">
@@ -125,15 +129,21 @@ export default function UniversityProfile() {
           </Link>
 
           <div className="flex flex-col md:flex-row items-start md:items-center gap-6">
-            <div className="h-24 w-24 md:h-28 md:w-28 rounded-2xl bg-white p-2 shadow-xl border border-white/20 flex items-center justify-center shrink-0 overflow-hidden">
-              {partner.logoUrl ? (
+            <div className="h-24 w-24 md:h-28 md:w-28 rounded-2xl bg-white p-2.5 shadow-xl border border-white/20 flex items-center justify-center shrink-0 overflow-hidden">
+              {partner.logoUrl && !logoError ? (
                 <img
-                  src={partner.logoUrl}
+                  src={getMediaUrl(partner.logoUrl)}
                   alt={universityName}
+                  onError={() => setLogoError(true)}
                   className="max-h-full max-w-full object-contain"
                 />
               ) : (
-                <Building2 className="h-12 w-12 text-azure-700" />
+                <div className="flex flex-col items-center justify-center text-azure-700">
+                  <Building2 className="h-10 w-10 text-azure-700" />
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500 mt-1">
+                    {universityName.slice(0, 3)}
+                  </span>
+                </div>
               )}
             </div>
 

@@ -15,6 +15,7 @@ import { useDebounce } from '../../hooks/useDebounce.js';
 import { useToast } from '../../context/ToastContext.jsx';
 import { adminService } from '../../services/adminService.js';
 import { formatDate } from '../../utils/format.js';
+import { getMediaUrl } from '../../utils/media.js';
 
 const STATUS_FILTERS = [
   { value: 'pending', label: 'Pending review' },
@@ -122,7 +123,14 @@ export default function AdminPartners() {
               <div className="flex items-start gap-3">
                 <div className="h-10 w-10 rounded-lg bg-slate-100 border border-line flex items-center justify-center shrink-0 overflow-hidden">
                   {row.logoUrl ? (
-                    <img src={row.logoUrl} alt="" className="h-full w-full object-contain p-1" />
+                    <img
+                      src={getMediaUrl(row.logoUrl)}
+                      alt=""
+                      onError={(e) => {
+                        e.currentTarget.style.display = 'none';
+                      }}
+                      className="h-full w-full object-contain p-1"
+                    />
                   ) : (
                     <Building2 className="h-5 w-5 text-slate-400" />
                   )}

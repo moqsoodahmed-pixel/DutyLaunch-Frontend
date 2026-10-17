@@ -22,6 +22,7 @@ import { images } from '../data/images.js';
 import { SiteImage } from '../components/ui/SiteImage.jsx';
 import { MousePointerClick } from 'lucide-react';
 import { SCHOOL, DEGREES, programmeHref } from '../data/programmes.js';
+import { getMediaUrl } from '../utils/media.js';
 
 
 
@@ -159,8 +160,11 @@ export default function HigherEducation() {
                           <div className="absolute -bottom-2.5 right-3 h-12 w-12 rounded-full border-2 border-white bg-white shadow-md overflow-hidden flex items-center justify-center">
                             {inst?.logoUrl ? (
                               <img
-                                src={inst.logoUrl}
-                                alt={instName}
+                                src={getMediaUrl(inst.logoUrl)}
+                                alt=""
+                                onError={(e) => {
+                                  e.currentTarget.style.display = 'none';
+                                }}
                                 className="h-full w-full object-contain p-1"
                               />
                             ) : (
