@@ -290,9 +290,9 @@ export default function UniversityProfile() {
                                   href={prog.syllabusUrl}
                                   target="_blank"
                                   rel="noopener noreferrer"
-                                  className="inline-flex items-center justify-center gap-1.5 px-3 py-2 text-caption font-semibold rounded-lg border border-red-200 bg-red-50 text-red-700 hover:bg-red-100 transition-colors"
+                                  className="inline-flex items-center justify-center gap-1.5 px-3 py-2 text-caption font-semibold rounded-lg border border-slate-200 bg-white text-slate-700 hover:bg-azure-50 hover:border-azure-300 hover:text-azure-700 transition-colors shadow-2xs"
                                 >
-                                  <FileText className="h-3.5 w-3.5" />
+                                  <FileText className="h-3.5 w-3.5 text-azure-600" />
                                   Syllabus
                                 </a>
                               )}

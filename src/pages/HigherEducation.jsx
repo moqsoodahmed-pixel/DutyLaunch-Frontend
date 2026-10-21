@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { GraduationCap, MapPin, CalendarDays, Clock, FileText, Building2 } from 'lucide-react';
+import { GraduationCap, MapPin, CalendarDays, Clock, FileText, Building2, ArrowRight, CheckCircle2, FileDown } from 'lucide-react';
 import { Seo } from '../components/ui/Seo.jsx';
 import { seoFor } from '../data/seoPages.js';
 import { Container, Section } from '../components/ui/Container.jsx';
@@ -127,119 +127,187 @@ export default function HigherEducation() {
               />
             )}
             {!loading && data?.length > 0 && (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                 {data.map((program) => {
                   const inst = program.institution;
                   const instName = inst?.displayName || inst?.name || 'Partner University';
                   const instId = inst?._id || inst;
                   const targetUrl = instId ? `/universities/${instId}` : `/higher-education/${program.slug || program._id}`;
                   const hasSyllabus = Boolean(program.syllabusUrl);
+                  const displayImage = program.image || inst?.coverImageUrl;
+                  const delivery = (program.deliveryFormat || 'Regular').trim();
+                  const isOnline = delivery.toLowerCase() === 'online';
+                  const isHybrid = delivery.toLowerCase() === 'hybrid';
+                  const feeAmount = typeof program.fee === 'number' && program.fee > 0 ? program.fee : null;
 
                   return (
                     <article
                       key={program._id}
-                      className="group flex flex-col justify-between rounded-2xl border border-line bg-white shadow-sm hover:shadow-md transition-all duration-200 overflow-hidden"
+                      className="group relative flex flex-col justify-between rounded-2xl border border-slate-200/90 bg-white shadow-[0_2px_12px_-2px_rgba(15,28,46,0.06)] hover:shadow-[0_16px_36px_-8px_rgba(29,93,184,0.12)] hover:border-azure-400/80 hover:-translate-y-1 transition-all duration-300 overflow-hidden"
                     >
+                      {/* Top ambient brand highlight line on hover */}
+                      <div className="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-azure-500 via-indigo-500 to-azure-700 opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-20" />
+
                       <div>
-                        {/* Top Image with Overlapping Circular University Logo */}
-                        <div className="relative aspect-[16/10] w-full bg-slate-100 overflow-hidden">
-                          {program.image ? (
+                        {/* 1. Campus Visual Window (Top of Card) */}
+                        <div className="relative aspect-[16/9] w-full overflow-hidden bg-slate-900">
+                          {displayImage ? (
                             <img
-                              src={program.image}
+                              src={getMediaUrl(displayImage)}
                               alt={program.title}
-                              className="h-full w-full object-cover group-hover:scale-105 transition-transform duration-300"
+                              className="h-full w-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
                               loading="lazy"
+                              onError={(e) => {
+                                e.currentTarget.onerror = null;
+                                e.currentTarget.style.display = 'none';
+                              }}
                             />
                           ) : (
-                            <div className="h-full w-full bg-gradient-to-tr from-azure-800 to-indigo-900 flex items-center justify-center p-4">
-                              <GraduationCap className="h-12 w-12 text-white/50" />
+                            <div className="h-full w-full bg-gradient-to-tr from-slate-950 via-azure-950 to-indigo-900 flex items-center justify-center">
+                              <GraduationCap className="h-12 w-12 text-white/20" />
                             </div>
                           )}
 
-                          {/* Circular Logo Overlapping Bottom-Right */}
-                          <div className="absolute -bottom-2.5 right-3 h-12 w-12 rounded-full border-2 border-white bg-white shadow-md overflow-hidden flex items-center justify-center">
-                            {inst?.logoUrl ? (
-                              <img
-                                src={getMediaUrl(inst.logoUrl)}
-                                alt=""
-                                onError={(e) => {
-                                  e.currentTarget.onerror = null;
-                                  e.currentTarget.src = '/favicon-192.png';
-                                }}
-                                className="h-full w-full object-contain p-1"
-                              />
-                            ) : (
-                              <Building2 className="h-6 w-6 text-azure-700" />
-                            )}
-                          </div>
-                        </div>
+                          {/* Gradient Vignette */}
+                          <div className="absolute inset-0 bg-gradient-to-t from-slate-950/75 via-transparent to-black/20 pointer-events-none" />
 
-                        {/* Card Body */}
-                        <div className="p-4 pt-5">
-                          {/* University Name */}
-                          <p className="text-caption font-semibold text-slate-500 uppercase tracking-wide truncate">
-                            {instName}
-                          </p>
-
-                          {/* Programme Name */}
-                          <h3
-                            className="mt-1 text-body font-bold text-ink leading-snug line-clamp-2 min-h-[2.75rem]"
-                            title={program.title}
-                          >
-                            {program.title}
-                          </h3>
-
-                          {/* Relevant Qualification or Programme Type */}
-                          <div className="mt-2.5 flex flex-wrap items-center gap-1.5">
-                            <span className="inline-flex items-center rounded-md bg-azure-50 px-2 py-0.5 text-caption font-medium text-azure-700">
+                          {/* Top Floating Badges */}
+                          <div className="absolute top-3 inset-x-3 flex items-center justify-between gap-2 z-10">
+                            <span className="inline-flex items-center gap-1.5 rounded-full bg-white/95 backdrop-blur-md px-3 py-1 text-[11px] font-bold text-ink shadow-sm tracking-wide border border-white/60">
+                              <GraduationCap className="h-3.5 w-3.5 text-azure-600" />
                               {program.qualification || program.level || 'Degree'}
                             </span>
-                            {program.deliveryFormat && (
-                              <span className="inline-flex items-center rounded-md bg-slate-100 px-2 py-0.5 text-caption text-slate-600 capitalize">
-                                {program.deliveryFormat}
+
+                            <span
+                              className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[10px] font-bold tracking-wide uppercase backdrop-blur-md shadow-sm border ${
+                                isOnline
+                                  ? 'bg-emerald-950/75 text-emerald-200 border-emerald-500/30'
+                                  : isHybrid
+                                  ? 'bg-amber-950/75 text-amber-200 border-amber-500/30'
+                                  : 'bg-slate-950/75 text-white border-white/20'
+                              }`}
+                            >
+                              <span
+                                className={`h-1.5 w-1.5 rounded-full ${
+                                  isOnline ? 'bg-emerald-400' : isHybrid ? 'bg-amber-400' : 'bg-azure-400'
+                                }`}
+                              />
+                              {delivery}
+                            </span>
+                          </div>
+
+                          {/* Bottom-right Fee Badge */}
+                          {feeAmount && (
+                            <div className="absolute bottom-2.5 right-3 z-10">
+                              <span className="inline-flex items-center rounded-full bg-slate-950/85 backdrop-blur-md border border-white/25 px-2.5 py-1 text-[11px] font-bold text-white shadow-sm">
+                                ₹{feeAmount.toLocaleString('en-IN')}
+                              </span>
+                            </div>
+                          )}
+                        </div>
+
+                        {/* 2. Card Body with Institution Details */}
+                        <div className="p-5 pb-3">
+                          {/* Institution Row */}
+                          <div className="flex items-center justify-between gap-2 pb-2.5 border-b border-slate-100">
+                            <Link to={targetUrl} className="flex items-center gap-2 min-w-0 group/inst flex-1">
+                              <div className="h-6 w-6 rounded-md bg-slate-50 border border-slate-200/80 flex items-center justify-center p-0.5 shrink-0 overflow-hidden shadow-2xs group-hover/inst:border-azure-300 transition-colors">
+                                {inst?.logoUrl ? (
+                                  <img
+                                    src={getMediaUrl(inst.logoUrl)}
+                                    alt={instName}
+                                    className="h-full w-full object-contain"
+                                    onError={(e) => {
+                                      e.currentTarget.onerror = null;
+                                      e.currentTarget.style.display = 'none';
+                                    }}
+                                  />
+                                ) : (
+                                  <Building2 className="h-3.5 w-3.5 text-azure-600" />
+                                )}
+                              </div>
+                              <span className="text-caption font-bold text-ink truncate leading-tight group-hover/inst:text-azure-600 transition-colors">
+                                {instName}
+                              </span>
+                              <CheckCircle2 className="h-3.5 w-3.5 text-azure-600 shrink-0" aria-label="Verified Partner" />
+                            </Link>
+
+                            {inst?.location && (
+                              <span className="text-[11px] font-medium text-slate-500 truncate flex items-center gap-1 shrink-0 bg-slate-50 border border-slate-100 px-2 py-0.5 rounded-md">
+                                <MapPin className="h-3 w-3 text-slate-400" />
+                                <span>{inst.location}</span>
                               </span>
                             )}
                           </div>
 
-                          {/* Course Duration / Programme Detail */}
-                          <div className="mt-3 flex items-center gap-1.5 text-caption text-slate-500">
-                            <Clock className="h-3.5 w-3.5 text-slate-400 shrink-0" />
-                            <span className="truncate">{program.duration || 'Flexible duration'}</span>
+                          {/* Specialization / Field Eyebrow */}
+                          <div className="mt-2.5">
+                            {program.field && (
+                              <p className="text-[11px] font-bold uppercase tracking-wider text-azure-600 truncate">
+                                {program.field}
+                              </p>
+                            )}
+
+                            {/* Programme Name */}
+                            <h3
+                              className="text-h4 font-extrabold text-ink group-hover:text-azure-600 transition-colors line-clamp-1 leading-snug tracking-tight mt-0.5"
+                              title={program.title}
+                            >
+                              <Link to={targetUrl}>
+                                {program.title}
+                              </Link>
+                            </h3>
+                          </div>
+
+                          {/* Summary Excerpt (if available) */}
+                          {program.summary && (
+                            <p className="mt-1.5 text-caption text-slate-500 line-clamp-2 leading-relaxed">
+                              {program.summary}
+                            </p>
+                          )}
+
+                          {/* Horizontal Specifications Strip */}
+                          <div className="mt-3 pt-3 border-t border-slate-100 flex flex-wrap items-center gap-4 text-caption text-slate-600">
+                            {program.duration && (
+                              <div className="flex items-center gap-1.5">
+                                <Clock className="h-3.5 w-3.5 text-azure-500 shrink-0" />
+                                <span className="font-medium text-slate-700">{program.duration}</span>
+                              </div>
+                            )}
+                            {program.level && (
+                              <div className="flex items-center gap-1.5">
+                                <GraduationCap className="h-3.5 w-3.5 text-azure-500 shrink-0" />
+                                <span className="font-medium text-slate-700">{program.level}</span>
+                              </div>
+                            )}
                           </div>
                         </div>
                       </div>
 
-                      {/* Card Footer: View Program & Syllabus Buttons */}
-                      <div className="p-4 pt-0 mt-2 border-t border-line/60 flex items-center gap-2">
-                        <Link
-                          to={targetUrl}
-                          className="flex-1 inline-flex items-center justify-center rounded-lg bg-azure-600 hover:bg-azure-700 text-white px-3 py-2 text-caption font-semibold transition-colors shadow-sm text-center"
-                        >
-                          View Program
-                        </Link>
+                      {/* 3. Action Footer */}
+                      <div className="p-5 pt-0 pb-4">
+                        <div className="flex items-center gap-2 pt-3 border-t border-slate-100">
+                          <Link
+                            to={targetUrl}
+                            className="flex-1 inline-flex items-center justify-center gap-1.5 rounded-xl bg-ink hover:bg-azure-600 active:scale-[0.98] text-white py-2.5 px-4 text-caption font-bold shadow-xs transition-all duration-200 text-center group/btn"
+                          >
+                            <span>View Programme</span>
+                            <ArrowRight className="h-3.5 w-3.5 transition-transform duration-200 group-hover/btn:translate-x-1" />
+                          </Link>
 
-                        {hasSyllabus ? (
-                          <a
-                            href={program.syllabusUrl}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="inline-flex items-center justify-center rounded-lg border border-red-200 bg-red-50 hover:bg-red-100 text-red-700 px-3 py-2 text-caption font-semibold transition-colors shrink-0"
-                            title="Download programme syllabus"
-                          >
-                            <FileText className="h-3.5 w-3.5 mr-1" />
-                            Syllabus
-                          </a>
-                        ) : (
-                          <button
-                            type="button"
-                            disabled
-                            className="inline-flex items-center justify-center rounded-lg border border-slate-200 bg-slate-50 text-slate-400 px-2.5 py-2 text-caption font-medium cursor-not-allowed opacity-60 shrink-0"
-                            title="Syllabus not available for this programme"
-                          >
-                            <FileText className="h-3.5 w-3.5 mr-1" />
-                            Syllabus
-                          </button>
-                        )}
+                          {hasSyllabus && (
+                            <a
+                              href={program.syllabusUrl}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="inline-flex items-center justify-center gap-1.5 rounded-xl border border-slate-200 bg-white hover:bg-azure-50 hover:border-azure-300 text-slate-700 hover:text-azure-700 py-2.5 px-3.5 text-caption font-bold transition-all shrink-0 active:scale-[0.98] shadow-2xs"
+                              title="Download programme syllabus"
+                            >
+                              <FileDown className="h-3.5 w-3.5 text-azure-600" />
+                              <span>Syllabus</span>
+                            </a>
+                          )}
+                        </div>
                       </div>
                     </article>
                   );
