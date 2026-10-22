@@ -76,6 +76,7 @@ export const partnerService = {
 export const enrolmentService = {
   myEnrolments: () => api.get('/enrolments/mine'),
   enrolFree: (payload) => api.post('/enrolments/free', payload),
+  apply: (payload) => api.post('/enrolments/apply', payload),
   partnerEnrolments: (params) => api.get('/enrolments/partner', { params }),
   adminEnrolments: (params) => api.get('/enrolments/admin', { params }),
 };

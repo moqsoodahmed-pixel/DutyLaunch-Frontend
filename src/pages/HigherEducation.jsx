@@ -138,7 +138,6 @@ export default function HigherEducation() {
                   const delivery = (program.deliveryFormat || 'Regular').trim();
                   const isOnline = delivery.toLowerCase() === 'online';
                   const isHybrid = delivery.toLowerCase() === 'hybrid';
-                  const feeAmount = typeof program.fee === 'number' && program.fee > 0 ? program.fee : null;
 
                   return (
                     <article
@@ -195,15 +194,6 @@ export default function HigherEducation() {
                               {delivery}
                             </span>
                           </div>
-
-                          {/* Bottom-right Fee Badge */}
-                          {feeAmount && (
-                            <div className="absolute bottom-2.5 right-3 z-10">
-                              <span className="inline-flex items-center rounded-full bg-slate-950/85 backdrop-blur-md border border-white/25 px-2.5 py-1 text-[11px] font-bold text-white shadow-sm">
-                                ₹{feeAmount.toLocaleString('en-IN')}
-                              </span>
-                            </div>
-                          )}
                         </div>
 
                         {/* 2. Card Body with Institution Details */}

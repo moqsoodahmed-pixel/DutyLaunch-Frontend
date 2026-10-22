@@ -239,8 +239,8 @@ export default function PartnerHigherEducation() {
           },
           {
             key: 'fee',
-            header: 'Fee',
-            render: (row) => (row.fee > 0 ? formatCurrency(row.fee, row.currency) : 'Free / Included'),
+            header: 'Fee (Per Year)',
+            render: (row) => (row.fee > 0 ? `${formatCurrency(row.fee, row.currency)} / yr` : 'Free / Included'),
           },
           {
             key: 'syllabus',
@@ -343,7 +343,14 @@ export default function PartnerHigherEducation() {
 
           <div className="grid gap-4 sm:grid-cols-2">
             <Input label="Programme Duration" placeholder="e.g. 2 Years / 4 Semesters" {...register('duration')} />
-            <Input label="Programme Fee (INR)" type="number" min="0" {...register('fee')} />
+            <Input
+              label="Programme Fee (INR / Year)"
+              type="number"
+              min="0"
+              placeholder="e.g. 100000"
+              hint="Annual tuition fee per year"
+              {...register('fee')}
+            />
           </div>
 
           <Textarea
