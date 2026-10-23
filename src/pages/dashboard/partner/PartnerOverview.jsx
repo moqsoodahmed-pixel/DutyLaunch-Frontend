@@ -121,22 +121,20 @@ export default function PartnerOverview() {
     <div className="space-y-7">
       <PanelHeader
         title={profile?.displayName || profile?.name || 'Partner Portal'}
-        description={`Welcome to DutyLaunch ${
-          isUniversity ? 'Higher Education' : 'Training'
-        } Portal. Manage approved offerings, track student enrolments and monitor payout settlements.`}
+        description="Welcome to DutyLaunch Partner Portal. Manage degree programmes, training courses, track student enrolments and monitor payout settlements."
         actions={
           <div className="flex flex-wrap gap-2">
-            {isVerified && isUniversity && (
-              <Button to="/partner/higher-education?action=new" size="sm">
-                <PlusCircle className="h-4 w-4" aria-hidden />
-                New Programme
-              </Button>
-            )}
-            {isVerified && !isUniversity && (
-              <Button to="/partner/courses?action=new" size="sm">
-                <PlusCircle className="h-4 w-4" aria-hidden />
-                New Course
-              </Button>
+            {isVerified && (
+              <>
+                <Button to="/partner/higher-education?action=new" size="sm">
+                  <PlusCircle className="h-4 w-4" aria-hidden />
+                  New Programme
+                </Button>
+                <Button to="/partner/courses?action=new" size="sm">
+                  <PlusCircle className="h-4 w-4" aria-hidden />
+                  New Course
+                </Button>
+              </>
             )}
             <Button to="/partner/profile" variant="outline" size="sm">
               <Building2 className="h-4 w-4" aria-hidden />
@@ -241,7 +239,7 @@ export default function PartnerOverview() {
           <section className="tile p-5 sm:p-6">
             <h3 className="text-h3 font-bold text-ink">Organization Portal Sections</h3>
             <p className="mt-1 text-small text-slate-600">
-              Access relevant tools designed for {isUniversity ? 'universities' : 'training providers'}.
+              Access your higher education degree programmes, training courses, and payout management tools.
             </p>
 
             <div className="mt-5 grid gap-3 sm:grid-cols-2">
@@ -265,55 +263,53 @@ export default function PartnerOverview() {
                 </span>
               </Link>
 
-              {isUniversity ? (
-                <Link
-                  to="/partner/higher-education"
-                  className={cn(
-                    'group flex flex-col justify-between rounded-xl border border-line bg-paper p-4 transition-all',
-                    isVerified ? 'hover:border-azure-400 hover:bg-white' : 'opacity-80'
-                  )}
-                >
-                  <div>
-                    <span className="inline-grid h-10 w-10 place-items-center rounded-lg bg-white shadow-xs group-hover:bg-azure-50">
-                      <GraduationCap className="h-5 w-5 text-azure" aria-hidden />
-                    </span>
-                    <h4 className="mt-3 text-body font-bold text-ink group-hover:text-azure-700">
-                      Higher Education
-                    </h4>
-                    <p className="mt-1 text-caption text-slate-600">
-                      Manage degree and diploma programmes, fees, syllabi and admission details.
-                    </p>
-                  </div>
-                  <span className="mt-4 inline-flex items-center gap-1 text-caption font-semibold text-azure group-hover:underline">
-                    {isVerified ? 'Manage programmes' : 'Requires verification'}{' '}
-                    <ArrowRight className="h-3.5 w-3.5" aria-hidden />
+              <Link
+                to="/partner/higher-education"
+                className={cn(
+                  'group flex flex-col justify-between rounded-xl border border-line bg-paper p-4 transition-all',
+                  isVerified ? 'hover:border-azure-400 hover:bg-white' : 'opacity-80'
+                )}
+              >
+                <div>
+                  <span className="inline-grid h-10 w-10 place-items-center rounded-lg bg-white shadow-xs group-hover:bg-azure-50">
+                    <GraduationCap className="h-5 w-5 text-azure" aria-hidden />
                   </span>
-                </Link>
-              ) : (
-                <Link
-                  to="/partner/courses"
-                  className={cn(
-                    'group flex flex-col justify-between rounded-xl border border-line bg-paper p-4 transition-all',
-                    isVerified ? 'hover:border-azure-400 hover:bg-white' : 'opacity-80'
-                  )}
-                >
-                  <div>
-                    <span className="inline-grid h-10 w-10 place-items-center rounded-lg bg-white shadow-xs group-hover:bg-azure-50">
-                      <BookOpen className="h-5 w-5 text-azure" aria-hidden />
-                    </span>
-                    <h4 className="mt-3 text-body font-bold text-ink group-hover:text-azure-700">
-                      Courses & Training
-                    </h4>
-                    <p className="mt-1 text-caption text-slate-600">
-                      Manage online, offline, hybrid or self-paced courses, schedules and pricing.
-                    </p>
-                  </div>
-                  <span className="mt-4 inline-flex items-center gap-1 text-caption font-semibold text-azure group-hover:underline">
-                    {isVerified ? 'Manage courses' : 'Requires verification'}{' '}
-                    <ArrowRight className="h-3.5 w-3.5" aria-hidden />
+                  <h4 className="mt-3 text-body font-bold text-ink group-hover:text-azure-700">
+                    Higher Education
+                  </h4>
+                  <p className="mt-1 text-caption text-slate-600">
+                    Manage degree and diploma programmes, fees, syllabi and admission details.
+                  </p>
+                </div>
+                <span className="mt-4 inline-flex items-center gap-1 text-caption font-semibold text-azure group-hover:underline">
+                  {isVerified ? 'Manage programmes' : 'Requires verification'}{' '}
+                  <ArrowRight className="h-3.5 w-3.5" aria-hidden />
+                </span>
+              </Link>
+
+              <Link
+                to="/partner/courses"
+                className={cn(
+                  'group flex flex-col justify-between rounded-xl border border-line bg-paper p-4 transition-all',
+                  isVerified ? 'hover:border-azure-400 hover:bg-white' : 'opacity-80'
+                )}
+              >
+                <div>
+                  <span className="inline-grid h-10 w-10 place-items-center rounded-lg bg-white shadow-xs group-hover:bg-azure-50">
+                    <BookOpen className="h-5 w-5 text-azure" aria-hidden />
                   </span>
-                </Link>
-              )}
+                  <h4 className="mt-3 text-body font-bold text-ink group-hover:text-azure-700">
+                    Courses & Training
+                  </h4>
+                  <p className="mt-1 text-caption text-slate-600">
+                    Manage online, offline, hybrid or self-paced courses, schedules and pricing.
+                  </p>
+                </div>
+                <span className="mt-4 inline-flex items-center gap-1 text-caption font-semibold text-azure group-hover:underline">
+                  {isVerified ? 'Manage courses' : 'Requires verification'}{' '}
+                  <ArrowRight className="h-3.5 w-3.5" aria-hidden />
+                </span>
+              </Link>
 
               <Link
                 to="/partner/enrolments"

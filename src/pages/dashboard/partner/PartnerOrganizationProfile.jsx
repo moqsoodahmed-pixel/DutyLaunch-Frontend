@@ -210,7 +210,7 @@ export default function PartnerOrganizationProfile() {
       const payload = {
         ...values,
         orgType,
-        track: orgType === 'university' ? 'education' : 'courses',
+        track: 'both',
         logoUrl,
         coverImageUrl,
         verificationDetails: {
@@ -327,7 +327,7 @@ export default function PartnerOrganizationProfile() {
         <section className="tile p-5 sm:p-6">
           <h2 className="text-h3 font-bold text-ink">1. Organization Type</h2>
           <p className="mt-1 text-small text-slate-600">
-            Select the category that best represents your legal entity. This configures your marketplace tools.
+            Select the category that best represents your legal entity. Any verified organization can offer both degree programmes and training courses.
           </p>
 
           <div className="mt-5 grid gap-4 sm:grid-cols-2">
@@ -348,7 +348,7 @@ export default function PartnerOrganizationProfile() {
                 University / Higher Education Institution
               </p>
               <p className="mt-1 text-caption text-slate-600">
-                For universities, colleges, and accredited academic institutions offering undergraduate, postgraduate, and diploma degrees.
+                For universities, colleges, and accredited academic institutions. You can offer degree & diploma programmes as well as skill courses.
               </p>
             </button>
 
@@ -367,7 +367,7 @@ export default function PartnerOrganizationProfile() {
               </span>
               <p className="mt-3 text-body font-bold text-ink">EdTech / Training Company</p>
               <p className="mt-1 text-caption text-slate-600">
-                For professional training providers, institutes, and EdTech companies offering online courses, classroom bootcamps, or certification tracks.
+                For professional training providers, institutes, and EdTech companies. You can offer courses & certifications as well as degree programmes.
               </p>
             </button>
           </div>

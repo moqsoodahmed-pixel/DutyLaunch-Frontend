@@ -29,12 +29,8 @@ export default function DashboardLayout() {
     const partnerNavItems = [
       { to: '/partner', label: 'Overview', icon: 'LayoutDashboard', end: true },
       { to: '/partner/profile', label: 'Organization profile', icon: 'Building2', end: true },
-      ...(orgType !== 'edtech'
-        ? [{ to: '/partner/higher-education', label: 'Higher Education', icon: 'GraduationCap', end: true }]
-        : []),
-      ...(orgType !== 'university'
-        ? [{ to: '/partner/courses', label: 'Courses & Training', icon: 'BookOpen', end: true }]
-        : []),
+      { to: '/partner/higher-education', label: 'Higher Education', icon: 'GraduationCap', end: true },
+      { to: '/partner/courses', label: 'Courses & Training', icon: 'BookOpen', end: true },
       { to: '/partner/enrolments', label: 'Enrolments & Orders', icon: 'Users', end: true },
       { to: '/partner/settlements', label: 'Settlements & Payouts', icon: 'Landmark', end: true },
     ];
