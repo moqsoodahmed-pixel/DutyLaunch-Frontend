@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useForm } from 'react-hook-form';
 import {
   Plus,
@@ -54,6 +54,9 @@ export default function PartnerCourses() {
   const [syllabusName, setSyllabusName] = useState('');
   const [imageUploading, setImageUploading] = useState(false);
   const [imageUrl, setImageUrl] = useState('');
+
+  const syllabusInputRef = useRef(null);
+  const imageInputRef = useRef(null);
 
   const {
     register,
@@ -135,6 +138,7 @@ export default function PartnerCourses() {
       toast.error(err.message || 'Syllabus upload failed');
     } finally {
       setSyllabusUploading(false);
+      if (e.target) e.target.value = '';
     }
   };
 
@@ -150,6 +154,7 @@ export default function PartnerCourses() {
       toast.error(err.message || 'Image upload failed');
     } finally {
       setImageUploading(false);
+      if (e.target) e.target.value = '';
     }
   };
 
@@ -416,19 +421,23 @@ export default function PartnerCourses() {
             <div>
               <label className="text-small font-bold text-ink block">Syllabus / Brochure (PDF/Word)</label>
               <div className="mt-2 flex items-center gap-3">
-                <label className="cursor-pointer">
-                  <span className="inline-flex items-center gap-1.5 rounded-lg border border-line bg-white px-3 py-1.5 text-small font-semibold text-slate-700 shadow-xs hover:bg-slate-50">
-                    <Upload className="h-4 w-4" aria-hidden />
-                    {syllabusUploading ? 'Uploading…' : syllabusUrl ? 'Replace' : 'Upload Syllabus'}
-                  </span>
-                  <input
-                    type="file"
-                    accept=".pdf,.doc,.docx"
-                    onChange={handleSyllabusUpload}
-                    disabled={syllabusUploading}
-                    className="sr-only"
-                  />
-                </label>
+                <input
+                  ref={syllabusInputRef}
+                  type="file"
+                  accept=".pdf,.doc,.docx"
+                  onChange={handleSyllabusUpload}
+                  disabled={syllabusUploading}
+                  className="hidden"
+                />
+                <button
+                  type="button"
+                  onClick={() => syllabusInputRef.current?.click()}
+                  disabled={syllabusUploading}
+                  className="inline-flex items-center gap-1.5 rounded-lg border border-line bg-white px-3 py-1.5 text-small font-semibold text-slate-700 shadow-xs hover:bg-slate-50 transition-colors disabled:opacity-60 cursor-pointer"
+                >
+                  <Upload className="h-4 w-4" aria-hidden />
+                  {syllabusUploading ? 'Uploading…' : syllabusUrl ? 'Replace' : 'Upload Syllabus'}
+                </button>
                 {syllabusUrl && (
                   <span className="text-caption font-semibold text-azure truncate max-w-[12rem]">
                     {syllabusName || 'Uploaded'}
@@ -440,19 +449,23 @@ export default function PartnerCourses() {
             <div>
               <label className="text-small font-bold text-ink block">Course Thumbnail</label>
               <div className="mt-2 flex items-center gap-3">
-                <label className="cursor-pointer">
-                  <span className="inline-flex items-center gap-1.5 rounded-lg border border-line bg-white px-3 py-1.5 text-small font-semibold text-slate-700 shadow-xs hover:bg-slate-50">
-                    <Upload className="h-4 w-4" aria-hidden />
-                    {imageUploading ? 'Uploading…' : imageUrl ? 'Replace' : 'Upload Image'}
-                  </span>
-                  <input
-                    type="file"
-                    accept="image/*"
-                    onChange={handleImageUpload}
-                    disabled={imageUploading}
-                    className="sr-only"
-                  />
-                </label>
+                <input
+                  ref={imageInputRef}
+                  type="file"
+                  accept="image/*"
+                  onChange={handleImageUpload}
+                  disabled={imageUploading}
+                  className="hidden"
+                />
+                <button
+                  type="button"
+                  onClick={() => imageInputRef.current?.click()}
+                  disabled={imageUploading}
+                  className="inline-flex items-center gap-1.5 rounded-lg border border-line bg-white px-3 py-1.5 text-small font-semibold text-slate-700 shadow-xs hover:bg-slate-50 transition-colors disabled:opacity-60 cursor-pointer"
+                >
+                  <Upload className="h-4 w-4" aria-hidden />
+                  {imageUploading ? 'Uploading…' : imageUrl ? 'Replace' : 'Upload Image'}
+                </button>
                 {imageUrl && (
                   <img src={imageUrl} alt="Preview" className="h-8 w-12 rounded object-cover border" />
                 )}
