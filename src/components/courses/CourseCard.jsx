@@ -43,22 +43,23 @@ export function CourseCard({ course }) {
 
       <div>
         {/* 1. Visual Window (Top of Card) */}
-        <div className="relative aspect-[16/9] w-full overflow-hidden bg-slate-900">
-          {displayImage ? (
+        <div className="relative aspect-[16/9] w-full overflow-hidden bg-gradient-to-tr from-slate-950 via-azure-950 to-indigo-900">
+          {/* Ambient fallback illustration underneath */}
+          <div className="absolute inset-0 flex items-center justify-center opacity-30 pointer-events-none">
+            <BookOpen className="h-14 w-14 text-white" />
+          </div>
+
+          {displayImage && (
             <img
               src={getMediaUrl(displayImage)}
               alt={course.title}
-              className="h-full w-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
+              className="relative h-full w-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out z-[1]"
               loading="lazy"
               onError={(e) => {
                 e.currentTarget.onerror = null;
                 e.currentTarget.style.display = 'none';
               }}
             />
-          ) : (
-            <div className="h-full w-full bg-gradient-to-tr from-slate-950 via-azure-950 to-indigo-900 flex items-center justify-center">
-              <BookOpen className="h-12 w-12 text-white/20" />
-            </div>
           )}
 
           {/* Gradient Vignette */}
@@ -95,19 +96,18 @@ export function CourseCard({ course }) {
           {/* Training Centre / Institution Row */}
           <div className="flex items-center justify-between gap-2 pb-2.5 border-b border-slate-100">
             <Link to={instTargetUrl} className="flex items-center gap-2 min-w-0 group/inst flex-1">
-              <div className="h-6 w-6 rounded-md bg-slate-50 border border-slate-200/80 flex items-center justify-center p-0.5 shrink-0 overflow-hidden shadow-2xs group-hover/inst:border-azure-300 transition-colors">
-                {inst?.logoUrl ? (
+              <div className="relative h-6 w-6 rounded-md bg-slate-100 border border-slate-200/80 flex items-center justify-center p-0.5 shrink-0 overflow-hidden shadow-2xs group-hover/inst:border-azure-300 transition-colors">
+                <Building2 className="h-3.5 w-3.5 text-azure-600/70" />
+                {inst?.logoUrl && (
                   <img
                     src={getMediaUrl(inst.logoUrl)}
                     alt={instName}
-                    className="h-full w-full object-contain"
+                    className="absolute inset-0 h-full w-full object-contain p-0.5 bg-white"
                     onError={(e) => {
                       e.currentTarget.onerror = null;
                       e.currentTarget.style.display = 'none';
                     }}
                   />
-                ) : (
-                  <Building2 className="h-3.5 w-3.5 text-azure-600" />
                 )}
               </div>
               <span className="text-caption font-bold text-ink truncate leading-tight group-hover/inst:text-azure-600 transition-colors">

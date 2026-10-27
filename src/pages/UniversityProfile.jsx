@@ -160,18 +160,20 @@ export default function UniversityProfile() {
       />
 
       {/* Hero / Header Section */}
-      <div className="relative bg-slate-900 text-white overflow-hidden">
-        {partner.coverImageUrl && !coverError ? (
-          <div className="absolute inset-0 opacity-30">
+      <div className="relative bg-gradient-to-r from-slate-950 via-azure-950 to-indigo-950 text-white overflow-hidden min-h-[220px]">
+        {/* Ambient background decoration */}
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_80%_at_50%_-20%,rgba(59,130,246,0.2),rgba(0,0,0,0))] pointer-events-none" />
+
+        {partner.coverImageUrl && !coverError && (
+          <div className="absolute inset-0">
             <img
               src={getMediaUrl(partner.coverImageUrl)}
               alt=""
               onError={() => setCoverError(true)}
-              className="w-full h-full object-cover"
+              className="w-full h-full object-cover opacity-40"
             />
+            <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/60 to-transparent" />
           </div>
-        ) : (
-          <div className="absolute inset-0 bg-gradient-to-r from-slate-950 via-azure-950 to-indigo-950 opacity-95" />
         )}
 
         <Container className="relative py-12 md:py-16">
@@ -184,21 +186,20 @@ export default function UniversityProfile() {
           </Link>
 
           <div className="flex flex-col md:flex-row items-start md:items-center gap-6">
-            <div className="h-24 w-24 md:h-28 md:w-28 rounded-2xl bg-white p-2.5 shadow-xl border border-white/20 flex items-center justify-center shrink-0 overflow-hidden">
-              {partner.logoUrl && !logoError ? (
+            <div className="relative h-24 w-24 md:h-28 md:w-28 rounded-2xl bg-white p-2.5 shadow-xl border border-white/20 flex items-center justify-center shrink-0 overflow-hidden">
+              <div className="flex flex-col items-center justify-center text-azure-700">
+                <Building2 className="h-10 w-10 text-azure-700" />
+                <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500 mt-1">
+                  {universityName.slice(0, 3)}
+                </span>
+              </div>
+              {partner.logoUrl && !logoError && (
                 <img
                   src={getMediaUrl(partner.logoUrl)}
                   alt={universityName}
                   onError={() => setLogoError(true)}
-                  className="max-h-full max-w-full object-contain"
+                  className="absolute inset-0 h-full w-full object-contain p-2.5 bg-white z-[1]"
                 />
-              ) : (
-                <div className="flex flex-col items-center justify-center text-azure-700">
-                  <Building2 className="h-10 w-10 text-azure-700" />
-                  <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500 mt-1">
-                    {universityName.slice(0, 3)}
-                  </span>
-                </div>
               )}
             </div>
 
