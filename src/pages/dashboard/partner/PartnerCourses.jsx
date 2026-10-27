@@ -18,6 +18,7 @@ import { Badge } from '../../../components/ui/Badge.jsx';
 import { useApi } from '../../../hooks/useApi.js';
 import { useToast } from '../../../context/ToastContext.jsx';
 import { courseService, partnerService, uploadService } from '../../../services/contentService.js';
+import { getMediaUrl } from '../../../utils/media.js';
 import { formatCurrency } from '../../../utils/format.js';
 
 const TRACKS = ['professional', 'upskill', 'certification'];
@@ -54,6 +55,7 @@ export default function PartnerCourses() {
   const [syllabusName, setSyllabusName] = useState('');
   const [imageUploading, setImageUploading] = useState(false);
   const [imageUrl, setImageUrl] = useState('');
+  const [imagePreview, setImagePreview] = useState('');
 
   const syllabusInputRef = useRef(null);
   const imageInputRef = useRef(null);
@@ -63,6 +65,8 @@ export default function PartnerCourses() {
     handleSubmit,
     watch,
     reset,
+    setError,
+    clearErrors,
     formState: { errors, isSubmitting },
   } = useForm();
 
@@ -76,9 +80,11 @@ export default function PartnerCourses() {
       toast.error('Your organization must be approved by admin before creating courses');
       return;
     }
+    clearErrors();
     setSyllabusUrl('');
     setSyllabusName('');
     setImageUrl('');
+    setImagePreview('');
     reset({
       title: '',
       category: categories?.[0]?._id || '',
@@ -101,9 +107,11 @@ export default function PartnerCourses() {
   };
 
   const openEdit = (c) => {
+    clearErrors();
     setSyllabusUrl(c.syllabusUrl || '');
     setSyllabusName(c.syllabusName || '');
     setImageUrl(c.thumbnail || '');
+    setImagePreview(c.thumbnail ? getMediaUrl(c.thumbnail) : '');
     reset({
       title: c.title || '',
       category: c.category?._id || c.category || '',
@@ -131,7 +139,7 @@ export default function PartnerCourses() {
     setSyllabusUploading(true);
     try {
       const res = await uploadService.document(file);
-      setSyllabusUrl(res.data?.url || '');
+      setSyllabusUrl(res.data?.url || res.url || '');
       setSyllabusName(res.data?.originalname || file.name);
       toast.success('Syllabus uploaded');
     } catch (err) {
@@ -145,10 +153,15 @@ export default function PartnerCourses() {
   const handleImageUpload = async (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
+
+    // Immediate local preview so thumbnail is instantly visible
+    const localUrl = URL.createObjectURL(file);
+    setImagePreview(localUrl);
     setImageUploading(true);
     try {
       const res = await uploadService.image(file);
-      setImageUrl(res.data?.url || '');
+      const serverUrl = res.data?.url || res.url || '';
+      setImageUrl(serverUrl);
       toast.success('Thumbnail uploaded');
     } catch (err) {
       toast.error(err.message || 'Image upload failed');
@@ -159,6 +172,7 @@ export default function PartnerCourses() {
   };
 
   const onSubmit = async (values, submitForReview = false) => {
+    clearErrors();
     if (values.startDate && values.endDate) {
       if (new Date(values.endDate) < new Date(values.startDate)) {
         toast.error('End date cannot be earlier than start date');
@@ -187,7 +201,15 @@ export default function PartnerCourses() {
       setEditing(null);
       refetch();
     } catch (err) {
-      toast.error(err.message || 'Could not save course');
+      if (err.fieldErrors?.length) {
+        err.fieldErrors.forEach((f) => {
+          if (f.field) setError(f.field, { message: f.message });
+        });
+        const summary = err.fieldErrors.map((f) => f.message).join(' · ');
+        toast.error(summary || err.message);
+      } else {
+        toast.error(err.message || 'Could not save course');
+      }
     }
   };
 
@@ -464,10 +486,27 @@ export default function PartnerCourses() {
                   className="inline-flex items-center gap-1.5 rounded-lg border border-line bg-white px-3 py-1.5 text-small font-semibold text-slate-700 shadow-xs hover:bg-slate-50 transition-colors disabled:opacity-60 cursor-pointer"
                 >
                   <Upload className="h-4 w-4" aria-hidden />
-                  {imageUploading ? 'Uploading…' : imageUrl ? 'Replace' : 'Upload Image'}
+                  {imageUploading ? 'Uploading…' : imagePreview || imageUrl ? 'Replace' : 'Upload Image'}
                 </button>
-                {imageUrl && (
-                  <img src={imageUrl} alt="Preview" className="h-8 w-12 rounded object-cover border" />
+                {(imagePreview || imageUrl) && (
+                  <div className="flex items-center gap-2">
+                    <img
+                      src={imagePreview || getMediaUrl(imageUrl)}
+                      alt="Thumbnail preview"
+                      className="h-9 w-14 rounded object-cover border border-line shadow-xs bg-slate-100"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setImageUrl('');
+                        setImagePreview('');
+                      }}
+                      className="text-caption font-semibold text-slate-400 hover:text-danger"
+                      title="Remove thumbnail"
+                    >
+                      Remove
+                    </button>
+                  </div>
                 )}
               </div>
             </div>

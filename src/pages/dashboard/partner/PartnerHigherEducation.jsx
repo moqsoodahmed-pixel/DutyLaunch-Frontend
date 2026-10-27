@@ -20,6 +20,7 @@ import { Badge } from '../../../components/ui/Badge.jsx';
 import { useApi } from '../../../hooks/useApi.js';
 import { useToast } from '../../../context/ToastContext.jsx';
 import { educationService, partnerService, uploadService } from '../../../services/contentService.js';
+import { getMediaUrl } from '../../../utils/media.js';
 import { formatCurrency } from '../../../utils/format.js';
 
 const LEVELS = ['Undergraduate', 'Postgraduate', 'Diploma', 'Doctorate', 'Certificate'];
@@ -54,6 +55,7 @@ export default function PartnerHigherEducation() {
   const [syllabusName, setSyllabusName] = useState('');
   const [imageUploading, setImageUploading] = useState(false);
   const [imageUrl, setImageUrl] = useState('');
+  const [imagePreview, setImagePreview] = useState('');
 
   const syllabusInputRef = useRef(null);
   const imageInputRef = useRef(null);
@@ -62,6 +64,8 @@ export default function PartnerHigherEducation() {
     register,
     handleSubmit,
     reset,
+    setError,
+    clearErrors,
     formState: { errors, isSubmitting },
   } = useForm();
 
@@ -70,9 +74,11 @@ export default function PartnerHigherEducation() {
       toast.error('Your organization must be approved by admin before creating programmes');
       return;
     }
+    clearErrors();
     setSyllabusUrl('');
     setSyllabusName('');
     setImageUrl('');
+    setImagePreview('');
     reset({
       title: '',
       qualification: '',
@@ -90,9 +96,11 @@ export default function PartnerHigherEducation() {
   };
 
   const openEdit = (p) => {
+    clearErrors();
     setSyllabusUrl(p.syllabusUrl || '');
     setSyllabusName(p.syllabusName || '');
     setImageUrl(p.image || '');
+    setImagePreview(p.image ? getMediaUrl(p.image) : '');
     reset({
       title: p.title || '',
       qualification: p.qualification || '',
@@ -115,7 +123,7 @@ export default function PartnerHigherEducation() {
     setSyllabusUploading(true);
     try {
       const res = await uploadService.document(file);
-      setSyllabusUrl(res.data?.url || '');
+      setSyllabusUrl(res.data?.url || res.url || '');
       setSyllabusName(res.data?.originalname || file.name);
       toast.success('Syllabus uploaded');
     } catch (err) {
@@ -129,10 +137,15 @@ export default function PartnerHigherEducation() {
   const handleImageUpload = async (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
+
+    // Instant local preview so it is visible immediately without waiting or domain mismatch
+    const localUrl = URL.createObjectURL(file);
+    setImagePreview(localUrl);
     setImageUploading(true);
     try {
       const res = await uploadService.image(file);
-      setImageUrl(res.data?.url || '');
+      const serverUrl = res.data?.url || res.url || '';
+      setImageUrl(serverUrl);
       toast.success('Cover image uploaded');
     } catch (err) {
       toast.error(err.message || 'Image upload failed');
@@ -143,6 +156,7 @@ export default function PartnerHigherEducation() {
   };
 
   const onSubmit = async (values, submitForReview = false) => {
+    clearErrors();
     const payload = {
       ...values,
       fee: Number(values.fee) || 0,
@@ -163,7 +177,15 @@ export default function PartnerHigherEducation() {
       setEditing(null);
       refetch();
     } catch (err) {
-      toast.error(err.message || 'Could not save programme');
+      if (err.fieldErrors?.length) {
+        err.fieldErrors.forEach((f) => {
+          if (f.field) setError(f.field, { message: f.message });
+        });
+        const summary = err.fieldErrors.map((f) => f.message).join(' · ');
+        toast.error(summary || err.message);
+      } else {
+        toast.error(err.message || 'Could not save programme');
+      }
     }
   };
 
@@ -325,7 +347,10 @@ export default function PartnerHigherEducation() {
               required
               placeholder="e.g. Master of Business Administration"
               error={errors.title?.message}
-              {...register('title', { required: 'Enter programme name' })}
+              {...register('title', {
+                required: 'Enter programme name',
+                minLength: { value: 3, message: 'Use at least 3 characters' },
+              })}
             />
             <Input
               label="Qualification / Award"
@@ -341,7 +366,10 @@ export default function PartnerHigherEducation() {
               required
               placeholder="e.g. Management, Computer Science"
               error={errors.field?.message}
-              {...register('field', { required: 'Enter field of study' })}
+              {...register('field', {
+                required: 'Enter field of study',
+                minLength: { value: 2, message: 'Use at least 2 characters' },
+              })}
             />
             <Select label="Delivery Format" options={FORMATS} {...register('deliveryFormat')} />
           </div>
@@ -362,16 +390,24 @@ export default function PartnerHigherEducation() {
             label="Short Summary"
             rows={2}
             required
+            placeholder="Brief overview of the programme"
             error={errors.summary?.message}
-            {...register('summary', { required: 'Enter summary' })}
+            {...register('summary', {
+              required: 'Enter summary',
+              minLength: { value: 2, message: 'Use at least 2 characters' },
+            })}
           />
 
           <Textarea
             label="Detailed Description & Curriculum"
             rows={5}
             required
+            placeholder="Detailed course description, core curriculum and eligibility"
             error={errors.description?.message}
-            {...register('description', { required: 'Enter description' })}
+            {...register('description', {
+              required: 'Enter description',
+              minLength: { value: 5, message: 'Use at least 5 characters' },
+            })}
           />
 
           <Textarea
@@ -404,9 +440,22 @@ export default function PartnerHigherEducation() {
                   {syllabusUploading ? 'Uploading…' : syllabusUrl ? 'Replace' : 'Upload Syllabus'}
                 </button>
                 {syllabusUrl && (
-                  <span className="text-caption font-semibold text-azure truncate max-w-[12rem]">
-                    {syllabusName || 'Uploaded'}
-                  </span>
+                  <div className="flex items-center gap-1.5 min-w-0">
+                    <span className="text-caption font-semibold text-azure truncate max-w-[10rem]">
+                      {syllabusName || 'Uploaded'}
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setSyllabusUrl('');
+                        setSyllabusName('');
+                      }}
+                      className="text-caption font-bold text-slate-400 hover:text-danger px-1"
+                      title="Remove syllabus"
+                    >
+                      ×
+                    </button>
+                  </div>
                 )}
               </div>
             </div>
@@ -429,10 +478,27 @@ export default function PartnerHigherEducation() {
                   className="inline-flex items-center gap-1.5 rounded-lg border border-line bg-white px-3 py-1.5 text-small font-semibold text-slate-700 shadow-xs hover:bg-slate-50 transition-colors disabled:opacity-60 cursor-pointer"
                 >
                   <Upload className="h-4 w-4" aria-hidden />
-                  {imageUploading ? 'Uploading…' : imageUrl ? 'Replace' : 'Upload Image'}
+                  {imageUploading ? 'Uploading…' : imagePreview || imageUrl ? 'Replace' : 'Upload Image'}
                 </button>
-                {imageUrl && (
-                  <img src={imageUrl} alt="Preview" className="h-8 w-12 rounded object-cover border" />
+                {(imagePreview || imageUrl) && (
+                  <div className="flex items-center gap-2">
+                    <img
+                      src={imagePreview || getMediaUrl(imageUrl)}
+                      alt="Programme cover preview"
+                      className="h-9 w-14 rounded object-cover border border-line shadow-xs bg-slate-100"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setImageUrl('');
+                        setImagePreview('');
+                      }}
+                      className="text-caption font-semibold text-slate-400 hover:text-danger"
+                      title="Remove cover image"
+                    >
+                      Remove
+                    </button>
+                  </div>
                 )}
               </div>
             </div>
