@@ -94,7 +94,7 @@ export default function EmployerJobForm() {
     watch,
     formState: { errors, isSubmitting },
   } = useForm({
-    defaultValues: { status: 'draft', jobType: 'Full-time', workMode: 'On-site', currency: 'INR', period: 'year' },
+    defaultValues: { status: 'published', jobType: 'Full-time', workMode: 'On-site', currency: 'INR', period: 'year' },
   });
 
   // The backend (validators/schemas.js) rejects a description under 40
@@ -177,16 +177,16 @@ export default function EmployerJobForm() {
         toast.success(
           values.status === 'draft'
             ? 'Job draft updated.'
-            : values.status === 'pending'
-              ? 'Job post submitted for review.'
-              : 'Job post updated.'
+            : values.status === 'closed'
+              ? 'Job closed.'
+              : 'Job post updated and live on website.'
         );
       } else {
         await employerService.createJob(payload);
         toast.success(
           values.status === 'draft'
             ? 'Job draft saved.'
-            : 'Job post created. It will appear once approved.'
+            : 'Job post published! It is now live on the website.'
         );
       }
       navigate('/employer/jobs');
@@ -293,11 +293,12 @@ export default function EmployerJobForm() {
         <Textarea label="Requirements" rows={4} hint="One per line" {...register('requirements')} />
         <Input label="Skills" hint="Comma separated" {...register('skills')} />
 
-        <FormField label="Status">
+        <FormField label="Status" hint="Published jobs are immediately visible to candidates in the website Job section.">
           <Select
             options={[
-              { value: 'draft', label: 'Save as draft' },
-              { value: 'pending', label: 'Submit for review' },
+              { value: 'published', label: 'Publish immediately (Visible on website)' },
+              { value: 'draft', label: 'Save as draft (Hidden from website)' },
+              { value: 'closed', label: 'Closed (No longer accepting applications)' },
             ]}
             {...register('status')}
           />

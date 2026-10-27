@@ -82,12 +82,13 @@ function JobFormModal({ open, onClose, onSaved, job }) {
     try {
       const payload = {
         ...values,
+        status: job?.status || 'published',
         responsibilities: values.responsibilities ? values.responsibilities.split('\n').filter(Boolean) : [],
         requirements: values.requirements ? values.requirements.split('\n').filter(Boolean) : [],
       };
       if (job?._id) await employerService.updateJob(job._id, payload);
       else await employerService.createJob(payload);
-      toast.success(job?._id ? 'Job updated.' : 'Job submitted.');
+      toast.success(job?._id ? 'Job updated.' : 'Job published and visible on the website.');
       reset();
       onSaved();
     } catch (err) {

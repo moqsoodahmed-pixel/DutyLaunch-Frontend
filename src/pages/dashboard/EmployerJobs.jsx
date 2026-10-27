@@ -59,7 +59,7 @@ export default function EmployerJobs() {
       <Seo title="Your Job Posts" noIndex />
       <PanelHeader
         title="Your job posts"
-        description="New and edited posts enter moderation before they go live."
+        description="Manage your active job postings and candidate applications."
         actions={
           <Button to="/employer/jobs/new" size="sm">
             <PlusCircle className="h-4 w-4" aria-hidden />
