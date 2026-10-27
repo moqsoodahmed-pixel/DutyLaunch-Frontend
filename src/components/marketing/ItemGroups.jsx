@@ -37,7 +37,18 @@ export function ItemGroups({ groups, columns = 'md:grid-cols-2 lg:grid-cols-3', 
                 <Icon className="h-5 w-5 text-azure" aria-hidden />
               </span>
             )}
-            <h3 className={cn('font-bold text-ink', compact ? 'text-body' : 'text-h3')}>{group.title}</h3>
+            {linked && !compact ? (
+              <Link
+                to={itemHref(group.title, group.title)}
+                className="font-bold text-ink hover:text-azure transition-colors text-h3 flex-1 flex items-center justify-between group/title"
+                title={`Filter by ${group.title}`}
+              >
+                <span>{group.title}</span>
+                <ChevronRight className="h-4 w-4 text-slate-400 group-hover/title:text-azure group-hover/title:translate-x-0.5 transition-all" aria-hidden />
+              </Link>
+            ) : (
+              <h3 className={cn('font-bold text-ink', compact ? 'text-body' : 'text-h3')}>{group.title}</h3>
+            )}
             {cardClickable && (
               <ChevronRight className="ml-auto h-4 w-4 text-slate-400 transition-transform duration-200 group-hover:translate-x-0.5 group-hover:text-azure" aria-hidden />
             )}

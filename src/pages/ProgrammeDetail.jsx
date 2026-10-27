@@ -77,7 +77,14 @@ export default function ProgrammeDetail({ track }) {
             <Button size="lg" onClick={() => enquire(null)}>
               Enquire about {item}
             </Button>
-            <Button to={t.basePath} variant="outline" size="lg">
+            <Button
+              to={track === 'education' ? `/higher-education?q=${encodeURIComponent(item)}#programmes` : `/courses?q=${encodeURIComponent(item)}`}
+              variant="outline"
+              size="lg"
+            >
+              Browse {item} {t.noun}s
+            </Button>
+            <Button to={t.basePath} variant="ghost" size="lg">
               All {t.noun}s
             </Button>
           </>

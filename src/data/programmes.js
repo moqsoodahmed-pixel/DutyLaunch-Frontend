@@ -141,10 +141,52 @@ export function findProgramme(track, slug) {
   return programmesIn(track).find((p) => p.slug === slug) || null;
 }
 
-export function programmeHref(track, item) {
-  if (track === 'both') {
-    const isEdu = programmesIn('education').some((p) => p.item === item);
-    return isEdu ? `/higher-education/${slugify(item)}` : `/professional-courses/${slugify(item)}`;
+export function programmeHref(track, item, groupTitle) {
+  const cleanItem = String(item || '').trim();
+
+  // Higher Education track: links directly to /higher-education filtered by degree/level
+  if (track === 'education' || track === 'higher-education') {
+    if (cleanItem === "Bachelor's Degrees" || cleanItem === 'Other UG Programmes') {
+      return '/higher-education?level=Undergraduate#programmes';
+    }
+    if (cleanItem === "Master's Degrees" || cleanItem === 'Other PG Programmes') {
+      return '/higher-education?level=Postgraduate#programmes';
+    }
+    if (cleanItem === 'Diploma Programmes' || cleanItem === 'Other Diploma Programmes') {
+      return '/higher-education?q=Diploma#programmes';
+    }
+    if (cleanItem === 'X / SSLC') {
+      return '/higher-education?q=SSLC#programmes';
+    }
+    if (cleanItem === 'XII / PUC') {
+      return '/higher-education?q=PUC#programmes';
+    }
+    return `/higher-education?q=${encodeURIComponent(cleanItem)}#programmes`;
   }
-  return `${TRACKS[track]?.basePath || '/higher-education'}/${slugify(item)}`;
+
+  // Professional Courses track: links directly to /courses filtered by topic/category
+  if (track === 'courses' || track === 'professional-courses') {
+    if (cleanItem === 'Certifications') {
+      return '/courses?track=certification';
+    }
+    if (cleanItem === 'Technology') {
+      return '/courses?q=Technology';
+    }
+    if (cleanItem === 'Business & Management') {
+      return '/courses?q=Business';
+    }
+    if (cleanItem === 'Career Development') {
+      return '/courses?q=Career';
+    }
+    return `/courses?q=${encodeURIComponent(cleanItem)}`;
+  }
+
+  if (track === 'both') {
+    const isEdu = programmesIn('education').some((p) => p.item.toLowerCase() === cleanItem.toLowerCase());
+    return isEdu
+      ? programmeHref('education', item, groupTitle)
+      : programmeHref('courses', item, groupTitle);
+  }
+
+  return `/courses?q=${encodeURIComponent(cleanItem)}`;
 }

@@ -1,6 +1,6 @@
-import { useState } from 'react';
-import { Link } from 'react-router-dom';
-import { GraduationCap, MapPin, CalendarDays, Clock, FileText, Building2, ArrowRight, CheckCircle2, FileDown } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { Link, useSearchParams } from 'react-router-dom';
+import { GraduationCap, MapPin, CalendarDays, Clock, FileText, Building2, ArrowRight, CheckCircle2, FileDown, MousePointerClick, X } from 'lucide-react';
 import { Seo } from '../components/ui/Seo.jsx';
 import { seoFor } from '../data/seoPages.js';
 import { Container, Section } from '../components/ui/Container.jsx';
@@ -9,29 +9,80 @@ import { Reveal, RevealGroup, RevealItem } from '../components/ui/Reveal.jsx';
 import { Tabs } from '../components/ui/Tabs.jsx';
 import { Badge } from '../components/ui/Badge.jsx';
 import { Button } from '../components/ui/Button.jsx';
+import { SearchBar } from '../components/ui/SearchBar.jsx';
 import { CardSkeleton, EmptyState, ErrorState } from '../components/ui/States.jsx';
 import { PageHero, HeroActions } from '../components/marketing/PageHero.jsx';
 import { GlacierBackdrop } from '../components/premium/GlacierBackdrop.jsx';
 import { CTASection } from '../components/marketing/CTASection.jsx';
 import { ItemGroups } from '../components/marketing/ItemGroups.jsx';
 import { useApi } from '../hooks/useApi.js';
+import { useDebounce } from '../hooks/useDebounce.js';
 import { educationService } from '../services/contentService.js';
 import { educationJourney } from '../data/site.js';
 import { serviceSchema } from '../utils/seo.js';
 import { images } from '../data/images.js';
 import { SiteImage } from '../components/ui/SiteImage.jsx';
-import { MousePointerClick } from 'lucide-react';
 import { SCHOOL, DEGREES, programmeHref } from '../data/programmes.js';
 import { getMediaUrl } from '../utils/media.js';
 
-
-
 export default function HigherEducation() {
-  const [level, setLevel] = useState('');
+  const [searchParams, setSearchParams] = useSearchParams();
+  const qParam = searchParams.get('q') || '';
+  const levelParam = searchParams.get('level') || '';
+
+  const [q, setQ] = useState(qParam);
+  const [level, setLevel] = useState(levelParam);
+  const debouncedQ = useDebounce(q, 350);
+
+  // Sync state whenever URL search params change
+  useEffect(() => {
+    const currentQ = searchParams.get('q') || '';
+    const currentLevel = searchParams.get('level') || '';
+    if (currentQ !== q) setQ(currentQ);
+    if (currentLevel !== level) setLevel(currentLevel);
+
+    if (currentQ || currentLevel || window.location.hash === '#programmes') {
+      const el = document.getElementById('programmes');
+      if (el) {
+        el.scrollIntoView({ behavior: 'smooth' });
+      }
+    }
+  }, [searchParams]);
+
+  const updateFilters = (patch) => {
+    const next = new URLSearchParams(searchParams);
+    Object.entries(patch).forEach(([key, val]) => {
+      if (val) next.set(key, val);
+      else next.delete(key);
+    });
+    setSearchParams(next, { replace: true });
+  };
+
+  const handleLevelChange = (newLevel) => {
+    setLevel(newLevel);
+    updateFilters({ level: newLevel });
+  };
+
+  const handleSearchChange = (newQ) => {
+    setQ(newQ);
+    updateFilters({ q: newQ });
+  };
+
+  const handleClearFilters = () => {
+    setQ('');
+    setLevel('');
+    setSearchParams({}, { replace: true });
+  };
+
   const { data: filters } = useApi(() => educationService.filters(), []);
   const { data, loading, error, refetch } = useApi(
-    () => educationService.programs({ level: level || undefined, limit: 12 }),
-    [level]
+    () =>
+      educationService.programs({
+        q: debouncedQ || undefined,
+        level: level || undefined,
+        limit: 24,
+      }),
+    [debouncedQ, level]
   );
 
   const levelOptions = [
@@ -111,19 +162,82 @@ export default function HigherEducation() {
               lead="Indicative programme families rather than a list of institutions, the shortlist is built for your budget, intake and target market in the consultation."
               aside={
                 <div className="mt-6">
-                  <Tabs options={levelOptions} value={level} onChange={setLevel} label="Filter by level" />
+                  <Tabs options={levelOptions} value={level} onChange={handleLevelChange} label="Filter by level" />
                 </div>
               }
             />
           </Reveal>
 
-          <div className="mt-10">
+          {/* Search bar and active filter chips */}
+          <div className="mt-8 flex flex-col md:flex-row gap-4 items-stretch md:items-center justify-between border-b border-slate-100 pb-6">
+            <div className="max-w-md w-full">
+              <SearchBar
+                value={q}
+                onChange={handleSearchChange}
+                placeholder="Search programmes: MCA, B.Tech, MBA, Engineering..."
+                label="Search programmes"
+              />
+            </div>
+
+            {(q || level) && (
+              <div className="flex items-center gap-2 flex-wrap">
+                <span className="text-small text-slate-500 font-medium">Active filter:</span>
+                {q && (
+                  <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-caption font-semibold bg-azure-50 text-azure-700 border border-azure-200 shadow-2xs">
+                    "{q}"
+                    <button
+                      type="button"
+                      onClick={() => handleSearchChange('')}
+                      className="hover:text-azure-900 transition-colors ml-0.5"
+                      title="Clear keyword filter"
+                    >
+                      <X className="h-3.5 w-3.5" />
+                    </button>
+                  </span>
+                )}
+                {level && (
+                  <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-caption font-semibold bg-slate-100 text-slate-700 border border-slate-200 shadow-2xs">
+                    {level}
+                    <button
+                      type="button"
+                      onClick={() => handleLevelChange('')}
+                      className="hover:text-slate-900 transition-colors ml-0.5"
+                      title="Clear level filter"
+                    >
+                      <X className="h-3.5 w-3.5" />
+                    </button>
+                  </span>
+                )}
+                <button
+                  type="button"
+                  onClick={handleClearFilters}
+                  className="text-caption text-azure hover:underline font-semibold ml-1"
+                >
+                  Clear all
+                </button>
+              </div>
+            )}
+          </div>
+
+          <div className="mt-8">
             {loading && <CardSkeleton count={6} />}
             {error && <ErrorState error={error} onRetry={refetch} />}
             {!loading && !error && !data?.length && (
               <EmptyState
-                title="No programmes published yet"
-                description="Programmes are stored in MongoDB and seeded with the seed script."
+                title={q || level ? `No programmes found matching "${q || level}"` : 'No programmes published yet'}
+                description={
+                  q || level
+                    ? 'Try clearing the search query or enquire below to check upcoming intakes and partner institutes.'
+                    : 'Programmes are stored in MongoDB and will appear once approved.'
+                }
+                action={
+                  q || level
+                    ? {
+                        label: 'Clear filter & view all',
+                        onClick: handleClearFilters,
+                      }
+                    : undefined
+                }
               />
             )}
             {!loading && data?.length > 0 && (

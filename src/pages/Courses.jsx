@@ -49,6 +49,13 @@ export default function Courses() {
   };
 
   useEffect(() => {
+    const urlQ = params.get('q') || '';
+    if (urlQ !== q) {
+      setQ(urlQ);
+    }
+  }, [params]);
+
+  useEffect(() => {
     if (debouncedQ !== (params.get('q') || '')) update({ q: debouncedQ });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [debouncedQ]);
