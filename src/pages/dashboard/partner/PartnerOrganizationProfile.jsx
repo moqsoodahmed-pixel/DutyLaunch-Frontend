@@ -12,6 +12,7 @@ import {
   ShieldCheck,
   ExternalLink,
   Trash2,
+  Lock,
 } from 'lucide-react';
 import { PanelHeader } from '../../../layouts/AppShell.jsx';
 import { Input, Select, Textarea } from '../../../components/ui/Field.jsx';
@@ -30,6 +31,7 @@ export default function PartnerOrganizationProfile() {
   const toast = useToast();
   const { data, loading, error, refetch } = useApi(() => partnerService.mine(), []);
   const profile = data?._id ? data : data?.data?._id ? data.data : data?.partner || null;
+  const isApprovedOrg = Boolean(profile?.isApproved || (profile?.status || '').toLowerCase() === 'approved');
   const isVerified = (profile?.status || '').toLowerCase() === 'approved';
 
   const initializedRef = useRef(false);
@@ -77,31 +79,41 @@ export default function PartnerOrganizationProfile() {
   useEffect(() => {
     if (profile && !initializedRef.current) {
       initializedRef.current = true;
+      const pending = profile.pendingChanges || {};
+      const activeData = {
+        ...profile,
+        ...pending,
+        verificationDetails: {
+          ...(profile.verificationDetails || {}),
+          ...(pending.verificationDetails || {}),
+        },
+      };
+
       setOrgType(profile.orgType || 'university');
-      setLogoUrl(profile.logoUrl || '');
-      setLogoPreview(profile.logoUrl ? getMediaUrl(profile.logoUrl) : '');
-      setCoverImageUrl(profile.coverImageUrl || '');
-      setCoverPreview(profile.coverImageUrl ? getMediaUrl(profile.coverImageUrl) : '');
-      setDocUrl(profile.verificationDetails?.documentUrl || '');
-      setDocName(profile.verificationDetails?.documentName || '');
+      setLogoUrl(activeData.logoUrl || '');
+      setLogoPreview(activeData.logoUrl ? getMediaUrl(activeData.logoUrl) : '');
+      setCoverImageUrl(activeData.coverImageUrl || '');
+      setCoverPreview(activeData.coverImageUrl ? getMediaUrl(activeData.coverImageUrl) : '');
+      setDocUrl(activeData.verificationDetails?.documentUrl || '');
+      setDocName(activeData.verificationDetails?.documentName || '');
 
       reset({
-        name: profile.name || '',
-        legalName: profile.legalName || profile.name || '',
-        displayName: profile.displayName || profile.name || '',
-        location: profile.location || '',
-        address: profile.address || '',
-        city: profile.city || '',
-        state: profile.state || '',
-        country: profile.country || 'India',
-        mode: profile.mode || 'Online',
-        about: profile.about || '',
-        website: profile.website || '',
-        contactPerson: profile.contactPerson || '',
-        contactEmail: profile.contactEmail || '',
-        contactPhone: profile.contactPhone || '',
-        registrationNumber: profile.verificationDetails?.registrationNumber || '',
-        accreditationAffiliation: profile.verificationDetails?.accreditationAffiliation || '',
+        name: activeData.name || '',
+        legalName: activeData.legalName || activeData.name || '',
+        displayName: activeData.displayName || activeData.name || '',
+        location: activeData.location || '',
+        address: activeData.address || '',
+        city: activeData.city || '',
+        state: activeData.state || '',
+        country: activeData.country || 'India',
+        mode: activeData.mode || 'Online',
+        about: activeData.about || '',
+        website: activeData.website || '',
+        contactPerson: activeData.contactPerson || '',
+        contactEmail: activeData.contactEmail || '',
+        contactPhone: activeData.contactPhone || '',
+        registrationNumber: activeData.verificationDetails?.registrationNumber || '',
+        accreditationAffiliation: activeData.verificationDetails?.accreditationAffiliation || '',
       });
     }
   }, [profile, reset]);
@@ -209,7 +221,7 @@ export default function PartnerOrganizationProfile() {
     try {
       const payload = {
         ...values,
-        orgType,
+        orgType: isApprovedOrg ? (profile?.orgType || orgType) : orgType,
         track: 'both',
         logoUrl,
         coverImageUrl,
@@ -222,9 +234,14 @@ export default function PartnerOrganizationProfile() {
         status: submitForReview ? 'pending' : (profile?.status || 'incomplete'),
       };
 
-      await partnerService.saveMine(payload);
+      const res = await partnerService.saveMine(payload);
 
-      if (submitForReview) {
+      if (isApprovedOrg) {
+        toast.success(
+          res?.message ||
+            'Profile changes submitted for admin review! Once approved, they will automatically be applied.'
+        );
+      } else if (submitForReview) {
         toast.success('Organization submitted for admin verification!');
       } else {
         toast.success('Organization profile saved successfully');
@@ -295,6 +312,32 @@ export default function PartnerOrganizationProfile() {
         </div>
       )}
 
+      {/* Pending Changes Under Review Banner */}
+      {profile?.pendingChanges && (
+        <div className="rounded-2xl border border-sky-300 bg-sky-50/90 p-5 sm:p-6 text-sky-950 shadow-sm">
+          <div className="flex items-start gap-3.5">
+            <span className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-sky-600 text-white shadow-xs">
+              <Clock className="h-6 w-6" aria-hidden />
+            </span>
+            <div className="flex-1">
+              <div className="flex items-center gap-2">
+                <h3 className="text-body font-bold text-sky-950">Profile Updates Awaiting Admin Review</h3>
+                <Badge tone="azure" className="font-semibold">Review Pending</Badge>
+              </div>
+              <p className="mt-1 text-small text-sky-800 leading-relaxed">
+                You have submitted updates to your organization profile. Our compliance team will review and approve these changes.
+                Your current verified profile remains active across the platform. Once an admin approves the changes, they will automatically be saved and applied to your live profile.
+              </p>
+              {profile.pendingChanges.submittedAt && (
+                <p className="mt-2 text-caption text-sky-700">
+                  Submitted on: {new Date(profile.pendingChanges.submittedAt).toLocaleString()}
+                </p>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
       <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-line bg-white p-4">
         <div className="flex items-center gap-2.5">
           <span className="text-small font-semibold text-ink">Verification Status:</span>
@@ -314,6 +357,9 @@ export default function PartnerOrganizationProfile() {
           >
             {isVerified ? 'Verified' : (profile?.status || 'Incomplete')}
           </Badge>
+          {profile?.pendingChanges && (
+            <Badge tone="azure" className="font-semibold">Updates In Review</Badge>
+          )}
         </div>
         {profile?.reviewedAt && (
           <span className="text-caption text-slate-500">
@@ -325,25 +371,45 @@ export default function PartnerOrganizationProfile() {
       <form onSubmit={handleSubmit((vals) => onSubmit(vals, false))} className="space-y-8" noValidate>
         {/* Step 1: Organization Type */}
         <section className="tile p-5 sm:p-6">
-          <h2 className="text-h3 font-bold text-ink">1. Organization Type</h2>
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <h2 className="text-h3 font-bold text-ink">1. Organization Type</h2>
+            {isApprovedOrg && (
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-100 px-3 py-1 text-caption font-bold text-emerald-800 border border-emerald-300">
+                <Lock className="h-3.5 w-3.5 text-emerald-700" />
+                Verified & Locked
+              </span>
+            )}
+          </div>
           <p className="mt-1 text-small text-slate-600">
-            Select the category that best represents your legal entity. Any verified organization can offer both degree programmes and training courses.
+            {isApprovedOrg
+              ? 'Your organization type has been officially verified and locked. Organization type cannot be modified once approved. To request a change in legal entity category, contact administration.'
+              : 'Select the category that best represents your legal entity. Any verified organization can offer both degree programmes and training courses.'}
           </p>
 
           <div className="mt-5 grid gap-4 sm:grid-cols-2">
             <button
               type="button"
-              onClick={() => setOrgType('university')}
+              disabled={isApprovedOrg}
+              onClick={() => !isApprovedOrg && setOrgType('university')}
               className={cn(
                 'flex flex-col items-start rounded-xl border p-5 text-left transition-all',
                 orgType === 'university'
                   ? 'border-azure-500 bg-azure-50/70 shadow-xs ring-2 ring-azure-500/20'
-                  : 'border-line bg-white hover:border-azure-300'
+                  : 'border-line bg-white hover:border-azure-300',
+                isApprovedOrg && orgType !== 'university' && 'opacity-40 cursor-not-allowed hover:border-line',
+                isApprovedOrg && orgType === 'university' && 'cursor-default'
               )}
             >
-              <span className="grid h-10 w-10 place-items-center rounded-lg bg-white shadow-xs">
-                <GraduationCap className="h-6 w-6 text-azure" aria-hidden />
-              </span>
+              <div className="flex w-full items-center justify-between">
+                <span className="grid h-10 w-10 place-items-center rounded-lg bg-white shadow-xs">
+                  <GraduationCap className="h-6 w-6 text-azure" aria-hidden />
+                </span>
+                {isApprovedOrg && orgType === 'university' && (
+                  <span className="inline-flex items-center gap-1 text-caption font-semibold text-emerald-700">
+                    <CheckCircle2 className="h-4 w-4" /> Approved
+                  </span>
+                )}
+              </div>
               <p className="mt-3 text-body font-bold text-ink">
                 University / Higher Education Institution
               </p>
@@ -354,17 +420,27 @@ export default function PartnerOrganizationProfile() {
 
             <button
               type="button"
-              onClick={() => setOrgType('edtech')}
+              disabled={isApprovedOrg}
+              onClick={() => !isApprovedOrg && setOrgType('edtech')}
               className={cn(
                 'flex flex-col items-start rounded-xl border p-5 text-left transition-all',
                 orgType === 'edtech'
                   ? 'border-azure-500 bg-azure-50/70 shadow-xs ring-2 ring-azure-500/20'
-                  : 'border-line bg-white hover:border-azure-300'
+                  : 'border-line bg-white hover:border-azure-300',
+                isApprovedOrg && orgType !== 'edtech' && 'opacity-40 cursor-not-allowed hover:border-line',
+                isApprovedOrg && orgType === 'edtech' && 'cursor-default'
               )}
             >
-              <span className="grid h-10 w-10 place-items-center rounded-lg bg-white shadow-xs">
-                <Building2 className="h-6 w-6 text-azure" aria-hidden />
-              </span>
+              <div className="flex w-full items-center justify-between">
+                <span className="grid h-10 w-10 place-items-center rounded-lg bg-white shadow-xs">
+                  <Building2 className="h-6 w-6 text-azure" aria-hidden />
+                </span>
+                {isApprovedOrg && orgType === 'edtech' && (
+                  <span className="inline-flex items-center gap-1 text-caption font-semibold text-emerald-700">
+                    <CheckCircle2 className="h-4 w-4" /> Approved
+                  </span>
+                )}
+              </div>
               <p className="mt-3 text-body font-bold text-ink">EdTech / Training Company</p>
               <p className="mt-1 text-caption text-slate-600">
                 For professional training providers, institutes, and EdTech companies. You can offer courses & certifications as well as degree programmes.
@@ -658,9 +734,13 @@ export default function PartnerOrganizationProfile() {
               loading={isSubmitting || logoUploading || coverUploading || docUploading}
               disabled={isSubmitting || logoUploading || coverUploading || docUploading}
             >
-              {isVerified ? 'Save Profile Changes' : 'Save Profile'}
+              {isApprovedOrg
+                ? profile?.pendingChanges
+                  ? 'Update Submitted Changes'
+                  : 'Save & Submit Profile Changes'
+                : 'Save Profile'}
             </Button>
-            {!isVerified && (
+            {!isApprovedOrg && (
               <Button
                 type="button"
                 variant="outline"
@@ -673,7 +753,7 @@ export default function PartnerOrganizationProfile() {
                 Submit for Verification
               </Button>
             )}
-            {isVerified && profile?._id && (
+            {profile?._id && (
               <Button
                 to={`/universities/${profile._id}`}
                 target="_blank"
@@ -688,8 +768,8 @@ export default function PartnerOrganizationProfile() {
           </div>
 
           <p className="text-caption text-slate-500">
-            {isVerified
-              ? 'Your organization is verified. Changing name, legal identity or registration details will initiate a re-evaluation review.'
+            {isApprovedOrg
+              ? 'Your organization is approved. Any profile changes will be sent to admin review and automatically applied once approved.'
               : 'Our compliance team reviews credentials within 1-2 business days.'}
           </p>
         </div>

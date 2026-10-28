@@ -53,6 +53,170 @@ function PartnerLogoCell({ logoUrl, className = 'h-10 w-10' }) {
   );
 }
 
+function PendingChangesDiff({ current, pending }) {
+  if (!pending) return null;
+
+  const diffs = [];
+
+  const checkField = (key, label, customRender) => {
+    if (key in pending && pending[key] !== undefined && pending[key] !== current[key]) {
+      diffs.push({
+        key,
+        label,
+        current: current[key],
+        proposed: pending[key],
+        customRender,
+      });
+    }
+  };
+
+  checkField('displayName', 'Public Display Name');
+  checkField('legalName', 'Legal Registered Name');
+  checkField('name', 'Name');
+  checkField('website', 'Website', (val) =>
+    val ? (
+      <a href={val} target="_blank" rel="noopener noreferrer" className="text-azure-600 underline">
+        {val}
+      </a>
+    ) : (
+      '—'
+    )
+  );
+  checkField('location', 'Location / City');
+  checkField('city', 'City');
+  checkField('state', 'State');
+  checkField('country', 'Country');
+  checkField('address', 'Campus Address');
+  checkField('mode', 'Primary Mode');
+  checkField('about', 'About Description');
+  checkField('contactPerson', 'Contact Person');
+  checkField('contactEmail', 'Contact Email');
+  checkField('contactPhone', 'Contact Phone');
+
+  if (pending.logoUrl !== undefined && pending.logoUrl !== current.logoUrl) {
+    diffs.push({
+      key: 'logoUrl',
+      label: 'Logo',
+      current: current.logoUrl,
+      proposed: pending.logoUrl,
+      customRender: (val) =>
+        val ? (
+          <img src={getMediaUrl(val)} alt="" className="h-10 w-10 object-contain rounded border border-line bg-white p-0.5" />
+        ) : (
+          'Removed'
+        ),
+    });
+  }
+
+  if (pending.coverImageUrl !== undefined && pending.coverImageUrl !== current.coverImageUrl) {
+    diffs.push({
+      key: 'coverImageUrl',
+      label: 'Cover Banner',
+      current: current.coverImageUrl,
+      proposed: pending.coverImageUrl,
+      customRender: (val) =>
+        val ? (
+          <img src={getMediaUrl(val)} alt="" className="h-12 w-28 object-cover rounded border border-line" />
+        ) : (
+          'Removed'
+        ),
+    });
+  }
+
+  const curVd = current.verificationDetails || {};
+  const pendVd = pending.verificationDetails || {};
+
+  if (pendVd.registrationNumber !== undefined && pendVd.registrationNumber !== curVd.registrationNumber) {
+    diffs.push({
+      key: 'registrationNumber',
+      label: 'Registration / License Number',
+      current: curVd.registrationNumber,
+      proposed: pendVd.registrationNumber,
+    });
+  }
+
+  if (pendVd.accreditationAffiliation !== undefined && pendVd.accreditationAffiliation !== curVd.accreditationAffiliation) {
+    diffs.push({
+      key: 'accreditationAffiliation',
+      label: 'Accreditation / Affiliation',
+      current: curVd.accreditationAffiliation,
+      proposed: pendVd.accreditationAffiliation,
+    });
+  }
+
+  if (pendVd.documentUrl !== undefined && pendVd.documentUrl !== curVd.documentUrl) {
+    diffs.push({
+      key: 'documentUrl',
+      label: 'Verification Document',
+      current: curVd.documentUrl,
+      proposed: pendVd.documentUrl,
+      customRender: (val, item, isProposed) =>
+        val ? (
+          <a
+            href={val}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-1 text-azure-600 hover:underline"
+          >
+            <FileText className="h-3.5 w-3.5" />
+            {(isProposed ? pendVd.documentName : curVd.documentName) || 'View Document'}
+            <ExternalLink className="h-3 w-3" />
+          </a>
+        ) : (
+          'None'
+        ),
+    });
+  }
+
+  if (diffs.length === 0) {
+    return (
+      <div className="rounded-xl border border-amber-200 bg-amber-50 p-4 text-small text-amber-900">
+        <p className="font-semibold">Profile updates submitted awaiting verification review.</p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="rounded-xl border-2 border-amber-400 bg-amber-50/70 p-4 sm:p-5 space-y-3">
+      <div className="flex items-center justify-between gap-3">
+        <div className="flex items-center gap-2">
+          <AlertCircle className="h-5 w-5 text-amber-600 shrink-0" />
+          <h4 className="text-body font-bold text-amber-950">Proposed Profile Updates Awaiting Approval</h4>
+        </div>
+        <Badge tone="amber">{diffs.length} Field{diffs.length > 1 ? 's' : ''} Changed</Badge>
+      </div>
+      <p className="text-caption text-amber-800">
+        The partner has updated their organization profile. Approving will automatically save and apply these values to the active live profile.
+      </p>
+
+      <div className="overflow-x-auto rounded-lg border border-amber-200 bg-white">
+        <table className="w-full text-left text-small">
+          <thead>
+            <tr className="bg-amber-100/60 text-caption font-bold text-amber-900 border-b border-amber-200">
+              <th className="p-2.5 w-1/4">Field</th>
+              <th className="p-2.5 w-3/8 text-slate-600">Current Value</th>
+              <th className="p-2.5 w-3/8 text-emerald-800">Proposed New Value</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-amber-100">
+            {diffs.map((d) => (
+              <tr key={d.key} className="hover:bg-amber-50/40">
+                <td className="p-2.5 font-semibold text-slate-700">{d.label}</td>
+                <td className="p-2.5 text-slate-500">
+                  {d.customRender ? d.customRender(d.current, d, false) : (d.current || '—')}
+                </td>
+                <td className="p-2.5 font-medium text-emerald-900 bg-emerald-50/50">
+                  {d.customRender ? d.customRender(d.proposed, d, true) : (d.proposed || '—')}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+}
+
 export default function AdminPartners() {
   const [params, setParams] = useSearchParams();
   const [q, setQ] = useState(params.get('q') || '');
@@ -203,9 +367,18 @@ export default function AdminPartners() {
             key: 'status',
             header: 'Status',
             render: (row) => (
-              <Badge tone={STATUS_TONE[row.status] || 'neutral'}>
-                {row.status?.replace('_', ' ').toUpperCase()}
-              </Badge>
+              <div className="space-y-1">
+                <Badge tone={STATUS_TONE[row.status] || 'neutral'}>
+                  {row.status?.replace('_', ' ').toUpperCase()}
+                </Badge>
+                {row.pendingChanges && (
+                  <div>
+                    <span className="inline-flex items-center gap-1 rounded-md bg-amber-100 px-2 py-0.5 text-[10px] font-bold text-amber-900 border border-amber-300">
+                      Changes Pending
+                    </span>
+                  </div>
+                )}
+              </div>
             ),
           },
           {
@@ -223,16 +396,16 @@ export default function AdminPartners() {
                   }}
                 >
                   <Eye className="h-3.5 w-3.5 mr-1" />
-                  Review
+                  {row.pendingChanges ? 'Review Updates' : 'Review'}
                 </Button>
-                {row.status !== 'approved' && (
+                {(row.status !== 'approved' || row.pendingChanges) && (
                   <Button
                     size="sm"
                     variant="primary"
                     disabled={busyId === row._id}
                     onClick={() => handleDecision(row._id, 'approved')}
                   >
-                    Approve
+                    {row.pendingChanges ? 'Approve Updates' : 'Approve'}
                   </Button>
                 )}
               </div>
@@ -297,11 +470,16 @@ export default function AdminPartners() {
               </div>
             </div>
 
+            {/* Proposed Profile Updates Awaiting Review (if any) */}
+            {inspecting.pendingChanges && (
+              <PendingChangesDiff current={inspecting} pending={inspecting.pendingChanges} />
+            )}
+
             {/* Verification Credentials */}
             <div className="rounded-xl border border-line bg-paper p-4 space-y-3">
               <h4 className="text-small font-bold text-ink flex items-center gap-1.5">
                 <ShieldCheck className="h-4 w-4 text-azure-600" />
-                Verification & Credentials
+                Active Verification Credentials
               </h4>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-small">
                 <div>
@@ -361,14 +539,14 @@ export default function AdminPartners() {
             {/* Actions */}
             <div className="pt-4 border-t border-line flex flex-wrap items-center justify-between gap-3">
               <div className="flex flex-wrap gap-2">
-                {inspecting.status !== 'approved' && (
+                {(inspecting.status !== 'approved' || inspecting.pendingChanges) && (
                   <Button
                     variant="primary"
                     disabled={busyId === inspecting._id}
                     onClick={() => handleDecision(inspecting._id, 'approved')}
                   >
                     <CheckCircle2 className="h-4 w-4 mr-1.5" />
-                    Approve & Verify
+                    {inspecting.pendingChanges ? 'Approve & Apply Changes' : 'Approve & Verify'}
                   </Button>
                 )}
 
