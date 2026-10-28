@@ -12,7 +12,7 @@ import { cn } from '../../utils/cn.js';
 
 /** Where each account type edits its own details. */
 function profilePathFor(role) {
-  if (role === 'institute') return '/partner';
+  if (role === 'institute' || role === 'partner') return '/partner';
   if (role === 'admin') return null;
   return '/profile';
 }

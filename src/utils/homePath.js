@@ -10,6 +10,6 @@
  */
 export function homePathFor(role) {
   if (role === 'admin') return '/admin';
-  if (role === 'institute') return '/partner';
+  if (role === 'institute' || role === 'partner') return '/partner';
   return '/dashboard';
 }

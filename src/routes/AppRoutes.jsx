@@ -193,14 +193,14 @@ export function AppRoutes() {
             {/* Signed-in app shell: candidates, employers and partner institutes
               share it (each sees its own sidebar); admins have their own shell
               below. */}
-            <Route element={<ProtectedRoute roles={['user', 'employer', 'institute']} />}>
+            <Route element={<ProtectedRoute roles={['user', 'employer', 'institute', 'partner']} />}>
               <Route element={<DashboardLayout />}>
                 <Route path="payments" element={<Payments />} />
                 <Route element={<ProtectedRoute roles={['user', 'employer']} />}>
                   <Route path="dashboard" element={<Dashboard />} />
                   <Route path="profile" element={<Profile />} />
                 </Route>
-                <Route element={<ProtectedRoute roles={['institute']} />}>
+                <Route element={<ProtectedRoute roles={['institute', 'partner']} />}>
                   <Route path="partner" element={<PartnerOverview />} />
                   <Route path="partner/profile" element={<PartnerOrganizationProfile />} />
                   <Route path="partner/higher-education" element={<PartnerHigherEducation />} />
