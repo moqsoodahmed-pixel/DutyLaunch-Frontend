@@ -6,7 +6,7 @@ import { Badge } from '../components/ui/Badge.jsx';
 import { Button } from '../components/ui/Button.jsx';
 import { Modal } from '../components/ui/Modal.jsx';
 import { Input } from '../components/ui/Field.jsx';
-import { LoadingBlock, ErrorState } from '../components/ui/States.jsx';
+import { LoadingBlock, ErrorState, EmptyState } from '../components/ui/States.jsx';
 import { useApi } from '../hooks/useApi.js';
 import { partnerService, enrolmentService } from '../services/contentService.js';
 import { useToast } from '../context/ToastContext.jsx';
@@ -137,12 +137,33 @@ export default function UniversityProfile() {
     );
   }
 
-  if (error || !partner) {
+  if (error?.status === 404 || (!loading && !partner)) {
+    return (
+      <Section tone="white" className="py-24">
+        <Container>
+          <EmptyState
+            title="University / Institute not available"
+            description="The requested partner institution profile is currently not available or has not been published yet."
+            action={
+              <div className="flex flex-wrap gap-3 justify-center">
+                <Button to="/higher-education">Browse Higher Education</Button>
+                <Button to="/contact#consultation" variant="outline">
+                  Contact Support
+                </Button>
+              </div>
+            }
+          />
+        </Container>
+      </Section>
+    );
+  }
+
+  if (error) {
     return (
       <Section tone="white" className="py-24">
         <Container>
           <ErrorState
-            error={error || new Error('University profile not found or not currently active.')}
+            error={error}
             onRetry={refetch}
           />
         </Container>

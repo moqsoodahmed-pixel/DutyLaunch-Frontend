@@ -107,8 +107,14 @@ export default function Upskills() {
             {loading && <CardSkeleton count={3} />}
             {!loading && !courses?.length && (
               <EmptyState
-                title="No short courses published yet"
-                description="Add upskilling courses in the admin and they will appear here."
+                title="Courses currently not available"
+                description="Short courses are currently being updated. Check back soon or contact our advisors for upcoming batches."
+                action={
+                  <div className="flex flex-wrap gap-3 justify-center">
+                    <Button to="/courses">Browse full catalogue</Button>
+                    <Button to="/contact#consultation" variant="outline">Speak with an advisor</Button>
+                  </div>
+                }
               />
             )}
             {!loading && courses?.length > 0 && (

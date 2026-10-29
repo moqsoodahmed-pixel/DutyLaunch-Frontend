@@ -221,26 +221,36 @@ export default function HigherEducation() {
 
           <div className="mt-8">
             {loading && <CardSkeleton count={6} />}
-            {error && <ErrorState error={error} onRetry={refetch} />}
-            {!loading && !error && !data?.length && (
+            {error && error?.status !== 404 && <ErrorState error={error} onRetry={refetch} />}
+            {!loading && (!data?.length || error?.status === 404) && (
               <EmptyState
-                title={q || level ? `No programmes found matching "${q || level}"` : 'No programmes published yet'}
+                title={
+                  q
+                    ? `Higher education programme "${q}" is not available`
+                    : level
+                    ? `No programmes available for "${level}"`
+                    : 'No programmes available yet'
+                }
                 description={
                   q || level
-                    ? 'Try clearing the search query or enquire below to check upcoming intakes and partner institutes.'
+                    ? 'This programme is currently not available or has not been published yet. Try clearing your search to view all available programmes, or enquire below with our counsellors for upcoming admissions.'
                     : 'Programmes are stored in MongoDB and will appear once approved.'
                 }
                 action={
-                  q || level
-                    ? {
-                        label: 'Clear filter & view all',
-                        onClick: handleClearFilters,
-                      }
-                    : undefined
+                  q || level ? (
+                    <div className="flex flex-wrap gap-3 justify-center">
+                      <Button variant="secondary" onClick={handleClearFilters}>
+                        Clear filter & view all
+                      </Button>
+                      <Button to="/contact#consultation" variant="outline">
+                        Enquire with counsellor
+                      </Button>
+                    </div>
+                  ) : undefined
                 }
               />
             )}
-            {!loading && data?.length > 0 && (
+            {!loading && !error && data?.length > 0 && (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                 {data.map((program) => {
                   const inst = program.institution;

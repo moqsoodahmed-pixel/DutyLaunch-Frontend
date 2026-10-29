@@ -121,8 +121,14 @@ export default function ProfessionalCourses() {
             {loading && <CardSkeleton count={3} />}
             {!loading && !courses?.length && (
               <EmptyState
-                title="No professional courses published yet"
-                description="Courses are managed in the admin. Publish one to see it listed here."
+                title="Courses currently not available"
+                description="Professional courses are being updated for upcoming intakes. Check back soon or speak with our counsellors for available programmes."
+                action={
+                  <div className="flex flex-wrap gap-3 justify-center">
+                    <Button to="/courses">Browse all courses</Button>
+                    <Button to="/contact#consultation" variant="outline">Speak with a counsellor</Button>
+                  </div>
+                }
               />
             )}
             {!loading && courses?.length > 0 && (

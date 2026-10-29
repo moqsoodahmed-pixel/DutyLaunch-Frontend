@@ -5,6 +5,7 @@ import { Container, Section } from '../components/ui/Container.jsx';
 import { Tabs } from '../components/ui/Tabs.jsx';
 import { SearchBar } from '../components/ui/SearchBar.jsx';
 import { Pagination } from '../components/ui/Pagination.jsx';
+import { Button } from '../components/ui/Button.jsx';
 import { CardSkeleton, EmptyState, ErrorState } from '../components/ui/States.jsx';
 import { PageHero } from '../components/marketing/PageHero.jsx';
 import { GlacierBackdrop } from '../components/premium/GlacierBackdrop.jsx';
@@ -105,14 +106,42 @@ export default function Courses() {
 
           <div className="mt-4">
             {loading && <CardSkeleton count={6} />}
-            {error && <ErrorState error={error} onRetry={refetch} />}
-            {!loading && !error && !data?.length && (
+            {error && error?.status !== 404 && <ErrorState error={error} onRetry={refetch} />}
+            {!loading && (!data?.length || error?.status === 404) && (
               <EmptyState
-                title="No courses match that"
-                description="Try a broader search, or tell us what you are trying to learn and we will point you at the right programme."
+                title={
+                  q
+                    ? `Course "${q}" is not available`
+                    : track || category
+                    ? 'No courses available for selected filters'
+                    : 'No courses available yet'
+                }
+                description={
+                  q || track || category
+                    ? 'This course is currently not available or has not been published yet. Try clearing your search or consult our team to find the right programme for you.'
+                    : 'Courses are being updated. Check back soon or contact us to find the right programme.'
+                }
+                action={
+                  (q || track || category) ? (
+                    <div className="flex flex-wrap gap-3 justify-center">
+                      <Button
+                        variant="secondary"
+                        onClick={() => {
+                          setQ('');
+                          update({ q: '', track: '', category: '' });
+                        }}
+                      >
+                        Clear search & view all courses
+                      </Button>
+                      <Button to="/contact#consultation" variant="outline">
+                        Ask which course fits
+                      </Button>
+                    </div>
+                  ) : undefined
+                }
               />
             )}
-            {!loading && data?.length > 0 && (
+            {!loading && !error && data?.length > 0 && (
               <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
                 {data.map((course) => (
                   <CourseCard key={course._id} course={course} />

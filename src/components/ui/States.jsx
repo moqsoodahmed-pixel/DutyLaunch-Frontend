@@ -1,3 +1,4 @@
+import { isValidElement } from 'react';
 import { AlertTriangle, Inbox, Loader2, RefreshCw } from 'lucide-react';
 import { Button } from './Button.jsx';
 import { cn } from '../../utils/cn.js';
@@ -36,6 +37,45 @@ export function CardSkeleton({ count = 3 }) {
 }
 
 export function EmptyState({ title, description, action, icon: Icon = Inbox, className }) {
+  const renderAction = () => {
+    if (!action) return null;
+    if (isValidElement(action)) return action;
+    if (Array.isArray(action)) {
+      return (
+        <div className="flex flex-wrap items-center justify-center gap-3">
+          {action.map((act, idx) => {
+            if (isValidElement(act)) return act;
+            if (typeof act === 'object' && act?.label) {
+              return (
+                <Button
+                  key={idx}
+                  variant={act.variant || 'secondary'}
+                  onClick={act.onClick}
+                  to={act.to}
+                >
+                  {act.label}
+                </Button>
+              );
+            }
+            return null;
+          })}
+        </div>
+      );
+    }
+    if (typeof action === 'object' && action?.label) {
+      return (
+        <Button
+          variant={action.variant || 'secondary'}
+          onClick={action.onClick}
+          to={action.to}
+        >
+          {action.label}
+        </Button>
+      );
+    }
+    return null;
+  };
+
   return (
     <div className={cn('rounded-2xl border border-dashed border-azure-200 bg-glacier-100 px-6 py-14 text-center', className)}>
       <span className="mx-auto grid h-14 w-14 place-items-center rounded-2xl border border-glacier-400 bg-white text-azure">
@@ -43,7 +83,7 @@ export function EmptyState({ title, description, action, icon: Icon = Inbox, cla
       </span>
       <h3 className="mt-4 text-lg font-bold text-ink">{title}</h3>
       {description && <p className="mx-auto mt-2 max-w-md text-small text-slate-700">{description}</p>}
-      {action && <div className="mt-6 flex justify-center">{action}</div>}
+      {action && <div className="mt-6 flex justify-center">{renderAction()}</div>}
     </div>
   );
 }

@@ -10,6 +10,7 @@ import { ConsultationForm } from '../components/marketing/ConsultationForm.jsx';
 import { TRACKS, findProgramme, programmesIn, programmeHref } from '../data/programmes.js';
 import { useApi } from '../hooks/useApi.js';
 import { partnerService } from '../services/contentService.js';
+import { EmptyState } from '../components/ui/States.jsx';
 import NotFound from './NotFound.jsx';
 
 const MODE_STYLE = {
@@ -44,7 +45,31 @@ export default function ProgrammeDetail({ track }) {
     [track, slug]
   );
 
-  if (!programme) return <NotFound />;
+  if (!programme) {
+    const isEducation = track === 'education';
+    return (
+      <Container className="py-20">
+        <EmptyState
+          title={isEducation ? 'Higher education programme not available' : 'Course not available'}
+          description={
+            isEducation
+              ? 'This higher education programme is currently not available or has not been published yet.'
+              : 'This course is currently not available or has not been published yet.'
+          }
+          action={
+            <div className="flex flex-wrap gap-3 justify-center">
+              <Button to={isEducation ? '/higher-education' : '/courses'}>
+                {isEducation ? 'Browse all programmes' : 'Browse all courses'}
+              </Button>
+              <Button to="/contact#consultation" variant="outline">
+                Speak with a counsellor
+              </Button>
+            </div>
+          }
+        />
+      </Container>
+    );
+  }
 
   const t = TRACKS[track];
   const { item, group, groupDescription } = programme;
@@ -105,46 +130,62 @@ export default function ProgrammeDetail({ track }) {
             </p>
           </Reveal>
 
-          <RevealGroup className="mt-8 grid gap-4 md:grid-cols-2 lg:grid-cols-3" staggerDelay={0.07}>
-            {partners.map((p) => (
-              <RevealItem
-                as="article"
-                key={p._id || p.name}
-                className={`tile flex flex-col p-5 transition-all duration-200 hover:-translate-y-0.5 sm:p-6 ${
-                  partner?.name === p.name ? 'ring-2 ring-azure-300' : ''
-                }`}
-              >
-                <span className="grid h-11 w-11 place-items-center rounded-lg bg-azure-50">
-                  <Building2 className="h-5 w-5 text-azure" aria-hidden />
-                </span>
-                <h3 className="mt-4 text-body font-bold text-ink">{p.name}</h3>
-                <p className="mt-1.5 flex flex-wrap items-center gap-x-3 gap-y-1 text-caption text-slate-500">
-                  <span className="inline-flex items-center gap-1">
-                    <MapPin className="h-3.5 w-3.5" aria-hidden />
-                    {p.location}
+          {!partnersLoading && partners.length === 0 && (
+            <div className="mt-8">
+              <EmptyState
+                title={`Partner institutes currently not available for ${item}`}
+                description={`We are currently onboarding approved partner institutions for ${item}. Enquire below and a counsellor will assist you with partner admissions, eligibility, and upcoming intakes.`}
+                action={
+                  <Button onClick={() => enquire(null)}>
+                    Enquire about {item}
+                  </Button>
+                }
+              />
+            </div>
+          )}
+
+          {partners.length > 0 && (
+            <RevealGroup className="mt-8 grid gap-4 md:grid-cols-2 lg:grid-cols-3" staggerDelay={0.07}>
+              {partners.map((p) => (
+                <RevealItem
+                  as="article"
+                  key={p._id || p.name}
+                  className={`tile flex flex-col p-5 transition-all duration-200 hover:-translate-y-0.5 sm:p-6 ${
+                    partner?.name === p.name ? 'ring-2 ring-azure-300' : ''
+                  }`}
+                >
+                  <span className="grid h-11 w-11 place-items-center rounded-lg bg-azure-50">
+                    <Building2 className="h-5 w-5 text-azure" aria-hidden />
                   </span>
-                  <span className={`rounded-full px-2 py-0.5 font-semibold ${MODE_STYLE[p.mode] || 'bg-slate-100 text-slate-600'}`}>
-                    {p.mode}
-                  </span>
-                </p>
-                <p className="mt-3 flex-1 text-small text-slate-600">{p.about}</p>
-                {p.website && (
-                  <a
-                    href={p.website}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="mt-3 inline-flex items-center gap-1 text-caption font-medium text-azure hover:underline"
-                  >
-                    {p.website.replace(/^https?:\/\//, '').replace(/\/$/, '')}
-                    <ExternalLink className="h-3 w-3" aria-hidden />
-                  </a>
-                )}
-                <Button onClick={() => enquire(p)} className="mt-5" fullWidth>
-                  Enquire
-                </Button>
-              </RevealItem>
-            ))}
-          </RevealGroup>
+                  <h3 className="mt-4 text-body font-bold text-ink">{p.name}</h3>
+                  <p className="mt-1.5 flex flex-wrap items-center gap-x-3 gap-y-1 text-caption text-slate-500">
+                    <span className="inline-flex items-center gap-1">
+                      <MapPin className="h-3.5 w-3.5" aria-hidden />
+                      {p.location}
+                    </span>
+                    <span className={`rounded-full px-2 py-0.5 font-semibold ${MODE_STYLE[p.mode] || 'bg-slate-100 text-slate-600'}`}>
+                      {p.mode}
+                    </span>
+                  </p>
+                  <p className="mt-3 flex-1 text-small text-slate-600">{p.about}</p>
+                  {p.website && (
+                    <a
+                      href={p.website}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="mt-3 inline-flex items-center gap-1 text-caption font-medium text-azure hover:underline"
+                    >
+                      {p.website.replace(/^https?:\/\//, '').replace(/\/$/, '')}
+                      <ExternalLink className="h-3 w-3" aria-hidden />
+                    </a>
+                  )}
+                  <Button onClick={() => enquire(p)} className="mt-5" fullWidth>
+                    Enquire
+                  </Button>
+                </RevealItem>
+              ))}
+            </RevealGroup>
+          )}
 
           {/* Institutes can list themselves: register as an Institute, complete
               the partner profile, and appear here once approved. */}

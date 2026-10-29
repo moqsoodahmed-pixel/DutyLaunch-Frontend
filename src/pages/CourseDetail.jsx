@@ -23,7 +23,7 @@ import { Button } from '../components/ui/Button.jsx';
 import { Modal } from '../components/ui/Modal.jsx';
 import { Input } from '../components/ui/Field.jsx';
 import { Breadcrumb } from '../components/ui/Breadcrumb.jsx';
-import { LoadingBlock, ErrorState } from '../components/ui/States.jsx';
+import { LoadingBlock, ErrorState, EmptyState } from '../components/ui/States.jsx';
 import { ArticleBody } from '../components/blog/ArticleBody.jsx';
 import { CourseCard } from '../components/courses/CourseCard.jsx';
 import { CTASection } from '../components/marketing/CTASection.jsx';
@@ -70,6 +70,24 @@ export default function CourseDetail() {
   }, [isAuthenticated]);
 
   if (loading) return <LoadingBlock label="Loading course" className="min-h-[60vh]" />;
+  if (error?.status === 404 || (!loading && (!data || !data?.course))) {
+    return (
+      <Container className="py-20">
+        <EmptyState
+          title="Course not available"
+          description="The requested course is currently not available, has been removed, or has not been published yet."
+          action={
+            <div className="flex flex-wrap gap-3 justify-center">
+              <Button to="/courses">Browse all courses</Button>
+              <Button to="/contact#consultation" variant="outline">
+                Speak with a counsellor
+              </Button>
+            </div>
+          }
+        />
+      </Container>
+    );
+  }
   if (error) {
     return (
       <Container className="py-20">
@@ -78,7 +96,8 @@ export default function CourseDetail() {
     );
   }
 
-  const { course, related } = data;
+  const course = data.course;
+  const related = data.related || [];
   const inst = course.institution;
   const instName = inst?.displayName || inst?.name || (course.location ? `Training Centre · ${course.location}` : 'Training Partner');
   const instId = inst?._id;
