@@ -14,6 +14,7 @@ import { useToast } from '../../context/ToastContext.jsx';
 import { adminService } from '../../services/adminService.js';
 import { courseService } from '../../services/contentService.js';
 import { formatCurrency } from '../../utils/format.js';
+import { getMediaUrl } from '../../utils/media.js';
 
 const LEVELS = ['Beginner', 'Intermediate', 'Advanced'];
 const TRACKS = ['professional', 'upskill', 'certification'];
@@ -254,7 +255,7 @@ export default function AdminCourses() {
                 render: (row) =>
                   row.syllabusUrl ? (
                     <a
-                      href={row.syllabusUrl}
+                      href={getMediaUrl(row.syllabusUrl)}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="inline-flex items-center gap-1 text-caption text-red-600 font-medium hover:underline"

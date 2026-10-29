@@ -467,7 +467,7 @@ export default function UniversityProfile() {
                               <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
                                 {prog.syllabusUrl && (
                                   <a
-                                    href={prog.syllabusUrl}
+                                    href={getMediaUrl(prog.syllabusUrl)}
                                     target="_blank"
                                     rel="noopener noreferrer"
                                     className="inline-flex items-center justify-center gap-1.5 px-3 py-2 text-caption font-semibold rounded-lg border border-slate-200 bg-white text-slate-700 hover:bg-azure-50 hover:border-azure-300 hover:text-azure-700 transition-colors shadow-2xs"

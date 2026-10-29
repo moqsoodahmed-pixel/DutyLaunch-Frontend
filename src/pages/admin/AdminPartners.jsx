@@ -153,7 +153,7 @@ function PendingChangesDiff({ current, pending }) {
       customRender: (val, item, isProposed) =>
         val ? (
           <a
-            href={val}
+            href={getMediaUrl(val)}
             target="_blank"
             rel="noopener noreferrer"
             className="inline-flex items-center gap-1 text-azure-600 hover:underline"
@@ -348,7 +348,7 @@ export default function AdminPartners() {
                   )}
                   {vd?.documentUrl ? (
                     <a
-                      href={vd.documentUrl}
+                      href={getMediaUrl(vd.documentUrl)}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="inline-flex items-center gap-1 text-azure-600 font-medium hover:underline"
@@ -500,7 +500,7 @@ export default function AdminPartners() {
                 <div className="mt-3 pt-3 border-t border-line flex items-center justify-between">
                   <span className="text-caption text-slate-600">Verification Document:</span>
                   <a
-                    href={inspecting.verificationDetails.documentUrl}
+                    href={getMediaUrl(inspecting.verificationDetails.documentUrl)}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-azure-200 bg-azure-50 text-caption font-semibold text-azure-700 hover:bg-azure-100 transition-colors"

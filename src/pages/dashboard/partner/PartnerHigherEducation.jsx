@@ -275,7 +275,7 @@ export default function PartnerHigherEducation() {
             render: (row) =>
               row.syllabusUrl ? (
                 <a
-                  href={row.syllabusUrl}
+                  href={getMediaUrl(row.syllabusUrl)}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="inline-flex items-center gap-1 text-caption font-semibold text-azure hover:underline"

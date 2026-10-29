@@ -397,7 +397,7 @@ export default function HigherEducation() {
 
                           {hasSyllabus && (
                             <a
-                              href={program.syllabusUrl}
+                              href={getMediaUrl(program.syllabusUrl)}
                               target="_blank"
                               rel="noopener noreferrer"
                               className="inline-flex items-center justify-center gap-1.5 rounded-xl border border-slate-200 bg-white hover:bg-azure-50 hover:border-azure-300 text-slate-700 hover:text-azure-700 py-2.5 px-3.5 text-caption font-bold transition-all shrink-0 active:scale-[0.98] shadow-2xs"
