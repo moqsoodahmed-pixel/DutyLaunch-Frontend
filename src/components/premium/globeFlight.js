@@ -115,10 +115,27 @@ function slerpDir(leg, u, out) {
 
 /** Position of a flight at path parameter u (0‥1): the great circle, bent sideways
  *  and lifted into a gentle arc, in globe-local coordinates. */
-function pointAt(flight, u, out) {
+export function pointAt(flight, u, out) {
   slerpDir(flight, u, out);
   out.addScaledVector(flight.normal, flight.bend * Math.sin(Math.PI * u)).normalize();
   return out.multiplyScalar(RADIUS * (1 + FLIGHT_ALT + flight.arc * Math.sin(Math.PI * u)));
+}
+
+export { easeInOut, clamp01 };
+
+/**
+ * Fill a pre-allocated Float32Array buffer with 3D points along the arc from 0 to uMax.
+ * Used for zero-allocation progressive flight trails.
+ */
+export function fillArcBuffer(flight, uMax, buf, count = 32, temp = new THREE.Vector3()) {
+  const uClamped = THREE.MathUtils.clamp(uMax, 0, 1);
+  for (let i = 0; i <= count; i += 1) {
+    const u = (i / count) * uClamped;
+    pointAt(flight, u, temp);
+    buf[i * 3] = temp.x;
+    buf[i * 3 + 1] = temp.y;
+    buf[i * 3 + 2] = temp.z;
+  }
 }
 
 const _p0 = new THREE.Vector3();

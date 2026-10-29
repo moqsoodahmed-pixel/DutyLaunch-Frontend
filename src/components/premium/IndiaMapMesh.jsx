@@ -170,32 +170,22 @@ export function IndiaMapMesh({ radius = 1.8, reduceMotion = false }) {
         </group>
       ))}
 
-      {/* --- Bengaluru DutyLaunch Origin Hub with Pulsing Radar Beacon --- */}
+      {/* --- Bengaluru DutyLaunch Origin Beacon --- */}
       <group position={bengaluruPos}>
         {/* Core origin dot */}
         <mesh>
-          <sphereGeometry args={[0.045, 16, 16]} />
-          <meshBasicMaterial color="#F59E0B" toneMapped={false} />
+          <sphereGeometry args={[0.028, 16, 16]} />
+          <meshBasicMaterial color="#00F0FF" toneMapped={false} />
         </mesh>
-        {/* Inner radiant halo */}
-        <mesh>
-          <sphereGeometry args={[0.08, 16, 16]} />
-          <meshBasicMaterial
-            color="#FDE68A"
-            transparent
-            opacity={0.45}
-            blending={THREE.AdditiveBlending}
-            depthWrite={false}
-          />
-        </mesh>
-        {/* Expanding radar wave ring */}
+        {/* Expanding subtle radar wave ring */}
         {!reduceMotion && (
           <mesh ref={radarRingRef}>
-            <sphereGeometry args={[0.06, 16, 16]} />
+            <ringGeometry args={[0.032, 0.055, 24]} />
             <meshBasicMaterial
-              color="#F59E0B"
+              color="#00F0FF"
               transparent
-              opacity={0.7}
+              opacity={0.6}
+              side={THREE.DoubleSide}
               blending={THREE.AdditiveBlending}
               depthWrite={false}
             />

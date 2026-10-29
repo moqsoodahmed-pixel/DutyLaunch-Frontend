@@ -1,297 +1,446 @@
-import { useMemo, useRef } from 'react';
+import { useMemo, useRef, useCallback } from 'react';
 import * as THREE from 'three';
 import { Canvas, useFrame } from '@react-three/fiber';
 import { Line, Html } from '@react-three/drei';
 import { usePrefersReducedMotion } from '../../hooks/useMediaQuery.js';
 import { isWebGLAvailable, SceneErrorBoundary } from './webgl.jsx';
 import { IndiaMapMesh } from './IndiaMapMesh.jsx';
+import { AirplaneMesh } from './AirplaneMesh.jsx';
+import { GlobeFallback } from './GlobeFallback.jsx';
+import { IndiaFlag, UaeFlag, SaudiFlag, QatarFlag } from './CountryFlags.jsx';
+import {
+  CITIES,
+  ORIGIN_ID,
+  FLIGHT,
+  RADIUS,
+  TILT_X,
+  GLOBE_ROTATION_Y,
+  createFlights,
+  sampleFlight,
+  routePoints,
+  fillArcBuffer,
+  latLonToVector,
+  easeInOut,
+  clamp01,
+} from './globeFlight.js';
 
-const RADIUS = 1.8;
+// Pre-allocated scratch objects to prevent per-frame GC spikes
+const _vPos = new THREE.Vector3();
+const _vTan = new THREE.Vector3();
+const _vUp = new THREE.Vector3();
+const _vTarget = new THREE.Vector3();
+const _vTemp = new THREE.Vector3();
 
-/* Rotation (radians) that turns India + the Gulf toward the camera, and the
-   arc lift factor. Verified numerically: at this rotation all four cities sit
-   on the camera-facing hemisphere, and every arc stays above the sphere and
-   peaks ~16% above it. */
-const FACE_REGION_Y = -2.65;
-const TILT_X = 0.22;
-const ARC_LIFT = 1.35;
+// Offsets in screen space so badges stay compact, sharp, and never collide
+const LABEL_OFFSETS = {
+  RUH: { x: -58, y: -16 },
+  DOH: { x: -54, y: 14 },
+  DXB: { x: 14, y: -16 },
+  BLR: { x: 16, y: 2 },
+};
 
-/* Origin is Bengaluru (DutyLaunch's office); destinations are the three cities
-   in this section's opportunity cards, so the globe illustrates the copy. */
-const ORIGIN = { name: 'Bengaluru', lat: 12.97, lon: 77.59 };
-const DESTINATIONS = [
-    { name: 'Dubai', lat: 25.2, lon: 55.27 },
-    { name: 'Riyadh', lat: 24.71, lon: 46.68 },
-    { name: 'Doha', lat: 25.29, lon: 51.53 },
-];
+/**
+ * An individual flight path with an authentic commercial passenger jet airliner
+ * and a streaming progressive cyan trail.
+ */
+function LiveFlight({ flight, activeFlight, reduceMotion, onTouchDown }) {
+  const planeRef = useRef(null);
+  const trailRef = useRef(null);
+  const guideRef = useRef(null);
 
-function latLonToVector(lat, lon, r = RADIUS) {
-    const phi = THREE.MathUtils.degToRad(90 - lat);
-    const theta = THREE.MathUtils.degToRad(lon + 180);
-    return new THREE.Vector3(
-        -r * Math.sin(phi) * Math.cos(theta),
-        r * Math.cos(phi),
-        r * Math.sin(phi) * Math.sin(theta)
-    );
-}
+  const trailPointsCount = 32;
+  const trailBuffer = useMemo(() => new Float32Array((trailPointsCount + 1) * 3), [trailPointsCount]);
+  const guidePoints = useMemo(() => routePoints(flight, 36), [flight]);
 
-/** Evenly distributed points on a sphere (Fibonacci lattice) — the "data
- * globe" look. Self-coloured, so they read without environment reflections. */
-function useFibonacciSphere(count) {
-    return useMemo(() => {
-        const positions = new Float32Array(count * 3);
-        const golden = Math.PI * (3 - Math.sqrt(5));
-        for (let i = 0; i < count; i += 1) {
-            const y = 1 - (i / (count - 1)) * 2;
-            const r = Math.sqrt(1 - y * y);
-            const t = golden * i;
-            positions[i * 3] = Math.cos(t) * r * RADIUS;
-            positions[i * 3 + 1] = y * RADIUS;
-            positions[i * 3 + 2] = Math.sin(t) * r * RADIUS;
+  const initialTrailPoints = useMemo(() => {
+    const originVec = latLonToVector(flight.from.lat, flight.from.lon, RADIUS);
+    return Array.from({ length: trailPointsCount + 1 }, () => originVec.clone());
+  }, [flight, trailPointsCount]);
+
+  const isActive = activeFlight === flight.id;
+
+  useFrame(({ clock }, delta) => {
+    if (!planeRef.current || !trailRef.current) return;
+
+    const cycleTime = FLIGHT.cycle;
+    const localTime = reduceMotion ? 2.4 : clock.elapsedTime % cycleTime;
+    const { alpha, moving } = sampleFlight(flight, localTime, _vPos, _vTan);
+
+    // 1. Position aircraft
+    planeRef.current.position.copy(_vPos);
+
+    // 2. Orient aircraft: forward along flight tangent, up along surface normal
+    _vUp.copy(_vPos).normalize();
+    planeRef.current.up.copy(_vUp);
+    _vTarget.copy(_vPos).add(_vTan);
+    planeRef.current.lookAt(_vTarget);
+
+    // 3. Aerodynamic banking into turn
+    const u = easeInOut(clamp01(localTime / flight.dur));
+    const bankAngle = -flight.bend * Math.sin(Math.PI * u) * 0.85;
+    planeRef.current.rotateZ(bankAngle);
+
+    // 4. Visibility & Scale (prominent commercial airliner scale)
+    planeRef.current.visible = alpha > 0.01;
+    const baseScale = isActive ? 1.48 : 1.35;
+    planeRef.current.scale.setScalar(baseScale);
+
+    // 5. Update progressive glowing cyan trail
+    if (trailRef.current?.geometry) {
+      fillArcBuffer(flight, u, trailBuffer, trailPointsCount, _vTemp);
+      trailRef.current.geometry.setPositions(trailBuffer);
+      trailRef.current.computeLineDistances();
+
+      if (trailRef.current.material) {
+        trailRef.current.material.opacity = alpha * (isActive ? 1.0 : 0.9);
+        if (!reduceMotion) {
+          trailRef.current.material.dashOffset -= delta * 0.35;
         }
-        return positions;
-    }, [count]);
-}
+      }
+    }
 
-/** A glowing flight path plus a light pulse that travels origin → destination. */
-function FlightArc({ from, to, color, delay, reduceMotion }) {
-    const lineRef = useRef(null);
-    const pulseRef = useRef(null);
+    if (!moving && localTime >= flight.dur && localTime <= flight.dur + 0.1) {
+      onTouchDown?.(flight.id);
+    }
+  });
 
-    const curve = useMemo(() => {
-        const start = latLonToVector(from.lat, from.lon);
-        const end = latLonToVector(to.lat, to.lon);
-        const control = start.clone().add(end).normalize().multiplyScalar(RADIUS * ARC_LIFT);
-        return new THREE.QuadraticBezierCurve3(start, control, end);
-    }, [from, to]);
-    const points = useMemo(() => curve.getPoints(64), [curve]);
+  return (
+    <group name={`Flight-${flight.id}`}>
+      {/* Faint dashed guide line */}
+      <Line
+        ref={guideRef}
+        points={guidePoints}
+        color={isActive ? '#38BDF8' : '#0284C7'}
+        lineWidth={isActive ? 1.8 : 1.2}
+        transparent
+        opacity={isActive ? 0.35 : 0.18}
+        dashed
+        dashSize={0.12}
+        gapSize={0.16}
+        depthWrite={false}
+      />
 
-    useFrame(({ clock }, delta) => {
-        if (reduceMotion) return;
-        if (lineRef.current?.material) lineRef.current.material.dashOffset -= delta * 0.35;
-        if (pulseRef.current) {
-            const t = (clock.elapsedTime * 0.16 + delay) % 1;
-            pulseRef.current.position.copy(curve.getPoint(t));
-            // fade in/out at the ends so it reads as a departing/arriving light
-            pulseRef.current.material.opacity = Math.sin(t * Math.PI);
-        }
-    });
+      {/* Dynamic progressive cyan trail */}
+      <Line
+        ref={trailRef}
+        points={initialTrailPoints}
+        color={isActive ? '#00F0FF' : '#38BDF8'}
+        lineWidth={isActive ? 3.4 : 2.6}
+        transparent
+        opacity={0.92}
+        dashed={!reduceMotion}
+        dashSize={0.18}
+        gapSize={0.1}
+        depthWrite={false}
+      />
 
-    return (
-        <group>
-            <Line
-                ref={lineRef}
-                points={points}
-                color={color}
-                lineWidth={2.2}
-                transparent
-                opacity={0.95}
-                dashed={!reduceMotion}
-                dashSize={0.16}
-                gapSize={0.12}
-                dashOffset={delay}
-            />
-            {!reduceMotion && (
-                <mesh ref={pulseRef}>
-                    <sphereGeometry args={[0.05, 12, 12]} />
-                    <meshBasicMaterial color="#FFFFFF" transparent toneMapped={false} />
-                </mesh>
-            )}
-        </group>
-    );
-}
-
-function CityMarker({ city, color, size = 0.05, reduceMotion, label = null }) {
-    const haloRef = useRef(null);
-    const position = useMemo(() => latLonToVector(city.lat, city.lon, RADIUS * 1.01), [city]);
-
-    useFrame(({ clock }) => {
-        if (reduceMotion || !haloRef.current) return;
-        const wave = Math.sin(clock.elapsedTime * 2 + city.lon) * 0.5 + 0.5; // 0..1
-        haloRef.current.scale.setScalar(1 + wave * 1.4);
-        haloRef.current.material.opacity = 0.35 * (1 - wave);
-    });
-
-    return (
-        <group position={position}>
-            <mesh ref={haloRef}>
-                <sphereGeometry args={[size * 1.6, 16, 16]} />
-                <meshBasicMaterial color={color} transparent opacity={0.3} blending={THREE.AdditiveBlending} depthWrite={false} />
-            </mesh>
-            <mesh>
-                <sphereGeometry args={[size, 16, 16]} />
-                <meshBasicMaterial color={color} toneMapped={false} />
-            </mesh>
-            {/* City-name pill, matching the reference design. Html renders
-                real DOM (crisp at any zoom, no 3D font loading needed) but
-                stays correctly positioned and occluded as the globe moves. */}
-            {label && (
-                <Html distanceFactor={8} center={false} style={{ pointerEvents: 'none' }}>
-                    <span
-                        style={{
-                            display: 'inline-flex',
-                            alignItems: 'center',
-                            gap: '4px',
-                            transform: 'translate(10px, -10px)',
-                            background: 'rgba(255,255,255,0.95)',
-                            color: '#0F1C2E',
-                            fontFamily: 'inherit',
-                            fontSize: '11px',
-                            fontWeight: 700,
-                            padding: '2px 8px 2px 4px',
-                            borderRadius: '999px',
-                            boxShadow: '0 2px 8px rgba(15,28,46,0.25)',
-                            whiteSpace: 'nowrap',
-                        }}
-                    >
-                        <span style={{ width: 6, height: 6, borderRadius: '50%', background: color, display: 'inline-block' }} />
-                        {label}
-                    </span>
-                </Html>
-            )}
-        </group>
-    );
-}
-
-function Globe() {
-    const groupRef = useRef(null);
-    const cloudsRef = useRef(null);
-    const reduceMotion = usePrefersReducedMotion();
-
-    // High-resolution true-color Earth day map (NASA Blue Marble)
-    const earthTexture = useMemo(() => {
-        const loader = new THREE.TextureLoader();
-        const tex = loader.load('/images/globe/earth_day.jpg');
-        tex.colorSpace = THREE.SRGBColorSpace;
-        return tex;
-    }, []);
-
-    // Semi-transparent atmospheric cloud layer
-    const cloudsTexture = useMemo(() => {
-        const loader = new THREE.TextureLoader();
-        const tex = loader.load('/images/globe/earth_clouds.png');
-        tex.colorSpace = THREE.SRGBColorSpace;
-        return tex;
-    }, []);
-
-    // City-lights texture (already an asset in the project, previously
-    // unused) — applied as an emissive map so cities glow warmly, matching
-    // the requested reference look, regardless of which side faces the
-    // scene's directional light.
-    const lightsTexture = useMemo(() => {
-        const loader = new THREE.TextureLoader();
-        const tex = loader.load('/images/globe/earth_lights.png');
-        tex.colorSpace = THREE.SRGBColorSpace;
-        return tex;
-    }, []);
-
-    // Gentle sway around the facing angle (turns India + Gulf toward the camera)
-    useFrame(({ clock }, delta) => {
-        if (reduceMotion || !groupRef.current) return;
-        const time = clock.elapsedTime;
-        groupRef.current.rotation.y = FACE_REGION_Y + Math.sin(time * 0.22) * 0.16;
-
-        // Slow realistic cloud drift
-        if (cloudsRef.current) {
-            cloudsRef.current.rotation.y += delta * 0.012;
-        }
-    });
-
-    return (
-        <group ref={groupRef} rotation={[TILT_X, FACE_REGION_Y, 0]}>
-            {/* 1. True Colors Earth World Map Globe, with city lights glowing
-                on top via an emissive map — a warm tint rather than pure
-                white so it reads as lit windows/streets, not a flat glow. */}
-            <mesh>
-                <sphereGeometry args={[RADIUS, 64, 64]} />
-                <meshStandardMaterial
-                    map={earthTexture}
-                    roughness={0.65}
-                    metalness={0.06}
-                    emissiveMap={lightsTexture}
-                    emissive="#ffcf87"
-                    emissiveIntensity={1.4}
-                />
-            </mesh>
-
-            {/* 2. Realistic Floating Cloud Layer */}
-            <mesh ref={cloudsRef} scale={1.012}>
-                <sphereGeometry args={[RADIUS, 48, 48]} />
-                <meshStandardMaterial
-                    map={cloudsTexture}
-                    transparent
-                    opacity={0.28}
-                    blending={THREE.NormalBlending}
-                    depthWrite={false}
-                />
-            </mesh>
-
-            {/* 3. Highlighted India Map & Regional Hubs */}
-            <IndiaMapMesh radius={RADIUS} reduceMotion={reduceMotion} />
-
-            {/* 4. Atmospheric Rayleigh Scattering Limb Glow.
-                Was scale 1.12/opacity 0.22 and scale 1.24/opacity 0.08 --
-                read as a thick, shiny blue ring rather than a natural
-                atmosphere, and the reference has no visible ring at all.
-                Pulled in to right at the surface and down to a faint 0.06;
-                removed the second, larger outer layer entirely, since that
-                was the layer extending past the Earth's own edge. */}
-            <mesh scale={1.02}>
-                <sphereGeometry args={[RADIUS, 48, 48]} />
-                <meshBasicMaterial
-                    color="#38BDF8"
-                    transparent
-                    opacity={0.06}
-                    side={THREE.BackSide}
-                    blending={THREE.AdditiveBlending}
-                    depthWrite={false}
-                />
-            </mesh>
-
-            {/* 5. Global Mobility Flight Arcs from Bengaluru to Gulf hubs */}
-            {DESTINATIONS.map((dest, i) => (
-                <FlightArc
-                    key={dest.name}
-                    from={ORIGIN}
-                    to={dest}
-                    color={i === 1 ? '#F472B6' : '#38BDF8'}
-                    delay={i * 0.4}
-                    reduceMotion={reduceMotion}
-                />
-            ))}
-
-            <CityMarker city={ORIGIN} color="#FBBF24" size={0.065} reduceMotion={reduceMotion} />
-            {DESTINATIONS.map((dest) => (
-                <CityMarker key={dest.name} city={dest} color="#FFFFFF" reduceMotion={reduceMotion} label={dest.name} />
-            ))}
-        </group>
-    );
+      {/* Realistic 3D Commercial Passenger Jet */}
+      <group ref={planeRef}>
+        <AirplaneMesh
+          opacity={1}
+          scale={1}
+          liveryColor={isActive ? '#0284C7' : '#0369A1'}
+        />
+      </group>
+    </group>
+  );
 }
 
 /**
- * Global-mobility globe — lazy-loaded by GlobalSpotlight, wrapped in
- * <Suspense fallback={null}>, so three.js is never in the main bundle.
- * Returns nothing without WebGL; the section's cards and copy stand alone.
+ * Compact destination and departure pill badge.
+ * Displays only the flag and city/origin name (no country names).
  */
-export default function GlobeScene({ className }) {
-    if (!isWebGLAvailable()) return null;
+function CityHub({ city, label, isOrigin = false, activeFlight, onHover, flag }) {
+  const pulseRef = useRef(null);
+  const position = useMemo(() => latLonToVector(city.lat, city.lon, RADIUS * 1.008), [city]);
+  const offset = LABEL_OFFSETS[city.id] || { x: 15, y: -15 };
+  const isActive = activeFlight === city.id;
 
-    return (
-        <SceneErrorBoundary name="GlobeScene">
-            <div className={className} aria-hidden>
-                <Canvas
-                    dpr={[1, 1.5]}
-                    gl={{ antialias: true, alpha: true, powerPreference: 'low-power' }}
-                    camera={{ position: [0, 0, 6.2], fov: 40 }}
-                    style={{ pointerEvents: 'none' }}
-                >
-                    {/* Natural sun illumination & ambient fill for true earth colors */}
-                    <ambientLight intensity={1.2} />
-                    <directionalLight position={[6, 4, 7]} intensity={2.2} color="#FFFFFF" />
-                    <directionalLight position={[-6, -2, -4]} intensity={0.4} color="#3B82F6" />
-                    <Globe />
-                </Canvas>
-            </div>
-        </SceneErrorBoundary>
+  useFrame(({ clock }) => {
+    if (!pulseRef.current) return;
+    const wave = (clock.elapsedTime * 1.8 + (city.phase || 0) * 2) % 1;
+    pulseRef.current.scale.setScalar(1 + wave * 1.8);
+    pulseRef.current.material.opacity = (1 - wave) * 0.65;
+  });
+
+  return (
+    <group position={position}>
+      {/* Outer expanding ripple */}
+      <mesh ref={pulseRef}>
+        <ringGeometry args={[0.025, 0.05, 24]} />
+        <meshBasicMaterial
+          color="#00F0FF"
+          transparent
+          opacity={0.5}
+          side={THREE.DoubleSide}
+          blending={THREE.AdditiveBlending}
+          depthWrite={false}
+        />
+      </mesh>
+
+      {/* Surface target landing dot */}
+      <mesh>
+        <sphereGeometry args={[0.024, 16, 16]} />
+        <meshBasicMaterial
+          color="#38BDF8"
+          toneMapped={false}
+        />
+      </mesh>
+
+      {/* Sleek, compact single-line badge */}
+      <Html
+        center={false}
+        style={{
+          pointerEvents: 'auto',
+          transform: `translate(${offset.x}px, ${offset.y}px)`,
+        }}
+      >
+        <div
+          onMouseEnter={() => !isOrigin && onHover?.(city.id)}
+          onMouseLeave={() => !isOrigin && onHover?.(null)}
+          style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '5px',
+            padding: '3px 8px',
+            borderRadius: '9999px',
+            backgroundColor: isActive ? 'rgba(15, 23, 42, 0.95)' : 'rgba(15, 23, 42, 0.88)',
+            border: isActive ? '1px solid #38BDF8' : '1px solid rgba(255, 255, 255, 0.22)',
+            boxShadow: isActive ? '0 0 12px rgba(56, 189, 248, 0.45)' : '0 2px 8px rgba(0, 0, 0, 0.35)',
+            color: '#FFFFFF',
+            fontSize: '11px',
+            fontWeight: 700,
+            lineHeight: '1',
+            whiteSpace: 'nowrap',
+            backdropFilter: 'blur(8px)',
+            WebkitBackdropFilter: 'blur(8px)',
+            userSelect: 'none',
+            cursor: isOrigin ? 'default' : 'pointer',
+            transform: isActive ? 'scale(1.08)' : 'scale(1)',
+            transition: 'all 0.2s ease',
+          }}
+        >
+          {/* Flag SVG */}
+          <div style={{ width: '15px', height: '10px', flexShrink: 0, display: 'flex', alignItems: 'center' }}>
+            {flag}
+          </div>
+
+          {/* Single-line city / origin name */}
+          <span style={{ fontSize: '11px', fontWeight: 700, color: '#FFFFFF', letterSpacing: '0.01em' }}>
+            {label}
+          </span>
+        </div>
+      </Html>
+    </group>
+  );
+}
+
+/**
+ * 3D Globe with sunlit Earth textures, India highlighted, and 3 simultaneous flights.
+ */
+function Globe({ activeFlight, onHoverDestination, reduceMotion }) {
+  const groupRef = useRef(null);
+  const cloudsRef = useRef(null);
+  const isDraggingRef = useRef(false);
+  const prevPointerRef = useRef({ x: 0, y: 0 });
+  const rotYRef = useRef(GLOBE_ROTATION_Y);
+  const tiltXRef = useRef(TILT_X);
+
+  const flights = useMemo(() => createFlights(), []);
+
+  // Daytime Earth texture (NASA Blue Marble)
+  const earthTexture = useMemo(() => {
+    const loader = new THREE.TextureLoader();
+    const tex = loader.load('/images/globe/earth_day.jpg');
+    tex.colorSpace = THREE.SRGBColorSpace;
+    return tex;
+  }, []);
+
+  // Atmospheric cloud layer
+  const cloudsTexture = useMemo(() => {
+    const loader = new THREE.TextureLoader();
+    const tex = loader.load('/images/globe/earth_clouds.png');
+    tex.colorSpace = THREE.SRGBColorSpace;
+    return tex;
+  }, []);
+
+  useFrame(({ clock }, delta) => {
+    if (!groupRef.current) return;
+    const time = clock.elapsedTime;
+
+    if (!isDraggingRef.current) {
+      const autoSway = reduceMotion ? 0 : Math.sin(time * 0.2) * 0.11;
+      const targetRotY = GLOBE_ROTATION_Y + autoSway;
+      rotYRef.current = THREE.MathUtils.lerp(rotYRef.current, targetRotY, 0.05);
+      tiltXRef.current = THREE.MathUtils.lerp(tiltXRef.current, TILT_X, 0.05);
+    }
+
+    groupRef.current.rotation.y = rotYRef.current;
+    groupRef.current.rotation.x = tiltXRef.current;
+
+    if (cloudsRef.current && !reduceMotion) {
+      cloudsRef.current.rotation.y += delta * 0.012;
+    }
+  });
+
+  const onPointerDown = useCallback((e) => {
+    isDraggingRef.current = true;
+    prevPointerRef.current = { x: e.clientX, y: e.clientY };
+  }, []);
+
+  const onPointerMove = useCallback((e) => {
+    if (!isDraggingRef.current) return;
+    const dx = e.clientX - prevPointerRef.current.x;
+    const dy = e.clientY - prevPointerRef.current.y;
+    prevPointerRef.current = { x: e.clientX, y: e.clientY };
+
+    rotYRef.current = THREE.MathUtils.clamp(
+      rotYRef.current + dx * 0.005,
+      GLOBE_ROTATION_Y - 0.35,
+      GLOBE_ROTATION_Y + 0.35
     );
+    tiltXRef.current = THREE.MathUtils.clamp(
+      tiltXRef.current + dy * 0.005,
+      0.12,
+      0.38
+    );
+  }, []);
+
+  const onPointerUp = useCallback(() => {
+    isDraggingRef.current = false;
+  }, []);
+
+  return (
+    <group
+      ref={groupRef}
+      rotation={[TILT_X, GLOBE_ROTATION_Y, 0]}
+      onPointerDown={onPointerDown}
+      onPointerMove={onPointerMove}
+      onPointerUp={onPointerUp}
+      onPointerLeave={onPointerUp}
+    >
+      {/* 1. Vibrant Sunlit 3D Earth Sphere */}
+      <mesh receiveShadow castShadow>
+        <sphereGeometry args={[RADIUS, 64, 64]} />
+        <meshStandardMaterial
+          map={earthTexture}
+          roughness={0.48}
+          metalness={0.04}
+        />
+      </mesh>
+
+      {/* 2. Soft Cloud Layer */}
+      <mesh ref={cloudsRef} scale={1.012}>
+        <sphereGeometry args={[RADIUS, 48, 48]} />
+        <meshStandardMaterial
+          map={cloudsTexture}
+          transparent
+          opacity={0.28}
+          blending={THREE.NormalBlending}
+          depthWrite={false}
+        />
+      </mesh>
+
+      {/* 3. Accurately highlighted India boundary & internal illumination */}
+      <IndiaMapMesh radius={RADIUS} reduceMotion={reduceMotion} />
+
+      {/* 4. Subtle cyan atmospheric Fresnel rim */}
+      <mesh scale={1.016}>
+        <sphereGeometry args={[RADIUS, 48, 48]} />
+        <meshBasicMaterial
+          color="#38BDF8"
+          transparent
+          opacity={0.065}
+          side={THREE.BackSide}
+          blending={THREE.AdditiveBlending}
+          depthWrite={false}
+        />
+      </mesh>
+
+      {/* 5. THREE Simultaneous 3D Commercial Passenger Flights */}
+      {flights.map((flight) => (
+        <LiveFlight
+          key={flight.id}
+          flight={flight}
+          activeFlight={activeFlight}
+          reduceMotion={reduceMotion}
+        />
+      ))}
+
+      {/* 6. India Departure Hub (Single clean label: "India") */}
+      <CityHub
+        city={CITIES[ORIGIN_ID]}
+        label="India"
+        isOrigin
+        activeFlight={activeFlight}
+        flag={<IndiaFlag className="h-2.5 w-4" />}
+      />
+
+      {/* 7. Destination Hubs (Single clean labels: "Riyadh", "Doha", "Dubai") */}
+      <CityHub
+        city={CITIES.RUH}
+        label="Riyadh"
+        activeFlight={activeFlight}
+        onHover={onHoverDestination}
+        flag={<SaudiFlag className="h-2.5 w-4" />}
+      />
+      <CityHub
+        city={CITIES.DOH}
+        label="Doha"
+        activeFlight={activeFlight}
+        onHover={onHoverDestination}
+        flag={<QatarFlag className="h-2.5 w-4" />}
+      />
+      <CityHub
+        city={CITIES.DXB}
+        label="Dubai"
+        activeFlight={activeFlight}
+        onHover={onHoverDestination}
+        flag={<UaeFlag className="h-2.5 w-4" />}
+      />
+    </group>
+  );
+}
+
+/**
+ * Production-quality 3D Globe with 3 simultaneous flights.
+ * Fully responsive, interactive, with WebGL fallback and error boundaries.
+ */
+export default function GlobeScene({
+  className,
+  activeFlight = null,
+  onHoverDestination = null,
+}) {
+  const reduceMotion = usePrefersReducedMotion();
+
+  if (!isWebGLAvailable()) {
+    return <GlobeFallback className={className} />;
+  }
+
+  return (
+    <SceneErrorBoundary name="GlobeScene" fallback={<GlobeFallback className={className} />}>
+      <div className={`${className} cursor-grab active:cursor-grabbing select-none`} aria-hidden>
+        <Canvas
+          dpr={[1, 1.5]}
+          gl={{
+            antialias: true,
+            alpha: true,
+            powerPreference: 'high-performance',
+          }}
+          camera={{ position: [0, 0, 6.2], fov: 38 }}
+        >
+          {/* Natural Sun Illumination for Vibrant Daytime Earth */}
+          <ambientLight intensity={1.35} color="#FFFFFF" />
+          <directionalLight position={[4, 3, 5]} intensity={2.6} color="#FFFFFF" />
+          <directionalLight position={[-4, 2, -3]} intensity={0.55} color="#38BDF8" />
+
+          <Globe
+            activeFlight={activeFlight}
+            onHoverDestination={onHoverDestination}
+            reduceMotion={reduceMotion}
+          />
+        </Canvas>
+      </div>
+    </SceneErrorBoundary>
+  );
 }
