@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { Plus, Trash2, Pencil, CheckCircle2, XCircle, AlertCircle, Eye, FileText, GraduationCap, BookOpen } from 'lucide-react';
+import { Plus, Trash2, CheckCircle2, XCircle, AlertCircle, Eye, FileText, GraduationCap, BookOpen } from 'lucide-react';
 import { PanelHeader } from '../../layouts/AppShell.jsx';
 import { DataTable } from '../../components/admin/DataTable.jsx';
 import { Badge, StatusBadge } from '../../components/ui/Badge.jsx';
@@ -66,21 +66,11 @@ export default function AdminCourses() {
     setEditing({});
   };
 
-  const openEdit = (course) => {
-    reset({ ...course, category: course.category?._id || course.category });
-    setEditing(course);
-  };
-
   const onSubmit = async (values) => {
     const payload = { ...values, price: values.priceOnRequest ? undefined : Number(values.price) || 0 };
     try {
-      if (editing?._id) {
-        await adminService.updateCourse(editing._id, payload);
-        toast.success('Course updated');
-      } else {
-        await adminService.createCourse(payload);
-        toast.success('Course created');
-      }
+      await adminService.createCourse(payload);
+      toast.success('Course created');
       setEditing(null);
       refetchCourses();
     } catch (err) {
@@ -206,9 +196,6 @@ export default function AdminCourses() {
                       title="Moderate"
                     >
                       <Eye className="h-4 w-4" />
-                    </Button>
-                    <Button variant="ghost" size="sm" onClick={() => openEdit(row)} aria-label="Edit">
-                      <Pencil className="h-4 w-4" />
                     </Button>
                     <Button variant="ghost" size="sm" onClick={() => remove(row._id)} loading={deletingId === row._id} className="text-danger" aria-label="Delete">
                       <Trash2 className="h-4 w-4" />
@@ -387,8 +374,8 @@ export default function AdminCourses() {
         </Modal>
       )}
 
-      {/* Edit / New Course Modal */}
-      <Modal open={Boolean(editing)} onClose={() => setEditing(null)} title={editing?._id ? 'Edit course' : 'New course'} size="lg">
+      {/* New Course Modal */}
+      <Modal open={Boolean(editing)} onClose={() => setEditing(null)} title="New course" size="lg">
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-5" noValidate>
           <Input label="Title" error={errors.title?.message} {...register('title', { required: 'Enter a title' })} />
           <Textarea label="Summary" rows={2} error={errors.summary?.message} {...register('summary', { required: 'Enter a short summary' })} />
