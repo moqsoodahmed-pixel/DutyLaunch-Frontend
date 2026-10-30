@@ -19,6 +19,7 @@ const groups = [
       { to: '/admin/applications', label: 'Applications', icon: 'FileStack' },
       { to: '/admin/users', label: 'Users', icon: 'Users' },
       { to: '/admin/partners', label: 'Partner institutes', icon: 'Building2' },
+      { to: '/admin/settlements', label: 'Settlements & Payouts', icon: 'Landmark' },
       { to: '/admin/scoring', label: 'Scoring weights', icon: 'BarChart3' },
       { to: '/admin/resume-checks', label: 'Resume Checks', icon: 'ScanLine' },
     ],

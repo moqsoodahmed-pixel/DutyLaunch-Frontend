@@ -1,4 +1,5 @@
 import { useEffect, useState, useRef } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import {
   Plus,
@@ -35,6 +36,7 @@ const APPROVAL_TONE = {
 
 export default function PartnerCourses() {
   const toast = useToast();
+  const [searchParams, setSearchParams] = useSearchParams();
   const { data: partnerData, refetch: refetchPartner } = useApi(() => partnerService.mine(), []);
   const { data: courses, loading, error, refetch } = useApi(() => courseService.mine(), []);
   const { data: categories } = useApi(() => courseService.categories(), []);
@@ -105,6 +107,20 @@ export default function PartnerCourses() {
     });
     setEditing({});
   };
+
+  useEffect(() => {
+    if (searchParams.get('action') === 'new' && isVerified && !loading) {
+      openNew();
+      setSearchParams(
+        (prev) => {
+          const next = new URLSearchParams(prev);
+          next.delete('action');
+          return next;
+        },
+        { replace: true }
+      );
+    }
+  }, [searchParams, isVerified, loading]);
 
   const openEdit = (c) => {
     clearErrors();
@@ -182,6 +198,8 @@ export default function PartnerCourses() {
 
     const payload = {
       ...values,
+      startDate: values.startDate ? values.startDate : undefined,
+      endDate: values.endDate ? values.endDate : undefined,
       price: values.isFree ? 0 : Number(values.price) || 0,
       priceOnRequest: false,
       syllabusUrl,

@@ -17,6 +17,7 @@ const ROLE_FILTERS = [
   { value: '', label: 'All' },
   { value: 'user', label: 'Candidates' },
   { value: 'employer', label: 'Employers' },
+  { value: 'partner', label: 'Partners' },
   { value: 'admin', label: 'Admins' },
 ];
 
@@ -83,7 +84,25 @@ export default function AdminUsers() {
               </div>
             ),
           },
-          { key: 'role', header: 'Role', render: (row) => <Badge tone={row.role === 'admin' ? 'ink' : 'outline'}>{row.role}</Badge> },
+          {
+            key: 'role',
+            header: 'Role',
+            render: (row) => (
+              <Badge
+                tone={
+                  row.role === 'admin'
+                    ? 'ink'
+                    : row.role === 'partner' || row.role === 'institute'
+                    ? 'azure'
+                    : row.role === 'employer'
+                    ? 'info'
+                    : 'outline'
+                }
+              >
+                {row.role === 'institute' ? 'partner' : row.role}
+              </Badge>
+            ),
+          },
           { key: 'createdAt', header: 'Joined', render: (row) => formatDate(row.createdAt) },
           {
             key: 'status',

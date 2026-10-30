@@ -20,12 +20,25 @@ const STATUS_TONES = {
 export default function PartnerSettlements() {
   const { data, loading, error, refetch } = useApi(() => settlementService.mine(), []);
 
-  const summary = data?.summary || {
-    grossCollected: 0,
-    platformCommission: 0,
-    settledAmount: 0,
-    netPayableBalance: 0,
-  };
+  const summary = useMemo(() => {
+    const raw = data?.summary || {};
+    return {
+      grossCollected:
+        raw.grossCollected ??
+        (raw.totalGrossPaise != null ? Math.round(raw.totalGrossPaise / 100) : 0),
+      platformCommission:
+        raw.platformCommission ??
+        (raw.totalCommissionPaise != null ? Math.round(raw.totalCommissionPaise / 100) : 0),
+      settledAmount:
+        raw.settledAmount ??
+        (raw.totalPaidPaise != null ? Math.round(raw.totalPaidPaise / 100) : 0),
+      netPayableBalance:
+        raw.netPayableBalance ??
+        (raw.currentUnbatchedBalancePaise != null
+          ? Math.round(raw.currentUnbatchedBalancePaise / 100)
+          : 0),
+    };
+  }, [data]);
 
   const settlements = useMemo(() => data?.settlements || [], [data]);
 
@@ -123,34 +136,46 @@ export default function PartnerSettlements() {
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-line text-small">
-                    {settlements.map((s) => (
-                      <tr key={s._id} className="hover:bg-slate-50/50">
-                        <td className="py-3.5 px-4 font-mono text-caption text-slate-700">
-                          {s.batchId || s._id.slice(-8).toUpperCase()}
-                        </td>
-                        <td className="py-3.5 px-4 text-caption text-slate-500">
-                          {new Date(s.periodStart || s.createdAt).toLocaleDateString()} –{' '}
-                          {new Date(s.periodEnd || s.createdAt).toLocaleDateString()}
-                        </td>
-                        <td className="py-3.5 px-4 text-right font-medium text-slate-700">
-                          ₹{Number(s.grossAmount || 0).toLocaleString('en-IN')}
-                        </td>
-                        <td className="py-3.5 px-4 text-right text-slate-500">
-                          -₹{Number(s.platformCommission || 0).toLocaleString('en-IN')}
-                        </td>
-                        <td className="py-3.5 px-4 text-right font-bold text-ink">
-                          ₹{Number(s.netPayable || 0).toLocaleString('en-IN')}
-                        </td>
-                        <td className="py-3.5 px-4">
-                          <Badge tone={STATUS_TONES[s.status] || 'neutral'}>
-                            {s.status?.replace('_', ' ').toUpperCase()}
-                          </Badge>
-                        </td>
-                        <td className="py-3.5 px-4 font-mono text-caption text-slate-600">
-                          {s.payoutReference || '—'}
-                        </td>
-                      </tr>
-                    ))}
+                    {settlements.map((s) => {
+                      const gross =
+                        s.grossAmount ??
+                        (s.grossAmountPaise != null ? Math.round(s.grossAmountPaise / 100) : 0);
+                      const commission =
+                        s.platformCommission ??
+                        (s.platformFeePaise != null ? Math.round(s.platformFeePaise / 100) : 0);
+                      const payable =
+                        s.netPayable ??
+                        (s.payableAmountPaise != null ? Math.round(s.payableAmountPaise / 100) : 0);
+
+                      return (
+                        <tr key={s._id || s.id} className="hover:bg-slate-50/50">
+                          <td className="py-3.5 px-4 font-mono text-caption text-slate-700">
+                            {s.batchId || (s._id || s.id || '').slice(-8).toUpperCase()}
+                          </td>
+                          <td className="py-3.5 px-4 text-caption text-slate-500">
+                            {new Date(s.periodStart || s.createdAt).toLocaleDateString()} –{' '}
+                            {new Date(s.periodEnd || s.createdAt).toLocaleDateString()}
+                          </td>
+                          <td className="py-3.5 px-4 text-right font-medium text-slate-700">
+                            ₹{Number(gross).toLocaleString('en-IN')}
+                          </td>
+                          <td className="py-3.5 px-4 text-right text-slate-500">
+                            -₹{Number(commission).toLocaleString('en-IN')}
+                          </td>
+                          <td className="py-3.5 px-4 text-right font-bold text-ink">
+                            ₹{Number(payable).toLocaleString('en-IN')}
+                          </td>
+                          <td className="py-3.5 px-4">
+                            <Badge tone={STATUS_TONES[s.status] || 'neutral'}>
+                              {s.status?.replace('_', ' ').toUpperCase()}
+                            </Badge>
+                          </td>
+                          <td className="py-3.5 px-4 font-mono text-caption text-slate-600">
+                            {s.payoutReference || '—'}
+                          </td>
+                        </tr>
+                      );
+                    })}
                   </tbody>
                 </table>
               </div>

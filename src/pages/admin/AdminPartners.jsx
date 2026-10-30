@@ -591,9 +591,22 @@ export default function AdminPartners() {
                 )}
               </div>
 
-              <Button variant="ghost" onClick={() => setInspecting(null)}>
-                Cancel
-              </Button>
+              <div className="flex flex-wrap items-center gap-2">
+                {inspecting.status === 'approved' && (
+                  <Button
+                    variant="outline"
+                    to={`/universities/${inspecting._id}`}
+                    target="_blank"
+                    className="border-line"
+                  >
+                    <ExternalLink className="h-4 w-4 mr-1.5" />
+                    View Public Profile
+                  </Button>
+                )}
+                <Button variant="ghost" onClick={() => setInspecting(null)}>
+                  Cancel
+                </Button>
+              </div>
             </div>
           </div>
         </Modal>

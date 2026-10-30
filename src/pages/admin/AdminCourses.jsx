@@ -92,6 +92,20 @@ export default function AdminCourses() {
     }
   };
 
+  const removeProgramme = async (id) => {
+    if (!window.confirm('Delete this higher education programme?')) return;
+    setDeletingId(id);
+    try {
+      await adminService.deleteProgramme(id);
+      toast.success('Programme deleted');
+      refetchProgrammes();
+    } catch (err) {
+      toast.error(err.message);
+    } finally {
+      setDeletingId(null);
+    }
+  };
+
   const handleModerate = async (type, id, approvalStatus, feedback = '') => {
     setBusyAction(true);
     try {
@@ -267,7 +281,7 @@ export default function AdminCourses() {
                 key: 'actions',
                 header: '',
                 render: (row) => (
-                  <div className="flex items-center justify-end gap-2">
+                  <div className="flex items-center justify-end gap-1">
                     <Button
                       size="sm"
                       variant="outline"
@@ -278,6 +292,16 @@ export default function AdminCourses() {
                     >
                       <Eye className="h-3.5 w-3.5 mr-1" />
                       Review
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => removeProgramme(row._id)}
+                      loading={deletingId === row._id}
+                      className="text-danger"
+                      aria-label="Delete programme"
+                    >
+                      <Trash2 className="h-4 w-4" />
                     </Button>
                   </div>
                 ),

@@ -133,9 +133,14 @@ export default function PartnerOrganizationProfile() {
       const serverUrl = res.data?.url || res.url || '';
       if (!serverUrl) throw new Error('No URL returned from server');
       setLogoUrl(serverUrl);
-      // Auto-save the logo to the database so it persists immediately
-      await partnerService.saveMine({ logoUrl: serverUrl });
-      toast.success('Logo uploaded and saved successfully');
+      if (profile?._id) {
+        try {
+          await partnerService.saveMine({ logoUrl: serverUrl });
+        } catch {
+          // Will be persisted upon clicking save
+        }
+      }
+      toast.success('Logo uploaded successfully');
     } catch (err) {
       toast.error(err.message || 'Logo upload failed');
     } finally {
@@ -147,12 +152,14 @@ export default function PartnerOrganizationProfile() {
     setLogoUrl('');
     setLogoPreview('');
     setLogoError(false);
-    try {
-      await partnerService.saveMine({ logoUrl: '' });
-      toast.success('Logo removed');
-    } catch (err) {
-      toast.error('Failed to remove logo');
+    if (profile?._id) {
+      try {
+        await partnerService.saveMine({ logoUrl: '' });
+      } catch {
+        // Will be persisted upon clicking save
+      }
     }
+    toast.success('Logo removed');
   };
 
   const handleCoverUpload = async (e) => {
@@ -170,9 +177,14 @@ export default function PartnerOrganizationProfile() {
       const serverUrl = res.data?.url || res.url || '';
       if (!serverUrl) throw new Error('No URL returned from server');
       setCoverImageUrl(serverUrl);
-      // Auto-save the cover banner to the database so it persists immediately
-      await partnerService.saveMine({ coverImageUrl: serverUrl });
-      toast.success('Cover banner uploaded and saved successfully');
+      if (profile?._id) {
+        try {
+          await partnerService.saveMine({ coverImageUrl: serverUrl });
+        } catch {
+          // Will be persisted upon clicking save
+        }
+      }
+      toast.success('Cover banner uploaded successfully');
     } catch (err) {
       toast.error(err.message || 'Cover banner upload failed');
     } finally {
@@ -184,12 +196,14 @@ export default function PartnerOrganizationProfile() {
     setCoverImageUrl('');
     setCoverPreview('');
     setCoverError(false);
-    try {
-      await partnerService.saveMine({ coverImageUrl: '' });
-      toast.success('Cover banner removed');
-    } catch (err) {
-      toast.error('Failed to remove cover banner');
+    if (profile?._id) {
+      try {
+        await partnerService.saveMine({ coverImageUrl: '' });
+      } catch {
+        // Will be persisted upon clicking save
+      }
     }
+    toast.success('Cover banner removed');
   };
 
   const handleDocUpload = async (e) => {
@@ -202,14 +216,20 @@ export default function PartnerOrganizationProfile() {
       const name = res.data?.originalname || file.name;
       setDocUrl(url);
       setDocName(name);
-      await partnerService.saveMine({
-        verificationDetails: {
-          ...(profile?.verificationDetails || {}),
-          documentUrl: url,
-          documentName: name,
-        },
-      });
-      toast.success('Verification document uploaded and saved');
+      if (profile?._id) {
+        try {
+          await partnerService.saveMine({
+            verificationDetails: {
+              ...(profile?.verificationDetails || {}),
+              documentUrl: url,
+              documentName: name,
+            },
+          });
+        } catch {
+          // Will be persisted upon clicking save
+        }
+      }
+      toast.success('Verification document uploaded');
     } catch (err) {
       toast.error(err.message || 'Document upload failed');
     } finally {
@@ -221,6 +241,9 @@ export default function PartnerOrganizationProfile() {
     try {
       const payload = {
         ...values,
+        name: values.name || values.displayName || values.legalName,
+        displayName: values.name || values.displayName,
+        legalName: values.legalName || values.name,
         orgType: isApprovedOrg ? (profile?.orgType || orgType) : orgType,
         track: 'both',
         logoUrl,

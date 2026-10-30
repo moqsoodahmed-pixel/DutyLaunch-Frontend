@@ -25,7 +25,15 @@ export const adminService = {
 
   programmes: (params) => api.get('/admin/education/all', { params }),
   moderateProgramme: (id, payload) => api.patch(`/admin/education/${id}/moderate`, payload),
+  deleteProgramme: (id) => api.delete(`/education/programs/${id}`),
   moderateCourse: (id, payload) => api.patch(`/admin/courses/${id}/moderate`, payload),
+
+  settlements: (params) => api.get('/settlements/admin', { params }),
+  generateSettlement: (partnerId) => api.post('/settlements/generate', { partnerId }),
+  updateSettlement: (id, payload) => api.patch(`/settlements/${id}`, payload),
+  feeConfigs: () => api.get('/settlements/fees'),
+  saveFeeConfig: (payload) => api.post('/settlements/fees', payload),
+  deleteFeeConfig: (id) => api.delete(`/settlements/fees/${id}`),
 
   blogs: (params) => api.get('/blogs/admin/all', { params }),
   createBlog: (payload) => api.post('/blogs', payload),

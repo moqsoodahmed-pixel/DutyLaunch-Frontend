@@ -23,6 +23,19 @@ export default function AdminDashboard() {
         <StatCard label="Published jobs" value={counts.publishedJobs} hint={`${counts.totalJobs} total`} icon="Briefcase" to="/admin/jobs" />
         <StatCard label="Applications" value={counts.totalApplications} icon="FileStack" to="/admin/applications" />
         <StatCard
+          label="Partner institutes"
+          value={counts.totalPartners ?? 0}
+          icon="Building2"
+          to="/admin/partners?status=approved"
+        />
+        <StatCard
+          label="Pending partner reviews"
+          value={counts.pendingPartners ?? 0}
+          icon="ShieldCheck"
+          tone={(counts.pendingPartners ?? 0) > 0 ? 'alert' : 'default'}
+          to="/admin/partners?status=pending"
+        />
+        <StatCard
           label="New consultations"
           value={counts.newConsultations}
           hint={`${counts.totalConsultations} total`}

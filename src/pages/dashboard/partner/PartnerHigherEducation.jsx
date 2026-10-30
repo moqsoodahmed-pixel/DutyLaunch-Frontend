@@ -1,4 +1,5 @@
 import { useEffect, useState, useRef } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import {
   Plus,
@@ -36,6 +37,7 @@ const APPROVAL_TONE = {
 
 export default function PartnerHigherEducation() {
   const toast = useToast();
+  const [searchParams, setSearchParams] = useSearchParams();
   const { data: partnerData, refetch: refetchPartner } = useApi(() => partnerService.mine(), []);
   const { data: programmes, loading, error, refetch } = useApi(() => educationService.mine(), []);
 
@@ -94,6 +96,20 @@ export default function PartnerHigherEducation() {
     });
     setEditing({});
   };
+
+  useEffect(() => {
+    if (searchParams.get('action') === 'new' && isVerified && !loading) {
+      openNew();
+      setSearchParams(
+        (prev) => {
+          const next = new URLSearchParams(prev);
+          next.delete('action');
+          return next;
+        },
+        { replace: true }
+      );
+    }
+  }, [searchParams, isVerified, loading]);
 
   const openEdit = (p) => {
     clearErrors();
