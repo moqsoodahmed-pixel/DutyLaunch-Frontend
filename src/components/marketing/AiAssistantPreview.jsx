@@ -2,6 +2,7 @@ import { Bot, User } from 'lucide-react';
 import { Container, Section } from '../ui/Container.jsx';
 import { Button } from '../ui/Button.jsx';
 import { RevealGroup, RevealItem, Reveal } from '../ui/Reveal.jsx';
+import { useAuth } from '../../context/AuthContext.jsx';
 
 const ACTIONS = ['Improve Power BI skills', 'Explore relevant management programs', 'Find Operations Manager jobs', 'Improve resume'];
 
@@ -14,6 +15,9 @@ const ACTIONS = ['Improve Power BI skills', 'Explore relevant management program
  * Pale mist-blue section, white chat window, dark readable text.
  */
 export function AiAssistantPreview() {
+  const { isAuthenticated } = useAuth();
+  const targetPath = isAuthenticated ? '/assistant' : '/login?next=/assistant';
+
   return (
     <Section tone="mist">
       <Container>
@@ -36,7 +40,14 @@ export function AiAssistantPreview() {
               Answers come from a live AI model grounded in DutyLaunch's own services, pricing and
               courses, and your saved profile.
             </p>
-            <Button to="/register" size="lg" variant="premium" magnetic className="mt-6">
+            <Button
+              to={targetPath}
+              state={!isAuthenticated ? { from: '/assistant' } : undefined}
+              size="lg"
+              variant="premium"
+              magnetic
+              className="mt-6"
+            >
               Try the AI Career Assistant
             </Button>
           </Reveal>

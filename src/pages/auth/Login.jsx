@@ -1,5 +1,5 @@
 import { useForm } from 'react-hook-form';
-import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { Link, useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import { ArrowRight, Lock, Mail, ShieldCheck } from 'lucide-react';
 import { Seo } from '../../components/ui/Seo.jsx';
 import { Input } from '../../components/ui/Field.jsx';
@@ -16,6 +16,7 @@ export default function Login() {
   const toast = useToast();
   const navigate = useNavigate();
   const location = useLocation();
+  const [searchParams] = useSearchParams();
   const {
     register,
     handleSubmit,
@@ -23,12 +24,15 @@ export default function Login() {
     formState: { errors, isSubmitting },
   } = useForm();
 
+  const nextParam = searchParams.get('next') || searchParams.get('from');
+  const safeNext = nextParam && nextParam.startsWith('/') && !nextParam.startsWith('//') ? nextParam : null;
+  const fromPath = location.state?.from || safeNext || '';
+
   const onSubmit = async (values) => {
     try {
       const user = await login(values);
       toast.success(`Welcome back, ${user.name.split(' ')[0]}`);
-      const from = location.state?.from;
-      navigate(from || homePathFor(user.role), { replace: true });
+      navigate(fromPath || homePathFor(user.role), { replace: true });
     } catch (error) {
       if (error.status === 401) {
         setError('password', { message: 'Incorrect email or password' });
@@ -39,16 +43,17 @@ export default function Login() {
     }
   };
 
-  const fromPath = location.state?.from || '';
-  const contextMessage = fromPath.includes('pricing')
-    ? 'Sign in to complete your plan purchase.'
-    : fromPath.includes('resume-checker')
-      ? 'Sign in to run your free ATS resume check.'
-      : fromPath.includes('resume-builder')
-        ? 'Sign in to create and save your resume.'
-        : fromPath.includes('jobs')
-          ? 'Sign in to apply and track your job applications.'
-          : null;
+  const contextMessage = fromPath.includes('assistant')
+    ? 'Sign in to access your AI Career Assistant.'
+    : fromPath.includes('pricing')
+      ? 'Sign in to complete your plan purchase.'
+      : fromPath.includes('resume-checker')
+        ? 'Sign in to run your free ATS resume check.'
+        : fromPath.includes('resume-builder')
+          ? 'Sign in to create and save your resume.'
+          : fromPath.includes('jobs')
+            ? 'Sign in to apply and track your job applications.'
+            : null;
 
   return (
     <>
@@ -116,7 +121,11 @@ export default function Login() {
 
       <div className="rounded-2xl border border-slate-100 bg-slate-50/80 p-3.5 text-center text-small text-slate-600">
         Don&rsquo;t have an account yet?{' '}
-        <Link to="/register" className="font-bold text-azure-600 hover:text-azure-700 hover:underline">
+        <Link
+          to={`/register${location.search}`}
+          state={location.state}
+          className="font-bold text-azure-600 hover:text-azure-700 hover:underline"
+        >
           Create an account
         </Link>
       </div>

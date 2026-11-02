@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
+import { AnimatePresence } from 'framer-motion';
 import { ChevronDown, Menu, Phone, Search } from 'lucide-react';
 import { primaryNav, primaryCta } from '../../data/site.js';
 import { Button } from '../ui/Button.jsx';
@@ -141,12 +142,7 @@ export function Navbar() {
         className={cn('sticky top-0 z-[70] transition-all duration-300 px-3 sm:px-4 lg:px-6', scrolled ? 'py-2' : 'py-3')}
       >
         {/* Outer pill wrapper — overflow visible so dropdowns like ContactMenu are not clipped */}
-        <div
-          className={cn(
-            'relative mx-auto transition-all duration-500',
-            scrolled ? 'max-w-[74rem]' : 'max-w-[80rem]'
-          )}
-        >
+        <div className="relative mx-auto w-full max-w-[80rem]">
           {/* Continuous rotating edge-light perimeter border */}
           <div className="pointer-events-none absolute -inset-[1.5px] rounded-full p-[1.5px] overflow-hidden" aria-hidden="true">
             <div
@@ -331,7 +327,9 @@ export function Navbar() {
       </header>
 
       {/* Centered Command Palette Search Modal — opens outside navbar so it never clips or distorts */}
-      {searchOpen && <SearchModal onClose={() => setSearchOpen(false)} />}
+      <AnimatePresence>
+        {searchOpen && <SearchModal onClose={() => setSearchOpen(false)} />}
+      </AnimatePresence>
 
       <MobileMenu open={mobileOpen} onClose={() => setMobileOpen(false)} />
     </>

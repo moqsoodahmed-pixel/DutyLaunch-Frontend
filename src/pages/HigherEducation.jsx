@@ -5,20 +5,18 @@ import { Seo } from '../components/ui/Seo.jsx';
 import { seoFor } from '../data/seoPages.js';
 import { Container, Section } from '../components/ui/Container.jsx';
 import { SectionHeader } from '../components/ui/SectionHeader.jsx';
-import { Reveal, RevealGroup, RevealItem } from '../components/ui/Reveal.jsx';
+import { Reveal } from '../components/ui/Reveal.jsx';
 import { Tabs } from '../components/ui/Tabs.jsx';
 import { Badge } from '../components/ui/Badge.jsx';
 import { Button } from '../components/ui/Button.jsx';
 import { SearchBar } from '../components/ui/SearchBar.jsx';
 import { CardSkeleton, EmptyState, ErrorState } from '../components/ui/States.jsx';
 import { PageHero, HeroActions } from '../components/marketing/PageHero.jsx';
-import { GlacierBackdrop } from '../components/premium/GlacierBackdrop.jsx';
 import { CTASection } from '../components/marketing/CTASection.jsx';
 import { ItemGroups } from '../components/marketing/ItemGroups.jsx';
 import { useApi } from '../hooks/useApi.js';
 import { useDebounce } from '../hooks/useDebounce.js';
 import { educationService } from '../services/contentService.js';
-import { educationJourney } from '../data/site.js';
 import { serviceSchema } from '../utils/seo.js';
 import { images } from '../data/images.js';
 import { SiteImage } from '../components/ui/SiteImage.jsx';
@@ -116,7 +114,7 @@ export default function HigherEducation() {
         aside={<SiteImage image={images.campus} priority ratio="5 / 4" className="mx-auto w-full lg:ml-auto lg:mr-0" />}
       />
 
-      <Section tone="white">
+      <Section tone="paper">
         <Container>
           <ItemGroups groups={SCHOOL} columns="sm:grid-cols-2" itemHref={(item) => programmeHref('education', item)} />
           <ItemGroups groups={DEGREES} className="mt-4" itemHref={(item) => programmeHref('education', item)} />
@@ -124,32 +122,6 @@ export default function HigherEducation() {
             <MousePointerClick className="h-4 w-4 text-azure" aria-hidden />
             Select any programme to see partner institutes.
           </p>
-        </Container>
-      </Section>
-
-      {/* Education journey — a horizontal rail, deliberately unlike the homepage's vertical one. */}
-      <Section tone="mist">
-        <Container>
-          <Reveal>
-            <SectionHeader
-              label="The process"
-              title="Five stages, in this order."
-              lead="Most applicants start at stage two and discover the first stage was the one that mattered."
-            />
-          </Reveal>
-          <RevealGroup as="ol" className="mt-12 grid gap-px overflow-hidden rounded-lg border border-mist-line bg-mist-line md:grid-cols-5" staggerDelay={0.07}>
-            {educationJourney.map((stage, i) => (
-              <RevealItem
-                as="li"
-                key={stage.stage}
-                className="bg-white p-5 transition-colors duration-200 hover:bg-mist-soft"
-              >
-                <span className="tabular text-caption font-bold text-azure">0{i + 1}</span>
-                <h3 className="mt-2 text-body font-bold text-ink">{stage.stage}</h3>
-                <p className="mt-2 text-small text-slate-700">{stage.detail}</p>
-              </RevealItem>
-            ))}
-          </RevealGroup>
         </Container>
       </Section>
 
@@ -424,39 +396,6 @@ export default function HigherEducation() {
                 })}
               </div>
             )}
-          </div>
-        </Container>
-      </Section>
-
-      <Section tone="glacier" backdrop={<GlacierBackdrop />}>
-        <Container>
-          <div>
-            <Reveal className="max-w-3xl">
-              <h2 className="text-h2 font-bold">What the guidance covers</h2>
-              <p className="mt-3 max-w-2xl text-lead text-slate-600">
-                The application itself is a small part of it. Most of the work is upstream and downstream.
-              </p>
-              <Button to="/contact#consultation" className="mt-6">
-                Book a free consultation
-              </Button>
-            </Reveal>
-            <RevealGroup className="mt-10" staggerDelay={0.05}>
-              <dl className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                {[
-                  ['Shortlisting', 'Against budget, entry requirements, intake dates and post-study work rules in each destination.'],
-                  ['Statement of purpose', 'Structured and edited, written by you with our editing rather than ghostwritten, admissions teams can tell.'],
-                  ['Academic CV and references', 'Formatted to the institution\u2019s expectations, with guidance on who to ask and how.'],
-                  ['Funding', 'Scholarship search, financial documentation and what each country expects you to evidence.'],
-                  ['Visa paperwork', 'Document checklists, attestation where required, and the sequence to do it in.'],
-                  ['Arrival planning', 'Accommodation, part-time work rules and the graduate job search before you land.'],
-                ].map(([term, detail]) => (
-                  <RevealItem key={term} className="tile p-5">
-                    <dt className="text-body font-bold text-ink">{term}</dt>
-                    <dd className="mt-1 text-body text-slate-600">{detail}</dd>
-                  </RevealItem>
-                ))}
-              </dl>
-            </RevealGroup>
           </div>
         </Container>
       </Section>

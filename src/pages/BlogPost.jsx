@@ -32,7 +32,7 @@ export default function BlogPost() {
   return (
     <>
       <Seo title={post.title} description={post.excerpt} schema={articleSchema(post)} />
-      <Section tone="paper" className="pb-0">
+      <Section tone="white">
         <Container className="max-w-3xl">
           <Breadcrumb items={[{ label: 'Blog', to: '/blog' }, { label: post.title }]} />
           <Badge tone="azure">{post.category}</Badge>
@@ -40,11 +40,9 @@ export default function BlogPost() {
           <p className="mt-4 text-caption text-slate-500">
             {formatDate(post.publishedAt)} · {post.readingMinutes} min read
           </p>
-        </Container>
-      </Section>
-      <Section tone="white" className="pt-8">
-        <Container className="max-w-3xl">
-          <ArticleBody content={post.content ?? post.body ?? ''} />
+          <div className="mt-8">
+            <ArticleBody content={post.content ?? post.body ?? ''} />
+          </div>
         </Container>
       </Section>
       {related.length > 0 && (

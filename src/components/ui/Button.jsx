@@ -24,6 +24,8 @@ const variants = {
   ghost: 'bg-slate-100/80 text-ink hover:bg-slate-200/90',
   onInk:
     'bg-white text-ink shadow-xs hover:brightness-[1.02] hover:shadow-crystal',
+  onInkOutline:
+    'border-[1.5px] border-white/60 bg-white/10 text-white shadow-xs backdrop-blur-sm hover:border-white hover:bg-white/20 hover:text-white hover:shadow-raise focus-visible:outline focus-visible:outline-[2px] focus-visible:outline-white focus-visible:outline-offset-2',
   outlineInk:
     'border border-sky-200/70 bg-gradient-to-r from-sky-700 via-cyan-700 to-sky-800 text-white hover:brightness-110 hover:shadow-[0_8px_22px_-6px_rgba(0,0,0,0.6)]',
   danger:

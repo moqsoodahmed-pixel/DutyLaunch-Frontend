@@ -48,6 +48,9 @@ export function Section({ tone = 'white', seamTop, seamBottom, backdrop, classNa
   // `position: sticky` side panels on the job, course and Dubai pages.
   const layered = dark || tone === 'glacier' || tone === 'mist' || tone === 'ink' || Boolean(backdrop);
 
+  const hasCustomPt = className && /(^|\s)(pt-|py-)/.test(className);
+  const hasCustomPb = className && /(^|\s)(pb-|py-)/.test(className);
+
   return (
     <section
       id={id}
@@ -56,8 +59,8 @@ export function Section({ tone = 'white', seamTop, seamBottom, backdrop, classNa
         TONES[tone] || TONES.white,
         topDark && 'seam-top-dark',
         bottomDark && 'seam-bottom-dark',
-        dark && !topDark ? 'pt-section-dark' : 'pt-section',
-        dark && !bottomDark ? 'pb-section-dark' : 'pb-section',
+        !hasCustomPt && (dark && !topDark ? 'pt-section-dark' : 'pt-section'),
+        !hasCustomPb && (dark && !bottomDark ? 'pb-section-dark' : 'pb-section'),
         className
       )}
       {...rest}

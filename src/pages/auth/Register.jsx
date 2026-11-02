@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { Link, useNavigate, useSearchParams } from 'react-router-dom';
+import { Link, useNavigate, useLocation, useSearchParams } from 'react-router-dom';
 import {
   ArrowRight,
   Briefcase,
@@ -58,6 +58,7 @@ export default function Register() {
   const { register: doRegister } = useAuth();
   const toast = useToast();
   const navigate = useNavigate();
+  const location = useLocation();
   const [searchParams] = useSearchParams();
 
   const paramType = searchParams.get('type') || searchParams.get('role');
@@ -79,6 +80,9 @@ export default function Register() {
   const password = watch('password', '');
   const confirmPassword = watch('confirmPassword', '');
 
+  const nextParam = searchParams.get('next') || searchParams.get('from') || location.state?.from || '';
+  const safeNext = nextParam && nextParam.startsWith('/') && !nextParam.startsWith('//') ? nextParam : null;
+
   const onSubmit = async (values) => {
     if (!values.acceptTerms) {
       setError('acceptTerms', { message: CONSENT_REQUIRED_MESSAGE });
@@ -96,8 +100,6 @@ export default function Register() {
 
       const user = await doRegister(payload);
       toast.success(`Welcome to DutyLaunch, ${user.name.split(' ')[0]}`);
-      const next = searchParams.get('next');
-      const safeNext = next && next.startsWith('/') && !next.startsWith('//') ? next : null;
       navigate(safeNext || homePathFor(user.role), { replace: true });
     } catch (error) {
       error.fieldErrors?.forEach((f) => setError(f.field, { message: f.message }));
@@ -106,6 +108,16 @@ export default function Register() {
       );
     }
   };
+
+  const contextMessage = nextParam.includes('assistant')
+    ? 'Create your free account to access your AI Career Assistant.'
+    : nextParam.includes('resume-checker')
+      ? 'Create your free account to run your ATS resume check.'
+      : nextParam.includes('resume-builder')
+        ? 'Create your free account to build and save your resume.'
+        : nextParam.includes('jobs')
+          ? 'Create your free account to apply for jobs.'
+          : null;
 
   const currentRoleConfig = ACCOUNT_TYPES.find((t) => t.value === role) || ACCOUNT_TYPES[0];
 
@@ -121,10 +133,19 @@ export default function Register() {
         <h1 className="mt-3 text-2xl font-extrabold tracking-tight text-ink sm:text-3xl">Create your account</h1>
         <p className="mt-1.5 text-small text-slate-500">
           Already registered?{' '}
-          <Link to="/login" className="font-semibold text-azure-600 hover:text-azure-700 hover:underline">
+          <Link
+            to={`/login${location.search}`}
+            state={location.state}
+            className="font-semibold text-azure-600 hover:text-azure-700 hover:underline"
+          >
             Sign in
           </Link>
         </p>
+        {contextMessage && (
+          <div className="mt-3.5 rounded-xl border border-azure-200 bg-azure-50/90 px-3.5 py-2.5 text-small font-medium text-azure-800 shadow-xs">
+            {contextMessage}
+          </div>
+        )}
       </div>
 
       {/* Account Type Selector */}
