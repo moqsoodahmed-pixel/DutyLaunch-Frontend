@@ -14,7 +14,7 @@ import { AtsScoreReport } from './AtsScoreReport.jsx';
 import AtsResumeVisual from './AtsResumeVisual.jsx';
 
 const ASSURANCES = [
-  'Your resume is analyzed to calculate a real, on-the-spot score — nothing is pre-filled or hard-coded.',
+  'This ATS Score is generated using DutyLaunch\'s internal evaluation system. It is intended only as a reference based on our internal scoring methodology. It is NOT a universal ATS score.',
   'We don\u2019t keep your uploaded document longer than it takes to analyze it.',
 ];
 

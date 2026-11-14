@@ -18,7 +18,7 @@ const ROLE_FILTERS = [
   { value: 'user', label: 'Candidates' },
   { value: 'employer', label: 'Employers' },
   { value: 'partner', label: 'Partners' },
-  { value: 'admin', label: 'Admins' },
+  { value: 'admin', label: 'Admins & Staff' },
 ];
 
 export default function AdminUsers() {

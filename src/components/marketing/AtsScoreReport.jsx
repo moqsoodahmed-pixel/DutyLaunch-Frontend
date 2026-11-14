@@ -91,11 +91,10 @@ export function AtsScoreReport({ result, onReset }) {
       <div className="flex flex-col items-center gap-8 border-b border-glacier-400 pb-8 lg:flex-row lg:items-start">
         <ScoreRing score={score} />
         <div className="flex-1">
-          <p className="text-small font-semibold text-azure">DutyLaunch ATS Compatibility Score</p>
+          <p className="text-small font-semibold text-azure">DutyLaunch Internal ATS Score</p>
           <p className="mt-2 text-body font-semibold text-ink">{band(score).meaning}</p>
           <p className="mt-1 text-small text-slate-600">
-            An internal assessment of how well this resume is likely to be parsed and ranked by common
-            Applicant Tracking Systems, not an official score from any specific vendor.
+            This ATS Score is generated using DutyLaunch's internal evaluation system. It is intended only as a reference based on our internal scoring methodology. It is NOT a universal ATS score.
           </p>
           <div className="mt-6 grid gap-4 sm:grid-cols-2">
             {Object.entries(categories || {}).map(([key, value], i) => (

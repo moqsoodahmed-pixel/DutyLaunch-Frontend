@@ -9,7 +9,7 @@
  * an infinite redirect loop.
  */
 export function homePathFor(role) {
-  if (role === 'admin') return '/admin';
+  if (['admin', 'super_admin', 'assistant_admin', 'master_admin'].includes(role)) return '/admin';
   if (role === 'institute' || role === 'partner') return '/partner';
   return '/dashboard';
 }

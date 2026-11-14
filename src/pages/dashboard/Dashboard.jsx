@@ -305,8 +305,8 @@ function EmployerOverview() {
 
 /* Career tools — the counts come from GET /api/studio. */
 const TOOLS = [
-  { to: '/resume-builder', label: 'Build my resume', note: 'Upload yours or start from scratch' },
-  { to: '/cover-letter', label: 'Write a cover letter', note: 'Matched to a job you want' },
+  { to: '/resume-builder', label: 'Resume Service', note: 'Handcrafted by career specialists' },
+  { to: '/my-resumes', label: 'My Resume Orders', note: 'Track your CV orders & downloads' },
   { to: '/interview-prep', label: 'Prepare for interviews', note: 'Top 10 questions with answers' },
   { to: '/mock-interview', label: 'Practise a mock interview', note: 'Answer and get feedback' },
 ];
@@ -321,10 +321,10 @@ function StudioCard() {
         <div>
           <p className="flex items-center gap-2 text-small font-bold text-ink">Your career tools</p>
           <p className="mt-1 text-caption text-slate-500">
-            {studio?.profile ? 'Your saved resume powers your cover letters and interview prep.' : 'Start with your resume, everything else is built from it.'}
+            Professional resume craftsmanship, custom cover letters, and interview coaching.
           </p>
         </div>
-        <Button to="/resume-builder" size="sm">{studio?.profile ? 'Open Resume Builder' : 'Build my resume'}</Button>
+        <Button to="/resume-builder" size="sm">Explore Resume Packages</Button>
       </div>
       <div className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         {TOOLS.map((t) => (

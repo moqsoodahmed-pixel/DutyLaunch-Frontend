@@ -101,7 +101,10 @@ export function useRazorpayCheckout() {
               const verified = await paymentService.verify(response);
               toast.success(`Payment successful. Thank you, ${order.itemName} is confirmed.`);
               if (onSuccess) await onSuccess(verified?.data);
-              else if (user?.role !== 'admin') navigate('/payments');
+              else if (user?.role !== 'admin') {
+                if (itemType === 'cv-package') navigate('/resume-builder');
+                else navigate('/payments');
+              }
             } catch (error) {
               toast.error(error.message || 'We could not confirm your payment. Contact support with your payment id.');
             } finally {

@@ -18,8 +18,16 @@ export function ProtectedRoute({ roles }) {
     return <Navigate to="/login" state={{ from: location.pathname + location.search }} replace />;
   }
 
-  if (roles && !roles.includes(user.role)) {
-    return <Navigate to={homePathFor(user.role)} replace />;
+  if (roles) {
+    const isAllowed = roles.some((r) => {
+      if (r === 'admin') {
+        return ['admin', 'super_admin', 'assistant_admin', 'master_admin'].includes(user?.role);
+      }
+      return user?.role === r;
+    });
+    if (!isAllowed) {
+      return <Navigate to={homePathFor(user?.role)} replace />;
+    }
   }
 
   return <Outlet />;

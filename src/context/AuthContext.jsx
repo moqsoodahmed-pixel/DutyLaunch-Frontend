@@ -95,7 +95,7 @@ export function AuthProvider({ children }) {
       setUser,
       initialising,
       isAuthenticated: Boolean(user),
-      isAdmin: user?.role === 'admin',
+      isAdmin: ['admin', 'super_admin', 'assistant_admin', 'master_admin'].includes(user?.role),
       isEmployer: user?.role === 'employer',
       isInstitute: user?.role === 'institute' || user?.role === 'partner',
       isPartner: user?.role === 'institute' || user?.role === 'partner',

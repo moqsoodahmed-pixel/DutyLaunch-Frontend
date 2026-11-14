@@ -55,7 +55,7 @@ const CATEGORY_ICONS = {
   keywords: Target,
 };
 
-export function ScoreDial({ score, band, label = 'ATS Health Score', size = 136 }) {
+export function ScoreDial({ score, band, label = 'DutyLaunch Internal ATS Score', size = 136 }) {
   const radius = (size - 16) / 2;
   const circumference = 2 * Math.PI * radius;
   const offset = circumference - (Math.max(0, Math.min(100, score)) / 100) * circumference;
@@ -131,6 +131,9 @@ export function ScoreDial({ score, band, label = 'ATS Health Score', size = 136 
             : isMedium
               ? 'Meets structural requirements with a few recommended tweaks.'
               : 'Several key ATS flags require updates before sending.'}
+        </p>
+        <p className="mt-2 text-[10px] text-slate-400 max-w-[26ch] leading-tight">
+          This ATS Score is generated using DutyLaunch's internal evaluation system. It is intended only as a reference based on our internal scoring methodology. It is NOT a universal ATS score.
         </p>
       </div>
     </div>

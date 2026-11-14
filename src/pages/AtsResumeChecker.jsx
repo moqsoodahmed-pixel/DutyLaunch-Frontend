@@ -28,9 +28,9 @@ const HOW_IT_WORKS = [
 const FAQS = [
   {
     id: 'official',
-    question: 'Is this an official ATS score?',
+    question: 'Is this an official or global ATS score?',
     answer:
-      'No. This is the DutyLaunch ATS Compatibility Score, our own internal assessment of how ATS-friendly your resume is. It is not affiliated with any specific applicant tracking system vendor.',
+      "This ATS Score is generated using DutyLaunch's internal evaluation system. It is intended only as a reference based on our internal scoring methodology. It is NOT a universal ATS score.",
   },
   {
     id: 'privacy',
@@ -72,6 +72,17 @@ export default function AtsResumeChecker() {
 
       <Section tone="white" id="upload">
         <Container className="max-w-4xl">
+          {/* DutyLaunch Internal ATS Transparency Notice */}
+          <div className="mb-6 rounded-xl border border-amber-300 bg-amber-50/80 p-4 text-small text-amber-950 shadow-xs">
+            <p className="font-semibold flex items-center gap-2">
+              <span className="inline-block h-2 w-2 rounded-full bg-amber-500" />
+              DutyLaunch Internal Evaluation Notice
+            </p>
+            <p className="mt-1 text-caption text-amber-900 leading-relaxed">
+              This ATS Score is generated using DutyLaunch's internal evaluation system. It is intended only as a reference based on our internal scoring methodology. It is NOT a universal ATS score.
+            </p>
+          </div>
+
           {result ? (
             <div className="space-y-8">
               <ParseReviewNotice needsReview={result.needsReview} note={result.reviewNote} />
@@ -95,7 +106,7 @@ export default function AtsResumeChecker() {
                   description and we can also show you which of its requirements your resume does not yet evidence.
                 </p>
                 <div className="mt-4 flex flex-wrap gap-3">
-                  <Button to="/resume-builder">Build my resume</Button>
+                  <Button to="/resume-builder">Get Expert Resume Service</Button>
                   <Button variant="quiet" onClick={() => setResult(null)}>
                     Check another resume
                   </Button>

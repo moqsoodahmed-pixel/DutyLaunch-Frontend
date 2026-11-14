@@ -91,6 +91,7 @@ const AdminFaqs = lazyWithReload(() => import('../pages/admin/AdminFaqs.jsx'));
 const AdminConsultations = lazyWithReload(() => import('../pages/admin/AdminConsultations.jsx'));
 const AdminMessages = lazyWithReload(() => import('../pages/admin/AdminMessages.jsx'));
 const AdminTestimonials = lazyWithReload(() => import('../pages/admin/AdminTestimonials.jsx'));
+const AdminResumeOrders = lazyWithReload(() => import('../pages/admin/AdminResumeOrders.jsx'));
 
 
 /** Redirect that keeps the query string, e.g. /cv-builder?template=x. */
@@ -109,10 +110,8 @@ export function AppRoutes() {
       <ChunkErrorBoundary>
         <Suspense fallback={<PageFallback />}>
           <Routes>
-            {/* Guided Resume Builder: full-screen, candidates only. */}
-            <Route element={<ProtectedRoute roles={['user']} />}>
-              <Route path="resume-builder/wizard" element={<ResumeWizard />} />
-            </Route>
+            {/* Self-creation wizard removed — redirected to manual Resume Building Service */}
+            <Route path="resume-builder/wizard" element={<Navigate to="/resume-builder" replace />} />
 
             <Route element={<PublicLayout />}>
               <Route index element={<Home />} />
@@ -216,12 +215,10 @@ export function AppRoutes() {
                   <Route path="my-resumes" element={<MyResumes />} />
                   <Route path="assistant" element={<Assistant />} />
                   <Route path="career-studio" element={<Navigate to="/resume-builder" replace />} />
-                  <Route path="cover-letter" element={<CoverLetterTool />} />
+                  <Route path="cover-letter" element={<Navigate to="/resume-builder" replace />} />
                   <Route path="interview-prep" element={<InterviewPrepTool />} />
                   <Route path="resume-builder" element={<ResumeBuilderStart />} />
-                  {/* Authenticated dashboard template gallery — separate from the
-                      public /cv-templates marketing page, which is untouched. */}
-                  <Route path="resume-templates" element={<CvTemplatesPage />} />
+                  <Route path="resume-templates" element={<Navigate to="/resume-builder" replace />} />
                   <Route path="mock-interview" element={<MockInterview />} />
                 </Route>
                 <Route element={<ProtectedRoute roles={['employer']} />}>
@@ -233,9 +230,10 @@ export function AppRoutes() {
               </Route>
             </Route>
 
-            <Route element={<ProtectedRoute roles={['admin']} />}>
+            <Route element={<ProtectedRoute roles={['admin', 'super_admin', 'assistant_admin', 'master_admin']} />}>
               <Route element={<AdminLayout />}>
                 <Route path="admin" element={<AdminDashboard />} />
+                <Route path="admin/resume-orders" element={<AdminResumeOrders />} />
                 <Route path="admin/users" element={<AdminUsers />} />
                 <Route path="admin/jobs" element={<AdminJobs />} />
                 <Route path="admin/applications" element={<AdminApplications />} />

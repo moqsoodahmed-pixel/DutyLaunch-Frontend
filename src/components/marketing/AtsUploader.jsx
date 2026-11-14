@@ -311,9 +311,12 @@ export function AtsUploader({ onResult }) {
                   className="group relative mt-5 flex h-12 w-full items-center justify-center overflow-hidden rounded-xl bg-gradient-to-r from-[#1A3665] via-[#1D5DB8] to-[#2B72D4] px-6 text-body font-bold text-white shadow-crystal transition-all duration-300 hover:scale-[1.01] hover:shadow-[0_20px_50px_-15px_rgba(29,93,184,0.45)] active:scale-[0.99]"
                 >
                   <span className="pointer-events-none absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/25 to-transparent transition-transform duration-700 ease-out group-hover:translate-x-full" />
-                  Check My ATS Score
+                  Check DutyLaunch Internal ATS Score
                 </button>
               )}
+              <p className="mt-3 text-center text-[11px] text-slate-400 leading-tight">
+                This ATS Score is generated using DutyLaunch's internal evaluation system. It is intended only as a reference based on our internal scoring methodology. It is NOT a universal ATS score.
+              </p>
             </div>
           </motion.div>
         )}

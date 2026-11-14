@@ -88,8 +88,10 @@ export default function AtsWelcomeExperience() {
         <AtsResumeVisual compact />
       </div>
       <p className="mt-2 text-center text-small text-slate-600">
-        Discover how your resume performs, identify areas to improve, and take the next step
-        toward your career goals.
+        Discover how your resume performs against DutyLaunch internal evaluation metrics and get actionable recommendations.
+      </p>
+      <p className="mt-2 text-center text-[10px] text-slate-400">
+        This ATS Score is generated using DutyLaunch's internal evaluation system. It is intended only as a reference based on our internal scoring methodology. It is NOT a universal ATS score.
       </p>
     </Modal>
   );

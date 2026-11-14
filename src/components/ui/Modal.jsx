@@ -5,12 +5,13 @@ import { X } from 'lucide-react';
 import { useLockBodyScroll } from '../../hooks/useLockBodyScroll.js';
 import { cn } from '../../utils/cn.js';
 
-export function Modal({ open, onClose, title, description, children, footer, size = 'md' }) {
+export function Modal({ open, isOpen, onClose, title, description, children, footer, size = 'md' }) {
+  const isVisible = open ?? isOpen ?? false;
   const panelRef = useRef(null);
-  useLockBodyScroll(open);
+  useLockBodyScroll(isVisible);
 
   useEffect(() => {
-    if (!open) return undefined;
+    if (!isVisible) return undefined;
     const onKey = (e) => {
       if (e.key === 'Escape') onClose();
       if (e.key === 'Tab' && panelRef.current) {
@@ -35,13 +36,13 @@ export function Modal({ open, onClose, title, description, children, footer, siz
       document.removeEventListener('keydown', onKey);
       clearTimeout(timer);
     };
-  }, [open, onClose]);
+  }, [isVisible, onClose]);
 
   const widths = { sm: 'max-w-md', md: 'max-w-lg', lg: 'max-w-2xl' };
 
   return createPortal(
     <AnimatePresence>
-      {open && (
+      {isVisible && (
         <div className="fixed inset-0 z-[90] flex items-end justify-center p-0 sm:items-center sm:p-4">
           <motion.div
             className="absolute inset-0 bg-ink-900/55 backdrop-blur-[2px]"

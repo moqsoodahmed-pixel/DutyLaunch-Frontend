@@ -22,7 +22,7 @@ const TRUST_POINTS = [
   { icon: UserCheck, label: 'Written by career writers, not templates' },
   { icon: FileCheck2, label: 'ATS-checked before delivery' },
   { icon: ShieldCheck, label: 'Secure online payment by Razorpay' },
-  { icon: Zap, label: '2 to 3 day turnaround' },
+  { icon: Zap, label: 'Within a day turnaround' },
 ];
 
 const PROCESS = [
@@ -34,10 +34,10 @@ const PROCESS = [
 
 const BANDS = [
   { value: 'all', label: 'Show all' },
-  { value: '0', label: '0 to 3 years' },
-  { value: '4', label: '4 to 7 years' },
-  { value: '8', label: '8 to 14 years' },
-  { value: '15', label: '15+ years' },
+  { value: '0', label: '0 to 2 years' },
+  { value: '3', label: '3 to 5 years' },
+  { value: '6', label: '6 to 8 years' },
+  { value: '9', label: '9+ years' },
 ];
 
 export default function Pricing() {
@@ -72,21 +72,21 @@ export default function Pricing() {
     <>
       <Seo
         title="CV and LinkedIn pricing"
-        description="DutyLaunch CV bundles: Early Career ₹599, Advanced Career ₹899, Senior Career ₹1,199 and Executive Career ₹1,799. Each includes an ATS-friendly CV, cover letter, LinkedIn optimisation, a month of revisions and 2 to 3 day delivery."
+        description="DutyLaunch CV bundles: 0-2 years ₹399, 3-5 years ₹799, 6-8 years ₹999 and 9+ years ₹1,199. Each includes an ATS-friendly CV handcrafted by expert writers, cover letter, LinkedIn optimisation, a month of revisions and within a day delivery."
       />
 
       <PageHero
         eyebrow="Pricing"
         title="Four bundles, priced by experience."
-        lead="More experience means more to weigh, cut and reposition, so the bands differ by the work involved, not by how much is included. Every bundle contains the same five deliverables."
+        lead="More experience means more to weigh, cut and reposition, so the bands differ by the work involved, not by how much is included. Every bundle contains the same deliverables handcrafted by certified career specialists."
         breadcrumb={[{ label: 'Pricing' }]}
         actions={
           <>
-            <Button to="/resume-builder?start=scratch" size="lg">
-              Create a new CV
+            <Button to="/resume-builder" size="lg">
+              Get Professional Resume Service
             </Button>
-            <Button to="/resume-builder?start=upload" variant="outline" size="lg">
-              Improve my existing CV
+            <Button to="/resume-checker" variant="outline" size="lg">
+              Check Internal ATS Score
             </Button>
           </>
         }
