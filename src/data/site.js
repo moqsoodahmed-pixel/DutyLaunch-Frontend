@@ -100,11 +100,11 @@ export const pillars = [
   {
     id: 'career-tools',
     label: 'Career+',
-    path: '/resume-builder',
+    path: '/resume-service',
     icon: 'LogoMark',
     summary: 'Everything that turns your experience into a stronger application.',
     items: [
-      { label: 'Resume Builder', path: '/resume-builder', description: 'Upload your resume or start from scratch (sign in)' },
+      { label: 'Resume & CV Service', path: '/resume-service', description: 'Handcrafted ATS resumes, cover letters & LinkedIn profiles' },
       { label: 'LinkedIn Optimization', path: '/linkedin-optimization', description: 'Headline, About and keyword review' },
       { label: 'Cover Letter Generator', path: '/cover-letter-generator', description: 'A draft built from your own evidence' },
       { label: 'Interview Preparation', path: '/interview-preparation', description: 'Questions from the job and your resume' },
@@ -142,7 +142,6 @@ export const navGroups = [
     summary: 'Document legalisation, plus other ways to work with DutyLaunch.',
     items: [
       { label: 'Apostille & attestation', path: '/apostille-services', description: 'Document legalisation, tracked' },
-      { label: 'For employers', path: '/employers', description: 'Post roles and reach matched candidates' },
       { label: 'Partner with us', path: '/partners', description: 'Institutes, EdTech and service partners' },
     ],
   },

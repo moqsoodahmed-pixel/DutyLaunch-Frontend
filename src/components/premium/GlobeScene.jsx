@@ -1,10 +1,9 @@
-import { useMemo, useRef, useCallback } from 'react';
+import { useMemo, useRef, useCallback, useEffect } from 'react';
 import * as THREE from 'three';
-import { Canvas, useFrame } from '@react-three/fiber';
+import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import { Line, Html } from '@react-three/drei';
 import { usePrefersReducedMotion } from '../../hooks/useMediaQuery.js';
 import { isWebGLAvailable, SceneErrorBoundary } from './webgl.jsx';
-import { IndiaMapMesh } from './IndiaMapMesh.jsx';
 import { AirplaneMesh } from './AirplaneMesh.jsx';
 import { GlobeFallback } from './GlobeFallback.jsx';
 import { IndiaFlag, UaeFlag, SaudiFlag, QatarFlag } from './CountryFlags.jsx';
@@ -24,31 +23,33 @@ import {
   clamp01,
 } from './globeFlight.js';
 
-// Pre-allocated scratch objects to prevent per-frame GC spikes
+// Pre-allocated scratch objects to prevent per-frame garbage collection
 const _vPos = new THREE.Vector3();
 const _vTan = new THREE.Vector3();
 const _vUp = new THREE.Vector3();
-const _vTarget = new THREE.Vector3();
+const _vRight = new THREE.Vector3();
 const _vTemp = new THREE.Vector3();
+const _rotMatrix = new THREE.Matrix4();
 
-// Offsets in screen space so badges stay compact, sharp, and never collide
+// Screen-space pixel offsets so location badges are clearly separated and never collide
 const LABEL_OFFSETS = {
-  RUH: { x: -58, y: -16 },
-  DOH: { x: -54, y: 14 },
-  DXB: { x: 14, y: -16 },
-  BLR: { x: 16, y: 2 },
+  BLR: { x: 16, y: -4 },        // to the right of India origin
+  DXB: { x: 16, y: -20 },       // up & right of Dubai
+  DOH: { x: -60, y: 14 },       // down & left of Doha
+  RUH: { x: -110, y: -14 },     // to the left of Riyadh
 };
 
 /**
  * An individual flight path with an authentic commercial passenger jet airliner
- * and a streaming progressive cyan trail.
+ * oriented strictly along its trajectory forward, with a glowing progressive cyan contrail.
+ * Flights depart India in a graceful, coordinated international fan across the Arabian Sea.
  */
 function LiveFlight({ flight, activeFlight, reduceMotion, onTouchDown }) {
   const planeRef = useRef(null);
   const trailRef = useRef(null);
   const guideRef = useRef(null);
 
-  const trailPointsCount = 32;
+  const trailPointsCount = 36;
   const trailBuffer = useMemo(() => new Float32Array((trailPointsCount + 1) * 3), [trailPointsCount]);
   const guidePoints = useMemo(() => routePoints(flight, 36), [flight]);
 
@@ -63,38 +64,48 @@ function LiveFlight({ flight, activeFlight, reduceMotion, onTouchDown }) {
     if (!planeRef.current || !trailRef.current) return;
 
     const cycleTime = FLIGHT.cycle;
+    // Uniform, synchronized flight timeline produces smooth, coordinated international fan
     const localTime = reduceMotion ? 2.4 : clock.elapsedTime % cycleTime;
     const { alpha, moving } = sampleFlight(flight, localTime, _vPos, _vTan);
 
-    // 1. Position aircraft
+    // 1. Position aircraft in globe space
     planeRef.current.position.copy(_vPos);
 
-    // 2. Orient aircraft: forward along flight tangent, up along surface normal
+    // 2. Strict Orthonormal Matrix Orientation:
+    // Forward direction (+Z nose): _vTan
+    // Up direction (+Y roof & tailfin): normal vector pointing away from Earth
     _vUp.copy(_vPos).normalize();
-    planeRef.current.up.copy(_vUp);
-    _vTarget.copy(_vPos).add(_vTan);
-    planeRef.current.lookAt(_vTarget);
+    // Starboard wing (+X right wing): cross(up, forward)
+    _vRight.crossVectors(_vUp, _vTan).normalize();
+    // Re-orthogonalize up: cross(forward, right)
+    _vUp.crossVectors(_vTan, _vRight).normalize();
 
-    // 3. Aerodynamic banking into turn
+    // 3. Aerodynamic banking into turn around longitudinal forward axis
     const u = easeInOut(clamp01(localTime / flight.dur));
-    const bankAngle = -flight.bend * Math.sin(Math.PI * u) * 0.85;
-    planeRef.current.rotateZ(bankAngle);
+    const bankAngle = -flight.bend * Math.sin(Math.PI * u) * 0.45;
+    _vRight.applyAxisAngle(_vTan, bankAngle);
+    _vUp.applyAxisAngle(_vTan, bankAngle);
 
-    // 4. Visibility & Scale (prominent commercial airliner scale)
+    // 4. Construct rotation matrix directly:
+    // makeBasis sets column 0 = right (+X), column 1 = up (+Y), column 2 = forward (+Z)
+    _rotMatrix.makeBasis(_vRight, _vUp, _vTan);
+    planeRef.current.quaternion.setFromRotationMatrix(_rotMatrix);
+
+    // 5. Visibility & Scale: comfortably visible commercial airliner ("little bit big, not too big": 0.42 - 0.48)
     planeRef.current.visible = alpha > 0.01;
-    const baseScale = isActive ? 1.48 : 1.35;
+    const baseScale = isActive ? 0.48 : 0.42;
     planeRef.current.scale.setScalar(baseScale);
 
-    // 5. Update progressive glowing cyan trail
+    // 6. Progressive glowing cyan trail behind aircraft
     if (trailRef.current?.geometry) {
       fillArcBuffer(flight, u, trailBuffer, trailPointsCount, _vTemp);
       trailRef.current.geometry.setPositions(trailBuffer);
       trailRef.current.computeLineDistances();
 
       if (trailRef.current.material) {
-        trailRef.current.material.opacity = alpha * (isActive ? 1.0 : 0.9);
+        trailRef.current.material.opacity = alpha * (isActive ? 1.0 : 0.88);
         if (!reduceMotion) {
-          trailRef.current.material.dashOffset -= delta * 0.35;
+          trailRef.current.material.dashOffset -= delta * 0.4;
         }
       }
     }
@@ -106,31 +117,31 @@ function LiveFlight({ flight, activeFlight, reduceMotion, onTouchDown }) {
 
   return (
     <group name={`Flight-${flight.id}`}>
-      {/* Faint dashed guide line */}
+      {/* Faint dashed guide corridor */}
       <Line
         ref={guideRef}
         points={guidePoints}
         color={isActive ? '#38BDF8' : '#0284C7'}
         lineWidth={isActive ? 1.8 : 1.2}
         transparent
-        opacity={isActive ? 0.35 : 0.18}
+        opacity={isActive ? 0.35 : 0.16}
         dashed
         dashSize={0.12}
         gapSize={0.16}
         depthWrite={false}
       />
 
-      {/* Dynamic progressive cyan trail */}
+      {/* Dynamic progressive glowing cyan trail */}
       <Line
         ref={trailRef}
         points={initialTrailPoints}
         color={isActive ? '#00F0FF' : '#38BDF8'}
-        lineWidth={isActive ? 3.4 : 2.6}
+        lineWidth={isActive ? 3.0 : 2.4}
         transparent
         opacity={0.92}
         dashed={!reduceMotion}
         dashSize={0.18}
-        gapSize={0.1}
+        gapSize={0.09}
         depthWrite={false}
       />
 
@@ -147,8 +158,7 @@ function LiveFlight({ flight, activeFlight, reduceMotion, onTouchDown }) {
 }
 
 /**
- * Compact destination and departure pill badge.
- * Displays only the flag and city/origin name (no country names).
+ * High-contrast location badge with country flag and proper name.
  */
 function CityHub({ city, label, isOrigin = false, activeFlight, onHover, flag }) {
   const pulseRef = useRef(null);
@@ -167,9 +177,9 @@ function CityHub({ city, label, isOrigin = false, activeFlight, onHover, flag })
     <group position={position}>
       {/* Outer expanding ripple */}
       <mesh ref={pulseRef}>
-        <ringGeometry args={[0.025, 0.05, 24]} />
+        <ringGeometry args={[0.026, 0.052, 24]} />
         <meshBasicMaterial
-          color="#00F0FF"
+          color={isOrigin ? '#38BDF8' : '#00F0FF'}
           transparent
           opacity={0.5}
           side={THREE.DoubleSide}
@@ -178,7 +188,7 @@ function CityHub({ city, label, isOrigin = false, activeFlight, onHover, flag })
         />
       </mesh>
 
-      {/* Surface target landing dot */}
+      {/* Surface pin / beacon dot */}
       <mesh>
         <sphereGeometry args={[0.024, 16, 16]} />
         <meshBasicMaterial
@@ -187,7 +197,7 @@ function CityHub({ city, label, isOrigin = false, activeFlight, onHover, flag })
         />
       </mesh>
 
-      {/* Sleek, compact single-line badge */}
+      {/* Sleek, high-contrast location badge */}
       <Html
         center={false}
         style={{
@@ -201,12 +211,12 @@ function CityHub({ city, label, isOrigin = false, activeFlight, onHover, flag })
           style={{
             display: 'inline-flex',
             alignItems: 'center',
-            gap: '5px',
-            padding: '3px 8px',
+            gap: '6px',
+            padding: '4px 9px',
             borderRadius: '9999px',
-            backgroundColor: isActive ? 'rgba(15, 23, 42, 0.95)' : 'rgba(15, 23, 42, 0.88)',
+            backgroundColor: isActive ? 'rgba(15, 23, 42, 0.96)' : 'rgba(15, 23, 42, 0.88)',
             border: isActive ? '1px solid #38BDF8' : '1px solid rgba(255, 255, 255, 0.22)',
-            boxShadow: isActive ? '0 0 12px rgba(56, 189, 248, 0.45)' : '0 2px 8px rgba(0, 0, 0, 0.35)',
+            boxShadow: isActive ? '0 0 16px rgba(56, 189, 248, 0.55)' : '0 2px 10px rgba(0, 0, 0, 0.35)',
             color: '#FFFFFF',
             fontSize: '11px',
             fontWeight: 700,
@@ -225,7 +235,7 @@ function CityHub({ city, label, isOrigin = false, activeFlight, onHover, flag })
             {flag}
           </div>
 
-          {/* Single-line city / origin name */}
+          {/* Proper location name */}
           <span style={{ fontSize: '11px', fontWeight: 700, color: '#FFFFFF', letterSpacing: '0.01em' }}>
             {label}
           </span>
@@ -236,7 +246,7 @@ function CityHub({ city, label, isOrigin = false, activeFlight, onHover, flag })
 }
 
 /**
- * 3D Globe with sunlit Earth textures, India highlighted, and 3 simultaneous flights.
+ * 3D Globe with photorealistic daytime Earth satellite textures and 3 simultaneous flights.
  */
 function Globe({ activeFlight, onHoverDestination, reduceMotion }) {
   const groupRef = useRef(null);
@@ -248,11 +258,21 @@ function Globe({ activeFlight, onHoverDestination, reduceMotion }) {
 
   const flights = useMemo(() => createFlights(), []);
 
-  // Daytime Earth texture (NASA Blue Marble)
+  // Daytime Earth satellite texture (NASA Blue Marble)
   const earthTexture = useMemo(() => {
     const loader = new THREE.TextureLoader();
     const tex = loader.load('/images/globe/earth_day.jpg');
     tex.colorSpace = THREE.SRGBColorSpace;
+    tex.anisotropy = 8;
+    return tex;
+  }, []);
+
+  // Nighttime Earth lights texture (NASA Black Marble)
+  const lightsTexture = useMemo(() => {
+    const loader = new THREE.TextureLoader();
+    const tex = loader.load('/images/globe/earth_lights.png');
+    tex.colorSpace = THREE.SRGBColorSpace;
+    tex.anisotropy = 8;
     return tex;
   }, []);
 
@@ -261,6 +281,7 @@ function Globe({ activeFlight, onHoverDestination, reduceMotion }) {
     const loader = new THREE.TextureLoader();
     const tex = loader.load('/images/globe/earth_clouds.png');
     tex.colorSpace = THREE.SRGBColorSpace;
+    tex.anisotropy = 8;
     return tex;
   }, []);
 
@@ -319,45 +340,59 @@ function Globe({ activeFlight, onHoverDestination, reduceMotion }) {
       onPointerUp={onPointerUp}
       onPointerLeave={onPointerUp}
     >
-      {/* 1. Vibrant Sunlit 3D Earth Sphere */}
+      {/* 1. Realistic Satellite Earth with NASA Blue Marble & City Night Lights */}
       <mesh receiveShadow castShadow>
         <sphereGeometry args={[RADIUS, 64, 64]} />
         <meshStandardMaterial
           map={earthTexture}
-          roughness={0.48}
-          metalness={0.04}
+          emissiveMap={lightsTexture}
+          emissive="#FFF2C2"
+          emissiveIntensity={0.22}
+          roughness={0.52}
+          metalness={0.08}
         />
       </mesh>
 
-      {/* 2. Soft Cloud Layer */}
-      <mesh ref={cloudsRef} scale={1.012}>
-        <sphereGeometry args={[RADIUS, 48, 48]} />
+      {/* 2. Soft Atmospheric Weather Clouds Layer */}
+      <mesh ref={cloudsRef} scale={1.014}>
+        <sphereGeometry args={[RADIUS, 64, 64]} />
         <meshStandardMaterial
           map={cloudsTexture}
           transparent
-          opacity={0.28}
+          opacity={0.34}
+          roughness={0.9}
           blending={THREE.NormalBlending}
           depthWrite={false}
         />
       </mesh>
 
-      {/* 3. Accurately highlighted India boundary & internal illumination */}
-      <IndiaMapMesh radius={RADIUS} reduceMotion={reduceMotion} />
-
-      {/* 4. Subtle cyan atmospheric Fresnel rim */}
-      <mesh scale={1.016}>
-        <sphereGeometry args={[RADIUS, 48, 48]} />
+      {/* 3. Outer Atmospheric Rayleigh Scattering Glow (Corona) */}
+      <mesh scale={1.026}>
+        <sphereGeometry args={[RADIUS, 64, 64]} />
         <meshBasicMaterial
-          color="#38BDF8"
+          color="#0EA5E9"
           transparent
-          opacity={0.065}
+          opacity={0.16}
           side={THREE.BackSide}
           blending={THREE.AdditiveBlending}
           depthWrite={false}
         />
       </mesh>
 
-      {/* 5. THREE Simultaneous 3D Commercial Passenger Flights */}
+      {/* 4. Soft Inner Atmospheric Blue Haze Rim */}
+      <mesh scale={1.011}>
+        <sphereGeometry args={[RADIUS, 64, 64]} />
+        <meshBasicMaterial
+          color="#38BDF8"
+          transparent
+          opacity={0.10}
+          side={THREE.BackSide}
+          blending={THREE.AdditiveBlending}
+          depthWrite={false}
+        />
+      </mesh>
+
+      {/* 4. Three Uniformly Staggered Commercial Passenger Flights */}
       {flights.map((flight) => (
         <LiveFlight
           key={flight.id}
@@ -367,7 +402,7 @@ function Globe({ activeFlight, onHoverDestination, reduceMotion }) {
         />
       ))}
 
-      {/* 6. India Departure Hub (Single clean label: "India") */}
+      {/* 5. India Departure Hub */}
       <CityHub
         city={CITIES[ORIGIN_ID]}
         label="India"
@@ -376,35 +411,58 @@ function Globe({ activeFlight, onHoverDestination, reduceMotion }) {
         flag={<IndiaFlag className="h-2.5 w-4" />}
       />
 
-      {/* 7. Destination Hubs (Single clean labels: "Riyadh", "Doha", "Dubai") */}
+      {/* 6. Destination Hubs (Proper Names & Flags) */}
       <CityHub
-        city={CITIES.RUH}
-        label="Riyadh"
+        city={CITIES.DXB}
+        label="Dubai, UAE"
         activeFlight={activeFlight}
         onHover={onHoverDestination}
-        flag={<SaudiFlag className="h-2.5 w-4" />}
+        flag={<UaeFlag className="h-2.5 w-4" />}
       />
       <CityHub
         city={CITIES.DOH}
-        label="Doha"
+        label="Doha, Qatar"
         activeFlight={activeFlight}
         onHover={onHoverDestination}
         flag={<QatarFlag className="h-2.5 w-4" />}
       />
       <CityHub
-        city={CITIES.DXB}
-        label="Dubai"
+        city={CITIES.RUH}
+        label="Riyadh, Saudi Arabia"
         activeFlight={activeFlight}
         onHover={onHoverDestination}
-        flag={<UaeFlag className="h-2.5 w-4" />}
+        flag={<SaudiFlag className="h-2.5 w-4" />}
       />
     </group>
   );
 }
 
 /**
- * Production-quality 3D Globe with 3 simultaneous flights.
- * Fully responsive, interactive, with WebGL fallback and error boundaries.
+ * Responsive Camera Controller ensuring the 3D globe is NEVER clipped or cropped into a box
+ * on any screen size or aspect ratio (desktop, tablet, mobile).
+ */
+function CameraController() {
+  const { camera, size } = useThree();
+
+  useEffect(() => {
+    const aspect = size.width / Math.max(size.height, 1);
+    // Base distance 6.0 keeps globe (radius 2.05) comfortably centered with ~10% breathing room
+    const baseDistance = 6.0;
+    if (aspect < 1.0) {
+      // Narrow screen: pull back proportionately so horizontal frustum fits the full sphere
+      camera.position.z = baseDistance / Math.max(aspect, 0.65);
+    } else {
+      camera.position.z = baseDistance;
+    }
+    camera.updateProjectionMatrix();
+  }, [camera, size.width, size.height]);
+
+  return null;
+}
+
+/**
+ * Production-quality 3D Globe with 3 uniform, staggered flights.
+ * Large, photorealistic, unobstructed, with zero content overlapping.
  */
 export default function GlobeScene({
   className,
@@ -419,20 +477,23 @@ export default function GlobeScene({
 
   return (
     <SceneErrorBoundary name="GlobeScene" fallback={<GlobeFallback className={className} />}>
-      <div className={`${className} cursor-grab active:cursor-grabbing select-none`} aria-hidden>
+      <div className={`${className} cursor-grab active:cursor-grabbing select-none overflow-visible`} aria-hidden>
         <Canvas
-          dpr={[1, 1.5]}
+          dpr={[1, 1.75]}
           gl={{
             antialias: true,
             alpha: true,
             powerPreference: 'high-performance',
           }}
-          camera={{ position: [0, 0, 6.2], fov: 38 }}
+          camera={{ position: [0, 0, 6.0], fov: 42 }}
         >
-          {/* Natural Sun Illumination for Vibrant Daytime Earth */}
-          <ambientLight intensity={1.35} color="#FFFFFF" />
-          <directionalLight position={[4, 3, 5]} intensity={2.6} color="#FFFFFF" />
-          <directionalLight position={[-4, 2, -3]} intensity={0.55} color="#38BDF8" />
+          <CameraController />
+
+          {/* Natural Satellite Sunlight: bright, vibrant daytime illumination across India & Gulf */}
+          <ambientLight intensity={1.15} color="#E0F2FE" />
+          <directionalLight position={[4, 2.5, 4.5]} intensity={2.2} color="#FFFDF5" />
+          <directionalLight position={[-4, -1, 3]} intensity={0.65} color="#38BDF8" />
+          <directionalLight position={[0, -4, 2]} intensity={0.4} color="#BAE6FD" />
 
           <Globe
             activeFlight={activeFlight}

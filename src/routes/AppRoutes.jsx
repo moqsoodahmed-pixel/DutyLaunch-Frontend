@@ -118,12 +118,11 @@ export function AppRoutes() {
               <Route path="about" element={<About />} />
               <Route path="career-services" element={<CareerServices />} />
               <Route path="pricing" element={<Pricing />} />
-              {/* Resume Builder: signed-in candidates only. Old public
-                  addresses redirect (keeping ?template=…). */}
-              {/* The old stand-alone editor is gone: the Resume Builder lives
-                  only in the candidate area. Old links land there instead. */}
-              <Route path="resume-builder/editor" element={<RedirectKeepQuery to="/resume-builder" />} />
-              <Route path="cv-builder" element={<RedirectKeepQuery to="/resume-builder" />} />
+              <Route path="resume-service" element={<ResumeBuilderStart />} />
+              <Route path="pro-resume" element={<ResumeBuilderStart />} />
+              <Route path="resume-builder" element={<ResumeBuilderStart />} />
+              <Route path="resume-builder/editor" element={<RedirectKeepQuery to="/resume-service" />} />
+              <Route path="cv-builder" element={<RedirectKeepQuery to="/resume-service" />} />
               <Route path="cv-templates" element={<CvTemplates />} />
               <Route path="upskills" element={<Upskills />} />
               <Route path="higher-education" element={<HigherEducation />} />
@@ -217,7 +216,9 @@ export function AppRoutes() {
                   <Route path="career-studio" element={<Navigate to="/resume-builder" replace />} />
                   <Route path="cover-letter" element={<Navigate to="/resume-builder" replace />} />
                   <Route path="interview-prep" element={<InterviewPrepTool />} />
+                  <Route path="resume-service" element={<ResumeBuilderStart />} />
                   <Route path="resume-builder" element={<ResumeBuilderStart />} />
+                  <Route path="pro-resume" element={<ResumeBuilderStart />} />
                   <Route path="resume-templates" element={<Navigate to="/resume-builder" replace />} />
                   <Route path="mock-interview" element={<MockInterview />} />
                 </Route>

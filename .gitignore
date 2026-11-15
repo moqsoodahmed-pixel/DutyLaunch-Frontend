@@ -28,3 +28,6 @@ Thumbs.db
 
 # Scratch & Local test scripts
 scratch/
+scripts/testThree.mjs
+tests/sample*
+*.sample.*

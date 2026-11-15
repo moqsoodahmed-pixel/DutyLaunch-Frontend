@@ -70,7 +70,7 @@ export default function DashboardLayout() {
       : {
           title: 'Job search',
           items: [
-            { to: '/resume-builder', label: 'Resume Service', icon: 'FileCheck2' },
+            { to: '/resume-builder', label: 'Resume & CV Service', icon: 'FileCheck2' },
             { to: '/my-resumes', label: 'My Resume Orders', icon: 'FileText' },
             { to: '/interview-prep', label: 'Interview prep', icon: 'Lightbulb' },
             { to: '/mock-interview', label: 'Mock interview', icon: 'MessagesSquare' },
