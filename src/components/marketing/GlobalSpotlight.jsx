@@ -97,7 +97,7 @@ export function GlobalSpotlight() {
                 <p className="text-xs text-slate-600 mt-0.5">UAE &bull; Saudi Arabia &bull; Qatar</p>
               </div>
               <div>
-                <p className="text-2xl font-black text-azure-600">Within a Day</p>
+                <p className="text-2xl font-black text-azure-600">2–3 Days</p>
                 <p className="text-xs text-slate-600 mt-0.5">Fast CV & profile turnaround</p>
               </div>
             </div>

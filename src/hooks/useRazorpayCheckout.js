@@ -87,6 +87,28 @@ export function useRazorpayCheckout() {
           ? ` (incl. ${order.breakdown.gstRate}% GST ${formatCurrency(order.breakdown.gstAmount / 100, order.currency)})`
           : '';
 
+        // If backend returned a mock order in dev/test environment, handle it cleanly
+        if (order.orderId?.startsWith('order_mock_') || order.keyId?.includes('mock')) {
+          try {
+            const verified = await paymentService.verify({
+              razorpay_order_id: order.orderId,
+              razorpay_payment_id: `pay_mock_${Date.now()}`,
+              razorpay_signature: '0'.repeat(64),
+            });
+            toast.success(`Payment confirmed for ${order.itemName}.`);
+            if (onSuccess) await onSuccess(verified?.data);
+            else if (user?.role !== 'admin') {
+              if (itemType === 'cv-package') navigate('/resume-service');
+              else navigate('/payments');
+            }
+          } catch (error) {
+            toast.error(error.message || 'We could not confirm your payment. Contact support with your payment id.');
+          } finally {
+            setPendingId(null);
+          }
+          return;
+        }
+
         const checkout = new window.Razorpay({
           key: order.keyId,
           order_id: order.orderId,

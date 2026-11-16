@@ -185,7 +185,7 @@ export function PricingCard({ pkg, highlighted, onSelect, tone = 'light' }) {
             )}
           >
             <Truck className={cn('h-4 w-4', featured ? 'text-emerald-300' : 'text-emerald-600')} />
-            <span>Delivery within a day</span>
+            <span>Delivery in 2–3 Days</span>
           </div>
 
           {canPay ? (
@@ -212,7 +212,7 @@ export function PricingCard({ pkg, highlighted, onSelect, tone = 'light' }) {
           )}
 
           <p className={cn('mt-2 text-center text-[11px]', featured ? 'text-azure-200' : 'text-slate-400')}>
-            Within a day delivery • {pkg.revisionWindow || '1 month unlimited revisions'}
+            2 to 3 day delivery • {pkg.revisionWindow || '1 month unlimited revisions'}
           </p>
         </div>
       </div>

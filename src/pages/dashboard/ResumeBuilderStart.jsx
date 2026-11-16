@@ -39,6 +39,7 @@ import { resumeOrderService } from '../../services/resumeOrderService.js';
 import { useRazorpayCheckout } from '../../hooks/useRazorpayCheckout.js';
 import { formatCurrency, formatDate } from '../../utils/format.js';
 import { cn } from '../../utils/cn.js';
+import { PackageCheckoutModal } from '../../components/marketing/PackageCheckoutModal.jsx';
 
 // Backward compatibility exports for legacy wizard imports
 export const BUILDER_AI_OPTIMIZE_KEY = 'dl_builder_ai_optimize';
@@ -49,13 +50,13 @@ const STEPS = [
   { step: '2', title: 'Complete Secure Payment', desc: 'Instant online checkout via Razorpay with 18% GST invoice' },
   { step: '3', title: 'Upload Existing Resume/CV', desc: 'Attach PDF, DOC, or DOCX and target career instructions' },
   { step: '4', title: 'Handcrafted by Senior Specialists', desc: 'Comprehensive rewriting, ATS keyword optimization & quality audit' },
-  { step: '5', title: 'Download Finished Files', desc: 'Receive finished CV, cover letter & LinkedIn guide within a day' },
+  { step: '5', title: 'Download Finished Files', desc: 'Receive finished CV, cover letter & LinkedIn guide in 2–3 days' },
 ];
 
 // Fallback pricing metadata if backend packages are loading or need decoration
 const DEFAULT_PACKAGES = [
   {
-    _id: 'pkg-early-career',
+    _id: '6af812abf87d01f285883dc4',
     name: 'Early Career Bundle',
     experienceBand: '0 to 2 years',
     price: 399,
@@ -68,12 +69,12 @@ const DEFAULT_PACKAGES = [
       { label: 'Customised cover letter' },
       { label: 'LinkedIn profile optimisation' },
       { label: '1 month unlimited revisions' },
-      { label: 'Within a day delivery' },
+      { label: '2 to 3 day delivery' },
       { label: 'Positioning for internships, trainee and entry-level roles' },
     ],
   },
   {
-    _id: 'pkg-mid-level',
+    _id: '6af812abf87d01f285883dcc',
     name: 'Mid-Level Professional',
     experienceBand: '3 to 5 years',
     price: 799,
@@ -87,13 +88,13 @@ const DEFAULT_PACKAGES = [
       { label: 'Customised cover letter' },
       { label: 'LinkedIn profile optimisation' },
       { label: '1 month unlimited revisions' },
-      { label: 'Within a day delivery' },
+      { label: '2 to 3 day delivery' },
       { label: 'Achievement rewriting with measurable outcomes' },
       { label: 'Keyword mapping against your target roles' },
     ],
   },
   {
-    _id: 'pkg-senior-prof',
+    _id: '6af812abf87d01f285883dd5',
     name: 'Senior Professional',
     experienceBand: '6 to 8 years',
     price: 999,
@@ -106,14 +107,14 @@ const DEFAULT_PACKAGES = [
       { label: 'Customised cover letter' },
       { label: 'LinkedIn profile optimisation' },
       { label: '1 month unlimited revisions' },
-      { label: 'Within a day delivery' },
+      { label: '2 to 3 day delivery' },
       { label: 'Achievement rewriting with measurable outcomes' },
       { label: 'Keyword mapping against your target roles' },
       { label: 'Leadership and scope-of-responsibility framing' },
     ],
   },
   {
-    _id: 'pkg-executive',
+    _id: '6af812abf87d01f285883ddf',
     name: 'Leadership & Executive',
     experienceBand: '9+ years',
     price: 1199,
@@ -126,7 +127,7 @@ const DEFAULT_PACKAGES = [
       { label: 'Customised cover letter' },
       { label: 'LinkedIn profile optimisation' },
       { label: '1 month unlimited revisions' },
-      { label: 'Within a day delivery' },
+      { label: '2 to 3 day delivery' },
       { label: 'Achievement rewriting with measurable outcomes' },
       { label: 'Keyword mapping against your target roles' },
       { label: 'Leadership and scope-of-responsibility framing' },
@@ -138,7 +139,7 @@ const DEFAULT_PACKAGES = [
 const COMPARISON_ROWS = [
   { feature: 'Experience Range', early: '0–2 Years', mid: '3–5 Years', senior: '6–8 Years', exec: '9+ Years' },
   { feature: 'Handcrafted by Senior Writers', early: true, mid: true, senior: true, exec: true },
-  { feature: 'Delivery Turnaround', early: 'Within a day', mid: 'Within a day', senior: 'Within a day', exec: 'Within a day' },
+  { feature: 'Delivery Turnaround', early: '2–3 Days', mid: '2–3 Days', senior: '2–3 Days', exec: '2–3 Days' },
   { feature: 'Unlimited Free Revisions', early: '1 Month', mid: '1 Month', senior: '1 Month', exec: '1 Month' },
   { feature: 'DutyLaunch ATS Compliance Verification', early: true, mid: true, senior: true, exec: true },
   { feature: 'Customised Cover Letter', early: true, mid: true, senior: true, exec: true },
@@ -237,6 +238,7 @@ export default function ResumeBuilderStart() {
   // Active unsubmitted payment state (if user just paid)
   const [activePayment, setActivePayment] = useState(null);
   const [selectedPackage, setSelectedPackage] = useState(null);
+  const [checkoutPackage, setCheckoutPackage] = useState(null);
 
   // Upload Form state
   const [resumeFile, setResumeFile] = useState(null);
@@ -250,27 +252,20 @@ export default function ResumeBuilderStart() {
   // Razorpay checkout hook
   const { pay, pendingId } = useRazorpayCheckout();
 
-  // Handle purchasing or upgrading a package
-  async function handleBuyPackage(pkg) {
-    if (!user) {
-      // Store intended package in sessionStorage for seamless return after sign in
-      sessionStorage.setItem('dl_selected_package', JSON.stringify(pkg));
-      toast.info('Please sign in or create an account to complete your checkout and upload your CV.');
-      navigate(`/login?redirect=/resume-service&package=${pkg._id}`);
-      return;
-    }
+  // Handle purchasing or upgrading a package - opens instant checkout & payment modal
+  function handleBuyPackage(pkg) {
+    setCheckoutPackage(pkg);
+  }
 
+  // Handle successful payment confirmation
+  function handlePaymentSuccess(verifiedPayment, pkg) {
     setSelectedPackage(pkg);
-    pay({
-      itemType: 'cv-package',
-      itemId: pkg._id,
-      onSuccess: async (verifiedPayment) => {
-        toast.success(`Payment confirmed for ${pkg.name}. Now attach your existing resume or CV!`);
-        setActivePayment(verifiedPayment);
-        window.scrollTo({ top: 350, behavior: 'smooth' });
-        refetchOrders();
-      },
-    });
+    setActivePayment(verifiedPayment);
+    refetchOrders();
+    setTimeout(() => {
+      const el = document.getElementById('cv-upload-section');
+      if (el) el.scrollIntoView({ behavior: 'smooth' });
+    }, 150);
   }
 
   // Handle file submissions
@@ -318,7 +313,7 @@ export default function ResumeBuilderStart() {
     <>
       <Seo
         title="Professional Resume & CV Service — DutyLaunch"
-        description="DutyLaunch professional resume & CV crafting service. Human-written by senior specialists, covering custom cover letter, LinkedIn profile optimization, within a day delivery, and 1 month unlimited revisions."
+        description="DutyLaunch professional resume & CV crafting service. Human-written by senior specialists, covering custom cover letter, LinkedIn profile optimization, 2 to 3 day delivery, and 1 month unlimited revisions."
       />
 
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8 lg:py-12 space-y-10">
@@ -334,7 +329,7 @@ export default function ResumeBuilderStart() {
             </h1>
             <p className="mt-2 max-w-2xl text-base text-slate-600 leading-relaxed">
               Bespoke, human-led resume and CV craftsmanship. Senior career specialists rewrite, format,
-              and optimize your documents for high impact, ATS compliance, and guaranteed delivery within a day.
+              and optimize your documents for high impact, ATS compliance, and guaranteed delivery in 2–3 days.
             </p>
           </div>
 
@@ -383,7 +378,7 @@ export default function ResumeBuilderStart() {
                     <Truck className="h-5 w-5 text-emerald-600 shrink-0" />
                     <div>
                       <p className="text-xs font-bold uppercase tracking-wider text-emerald-700">Turnaround Guarantee</p>
-                      <p className="text-sm font-extrabold text-emerald-900">Delivery within a day</p>
+                      <p className="text-sm font-extrabold text-emerald-900">Delivery in 2–3 Days</p>
                     </div>
                   </div>
 
@@ -455,9 +450,9 @@ export default function ResumeBuilderStart() {
               </div>
             </div>
 
-            {/* Need to Upload Files (if pending) */}
-            {(!activeOrder.originalResume && !activeOrder.originalCv) && (
-              <div className="rounded-2xl border-2 border-dashed border-amber-300 bg-amber-50/50 p-6 sm:p-8">
+            {/* Need to Upload Files (if pending or activePayment) */}
+            {(activePayment || (!activeOrder.originalResume && !activeOrder.originalCv)) && (
+              <div id="cv-upload-section" className="rounded-2xl border-2 border-dashed border-amber-300 bg-amber-50/50 p-6 sm:p-8">
                 <div className="flex items-start gap-4">
                   <div className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-amber-500 text-white">
                     <Upload className="h-5 w-5" />
@@ -467,7 +462,7 @@ export default function ResumeBuilderStart() {
                       Action Required: Attach Your Current Resume or CV
                     </h3>
                     <p className="mt-1 text-sm text-amber-900/90 leading-relaxed">
-                      Your payment is confirmed for <strong>{activeOrder.packageName}</strong>. Please upload your current
+                      Your payment is confirmed for <strong>{selectedPackage?.name || activeOrder.packageName}</strong>. Please upload your current
                       documents so our executive writers can immediately begin your rewrite!
                     </p>
 
@@ -620,6 +615,85 @@ export default function ResumeBuilderStart() {
               </div>
             )}
 
+            {/* Active Payment Upload Section (if user just completed payment) */}
+            {activePayment && (
+              <div id="cv-upload-section" className="rounded-2xl border-2 border-dashed border-emerald-400 bg-emerald-50/60 p-6 sm:p-8 shadow-md">
+                <div className="flex items-start gap-4">
+                  <div className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-emerald-600 text-white shadow-sm">
+                    <CheckCircle2 className="h-6 w-6" />
+                  </div>
+                  <div className="flex-1">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <span className="rounded bg-emerald-600 px-2 py-0.5 text-[11px] font-black uppercase tracking-wider text-white">
+                        Payment Confirmed
+                      </span>
+                      <span className="text-xs font-bold text-emerald-950">
+                        {selectedPackage?.name} &bull; Delivery in 2–3 Days
+                      </span>
+                    </div>
+                    <h3 className="mt-2 text-xl font-bold text-emerald-950">
+                      Step 2: Upload Your Existing Resume or CV
+                    </h3>
+                    <p className="mt-1 text-sm text-emerald-900 leading-relaxed">
+                      Attach your existing documents and any target career instructions below so our senior career specialists can begin your rewrite immediately.
+                    </p>
+
+                    <form onSubmit={handleSubmitOrder} className="mt-5 space-y-4">
+                      <div className="grid gap-4 sm:grid-cols-2">
+                        <div className="rounded-xl border border-dashed border-emerald-300 bg-white p-4">
+                          <label className="block text-xs font-bold text-slate-700">Existing Resume (PDF/DOC/DOCX)</label>
+                          <input
+                            type="file"
+                            accept=".pdf,.doc,.docx"
+                            onChange={(e) => setResumeFile(e.target.files?.[0] || null)}
+                            className="mt-2 block w-full text-xs text-slate-600 file:mr-3 file:rounded-md file:border-0 file:bg-azure/10 file:px-3 file:py-1.5 file:text-xs file:font-semibold file:text-azure"
+                          />
+                        </div>
+                        <div className="rounded-xl border border-dashed border-emerald-300 bg-white p-4">
+                          <label className="block text-xs font-bold text-slate-700">Existing CV (PDF/DOC/DOCX)</label>
+                          <input
+                            type="file"
+                            accept=".pdf,.doc,.docx"
+                            onChange={(e) => setCvFile(e.target.files?.[0] || null)}
+                            className="mt-2 block w-full text-xs text-slate-600 file:mr-3 file:rounded-md file:border-0 file:bg-azure/10 file:px-3 file:py-1.5 file:text-xs file:font-semibold file:text-azure"
+                          />
+                        </div>
+                      </div>
+
+                      <div className="grid gap-4 sm:grid-cols-2">
+                        <input
+                          type="text"
+                          placeholder="Target Job Title (e.g. Operations Manager, React Lead)"
+                          value={targetRole}
+                          onChange={(e) => setTargetRole(e.target.value)}
+                          className="w-full rounded-lg border border-slate-300 px-3.5 py-2 text-sm bg-white"
+                        />
+                        <input
+                          type="text"
+                          placeholder="Target Region / Industry (e.g. Dubai, UAE / IT FinTech)"
+                          value={targetIndustry}
+                          onChange={(e) => setTargetIndustry(e.target.value)}
+                          className="w-full rounded-lg border border-slate-300 px-3.5 py-2 text-sm bg-white"
+                        />
+                      </div>
+
+                      <textarea
+                        rows={3}
+                        placeholder="Instructions for writing team (e.g. career shift, highlight specific enterprise projects)..."
+                        value={userInstructions}
+                        onChange={(e) => setUserInstructions(e.target.value)}
+                        className="w-full rounded-lg border border-slate-300 px-3.5 py-2 text-sm bg-white"
+                      />
+
+                      <Button type="submit" variant="primary" loading={submitting}>
+                        Submit Files to Writing Team &rarr;
+                      </Button>
+                    </form>
+                  </div>
+                </div>
+              </div>
+            )}
+
             {/* How Our CV Service Works (ProResumes 4-Step Style) */}
             <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
               <div className="max-w-2xl">
@@ -661,7 +735,7 @@ export default function ResumeBuilderStart() {
                 </div>
                 <div className="flex items-center gap-1.5">
                   <Zap className="h-4 w-4 text-azure" />
-                  Within a Day Fast Turnaround
+                  2–3 Days Fast Turnaround
                 </div>
                 <div className="flex items-center gap-1.5">
                   <ShieldCheck className="h-4 w-4 text-indigo-600" />
@@ -675,7 +749,7 @@ export default function ResumeBuilderStart() {
             </div>
 
             {/* Pricing Section (ProResumes Blue Header Style) */}
-            <div className="space-y-6">
+            <div id="pricing-packages" className="space-y-6">
               <div className="rounded-2xl bg-gradient-to-r from-[#0d2a5c] via-[#123875] to-[#1a4a8d] p-6 text-white shadow-lg sm:p-8">
                 <div className="max-w-2xl">
                   <span className="inline-block rounded-full bg-white/20 px-3 py-1 text-[11px] font-bold uppercase tracking-wider text-azure-100 backdrop-blur-sm">
@@ -685,7 +759,7 @@ export default function ResumeBuilderStart() {
                     Find the best plan that suits your career stage and needs.
                   </h2>
                   <p className="mt-2 text-sm text-slate-200">
-                    Transparent pricing by years of experience. Every bundle includes a custom CV, targeted cover letter, LinkedIn profile guidance, within a day turnaround, and 1 month of unlimited revisions.
+                    Transparent pricing by years of experience. Every bundle includes a custom CV, targeted cover letter, LinkedIn profile guidance, 2 to 3 day delivery, and 1 month of unlimited revisions.
                   </p>
                 </div>
               </div>
@@ -778,7 +852,7 @@ export default function ResumeBuilderStart() {
                       <div className="mt-6 pt-4 border-t border-slate-100">
                         <div className="mb-3 flex items-center justify-center gap-2 rounded-lg border border-emerald-200/80 bg-emerald-50/90 py-1.5 px-3 text-center text-xs font-bold text-emerald-900 shadow-sm">
                           <Truck className="h-4 w-4 text-emerald-600" />
-                          <span>Delivery within a day</span>
+                          <span>Delivery in 2–3 Days</span>
                         </div>
 
                         <Button
@@ -790,7 +864,7 @@ export default function ResumeBuilderStart() {
                           {user ? `Buy ${pkg.name}` : `Choose ${pkg.name}`} <ArrowRight className="ml-1.5 h-4 w-4" />
                         </Button>
                         <p className="mt-2 text-center text-[11px] text-slate-400">
-                          Within a day delivery &bull; 1 month unlimited revisions
+                          2 to 3 day delivery &bull; 1 month unlimited revisions
                         </p>
                       </div>
                     </div>
@@ -859,6 +933,53 @@ export default function ResumeBuilderStart() {
                       </tr>
                     ))}
                   </tbody>
+                  <tfoot>
+                    <tr className="border-t-2 border-slate-200 bg-slate-50/50">
+                      <td className="py-4 px-4 text-xs font-bold text-slate-500 uppercase">
+                        Select Package
+                      </td>
+                      <td className="py-4 px-4 text-center">
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          className="w-full text-xs font-bold"
+                          onClick={() => handleBuyPackage(packages[0] || DEFAULT_PACKAGES[0])}
+                        >
+                          Choose Early Career
+                        </Button>
+                      </td>
+                      <td className="py-4 px-4 text-center bg-azure-50/40">
+                        <Button
+                          size="sm"
+                          variant="primary"
+                          className="w-full text-xs font-bold"
+                          onClick={() => handleBuyPackage(packages[1] || DEFAULT_PACKAGES[1])}
+                        >
+                          Choose Mid-Level
+                        </Button>
+                      </td>
+                      <td className="py-4 px-4 text-center">
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          className="w-full text-xs font-bold"
+                          onClick={() => handleBuyPackage(packages[2] || DEFAULT_PACKAGES[2])}
+                        >
+                          Choose Senior
+                        </Button>
+                      </td>
+                      <td className="py-4 px-4 text-center">
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          className="w-full text-xs font-bold"
+                          onClick={() => handleBuyPackage(packages[3] || DEFAULT_PACKAGES[3])}
+                        >
+                          Choose Executive
+                        </Button>
+                      </td>
+                    </tr>
+                  </tfoot>
                 </table>
               </div>
             </div>
@@ -886,6 +1007,14 @@ export default function ResumeBuilderStart() {
             </div>
           </div>
         </div>
+
+        {/* Instant Checkout & Payment Modal */}
+        <PackageCheckoutModal
+          isOpen={Boolean(checkoutPackage)}
+          packageData={checkoutPackage}
+          onClose={() => setCheckoutPackage(null)}
+          onPaymentSuccess={handlePaymentSuccess}
+        />
       </div>
     </>
   );

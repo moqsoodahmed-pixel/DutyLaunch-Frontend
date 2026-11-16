@@ -176,7 +176,7 @@ export default function MyResumes() {
                         <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400">
                           Turnaround SLA
                         </span>
-                        <p className="mt-1 font-bold text-ink">Within a day</p>
+                        <p className="mt-1 font-bold text-ink">2–3 Days</p>
                         <p className="text-caption text-slate-500">
                           {order.expectedDeliveryDate
                             ? `Expected: ${formatDate(order.expectedDeliveryDate)}`

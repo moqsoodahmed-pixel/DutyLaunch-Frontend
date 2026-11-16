@@ -22,12 +22,12 @@ const TRUST_POINTS = [
   { icon: UserCheck, label: 'Written by career writers, not templates' },
   { icon: FileCheck2, label: 'ATS-checked before delivery' },
   { icon: ShieldCheck, label: 'Secure online payment by Razorpay' },
-  { icon: Zap, label: 'Within a day turnaround' },
+  { icon: Zap, label: '2–3 days turnaround' },
 ];
 
 const PROCESS = [
   { step: '1', title: 'Choose and pay', body: 'Pick the band that matches your experience and pay securely online, or ask us and we will place you.' },
-  { step: '2', title: 'Share your details', body: 'Send your current CV or a quick brief. A counsellor confirms scope within a day.' },
+  { step: '2', title: 'Share your details', body: 'Send your current CV or a quick brief. A counsellor confirms scope within 24 hours.' },
   { step: '3', title: 'We write & review', body: 'A career writer rewrites and formats it, then it is run through an ATS check.' },
   { step: '4', title: 'Revise & receive', body: 'You get the final files plus a month of revisions if anything needs a tweak.' },
 ];
@@ -72,7 +72,7 @@ export default function Pricing() {
     <>
       <Seo
         title="CV and LinkedIn pricing"
-        description="DutyLaunch CV bundles: 0-2 years ₹399, 3-5 years ₹799, 6-8 years ₹999 and 9+ years ₹1,199. Each includes an ATS-friendly CV handcrafted by expert writers, cover letter, LinkedIn optimisation, a month of revisions and within a day delivery."
+        description="DutyLaunch CV bundles: 0-2 years ₹399, 3-5 years ₹799, 6-8 years ₹999 and 9+ years ₹1,199. Each includes an ATS-friendly CV handcrafted by expert writers, cover letter, LinkedIn optimisation, a month of revisions and 2 to 3 day delivery."
       />
 
       <PageHero
