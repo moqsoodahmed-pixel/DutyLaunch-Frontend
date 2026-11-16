@@ -175,7 +175,7 @@ export function PricingCard({ pkg, highlighted, onSelect, tone = 'light' }) {
 
         {/* Action Bottom Section with Delivery Badge */}
         <div className="mt-7 pt-4 border-t border-slate-100/20">
-          {/* Dedicated Delivery Pill */}
+          {/* Dedicated Delivery Pill with Star Mark */}
           <div
             className={cn(
               'mb-3 flex items-center justify-center gap-2 rounded-lg py-1.5 px-3 text-center text-[12px] font-bold border shadow-sm',
@@ -185,7 +185,9 @@ export function PricingCard({ pkg, highlighted, onSelect, tone = 'light' }) {
             )}
           >
             <Truck className={cn('h-4 w-4', featured ? 'text-emerald-300' : 'text-emerald-600')} />
-            <span>Delivery in 2–3 Days</span>
+            <span>
+              Delivery in 2–3 Days <span className="text-red-500 font-extrabold">*</span>
+            </span>
           </div>
 
           {canPay ? (
@@ -212,7 +214,10 @@ export function PricingCard({ pkg, highlighted, onSelect, tone = 'light' }) {
           )}
 
           <p className={cn('mt-2 text-center text-[11px]', featured ? 'text-azure-200' : 'text-slate-400')}>
-            2 to 3 day delivery • {pkg.revisionWindow || '1 month unlimited revisions'}
+            Delivery in 2–3 Days <span className="text-red-500 font-bold">*</span> &bull; {pkg.revisionWindow || '1 month unlimited revisions'}
+          </p>
+          <p className={cn('mt-1 text-center text-[10px] italic', featured ? 'text-azure-200/70' : 'text-slate-400')}>
+            * Turnaround applies once CV & requirements are submitted.
           </p>
         </div>
       </div>

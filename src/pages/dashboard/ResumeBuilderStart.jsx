@@ -25,6 +25,10 @@ import {
   RefreshCw,
   Layers,
   ArrowUpRight,
+  Monitor,
+  Briefcase,
+  User,
+  Star,
 } from 'lucide-react';
 import { PanelHeader } from '../../layouts/AppShell.jsx';
 import { Seo } from '../../components/ui/Seo.jsx';
@@ -46,14 +50,14 @@ export const BUILDER_AI_OPTIMIZE_KEY = 'dl_builder_ai_optimize';
 export const BUILDER_AI_REPORT_KEY = 'dl_builder_ai_report';
 
 const STEPS = [
-  { step: '1', title: 'Select Experience Package', desc: 'Choose the band matching your career stage' },
-  { step: '2', title: 'Complete Secure Payment', desc: 'Instant online checkout via Razorpay with 18% GST invoice' },
+  { step: '1', title: 'Select Experience Package', desc: 'Choose the bundle or CV-only tier matching your career stage' },
+  { step: '2', title: 'Complete Secure Payment', desc: 'Instant checkout via Razorpay with 18% GST tax invoice' },
   { step: '3', title: 'Upload Existing Resume/CV', desc: 'Attach PDF, DOC, or DOCX and target career instructions' },
   { step: '4', title: 'Handcrafted by Senior Specialists', desc: 'Comprehensive rewriting, ATS keyword optimization & quality audit' },
-  { step: '5', title: 'Download Finished Files', desc: 'Receive finished CV, cover letter & LinkedIn guide in 2–3 days' },
+  { step: '5', title: 'Download Finished Files', desc: 'Receive finished CV, cover letter & LinkedIn guide in 2–3 days *' },
 ];
 
-// Fallback pricing metadata if backend packages are loading or need decoration
+// Full Career Bundle Packages (CV + Cover Letter + LinkedIn + 1 Month Revisions)
 const DEFAULT_PACKAGES = [
   {
     _id: '6af812abf87d01f285883dc4',
@@ -69,7 +73,7 @@ const DEFAULT_PACKAGES = [
       { label: 'Customised cover letter' },
       { label: 'LinkedIn profile optimisation' },
       { label: '1 month unlimited revisions' },
-      { label: '2 to 3 day delivery' },
+      { label: 'Delivery in 2–3 Days *' },
       { label: 'Positioning for internships, trainee and entry-level roles' },
     ],
   },
@@ -88,7 +92,7 @@ const DEFAULT_PACKAGES = [
       { label: 'Customised cover letter' },
       { label: 'LinkedIn profile optimisation' },
       { label: '1 month unlimited revisions' },
-      { label: '2 to 3 day delivery' },
+      { label: 'Delivery in 2–3 Days *' },
       { label: 'Achievement rewriting with measurable outcomes' },
       { label: 'Keyword mapping against your target roles' },
     ],
@@ -107,7 +111,7 @@ const DEFAULT_PACKAGES = [
       { label: 'Customised cover letter' },
       { label: 'LinkedIn profile optimisation' },
       { label: '1 month unlimited revisions' },
-      { label: '2 to 3 day delivery' },
+      { label: 'Delivery in 2–3 Days *' },
       { label: 'Achievement rewriting with measurable outcomes' },
       { label: 'Keyword mapping against your target roles' },
       { label: 'Leadership and scope-of-responsibility framing' },
@@ -127,7 +131,7 @@ const DEFAULT_PACKAGES = [
       { label: 'Customised cover letter' },
       { label: 'LinkedIn profile optimisation' },
       { label: '1 month unlimited revisions' },
-      { label: '2 to 3 day delivery' },
+      { label: 'Delivery in 2–3 Days *' },
       { label: 'Achievement rewriting with measurable outcomes' },
       { label: 'Keyword mapping against your target roles' },
       { label: 'Leadership and scope-of-responsibility framing' },
@@ -136,10 +140,88 @@ const DEFAULT_PACKAGES = [
   },
 ];
 
+// CV Only Packages (ATS-Friendly CV without Cover Letter/LinkedIn)
+const CV_ONLY_PACKAGES = [
+  {
+    _id: '6af812abf87d01f285883dc4',
+    name: 'Early Career CV',
+    experienceBand: '0 to 2 years',
+    price: 299,
+    originalPrice: 699,
+    currency: 'INR',
+    saveText: 'Save ₹400',
+    tagline: 'Precision ATS resume crafted for internships, fresh graduates and entry roles.',
+    features: [
+      { label: 'ATS-friendly CV crafted manually by expert writers' },
+      { label: 'Keyword mapping against target entry-level roles' },
+      { label: '1 month unlimited revisions' },
+      { label: 'Delivery in 2–3 Days *' },
+      { label: 'Clean PDF + editable DOCX delivery' },
+    ],
+  },
+  {
+    _id: '6af812abf87d01f285883dcc',
+    name: 'Mid-Level Professional CV',
+    experienceBand: '3 to 5 years',
+    price: 549,
+    originalPrice: 1199,
+    currency: 'INR',
+    isPopular: true,
+    saveText: 'Save ₹650',
+    tagline: 'Highlight measurable achievements and core technical competencies.',
+    features: [
+      { label: 'ATS-friendly CV crafted manually by expert writers' },
+      { label: 'Achievement rewriting with measurable outcomes' },
+      { label: 'Keyword mapping against your target roles' },
+      { label: '1 month unlimited revisions' },
+      { label: 'Delivery in 2–3 Days *' },
+      { label: 'Clean PDF + editable DOCX delivery' },
+    ],
+  },
+  {
+    _id: '6af812abf87d01f285883dd5',
+    name: 'Senior Professional CV',
+    experienceBand: '6 to 8 years',
+    price: 749,
+    originalPrice: 1399,
+    currency: 'INR',
+    saveText: 'Save ₹650',
+    tagline: 'Structured profile emphasizing leadership and team management.',
+    features: [
+      { label: 'ATS-friendly CV crafted manually by expert writers' },
+      { label: 'Achievement rewriting with measurable outcomes' },
+      { label: 'Leadership and scope-of-responsibility framing' },
+      { label: 'Keyword mapping against your target roles' },
+      { label: '1 month unlimited revisions' },
+      { label: 'Delivery in 2–3 Days *' },
+      { label: 'Clean PDF + editable DOCX delivery' },
+    ],
+  },
+  {
+    _id: '6af812abf87d01f285883ddf',
+    name: 'Leadership & Executive CV',
+    experienceBand: '9+ years',
+    price: 899,
+    originalPrice: 1699,
+    currency: 'INR',
+    saveText: 'Save ₹800',
+    tagline: 'Strategic board-level narrative for directors and senior leaders.',
+    features: [
+      { label: 'ATS-friendly CV crafted manually by expert writers' },
+      { label: 'Executive summary and board-level narrative' },
+      { label: 'Strategic impact & P&L metrics highlight' },
+      { label: 'Keyword mapping against your target roles' },
+      { label: '1 month unlimited revisions' },
+      { label: 'Delivery in 2–3 Days *' },
+      { label: 'Clean PDF + editable DOCX delivery' },
+    ],
+  },
+];
+
 const COMPARISON_ROWS = [
   { feature: 'Experience Range', early: '0–2 Years', mid: '3–5 Years', senior: '6–8 Years', exec: '9+ Years' },
   { feature: 'Handcrafted by Senior Writers', early: true, mid: true, senior: true, exec: true },
-  { feature: 'Delivery Turnaround', early: '2–3 Days', mid: '2–3 Days', senior: '2–3 Days', exec: '2–3 Days' },
+  { feature: 'Delivery Turnaround', early: '2–3 Days *', mid: '2–3 Days *', senior: '2–3 Days *', exec: '2–3 Days *' },
   { feature: 'Unlimited Free Revisions', early: '1 Month', mid: '1 Month', senior: '1 Month', exec: '1 Month' },
   { feature: 'DutyLaunch ATS Compliance Verification', early: true, mid: true, senior: true, exec: true },
   { feature: 'Customised Cover Letter', early: true, mid: true, senior: true, exec: true },
@@ -235,9 +317,13 @@ export default function ResumeBuilderStart() {
   // View toggle: whether existing customer wants to see all packages
   const [showAllPackages, setShowAllPackages] = useState(false);
 
+  // Package category toggle: 'bundle' (CV + Letter + LinkedIn) vs 'cv_only' (CV Only)
+  const [packageCategory, setPackageCategory] = useState('bundle');
+
   // Active unsubmitted payment state (if user just paid)
   const [activePayment, setActivePayment] = useState(null);
   const [selectedPackage, setSelectedPackage] = useState(null);
+  const [selectedAddons, setSelectedAddons] = useState([]);
   const [checkoutPackage, setCheckoutPackage] = useState(null);
 
   // Upload Form state
@@ -258,9 +344,10 @@ export default function ResumeBuilderStart() {
   }
 
   // Handle successful payment confirmation
-  function handlePaymentSuccess(verifiedPayment, pkg) {
+  function handlePaymentSuccess(verifiedPayment, pkg, addons = []) {
     setSelectedPackage(pkg);
     setActivePayment(verifiedPayment);
+    setSelectedAddons(addons);
     refetchOrders();
     setTimeout(() => {
       const el = document.getElementById('cv-upload-section');
@@ -289,6 +376,10 @@ export default function ResumeBuilderStart() {
         formData.append('packageId', selectedPackage._id);
       }
 
+      if (selectedAddons && selectedAddons.length > 0) {
+        formData.append('addons', selectedAddons.join(','));
+      }
+
       formData.append('userInstructions', userInstructions.trim());
       formData.append('targetRole', targetRole.trim());
       formData.append('targetIndustry', targetIndustry.trim());
@@ -308,15 +399,34 @@ export default function ResumeBuilderStart() {
   // Determine which higher tier packages are available for upgrade
   const currentTierPrice = activeOrder?.price || 0;
   const upgradeTiers = packages.filter((p) => p.price > currentTierPrice);
+  const displayedPackages = packageCategory === 'cv_only' ? CV_ONLY_PACKAGES : packages;
 
   return (
     <>
       <Seo
         title="Professional Resume & CV Service — DutyLaunch"
-        description="DutyLaunch professional resume & CV crafting service. Human-written by senior specialists, covering custom cover letter, LinkedIn profile optimization, 2 to 3 day delivery, and 1 month unlimited revisions."
+        description="DutyLaunch professional resume & CV crafting service. Human-written by senior specialists, covering custom cover letter, LinkedIn profile optimization, delivery in 2 to 3 days *, and 1 month unlimited revisions."
       />
 
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8 lg:py-12 space-y-10">
+        {/* Admin/Staff Management Bar */}
+        {(user?.role === 'admin' || user?.role === 'staff' || user?.role === 'super_admin') && (
+          <div className="rounded-xl border border-azure-300 bg-azure-50/80 p-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 shadow-xs">
+            <div className="flex items-center gap-2.5">
+              <ShieldCheck className="h-5 w-5 text-azure shrink-0" />
+              <div>
+                <p className="text-xs font-bold uppercase tracking-wider text-azure">Staff & Specialist Workspace</p>
+                <p className="text-sm font-semibold text-slate-800">
+                  Manage candidate resume submissions, download raw documents, update turnaround progress, and deliver completed CVs.
+                </p>
+              </div>
+            </div>
+            <Button to="/admin/resume-orders" variant="primary" size="sm" className="shrink-0 font-bold">
+              Open Staff Order Portal &rarr;
+            </Button>
+          </div>
+        )}
+
         {/* Main Header */}
         <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between border-b border-slate-200 pb-6">
           <div>
@@ -329,7 +439,7 @@ export default function ResumeBuilderStart() {
             </h1>
             <p className="mt-2 max-w-2xl text-base text-slate-600 leading-relaxed">
               Bespoke, human-led resume and CV craftsmanship. Senior career specialists rewrite, format,
-              and optimize your documents for high impact, ATS compliance, and guaranteed delivery in 2–3 days.
+              and optimize your documents for high impact, ATS compliance, and guaranteed delivery in 2–3 days <span className="text-red-500 font-bold">*</span>.
             </p>
           </div>
 
@@ -378,7 +488,9 @@ export default function ResumeBuilderStart() {
                     <Truck className="h-5 w-5 text-emerald-600 shrink-0" />
                     <div>
                       <p className="text-xs font-bold uppercase tracking-wider text-emerald-700">Turnaround Guarantee</p>
-                      <p className="text-sm font-extrabold text-emerald-900">Delivery in 2–3 Days</p>
+                      <p className="text-sm font-extrabold text-emerald-900">
+                        Delivery in 2–3 Days <span className="text-red-600 font-extrabold">*</span>
+                      </p>
                     </div>
                   </div>
 
@@ -448,6 +560,10 @@ export default function ResumeBuilderStart() {
                   <p className="mt-0.5 text-xs text-slate-500">Unlimited adjustments</p>
                 </div>
               </div>
+
+              <p className="mt-3 text-right text-[11px] text-slate-400 italic">
+                * Turnaround applies once current CV and career brief are submitted.
+              </p>
             </div>
 
             {/* Need to Upload Files (if pending or activePayment) */}
@@ -628,8 +744,13 @@ export default function ResumeBuilderStart() {
                         Payment Confirmed
                       </span>
                       <span className="text-xs font-bold text-emerald-950">
-                        {selectedPackage?.name} &bull; Delivery in 2–3 Days
+                        {selectedPackage?.name} &bull; Delivery in 2–3 Days <span className="text-red-600 font-bold">*</span>
                       </span>
+                      {selectedAddons?.length > 0 && (
+                        <span className="rounded bg-purple-100 text-purple-800 px-2 py-0.5 text-[11px] font-bold">
+                          +{selectedAddons.length} Add-on(s) Included
+                        </span>
+                      )}
                     </div>
                     <h3 className="mt-2 text-xl font-bold text-emerald-950">
                       Step 2: Upload Your Existing Resume or CV
@@ -735,7 +856,7 @@ export default function ResumeBuilderStart() {
                 </div>
                 <div className="flex items-center gap-1.5">
                   <Zap className="h-4 w-4 text-azure" />
-                  2–3 Days Fast Turnaround
+                  2–3 Days Fast Turnaround <span className="text-red-500 font-bold">*</span>
                 </div>
                 <div className="flex items-center gap-1.5">
                   <ShieldCheck className="h-4 w-4 text-indigo-600" />
@@ -751,27 +872,57 @@ export default function ResumeBuilderStart() {
             {/* Pricing Section (ProResumes Blue Header Style) */}
             <div id="pricing-packages" className="space-y-6">
               <div className="rounded-2xl bg-gradient-to-r from-[#0d2a5c] via-[#123875] to-[#1a4a8d] p-6 text-white shadow-lg sm:p-8">
-                <div className="max-w-2xl">
-                  <span className="inline-block rounded-full bg-white/20 px-3 py-1 text-[11px] font-bold uppercase tracking-wider text-azure-100 backdrop-blur-sm">
-                    Choose Your CV & Resume Package
-                  </span>
-                  <h2 className="mt-2 text-2xl sm:text-3xl font-black tracking-tight text-white">
-                    Find the best plan that suits your career stage and needs.
-                  </h2>
-                  <p className="mt-2 text-sm text-slate-200">
-                    Transparent pricing by years of experience. Every bundle includes a custom CV, targeted cover letter, LinkedIn profile guidance, 2 to 3 day delivery, and 1 month of unlimited revisions.
-                  </p>
+                <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6">
+                  <div className="max-w-2xl">
+                    <span className="inline-block rounded-full bg-white/20 px-3 py-1 text-[11px] font-bold uppercase tracking-wider text-azure-100 backdrop-blur-sm">
+                      Choose Your CV & Resume Package
+                    </span>
+                    <h2 className="mt-2 text-2xl sm:text-3xl font-black tracking-tight text-white">
+                      Find the best plan that suits your career stage and needs.
+                    </h2>
+                    <p className="mt-2 text-sm text-slate-200">
+                      Transparent pricing by years of experience. Every bundle includes a custom CV, targeted cover letter, LinkedIn profile guidance, 2 to 3 day delivery <span className="text-red-400 font-bold">*</span>, and 1 month of unlimited revisions.
+                    </p>
+                  </div>
+
+                  {/* ProResumes-style Package Category Selector */}
+                  <div className="inline-flex rounded-xl bg-white/10 p-1.5 backdrop-blur-md border border-white/20 self-start md:self-auto shrink-0">
+                    <button
+                      type="button"
+                      onClick={() => setPackageCategory('bundle')}
+                      className={cn(
+                        'px-4 py-2 rounded-lg text-xs font-bold transition-all',
+                        packageCategory === 'bundle'
+                          ? 'bg-white text-ink shadow-md'
+                          : 'text-white/80 hover:text-white'
+                      )}
+                    >
+                      💼 Bundle Packages
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setPackageCategory('cv_only')}
+                      className={cn(
+                        'px-4 py-2 rounded-lg text-xs font-bold transition-all',
+                        packageCategory === 'cv_only'
+                          ? 'bg-white text-ink shadow-md'
+                          : 'text-white/80 hover:text-white'
+                      )}
+                    >
+                      📄 CV Only Packages
+                    </button>
+                  </div>
                 </div>
               </div>
 
               {/* Package Cards Grid */}
               <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
-                {packages.map((pkg) => {
+                {displayedPackages.map((pkg) => {
                   const isBuying = pendingId === pkg._id;
 
                   return (
                     <div
-                      key={pkg._id}
+                      key={pkg._id + pkg.name}
                       className={cn(
                         'relative flex flex-col justify-between rounded-2xl border bg-white p-6 transition-all duration-200 hover:-translate-y-1 hover:shadow-xl',
                         pkg.isPopular
@@ -814,25 +965,34 @@ export default function ResumeBuilderStart() {
                           <span className="text-xs font-medium text-slate-500">+18% GST</span>
                         </div>
 
-                        {/* Combo Visual Badges (CV + Letter + LinkedIn) */}
-                        <div className="my-4 rounded-xl border border-slate-200/90 bg-slate-50/90 py-2.5 px-3 text-center shadow-inner">
-                          <div className="flex items-center justify-around">
-                            <div className="flex flex-col items-center gap-1">
-                              <FileText className="h-4 w-4 text-azure" />
-                              <span className="text-[11px] font-bold text-slate-700">CV</span>
-                            </div>
-                            <span className="text-xs font-bold text-slate-300">+</span>
-                            <div className="flex flex-col items-center gap-1">
-                              <Mail className="h-4 w-4 text-azure" />
-                              <span className="text-[11px] font-bold text-slate-700 whitespace-nowrap">Cover Letter</span>
-                            </div>
-                            <span className="text-xs font-bold text-slate-300">+</span>
-                            <div className="flex flex-col items-center gap-1">
-                              <Linkedin className="h-4 w-4 text-[#0077b5]" />
-                              <span className="text-[11px] font-bold text-[#0077b5]">LinkedIn</span>
+                        {/* Combo Visual Badges (CV + Letter + LinkedIn if bundle) */}
+                        {packageCategory === 'bundle' ? (
+                          <div className="my-4 rounded-xl border border-slate-200/90 bg-slate-50/90 py-2.5 px-3 text-center shadow-inner">
+                            <div className="flex items-center justify-around">
+                              <div className="flex flex-col items-center gap-1">
+                                <FileText className="h-4 w-4 text-azure" />
+                                <span className="text-[11px] font-bold text-slate-700">CV</span>
+                              </div>
+                              <span className="text-xs font-bold text-slate-300">+</span>
+                              <div className="flex flex-col items-center gap-1">
+                                <Mail className="h-4 w-4 text-azure" />
+                                <span className="text-[11px] font-bold text-slate-700 whitespace-nowrap">Cover Letter</span>
+                              </div>
+                              <span className="text-xs font-bold text-slate-300">+</span>
+                              <div className="flex flex-col items-center gap-1">
+                                <Linkedin className="h-4 w-4 text-[#0077b5]" />
+                                <span className="text-[11px] font-bold text-[#0077b5]">LinkedIn</span>
+                              </div>
                             </div>
                           </div>
-                        </div>
+                        ) : (
+                          <div className="my-4 rounded-xl border border-slate-200/90 bg-slate-50/90 py-2.5 px-3 text-center shadow-inner">
+                            <div className="flex items-center justify-center gap-2">
+                              <FileText className="h-4 w-4 text-azure" />
+                              <span className="text-[11px] font-bold text-slate-700">Dedicated ATS-Optimized CV</span>
+                            </div>
+                          </div>
+                        )}
 
                         {/* Deliverables List */}
                         <div className="mt-2 space-y-2.5 border-t border-slate-100 pt-4">
@@ -852,7 +1012,9 @@ export default function ResumeBuilderStart() {
                       <div className="mt-6 pt-4 border-t border-slate-100">
                         <div className="mb-3 flex items-center justify-center gap-2 rounded-lg border border-emerald-200/80 bg-emerald-50/90 py-1.5 px-3 text-center text-xs font-bold text-emerald-900 shadow-sm">
                           <Truck className="h-4 w-4 text-emerald-600" />
-                          <span>Delivery in 2–3 Days</span>
+                          <span>
+                            Delivery in 2–3 Days <span className="text-red-600 font-extrabold">*</span>
+                          </span>
                         </div>
 
                         <Button
@@ -864,12 +1026,199 @@ export default function ResumeBuilderStart() {
                           {user ? `Buy ${pkg.name}` : `Choose ${pkg.name}`} <ArrowRight className="ml-1.5 h-4 w-4" />
                         </Button>
                         <p className="mt-2 text-center text-[11px] text-slate-400">
-                          2 to 3 day delivery &bull; 1 month unlimited revisions
+                          2 to 3 day delivery * &bull; 1 month unlimited revisions
                         </p>
                       </div>
                     </div>
                   );
                 })}
+              </div>
+
+              {/* Delivery Disclaimer Footnote */}
+              <div className="rounded-xl border border-slate-200 bg-slate-50/90 p-3.5 text-center text-xs text-slate-500">
+                <span className="font-bold text-slate-700">* Delivery Turnaround Guarantee:</span> Delivery turnaround begins after candidate submits current CV and target career preferences.
+              </div>
+            </div>
+
+            {/* Career Add-ons & Portfolios Showcase Section (ProResumes Style) */}
+            <div id="career-addons-section" className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8 space-y-6">
+              <div className="max-w-2xl">
+                <span className="text-xs font-bold uppercase tracking-wider text-azure">
+                  Boost Your Job Search & Visibility
+                </span>
+                <h3 className="mt-1 text-2xl sm:text-3xl font-extrabold text-ink">
+                  Executive Portfolios & Career Add-ons
+                </h3>
+                <p className="mt-2 text-sm text-slate-600">
+                  Enhance your application package with our specialized career add-ons designed to give you an unfair competitive edge with hiring managers.
+                </p>
+              </div>
+
+              <div className="grid gap-6 md:grid-cols-3">
+                {/* 1. Visual Executive Portfolio */}
+                <div className="flex flex-col justify-between rounded-2xl border border-slate-200 bg-gradient-to-b from-white to-slate-50 p-6 hover:shadow-lg transition-all">
+                  <div>
+                    <div className="flex items-center justify-between">
+                      <span className="rounded bg-sky-100 text-sky-800 px-2 py-0.5 text-xs font-bold">
+                        Document / PDF
+                      </span>
+                      <span className="text-xs font-bold text-emerald-600">Save ₹2,000</span>
+                    </div>
+                    <h4 className="mt-3 text-lg font-extrabold text-ink">Visual Executive Portfolio</h4>
+                    <p className="mt-1 text-xs text-slate-500">
+                      A single comprehensive presentation document showcasing key projects, deliverables, and measurable career outcomes.
+                    </p>
+
+                    <div className="mt-4 flex items-baseline gap-2">
+                      <span className="text-2xl font-black text-ink">₹999</span>
+                      <span className="text-xs text-slate-400 line-through">₹2,999</span>
+                      <span className="text-xs text-slate-500">+18% GST</span>
+                    </div>
+
+                    <ul className="mt-4 space-y-2 border-t border-slate-100 pt-3 text-xs text-slate-600">
+                      <li className="flex items-start gap-2">
+                        <CheckCircle2 className="h-4 w-4 text-emerald-600 shrink-0 mt-0.5" />
+                        <span>Executive case study layouts with metric highlights</span>
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <CheckCircle2 className="h-4 w-4 text-emerald-600 shrink-0 mt-0.5" />
+                        <span>High-res PDF ready to attach to job applications</span>
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <CheckCircle2 className="h-4 w-4 text-emerald-600 shrink-0 mt-0.5" />
+                        <span>Turnaround: Delivered in 2–3 Days <span className="text-red-500 font-bold">*</span></span>
+                      </li>
+                    </ul>
+                  </div>
+
+                  <div className="mt-6 pt-4 border-t border-slate-100">
+                    <Button
+                      className="w-full text-xs font-bold"
+                      variant="primary"
+                      onClick={() => handleBuyPackage({
+                        _id: '6af812abf87d01f285883dc4',
+                        name: 'Visual Executive Portfolio',
+                        experienceBand: 'All Experience Levels',
+                        price: 999,
+                        originalPrice: 2999,
+                        currency: 'INR',
+                        tagline: 'High-impact executive visual presentation deck & case studies in PDF format.',
+                      })}
+                    >
+                      Order Visual Portfolio &rarr;
+                    </Button>
+                  </div>
+                </div>
+
+                {/* 2. Live Personal Web Portfolio */}
+                <div className="flex flex-col justify-between rounded-2xl border-2 border-azure/40 bg-gradient-to-b from-white to-azure-50/20 p-6 shadow-sm hover:shadow-lg transition-all">
+                  <div>
+                    <div className="flex items-center justify-between">
+                      <span className="rounded bg-azure text-white px-2 py-0.5 text-xs font-bold">
+                        Hosted Website
+                      </span>
+                      <span className="text-xs font-bold text-emerald-600">Save ₹2,000</span>
+                    </div>
+                    <h4 className="mt-3 text-lg font-extrabold text-ink">Live Personal Web Portfolio</h4>
+                    <p className="mt-1 text-xs text-slate-500">
+                      Your own responsive, custom-built personal portfolio website hosted with a shareable URL for LinkedIn & CV headers.
+                    </p>
+
+                    <div className="mt-4 flex items-baseline gap-2">
+                      <span className="text-2xl font-black text-ink">₹1,999</span>
+                      <span className="text-xs text-slate-400 line-through">₹3,999</span>
+                      <span className="text-xs text-slate-500">+18% GST</span>
+                    </div>
+
+                    <ul className="mt-4 space-y-2 border-t border-slate-100 pt-3 text-xs text-slate-600">
+                      <li className="flex items-start gap-2">
+                        <CheckCircle2 className="h-4 w-4 text-azure shrink-0 mt-0.5" />
+                        <span>Custom responsive web portfolio with modern design</span>
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <CheckCircle2 className="h-4 w-4 text-azure shrink-0 mt-0.5" />
+                        <span>Dedicated shareable URL for your CV & LinkedIn bio</span>
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <CheckCircle2 className="h-4 w-4 text-azure shrink-0 mt-0.5" />
+                        <span>Fast delivery in 2–3 Days <span className="text-red-500 font-bold">*</span></span>
+                      </li>
+                    </ul>
+                  </div>
+
+                  <div className="mt-6 pt-4 border-t border-slate-100">
+                    <Button
+                      className="w-full text-xs font-bold"
+                      variant="primary"
+                      onClick={() => handleBuyPackage({
+                        _id: '6af812abf87d01f285883dcc',
+                        name: 'Live Personal Web Portfolio',
+                        experienceBand: 'All Experience Levels',
+                        price: 1999,
+                        originalPrice: 3999,
+                        currency: 'INR',
+                        tagline: 'Custom responsive personal portfolio website with hosted shareable link.',
+                      })}
+                    >
+                      Order Web Portfolio &rarr;
+                    </Button>
+                  </div>
+                </div>
+
+                {/* 3. 1-on-1 Mock Interview */}
+                <div className="flex flex-col justify-between rounded-2xl border border-slate-200 bg-gradient-to-b from-white to-slate-50 p-6 hover:shadow-lg transition-all">
+                  <div>
+                    <div className="flex items-center justify-between">
+                      <span className="rounded bg-indigo-100 text-indigo-800 px-2 py-0.5 text-xs font-bold">
+                        1-on-1 Coaching
+                      </span>
+                      <span className="text-xs font-bold text-emerald-600">Save ₹800</span>
+                    </div>
+                    <h4 className="mt-3 text-lg font-extrabold text-ink">1-on-1 Mock Interview</h4>
+                    <p className="mt-1 text-xs text-slate-500">
+                      Personalized 30-min interview coaching session with senior industry interviewers tailored to your target job posting.
+                    </p>
+
+                    <div className="mt-4 flex items-baseline gap-2">
+                      <span className="text-2xl font-black text-ink">₹699</span>
+                      <span className="text-xs text-slate-400 line-through">₹1,499</span>
+                      <span className="text-xs text-slate-500">+18% GST</span>
+                    </div>
+
+                    <ul className="mt-4 space-y-2 border-t border-slate-100 pt-3 text-xs text-slate-600">
+                      <li className="flex items-start gap-2">
+                        <CheckCircle2 className="h-4 w-4 text-indigo-600 shrink-0 mt-0.5" />
+                        <span>Role-specific behavioral & technical scenario questions</span>
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <CheckCircle2 className="h-4 w-4 text-indigo-600 shrink-0 mt-0.5" />
+                        <span>Detailed feedback scorecard & salary conversation tips</span>
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <CheckCircle2 className="h-4 w-4 text-indigo-600 shrink-0 mt-0.5" />
+                        <span>Scheduled at candidate convenience</span>
+                      </li>
+                    </ul>
+                  </div>
+
+                  <div className="mt-6 pt-4 border-t border-slate-100">
+                    <Button
+                      className="w-full text-xs font-bold"
+                      variant="primary"
+                      onClick={() => handleBuyPackage({
+                        _id: '6af812abf87d01f285883dd5',
+                        name: '1-on-1 Mock Interview Session',
+                        experienceBand: 'All Experience Levels',
+                        price: 699,
+                        originalPrice: 1499,
+                        currency: 'INR',
+                        tagline: '30-minute tailored interview coaching session with feedback.',
+                      })}
+                    >
+                      Book Mock Interview &rarr;
+                    </Button>
+                  </div>
+                </div>
               </div>
             </div>
 

@@ -572,6 +572,18 @@ export default function AdminResumeOrders() {
                   </p>
                 </div>
               )}
+              {selectedOrder.addons && selectedOrder.addons.length > 0 && (
+                <div className="mt-3 pt-3 border-t border-slate-100">
+                  <span className="text-caption font-semibold text-slate-400">Purchased Add-ons & Deliverables:</span>
+                  <div className="mt-1.5 flex flex-wrap gap-2">
+                    {selectedOrder.addons.map((a, i) => (
+                      <span key={i} className="inline-flex items-center gap-1 rounded-md bg-purple-50 text-purple-700 px-2.5 py-1 text-xs font-bold border border-purple-200">
+                        ⭐ {a === 'portfolio' ? 'Visual Executive Portfolio (PDF)' : a === 'webPortfolio' ? 'Live Personal Web Portfolio' : a === 'mockInterview' ? '1-on-1 Mock Interview Session' : a}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* Uploaded Documents & Secure Download Buttons */}

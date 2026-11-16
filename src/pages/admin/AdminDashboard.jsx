@@ -19,6 +19,14 @@ export default function AdminDashboard() {
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <StatCard label="Candidates" value={counts.totalUsers} icon="Users" to="/admin/users" />
+        <StatCard
+          label="Resume Build Orders"
+          value={counts.totalResumeOrders ?? 0}
+          hint={`${counts.pendingResumeOrders ?? 0} pending review`}
+          icon="FileText"
+          tone={(counts.pendingResumeOrders ?? 0) > 0 ? 'alert' : 'default'}
+          to="/admin/resume-orders"
+        />
         <StatCard label="Employers" value={counts.totalEmployers} icon="Building2" to="/admin/users?role=employer" />
         <StatCard label="Published jobs" value={counts.publishedJobs} hint={`${counts.totalJobs} total`} icon="Briefcase" to="/admin/jobs" />
         <StatCard label="Applications" value={counts.totalApplications} icon="FileStack" to="/admin/applications" />
