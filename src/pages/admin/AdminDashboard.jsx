@@ -24,7 +24,7 @@ export default function AdminDashboard() {
             <span className="text-lg">🏷️</span>
           </div>
           <div>
-            <h3 className="text-sm font-bold text-slate-900">Pricing & Offerings CMS</h3>
+            <h3 className="text-sm font-bold text-slate-900">Pricing & Packages Studio</h3>
             <p className="text-xs text-slate-600">
               Control all package rates, price hikes, strikethroughs, deliverables, and track live surface impact.
             </p>
@@ -32,21 +32,21 @@ export default function AdminDashboard() {
         </div>
         <div className="flex items-center gap-2">
           <a
-            href="/admin/cms"
+            href="/admin/pricing-studio"
             className="inline-flex items-center gap-1.5 rounded-lg bg-azure-600 px-3 py-1.5 text-xs font-bold text-white shadow-xs hover:bg-azure-700 transition-colors"
           >
-            Open Pricing CMS →
+            Open Pricing Studio →
           </a>
         </div>
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <StatCard
-          label="Pricing & Packages CMS"
+          label="Pricing & Packages Studio"
           value="Dynamic Hub"
           hint="Edit prices, deliverables & SLA"
           icon="Tag"
-          to="/admin/cms"
+          to="/admin/pricing-studio"
         />
         <StatCard label="Candidates" value={counts.totalUsers} icon="Users" to="/admin/users" />
         <StatCard

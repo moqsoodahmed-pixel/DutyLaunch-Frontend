@@ -237,7 +237,9 @@ export function AppRoutes() {
             <Route element={<ProtectedRoute roles={['admin', 'super_admin', 'assistant_admin', 'master_admin']} />}>
               <Route element={<AdminLayout />}>
                 <Route path="admin" element={<AdminDashboard />} />
-                <Route path="admin/cms" element={<CmsPricingDashboard />} />
+                <Route path="admin/pricing-studio" element={<CmsPricingDashboard />} />
+                <Route path="admin/pricing-hub" element={<Navigate to="/admin/pricing-studio" replace />} />
+                <Route path="admin/cms" element={<Navigate to="/admin/pricing-studio" replace />} />
                 <Route path="admin/resume-orders" element={<AdminResumeOrders />} />
                 <Route path="admin/users" element={<AdminUsers />} />
                 <Route path="admin/jobs" element={<AdminJobs />} />

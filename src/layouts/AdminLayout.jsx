@@ -8,7 +8,7 @@ const groups = [
   {
     title: 'Commercial & Pricing',
     items: [
-      { to: '/admin/cms', label: 'Pricing & Packages CMS', icon: 'Tag' },
+      { to: '/admin/pricing-studio', label: 'Pricing & Packages Studio', icon: 'Tag' },
       { to: '/admin/resume-orders', label: 'Resume Build Orders', icon: 'FileText' },
     ],
   },
