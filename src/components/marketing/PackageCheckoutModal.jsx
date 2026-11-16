@@ -21,6 +21,7 @@ import {
   Monitor,
 } from 'lucide-react';
 import { Button } from '../ui/Button.jsx';
+import { GoogleAuthButton } from '../auth/GoogleAuthButton.jsx';
 import { useAuth } from '../../context/AuthContext.jsx';
 import { useToast } from '../../context/ToastContext.jsx';
 import { paymentService } from '../../services/paymentService.js';
@@ -586,6 +587,22 @@ export function PackageCheckoutModal({
                       >
                         2. Sign In to Existing Account
                       </button>
+                    </div>
+
+                    {/* Fast Google Auth for 1-Click Checkout */}
+                    <div>
+                      <GoogleAuthButton
+                        label="Instant Checkout with Google"
+                        onSuccess={(loggedInUser) => {
+                          setFullName(loggedInUser.name || '');
+                          setEmail(loggedInUser.email || '');
+                        }}
+                      />
+                      <div className="my-3 flex items-center gap-2" role="separator">
+                        <span className="h-px flex-1 bg-slate-200" />
+                        <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">OR WITH EMAIL</span>
+                        <span className="h-px flex-1 bg-slate-200" />
+                      </div>
                     </div>
 
                     {authMode === 'register' ? (

@@ -28,4 +28,14 @@ export const authService = {
     return res;
   },
   forgotPassword: (payload) => api.post('/auth/forgot-password', payload),
+  async resetPassword(payload) {
+    const res = await api.post('/auth/reset-password', payload);
+    tokenStore.set(res.data.token);
+    return res.data.user;
+  },
+  async googleLogin(payload) {
+    const res = await api.post('/auth/google', payload);
+    tokenStore.set(res.data.token);
+    return res.data.user;
+  },
 };

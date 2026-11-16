@@ -84,6 +84,17 @@ export function AuthProvider({ children }) {
     return next;
   }, []);
 
+  const loginWithGoogle = useCallback(async (payload) => {
+    const next = await authService.googleLogin(payload);
+    setUser(next);
+    try {
+      if (next) sessionStorage.setItem('dl.user', JSON.stringify(next));
+    } catch {
+      /* ignore */
+    }
+    return next;
+  }, []);
+
   const logout = useCallback(async () => {
     await authService.logout();
     clear();
@@ -101,9 +112,10 @@ export function AuthProvider({ children }) {
       isPartner: user?.role === 'institute' || user?.role === 'partner',
       login,
       register,
+      loginWithGoogle,
       logout,
     }),
-    [user, initialising, login, register, logout]
+    [user, initialising, login, register, loginWithGoogle, logout]
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

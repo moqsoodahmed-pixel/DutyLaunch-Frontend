@@ -14,7 +14,13 @@ export function ProtectedRoute({ roles }) {
 
   if (initialising) return <LoadingBlock label="Checking your session" className="min-h-screen" />;
 
+  const isAdminRoute = location.pathname.startsWith('/admin') || roles?.includes('admin');
+
   if (!isAuthenticated) {
+    // Attack-surface hardening: never leak admin routes in redirect state query to unauthenticated visitors
+    if (isAdminRoute) {
+      return <Navigate to="/login" replace />;
+    }
     return <Navigate to="/login" state={{ from: location.pathname + location.search }} replace />;
   }
 
@@ -26,6 +32,10 @@ export function ProtectedRoute({ roles }) {
       return user?.role === r;
     });
     if (!isAllowed) {
+      // Attack-surface hardening: if an unauthorized user probes admin areas, deflect to root
+      if (isAdminRoute) {
+        return <Navigate to="/" replace />;
+      }
       return <Navigate to={homePathFor(user?.role)} replace />;
     }
   }

@@ -62,6 +62,7 @@ const Login = lazyWithReload(() => import('../pages/auth/Login.jsx'));
 const Register = lazyWithReload(() => import('../pages/auth/Register.jsx'));
 const MockInterview = lazyWithReload(() => import('../pages/dashboard/MockInterview.jsx'));
 const ForgotPassword = lazyWithReload(() => import('../pages/auth/ForgotPassword.jsx'));
+const ResetPassword = lazyWithReload(() => import('../pages/auth/ResetPassword.jsx'));
 
 /* Dashboard (candidate + employer) */
 const Dashboard = lazyWithReload(() => import('../pages/dashboard/Dashboard.jsx'));
@@ -186,6 +187,7 @@ export function AppRoutes() {
                 <Route path="login" element={<Login />} />
                 <Route path="register" element={<Register />} />
                 <Route path="forgot-password" element={<ForgotPassword />} />
+                <Route path="reset-password" element={<ResetPassword />} />
               </Route>
             </Route>
 

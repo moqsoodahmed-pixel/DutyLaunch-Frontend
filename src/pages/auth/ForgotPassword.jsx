@@ -12,6 +12,7 @@ import { friendlyAuthError } from '../../utils/authErrors.js';
 export default function ForgotPassword() {
   const toast = useToast();
   const [sent, setSent] = useState(false);
+  const [resultInfo, setResultInfo] = useState(null);
   const {
     register,
     handleSubmit,
@@ -20,7 +21,8 @@ export default function ForgotPassword() {
 
   const onSubmit = async (values) => {
     try {
-      await authService.forgotPassword(values);
+      const res = await authService.forgotPassword(values);
+      setResultInfo(res?.data?.data || null);
       setSent(true);
     } catch (error) {
       toast.error(friendlyAuthError(error, 'We could not send that link. Please try again.'));
@@ -36,9 +38,23 @@ export default function ForgotPassword() {
         <h1 className="mt-5 text-2xl font-extrabold tracking-tight text-ink sm:text-3xl">Check your inbox</h1>
         <p className="mt-2 text-small leading-relaxed text-slate-600">
           If an account exists for that email address, we have sent instructions to reset your password. It can take a
-          few moments to arrive.
+          few moments to arrive. Please check your inbox and spam folder.
         </p>
-        <div className="mt-6">
+
+        {resultInfo?.resetUrl && (
+          <div className="mt-4 rounded-xl border border-azure-200 bg-azure-50/80 p-4 text-xs text-slate-800 text-left">
+            <p className="font-bold text-azure-800">Direct Password Reset Link (Development Mode):</p>
+            <p className="mt-1 text-slate-600">Click below to reset your password immediately without waiting for SMTP delivery:</p>
+            <Link
+              to={new URL(resultInfo.resetUrl).pathname + new URL(resultInfo.resetUrl).search}
+              className="mt-2 inline-flex items-center gap-1.5 font-bold text-azure underline break-all"
+            >
+              <span>Open Password Reset Page &rarr;</span>
+            </Link>
+          </div>
+        )}
+
+        <div className="mt-6 flex flex-wrap items-center gap-3">
           <Link
             to="/login"
             className="inline-flex items-center gap-2 rounded-xl bg-azure-600 px-5 py-2.5 text-small font-bold text-white shadow-blue transition-all hover:bg-azure-700 hover:shadow-blue-lg"

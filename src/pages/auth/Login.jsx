@@ -6,6 +6,7 @@ import { Input } from '../../components/ui/Field.jsx';
 import { Button } from '../../components/ui/Button.jsx';
 import { PasswordInput } from '../../components/auth/PasswordInput.jsx';
 import { AuthDivider } from '../../components/auth/AuthDivider.jsx';
+import { GoogleAuthButton } from '../../components/auth/GoogleAuthButton.jsx';
 import { useAuth } from '../../context/AuthContext.jsx';
 import { useToast } from '../../context/ToastContext.jsx';
 import { friendlyAuthError } from '../../utils/authErrors.js';
@@ -117,9 +118,16 @@ export default function Login() {
         </Button>
       </form>
 
-      <AuthDivider />
+      <AuthDivider label="OR SIGN IN WITH" />
 
-      <div className="rounded-2xl border border-slate-100 bg-slate-50/80 p-3.5 text-center text-small text-slate-600">
+      <div className="space-y-3">
+        <GoogleAuthButton
+          label="Sign in with Google"
+          redirectPath={fromPath}
+        />
+      </div>
+
+      <div className="mt-6 rounded-2xl border border-slate-100 bg-slate-50/80 p-3.5 text-center text-small text-slate-600">
         Don&rsquo;t have an account yet?{' '}
         <Link
           to={`/register${location.search}`}
