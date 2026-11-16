@@ -16,6 +16,7 @@ import { CTASection } from '../components/marketing/CTASection.jsx';
 import { TemplateGallery } from '../components/cv/TemplateGallery.jsx';
 import { useApi } from '../hooks/useApi.js';
 import { pricingService } from '../services/contentService.js';
+import { cmsService } from './admin/cms/cmsService.js';
 import { cn } from '../utils/cn.js';
 
 const TRUST_POINTS = [
@@ -41,7 +42,21 @@ const BANDS = [
 ];
 
 export default function Pricing() {
-  const { data, loading, error, refetch } = useApi(() => pricingService.cvPackages(), []);
+  const { data, loading, error, refetch } = useApi(async () => {
+    try {
+      const cmsRes = await cmsService.getPublicPricing();
+      if (cmsRes?.bundles?.length) {
+        return cmsRes.bundles.map((b) => ({
+          ...b,
+          _id: b._id || b.key,
+          features: b.deliverables?.map((d) => ({ label: d.label, included: d.included })) || [],
+        }));
+      }
+    } catch {
+      // fallback
+    }
+    return pricingService.cvPackages();
+  }, []);
   const [band, setBand] = useState('all');
   const [selected, setSelected] = useState(null);
 

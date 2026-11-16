@@ -6,6 +6,13 @@ const groups = [
     items: [{ to: '/admin', label: 'Dashboard', icon: 'LayoutDashboard', end: true }],
   },
   {
+    title: 'Commercial & Pricing',
+    items: [
+      { to: '/admin/cms', label: 'Pricing & Packages CMS', icon: 'Tag' },
+      { to: '/admin/resume-orders', label: 'Resume Build Orders', icon: 'FileText' },
+    ],
+  },
+  {
     title: 'Enquiries',
     items: [
       { to: '/admin/consultations', label: 'Consultations', icon: 'CalendarCheck' },

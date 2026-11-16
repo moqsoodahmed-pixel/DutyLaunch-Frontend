@@ -84,9 +84,30 @@ export function PackageCheckoutModal({
   onClose,
   packageData,
   onPaymentSuccess,
+  customAddons,
+  gstRate = 18,
 }) {
   const { user, login, register } = useAuth();
   const toast = useToast();
+
+  const activeAddons =
+    customAddons && customAddons.length
+      ? customAddons.map((a) => {
+          let Icon = Briefcase;
+          const k = (a.key || a.name || '').toLowerCase();
+          if (k.includes('web')) Icon = Monitor;
+          else if (k.includes('interview')) Icon = User;
+          return {
+            id: a.key ? a.key.replace(/^addon-/, '') : a.id || a._id,
+            name: a.name,
+            price: a.price,
+            originalPrice: a.originalPrice,
+            badge: a.saveText || 'Add-on',
+            icon: Icon,
+            description: a.tagline || a.deliverables?.[0]?.label || '',
+          };
+        })
+      : CAREER_ADDONS;
 
   // Guest auth form state
   const [authMode, setAuthMode] = useState('register'); // 'register' | 'login'
@@ -107,12 +128,13 @@ export function PackageCheckoutModal({
 
   const basePrice = packageData.price || 399;
   const addonsPrice = selectedAddonIds.reduce((sum, id) => {
-    const found = CAREER_ADDONS.find((a) => a.id === id);
+    const found = activeAddons.find((a) => a.id === id);
     return sum + (found ? found.price : 0);
   }, 0);
 
   const subtotal = basePrice + addonsPrice;
-  const gstAmount = Math.round(subtotal * 0.18);
+  const taxRate = (gstRate ?? 18) / 100;
+  const gstAmount = Math.round(subtotal * taxRate);
   const totalAmount = subtotal + gstAmount;
 
   function toggleAddon(id) {
@@ -465,7 +487,7 @@ export function PackageCheckoutModal({
                 </div>
 
                 <div className="space-y-2.5">
-                  {CAREER_ADDONS.map((addon) => {
+                  {activeAddons.map((addon) => {
                     const isSelected = selectedAddonIds.includes(addon.id);
                     const Icon = addon.icon;
 

@@ -17,7 +17,37 @@ export default function AdminDashboard() {
     <>
       <PanelHeader title="Dashboard" description="An overview of activity across the platform." />
 
+      {/* Pricing & CMS Quick Action Banner */}
+      <div className="mb-5 flex flex-wrap items-center justify-between gap-4 rounded-xl border border-azure-200 bg-gradient-to-r from-azure-50 to-indigo-50/60 p-4 shadow-xs">
+        <div className="flex items-center gap-3">
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-azure-600 text-white shadow-xs">
+            <span className="text-lg">🏷️</span>
+          </div>
+          <div>
+            <h3 className="text-sm font-bold text-slate-900">Pricing & Offerings CMS</h3>
+            <p className="text-xs text-slate-600">
+              Control all package rates, price hikes, strikethroughs, deliverables, and track live surface impact.
+            </p>
+          </div>
+        </div>
+        <div className="flex items-center gap-2">
+          <a
+            href="/admin/cms"
+            className="inline-flex items-center gap-1.5 rounded-lg bg-azure-600 px-3 py-1.5 text-xs font-bold text-white shadow-xs hover:bg-azure-700 transition-colors"
+          >
+            Open Pricing CMS →
+          </a>
+        </div>
+      </div>
+
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <StatCard
+          label="Pricing & Packages CMS"
+          value="Dynamic Hub"
+          hint="Edit prices, deliverables & SLA"
+          icon="Tag"
+          to="/admin/cms"
+        />
         <StatCard label="Candidates" value={counts.totalUsers} icon="Users" to="/admin/users" />
         <StatCard
           label="Resume Build Orders"

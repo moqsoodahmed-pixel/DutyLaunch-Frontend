@@ -40,6 +40,7 @@ import { useAuth } from '../../context/AuthContext.jsx';
 import { useToast } from '../../context/ToastContext.jsx';
 import { pricingService } from '../../services/contentService.js';
 import { resumeOrderService } from '../../services/resumeOrderService.js';
+import { cmsService } from '../admin/cms/cmsService.js';
 import { useRazorpayCheckout } from '../../hooks/useRazorpayCheckout.js';
 import { formatCurrency, formatDate } from '../../utils/format.js';
 import { cn } from '../../utils/cn.js';
@@ -295,21 +296,47 @@ export default function ResumeBuilderStart() {
     []
   );
 
+  // Load dynamic CMS pricing & config
+  const { data: cmsData } = useApi(
+    () => cmsService.getPublicPricing().catch(() => null),
+    []
+  );
+
   // Load candidate orders if authenticated
   const { data: myOrdersData, loading: loadingOrders, refetch: refetchOrders } = useApi(
     () => (user ? resumeOrderService.myOrders() : Promise.resolve([])),
     [user]
   );
 
-  const rawPackages = packagesData?.length ? packagesData : DEFAULT_PACKAGES;
+  const dynamicBundles = cmsData?.bundles?.length
+    ? cmsData.bundles.map((b) => ({
+        ...b,
+        _id: b._id || b.key,
+        features: b.deliverables?.map((d) => ({ label: d.label, included: d.included })) || [],
+      }))
+    : null;
+
+  const dynamicCvOnly = cmsData?.cvOnly?.length
+    ? cmsData.cvOnly.map((c) => ({
+        ...c,
+        _id: c._id || c.key,
+        features: c.deliverables?.map((d) => ({ label: d.label, included: d.included })) || [],
+      }))
+    : null;
+
+  const rawPackages = dynamicBundles || (packagesData?.length ? packagesData : DEFAULT_PACKAGES);
   const packages = rawPackages.map((pkg) => {
-    let original = 899;
-    let saveText = 'Save ₹500';
-    if (pkg.price >= 1100) { original = 2199; saveText = 'Save ₹1,000'; }
-    else if (pkg.price >= 900) { original = 1799; saveText = 'Save ₹800'; }
-    else if (pkg.price >= 700) { original = 1499; saveText = 'Save ₹700'; }
+    let original = pkg.originalPrice || 899;
+    let saveText = pkg.saveText || 'Save ₹500';
+    if (!pkg.originalPrice) {
+      if (pkg.price >= 1100) { original = 2199; saveText = 'Save ₹1,000'; }
+      else if (pkg.price >= 900) { original = 1799; saveText = 'Save ₹800'; }
+      else if (pkg.price >= 700) { original = 1499; saveText = 'Save ₹700'; }
+    }
     return { ...pkg, originalPrice: original, saveText };
   });
+
+  const cvOnlyPackages = dynamicCvOnly || CV_ONLY_PACKAGES;
 
   const myOrders = myOrdersData || [];
   const activeOrder = myOrders.length > 0 ? myOrders[0] : null;
@@ -399,7 +426,7 @@ export default function ResumeBuilderStart() {
   // Determine which higher tier packages are available for upgrade
   const currentTierPrice = activeOrder?.price || 0;
   const upgradeTiers = packages.filter((p) => p.price > currentTierPrice);
-  const displayedPackages = packageCategory === 'cv_only' ? CV_ONLY_PACKAGES : packages;
+  const displayedPackages = packageCategory === 'cv_only' ? cvOnlyPackages : packages;
 
   return (
     <>
@@ -959,10 +986,14 @@ export default function ResumeBuilderStart() {
                           <span className="text-3xl sm:text-4xl font-black tracking-tight text-ink">
                             {formatCurrency(pkg.price, pkg.currency)}
                           </span>
-                          <span className="text-sm font-semibold text-slate-400 line-through">
-                            ₹{pkg.originalPrice}
+                          {pkg.hasStrikeThrough !== false && pkg.originalPrice > pkg.price && (
+                            <span className="text-sm font-semibold text-slate-400 line-through">
+                              ₹{pkg.originalPrice}
+                            </span>
+                          )}
+                          <span className="text-xs font-medium text-slate-500">
+                            +{cmsData?.config?.gstPercentage ?? 18}% GST
                           </span>
-                          <span className="text-xs font-medium text-slate-500">+18% GST</span>
                         </div>
 
                         {/* Combo Visual Badges (CV + Letter + LinkedIn if bundle) */}
@@ -1013,7 +1044,7 @@ export default function ResumeBuilderStart() {
                         <div className="mb-3 flex items-center justify-center gap-2 rounded-lg border border-emerald-200/80 bg-emerald-50/90 py-1.5 px-3 text-center text-xs font-bold text-emerald-900 shadow-sm">
                           <Truck className="h-4 w-4 text-emerald-600" />
                           <span>
-                            Delivery in 2–3 Days <span className="text-red-600 font-extrabold">*</span>
+                            {pkg.deliveryDays || 'Delivery in 2–3 Days *'}
                           </span>
                         </div>
 
@@ -1036,7 +1067,10 @@ export default function ResumeBuilderStart() {
 
               {/* Delivery Disclaimer Footnote */}
               <div className="rounded-xl border border-slate-200 bg-slate-50/90 p-3.5 text-center text-xs text-slate-500">
-                <span className="font-bold text-slate-700">* Delivery Turnaround Guarantee:</span> Delivery turnaround begins after candidate submits current CV and target career preferences.
+                <span className="font-bold text-slate-700">* Delivery Turnaround Guarantee:</span>{' '}
+                {cmsData?.config?.turnaroundDisclaimer
+                  ? cmsData.config.turnaroundDisclaimer.replace(/^\*\s*Delivery Turnaround Guarantee:\s*/, '')
+                  : 'Delivery turnaround begins after candidate submits current CV and target career preferences.'}
               </div>
             </div>
 
@@ -1361,6 +1395,8 @@ export default function ResumeBuilderStart() {
         <PackageCheckoutModal
           isOpen={Boolean(checkoutPackage)}
           packageData={checkoutPackage}
+          customAddons={cmsData?.addons}
+          gstRate={cmsData?.config?.gstPercentage ?? 18}
           onClose={() => setCheckoutPackage(null)}
           onPaymentSuccess={handlePaymentSuccess}
         />

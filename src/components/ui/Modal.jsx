@@ -38,7 +38,13 @@ export function Modal({ open, isOpen, onClose, title, description, children, foo
     };
   }, [isVisible, onClose]);
 
-  const widths = { sm: 'max-w-md', md: 'max-w-lg', lg: 'max-w-2xl' };
+  const widths = {
+    sm: 'max-w-md',
+    md: 'max-w-lg',
+    lg: 'max-w-2xl',
+    xl: 'max-w-4xl',
+    '2xl': 'max-w-5xl',
+  };
 
   return createPortal(
     <AnimatePresence>

@@ -93,6 +93,7 @@ const AdminConsultations = lazyWithReload(() => import('../pages/admin/AdminCons
 const AdminMessages = lazyWithReload(() => import('../pages/admin/AdminMessages.jsx'));
 const AdminTestimonials = lazyWithReload(() => import('../pages/admin/AdminTestimonials.jsx'));
 const AdminResumeOrders = lazyWithReload(() => import('../pages/admin/AdminResumeOrders.jsx'));
+const CmsPricingDashboard = lazyWithReload(() => import('../pages/admin/cms/CmsPricingDashboard.jsx'));
 
 
 /** Redirect that keeps the query string, e.g. /cv-builder?template=x. */
@@ -236,6 +237,7 @@ export function AppRoutes() {
             <Route element={<ProtectedRoute roles={['admin', 'super_admin', 'assistant_admin', 'master_admin']} />}>
               <Route element={<AdminLayout />}>
                 <Route path="admin" element={<AdminDashboard />} />
+                <Route path="admin/cms" element={<CmsPricingDashboard />} />
                 <Route path="admin/resume-orders" element={<AdminResumeOrders />} />
                 <Route path="admin/users" element={<AdminUsers />} />
                 <Route path="admin/jobs" element={<AdminJobs />} />
