@@ -97,6 +97,9 @@ export default function Register() {
       const payload = { ...values, role };
       delete payload.acceptTerms;
       delete payload.confirmPassword;
+      // DPDP Act 2023: the server requires and records this (utils/consent.js)
+      // — the checkbox above is the UI half of the same requirement.
+      payload.consent = true;
       if (!payload.phone?.trim()) delete payload.phone;
 
       const user = await doRegister(payload);
@@ -286,10 +289,7 @@ export default function Register() {
       <AuthDivider label="OR SIGN UP WITH" />
 
       <div className="space-y-3">
-        <GoogleAuthButton
-          label="Sign up with Google"
-          redirectPath={safeNext}
-        />
+        <GoogleAuthButton label="Sign up with Google" redirectPath={safeNext} />
       </div>
 
       <div className="mt-6 rounded-2xl border border-slate-100 bg-slate-50/80 p-3.5 text-center text-small text-slate-600">

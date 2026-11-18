@@ -40,6 +40,10 @@ export default function Privacy() {
         <li>Enquiry data: anything you submit through a consultation or contact form, including the service you asked about.</li>
         <li>Employer data: company name, website and job postings, for accounts registered as employers.</li>
         <li>Basic technical data: IP address and browser type, collected automatically for security and rate limiting.</li>
+        <li>
+          Account activity: when your account is created and when you sign in or out, together with the IP address
+          and browser used, kept as a security and compliance audit trail.
+        </li>
       </ul>
 
       <h2>How we use it</h2>
@@ -118,27 +122,55 @@ export default function Privacy() {
         <a href={`mailto:${company.supportEmail}`}>{company.supportEmail}</a>.
       </p>
 
-      <h2>Grievances</h2>
+      <h2>Who can use this service</h2>
       <p>
-        Send any complaint about how we handle your personal data to{' '}
-        <a href={`mailto:${company.supportEmail}`}>{company.supportEmail}</a>. If you are not satisfied with our
-        response, you may complain to the Data Protection Board of India.
+        This service is intended for people who are at least 18 years old, or who have reached the age of majority
+        where they live. We do not knowingly collect personal data from children. If we learn that an account belongs
+        to a minor, we will close it and delete the associated data, except where retention is required by law.
+      </p>
+
+      <h2>Where your data is processed</h2>
+      <p>
+        Most of your data is stored and processed on servers located in India. As described above under
+        &ldquo;AI-assisted processing&rdquo;, some content is sent to AI model providers located outside India (the
+        United States and France) strictly to generate the feature you requested, and under contractual terms that
+        require them to protect it. The DPDP Act permits transferring personal data outside India except to countries
+        the Central Government has specifically restricted; we do not transfer data to any such restricted
+        destination.
+      </p>
+
+      <h2>If something goes wrong</h2>
+      <p>
+        If a personal data breach occurs that is likely to affect you, we will notify the Data Protection Board of
+        India and the affected Data Principals, as required by the DPDP Act, with details of what happened, the likely
+        consequences, and the steps we are taking in response.
+      </p>
+
+      <h2>Grievance Officer</h2>
+      <p>
+        Under Section 13 of the DPDP Act, you can raise a grievance about how we handle your personal data with our
+        Grievance Officer at <a href={`mailto:${company.supportEmail}`}>{company.supportEmail}</a> (subject line:
+        &ldquo;Grievance &mdash; Data Protection&rdquo;). We aim to acknowledge every grievance within 7 days and
+        resolve it within 30 days. If you are not satisfied with our response, you may complain to the{' '}
+        <a href="https://www.dpb.gov.in" target="_blank" rel="noopener noreferrer">
+          Data Protection Board of India
+        </a>
+        .
       </p>
 
       <h2>Data retention</h2>
       <p>
         We keep account and application data for as long as your account is active, and for a limited period after
         closure where required for legal, tax or dispute-resolution purposes. A career profile with no activity for 24
-        months is deleted automatically.
+        months is deleted automatically. Consent and audit records (what you agreed to, and login/logout activity) are
+        kept for as long as needed to demonstrate compliance and for security purposes, consistent with these
+        retention periods.
       </p>
 
       <h2>Contact</h2>
       <p>
         Questions about this policy can be sent to <a href={`mailto:${contact.supportEmail}`}>{contact.supportEmail}</a>.
       </p>
-      {/* TODO (counsel): review the AI provider list above, and name the
-          remaining data processors (hosting, email) and a
-          named grievance contact person once finalised. */}
     </LegalPage>
   );
 }

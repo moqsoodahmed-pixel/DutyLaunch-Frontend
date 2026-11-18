@@ -4,6 +4,9 @@ import { useAuth } from '../../context/AuthContext.jsx';
 import { useToast } from '../../context/ToastContext.jsx';
 import { friendlyAuthError } from '../../utils/authErrors.js';
 import { homePathFor } from '../../utils/homePath.js';
+import { Modal } from '../ui/Modal.jsx';
+import { ConsentCheckbox } from '../ui/ConsentCheckbox.jsx';
+import { Button } from '../ui/Button.jsx';
 
 export function GoogleIcon({ className = 'h-5 w-5' }) {
   return (
@@ -28,6 +31,16 @@ export function GoogleIcon({ className = 'h-5 w-5' }) {
   );
 }
 
+/**
+ * DPDP Act 2023: a brand-new account can never be created with consent we
+ * assumed on the user's behalf. The initial Google call carries no consent
+ * flag at all — the backend (authService.loginWithGoogle) only needs one
+ * when it's about to create an account, and responds 428 with the Google
+ * profile it already has when that happens. This component then shows the
+ * person an actual Terms & Privacy checkbox they must click themselves
+ * before retrying the same call with consent:true — no popup reopened, no
+ * consent inferred from clicking "Sign in with Google" itself.
+ */
 export function GoogleAuthButton({
   label = 'Sign in with Google',
   redirectPath,
@@ -38,6 +51,8 @@ export function GoogleAuthButton({
   const toast = useToast();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
+  const [pendingConsent, setPendingConsent] = useState(null); // { payload, profile } | null
+  const [consentChecked, setConsentChecked] = useState(false);
   const tokenClientRef = useRef(null);
 
   const clientId =
@@ -45,21 +60,41 @@ export function GoogleAuthButton({
     window.__DUTYLAUNCH_GOOGLE_CLIENT_ID__ ||
     '';
 
+  const finishLogin = (user) => {
+    toast.success(`Signed in as ${user.name || user.email} via Google`);
+    if (onSuccess) {
+      onSuccess(user);
+    } else {
+      navigate(redirectPath || homePathFor(user.role), { replace: true });
+    }
+  };
+
   const executeGoogleLogin = async (payload) => {
     setLoading(true);
     try {
       const user = await loginWithGoogle(payload);
-      toast.success(`Signed in as ${user.name || user.email} via Google`);
-      if (onSuccess) {
-        onSuccess(user);
-      } else {
-        navigate(redirectPath || homePathFor(user.role), { replace: true });
-      }
+      finishLogin(user);
     } catch (err) {
-      toast.error(friendlyAuthError(err, 'Could not complete Google Sign-In. Please try again.'));
+      // api.js's response interceptor normalises AxiosError into a plain
+      // Error with .status and .data (see services/api.js normalise()) —
+      // there is no .response here.
+      if (err?.status === 428 && err?.data?.requiresConsent) {
+        // New account, nothing created yet — ask the person directly.
+        setPendingConsent({ payload, profile: err.data.profile });
+        setConsentChecked(false);
+      } else {
+        toast.error(friendlyAuthError(err, 'Could not complete Google Sign-In. Please try again.'));
+      }
     } finally {
       setLoading(false);
     }
+  };
+
+  const confirmConsentAndCreate = async () => {
+    if (!pendingConsent || !consentChecked) return;
+    const { payload } = pendingConsent;
+    setPendingConsent(null);
+    await executeGoogleLogin({ ...payload, consent: true });
   };
 
   useEffect(() => {
@@ -152,14 +187,49 @@ export function GoogleAuthButton({
   };
 
   return (
-    <button
-      type="button"
-      onClick={handleClick}
-      disabled={loading}
-      className={`relative inline-flex w-full items-center justify-center gap-3 rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 shadow-xs transition-all hover:bg-slate-50 hover:border-slate-400 hover:text-slate-900 active:scale-[0.99] disabled:opacity-60 disabled:cursor-not-allowed ${className}`}
-    >
-      <GoogleIcon className="h-5 w-5 shrink-0" />
-      <span>{loading ? 'Opening Google Sign-In…' : label}</span>
-    </button>
+    <>
+      <button
+        type="button"
+        onClick={handleClick}
+        disabled={loading}
+        className={`relative inline-flex w-full items-center justify-center gap-3 rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 shadow-xs transition-all hover:bg-slate-50 hover:border-slate-400 hover:text-slate-900 active:scale-[0.99] disabled:opacity-60 disabled:cursor-not-allowed ${className}`}
+      >
+        <GoogleIcon className="h-5 w-5 shrink-0" />
+        <span>{loading ? 'Opening Google Sign-In…' : label}</span>
+      </button>
+
+      <Modal
+        open={Boolean(pendingConsent)}
+        onClose={() => setPendingConsent(null)}
+        title="Create your DutyLaunch account"
+        description={
+          pendingConsent?.profile?.email
+            ? `There's no DutyLaunch account for ${pendingConsent.profile.email} yet. Agree to the terms below to create one.`
+            : "There's no DutyLaunch account for this Google sign-in yet. Agree to the terms below to create one."
+        }
+        footer={
+          <div className="flex items-center justify-end gap-3">
+            <Button variant="secondary" size="sm" onClick={() => setPendingConsent(null)}>
+              Cancel
+            </Button>
+            <Button
+              variant="primary"
+              size="sm"
+              disabled={!consentChecked || loading}
+              loading={loading}
+              onClick={confirmConsentAndCreate}
+            >
+              Agree & Create Account
+            </Button>
+          </div>
+        }
+      >
+        <ConsentCheckbox
+          data-autofocus
+          checked={consentChecked}
+          onChange={(e) => setConsentChecked(e.target.checked)}
+        />
+      </Modal>
+    </>
   );
 }

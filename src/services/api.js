@@ -83,10 +83,14 @@ api.interceptors.response.use(
   }
 );
 
-function normalise({ message, errors = [], status = 0 }) {
+function normalise({ message, errors = [], status = 0, data }) {
   const err = new Error(message || 'Something went wrong');
   err.fieldErrors = errors;
   err.status = status;
+  // Structured payload some endpoints attach to an error (e.g. the Google
+  // sign-in 428 "requiresConsent" profile) — see errorHandler.js on the
+  // backend. Most errors won't have this.
+  if (data !== undefined) err.data = data;
   return err;
 }
 

@@ -303,6 +303,7 @@ export default function CmsPricingDashboard() {
         <div className="flex flex-wrap items-center gap-2">
           {/* Tutorial Tour Trigger Button */}
           <Button
+            data-tour="guide-button"
             variant="secondary"
             size="sm"
             onClick={() => setShowTutorial(true)}
@@ -315,6 +316,7 @@ export default function CmsPricingDashboard() {
 
           {/* Reset Defaults */}
           <Button
+            data-tour="reset-button"
             variant="secondary"
             size="sm"
             onClick={handleResetDefaults}
@@ -326,6 +328,7 @@ export default function CmsPricingDashboard() {
 
           {/* Create New Offering */}
           <Button
+            data-tour="add-button"
             variant="primary"
             size="sm"
             onClick={() => {
@@ -340,7 +343,7 @@ export default function CmsPricingDashboard() {
       </div>
 
       {/* Surface Impact Live Navigation Bar */}
-      <div className="mt-4 flex flex-wrap items-center justify-between gap-3 rounded-xl bg-gradient-to-r from-slate-900 to-indigo-950 p-3.5 text-white shadow-sm">
+      <div data-tour="surfaces-bar" className="mt-4 flex flex-wrap items-center justify-between gap-3 rounded-xl bg-gradient-to-r from-slate-900 to-indigo-950 p-3.5 text-white shadow-sm">
         <div className="flex items-center gap-2">
           <MapPin className="h-4 w-4 text-cyan-400" />
           <span className="text-xs font-semibold tracking-wide">
@@ -383,7 +386,7 @@ export default function CmsPricingDashboard() {
       </div>
 
       {/* KPI Stats Row */}
-      <div className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
+      <div data-tour="kpi-stats" className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
         <div className="rounded-xl border border-slate-200 bg-white p-3.5 shadow-xs">
           <p className="text-caption font-bold uppercase tracking-wider text-slate-400">Total Offerings</p>
           <p className="mt-1 text-2xl font-black text-slate-900">{stats.totalItems || items.length}</p>
@@ -432,7 +435,7 @@ export default function CmsPricingDashboard() {
       </div>
 
       {/* Global Platform Settings Accordion / Bar */}
-      <div className="mt-5 rounded-xl border border-slate-200 bg-white shadow-xs overflow-hidden">
+      <div data-tour="global-settings" className="mt-5 rounded-xl border border-slate-200 bg-white shadow-xs overflow-hidden">
         <button
           type="button"
           onClick={() => setShowConfigBar(!showConfigBar)}
@@ -548,7 +551,7 @@ export default function CmsPricingDashboard() {
       </div>
 
       {/* Category Tabs */}
-      <div className="mt-6 flex flex-wrap items-center gap-2 border-b border-slate-200 pb-3">
+      <div data-tour="category-tabs" className="mt-6 flex flex-wrap items-center gap-2 border-b border-slate-200 pb-3">
         {CATEGORY_TABS.map((tab) => {
           const TabIcon = tab.icon;
           const count =
@@ -583,7 +586,7 @@ export default function CmsPricingDashboard() {
 
       {/* Search & Filter Controls */}
       <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <div className="relative flex-1 max-w-md">
+        <div data-tour="search-bar" className="relative flex-1 max-w-md">
           <Search className="absolute left-3 top-2.5 h-4 w-4 text-slate-400" />
           <input
             type="text"
@@ -602,7 +605,7 @@ export default function CmsPricingDashboard() {
           )}
         </div>
 
-        <div className="flex items-center gap-2">
+        <div data-tour="status-filter" className="flex items-center gap-2">
           <label className="text-xs font-medium text-slate-500">Status:</label>
           <select
             value={statusFilter}
@@ -619,9 +622,10 @@ export default function CmsPricingDashboard() {
 
       {/* Offerings Grid */}
       <div className="mt-5 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-        {filteredItems.map((item) => (
+        {filteredItems.map((item, idx) => (
           <div
             key={item._id || item.key}
+            data-tour={idx === 0 ? 'offering-card' : undefined}
             className={cn(
               'flex flex-col justify-between rounded-2xl border bg-white p-5 shadow-xs transition-all duration-200 hover:shadow-md relative overflow-hidden',
               item.isPopular ? 'border-azure-300 ring-1 ring-azure-400/30' : 'border-slate-200'
@@ -659,7 +663,7 @@ export default function CmsPricingDashboard() {
               </div>
 
               {/* Price & Strikethrough Display */}
-              <div className="mt-3 flex items-baseline gap-2">
+              <div data-tour={idx === 0 ? 'card-pricing' : undefined} className="mt-3 flex items-baseline gap-2">
                 <span className="text-2xl font-black text-slate-900">
                   {formatCurrency(item.price)}
                 </span>
@@ -685,7 +689,7 @@ export default function CmsPricingDashboard() {
               </div>
 
               {/* Deliverables Summary */}
-              <div className="mt-4 border-t border-slate-100 pt-3 space-y-1.5">
+              <div data-tour={idx === 0 ? 'card-features' : undefined} className="mt-4 border-t border-slate-100 pt-3 space-y-1.5">
                 <p className="text-[11px] font-bold uppercase tracking-wider text-slate-400">
                   Features ({item.deliverables?.length || 0}):
                 </p>
@@ -707,7 +711,7 @@ export default function CmsPricingDashboard() {
               </div>
 
               {/* IMPACT TRANSPARENCY: "📍 Affects Live Site at" */}
-              <div className="mt-4 rounded-xl border border-azure-100 bg-azure-50/50 p-2.5">
+              <div data-tour={idx === 0 ? 'card-impact' : undefined} className="mt-4 rounded-xl border border-azure-100 bg-azure-50/50 p-2.5">
                 <p className="text-[11px] font-bold text-azure-900 flex items-center gap-1 mb-1">
                   <MapPin className="h-3 w-3 text-azure-600" /> Affects Live Website at:
                 </p>
@@ -728,7 +732,7 @@ export default function CmsPricingDashboard() {
             </div>
 
             {/* Bottom Actions Row */}
-            <div className="mt-5 border-t border-slate-100 pt-3 flex items-center justify-between gap-2">
+            <div data-tour={idx === 0 ? 'card-actions' : undefined} className="mt-5 border-t border-slate-100 pt-3 flex items-center justify-between gap-2">
               <Button
                 variant="secondary"
                 size="xs"

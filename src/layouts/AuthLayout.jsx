@@ -35,11 +35,11 @@ export default function AuthLayout() {
         </div>
 
         {/* Top Header Bar */}
-        <header className="relative z-10 mx-auto flex w-full max-w-[480px] items-center justify-between">
-          <Logo height={32} />
+        <header className="relative z-10 mx-auto flex w-full max-w-[480px] flex-wrap items-center justify-between gap-2">
+          <Logo height={28} className="shrink-0" />
           <Link
             to="/"
-            className="group inline-flex items-center gap-1.5 rounded-full border border-slate-200/90 bg-white/90 px-3.5 py-1.5 text-caption font-semibold text-slate-600 shadow-xs backdrop-blur-md transition-all duration-200 hover:border-azure-300 hover:bg-white hover:text-azure-600 hover:shadow-sm"
+            className="group inline-flex shrink-0 items-center gap-1.5 rounded-full border border-slate-200/90 bg-white/90 px-3.5 py-1.5 text-caption font-semibold text-slate-600 shadow-xs backdrop-blur-md transition-all duration-200 hover:border-azure-300 hover:bg-white hover:text-azure-600 hover:shadow-sm"
           >
             <ArrowLeft className="h-3.5 w-3.5 transition-transform duration-200 group-hover:-translate-x-1" aria-hidden="true" />
             <span>Back to website</span>

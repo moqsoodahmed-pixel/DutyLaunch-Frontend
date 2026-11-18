@@ -23,11 +23,19 @@ export default function Terms() {
         mean that company.
       </p>
 
+      <h2>Eligibility</h2>
+      <p>
+        You must be at least 18 years old, or of legal majority in your jurisdiction, to create an account or use our
+        services. By registering, you confirm that you meet this requirement.
+      </p>
+
       <h2>Accounts</h2>
       <p>
         You must provide accurate information when registering and keep your password secure. You are responsible
-        for activity on your account. Employer accounts must represent a genuine hiring organisation; job postings
-        that misrepresent the employer or the role may be removed without notice.
+        for activity on your account. Creating an account, including via Google Sign-In, requires you to separately
+        agree to these Terms and our <Link to="/privacy-policy">Privacy Policy</Link> before the account is created;
+        we do not create an account on your behalf without that agreement. Employer accounts must represent a genuine
+        hiring organisation; job postings that misrepresent the employer or the role may be removed without notice.
       </p>
 
       <h2>Career and documentation services</h2>

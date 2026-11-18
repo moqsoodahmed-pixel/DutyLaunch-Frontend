@@ -32,14 +32,22 @@ export function AnnouncementBar() {
 
     return (
         <div id="announcement-bar" className="relative z-40 bg-mist-base border-b border-mist-line text-ink print:hidden">
-            <div className="mx-auto flex max-w-shell items-center justify-center gap-2 px-3 pr-10 sm:px-gutter sm:pr-12 py-2 text-small">
+            <div className="mx-auto flex max-w-shell items-center justify-center gap-1.5 px-3 pr-10 sm:px-gutter sm:pr-12 py-2 text-small">
                 <Zap className="hidden h-4 w-4 shrink-0 text-azure sm:block" aria-hidden />
-                <p className="min-w-0 truncate text-center">
-                    <span className="font-semibold">New:</span> Free AI Resume Health score, see what recruiters and the ATS see.{' '}
-                    <Link to="/resume-checker" className="font-bold text-azure-700 underline underline-offset-4 hover:underline">
-                        Check yours →
-                    </Link>
-                </p>
+                {/* The CTA link must never be the part that gets clipped — only the
+                    descriptive text truncates, and it shortens first on narrow
+                    screens, so "Check yours →" is always visible. */}
+                <span className="min-w-0 truncate">
+                    <span className="font-semibold">New:</span>{' '}
+                    <span className="hidden sm:inline">Free AI Resume Health score, see what recruiters and the ATS see.</span>
+                    <span className="sm:hidden">Free AI Resume Health score.</span>
+                </span>
+                <Link
+                    to="/resume-checker"
+                    className="shrink-0 font-bold text-azure-700 underline underline-offset-4 hover:underline"
+                >
+                    Check yours →
+                </Link>
             </div>
             <button
                 type="button"
