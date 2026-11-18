@@ -216,35 +216,35 @@ export function CmsPackageEditorModal({ isOpen, onClose, item, onSave, isSaving 
       <div className="fixed inset-0 bg-ink-900/60 backdrop-blur-sm" onClick={onClose} />
 
       {/* Modal Dialog */}
-      <div className="relative z-10 w-full max-w-5xl rounded-2xl bg-white shadow-2xl border border-slate-200 overflow-hidden my-6">
+      <div className="relative z-10 w-full max-w-5xl rounded-2xl bg-white shadow-2xl border border-slate-200 overflow-hidden my-auto max-h-[95vh] sm:max-h-[90vh] flex flex-col">
         {/* Header */}
-        <div className="flex items-center justify-between border-b border-slate-100 bg-slate-50/80 px-6 py-4">
-          <div>
-            <div className="flex items-center gap-2">
-              <span className="text-xs font-semibold uppercase tracking-wider text-azure-600 bg-azure-50 px-2 py-0.5 rounded-full">
+        <div className="shrink-0 flex items-center justify-between border-b border-slate-100 bg-slate-50/80 px-4 sm:px-6 py-3.5 sm:py-4">
+          <div className="min-w-0 pr-2">
+            <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
+              <span className="text-[10px] sm:text-xs font-semibold uppercase tracking-wider text-azure-600 bg-azure-50 px-2 py-0.5 rounded-full">
                 {isCreate ? 'Create New Offering' : 'Edit Offering & Live Rules'}
               </span>
-              <span className="text-xs text-slate-500 font-mono">
+              <span className="text-[10px] sm:text-xs text-slate-500 font-mono">
                 key: {formData.key || 'auto-generated'}
               </span>
             </div>
-            <h2 className="text-lg font-bold text-slate-900 mt-0.5">
+            <h2 className="text-base sm:text-lg font-bold text-slate-900 mt-0.5 truncate">
               {formData.name || (isCreate ? 'New Package or Service' : 'Unnamed Offering')}
             </h2>
           </div>
           <button
             onClick={onClose}
-            className="rounded-lg p-2 text-slate-400 hover:bg-slate-200 hover:text-slate-700 transition-colors"
+            className="rounded-lg p-1.5 sm:p-2 text-slate-400 hover:bg-slate-200 hover:text-slate-700 transition-colors shrink-0"
           >
             <X className="h-5 w-5" />
           </button>
         </div>
 
         {/* Content: 2-Column Responsive Layout */}
-        <form onSubmit={handleSubmit}>
-          <div className="grid grid-cols-1 lg:grid-cols-12 divide-y lg:divide-y-0 lg:divide-x divide-slate-100 max-h-[75vh] overflow-y-auto">
+        <form onSubmit={handleSubmit} className="flex-1 flex flex-col min-h-0 overflow-hidden">
+          <div className="grid grid-cols-1 lg:grid-cols-12 divide-y lg:divide-y-0 lg:divide-x divide-slate-100 flex-1 overflow-y-auto">
             {/* Left Column: Form Controls (7 cols) */}
-            <div className="lg:col-span-7 p-6 space-y-6">
+            <div className="lg:col-span-7 p-4 sm:p-6 space-y-5 sm:space-y-6">
               {/* Section 1: Core Offering Info */}
               <div className="space-y-4">
                 <h4 className="text-xs font-bold uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
@@ -722,21 +722,21 @@ export function CmsPackageEditorModal({ isOpen, onClose, item, onSave, isSaving 
             </div>
           </div>
 
-          {/* Modal Footer */}
-          <div className="flex items-center justify-between border-t border-slate-100 bg-slate-50/80 px-6 py-4">
+          {/* Modal Footer - Fixed, non-shrinking */}
+          <div className="shrink-0 flex flex-wrap items-center justify-between gap-3 border-t border-slate-100 bg-slate-50/80 px-4 sm:px-6 py-3.5 sm:py-4">
             <button
               type="button"
               onClick={onClose}
               disabled={isSaving}
-              className="text-xs font-semibold text-slate-600 hover:text-slate-800 px-3 py-2"
+              className="text-xs font-semibold text-slate-600 hover:text-slate-800 px-2 py-1"
             >
               Cancel
             </button>
-            <div className="flex items-center gap-3">
-              <Button type="button" variant="secondary" size="sm" onClick={onClose} disabled={isSaving}>
+            <div className="flex items-center gap-2 sm:gap-3">
+              <Button type="button" variant="secondary" size="xs" sm:size="sm" onClick={onClose} disabled={isSaving}>
                 Close
               </Button>
-              <Button type="submit" variant="primary" size="sm" disabled={isSaving}>
+              <Button type="submit" variant="primary" size="xs" sm:size="sm" disabled={isSaving}>
                 {isSaving ? 'Saving Changes...' : isCreate ? 'Publish New Offering' : 'Save & Propagate Changes'}
               </Button>
             </div>

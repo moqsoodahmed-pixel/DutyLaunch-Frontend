@@ -98,110 +98,138 @@ const TUTORIAL_STEPS = [
       'These links are not decoration — they are the real pages that read from this CMS. Click one and it opens that live page in a new tab, so you can sanity-check a change immediately after saving it.',
     bullets: [
       '/resume-service, /pricing, and /resume-builder pull prices and deliverables straight from here.',
-      '"Admin Resume Orders" jumps you to the order queue those checkouts generate.',
+      'Click "Admin Resume Orders" to review candidates who purchased any of these offerings.',
     ],
   },
   {
-    stepId: 'kpi_stats',
+    stepId: 'kpi-stats',
     target: 'kpi-stats',
     placement: 'bottom',
-    title: 'Your catalog at a glance',
-    badge: 'Live Stats',
+    title: 'Live catalog metrics at a single glance',
+    badge: 'Metrics Row',
     icon: BarChart3,
-    iconColor: 'text-indigo-600 bg-indigo-50 border-indigo-200',
+    iconColor: 'text-blue-600 bg-blue-50 border-blue-200',
     description:
-      'These six tiles recalculate live as you edit, publish, or delete offerings below — total count, published count, how many bundles vs. standalone CVs vs. add-ons vs. subscriptions, and the average selling price across the whole catalog.',
-    bullets: ['Nothing to click here — it is a read-only pulse-check of the business.'],
-  },
-  {
-    stepId: 'global_settings',
-    target: 'global-settings',
-    placement: 'top',
-    title: 'Site-wide rules live behind this bar',
-    badge: 'Global Settings',
-    icon: Settings2,
-    iconColor: 'text-purple-600 bg-purple-50 border-purple-200',
-    description:
-      'Click this bar to expand the global settings panel: the GST percentage applied to every checkout invoice, the turnaround SLA disclaimer footnote, and the site-wide announcement banner for sales or seasonal campaigns.',
+      'The 6 cards here give you instant visibility into your catalog: total count, how many packages are in each category (Bundles, CV-only, Add-ons, Subscriptions), and the current average selling price across everything live.',
     bullets: [
-      'GST % changes apply to every future invoice immediately after you save.',
-      'The announcement banner has its own on/off switch, message, and link field.',
+      'Numbers update immediately as you add, delete, or re-categorize packages.',
+      'Each card shows the breakdown and key category descriptor below the main figure.',
     ],
   },
   {
-    stepId: 'category_tabs',
+    stepId: 'global-settings',
+    target: 'global-settings',
+    placement: 'bottom',
+    title: 'Global Platform Settings — site-wide policies',
+    badge: 'Platform Config',
+    icon: Settings2,
+    iconColor: 'text-slate-700 bg-slate-100 border-slate-300',
+    description:
+      'Click anywhere on this bar to expand the platform-wide controls. This is where you configure settings that apply to EVERY offering at once.',
+    bullets: [
+      'GST Tax Rate — currently 18%, automatically added on checkout invoices.',
+      'SLA Turnaround Disclaimer — the official guarantee footnote attached to the asterisk (*).',
+      'Site-wide Announcement Banner — toggle a promotional bar at the very top of the live site.',
+    ],
+  },
+  {
+    stepId: 'category-tabs',
     target: 'category-tabs',
     placement: 'bottom',
-    title: 'Jump straight to a category',
-    badge: 'Navigation',
+    title: 'Category Tabs filter the workspace in one click',
+    badge: 'Catalog Navigation',
     icon: Layers,
     iconColor: 'text-indigo-600 bg-indigo-50 border-indigo-200',
     description:
-      'These tabs filter the grid below to just one slice of the catalog — Career Bundles, Standalone CVs, Portfolios & Add-ons, Subscriptions, or Specialized Services. The number on each tab is a live count.',
-    bullets: ['Click "All Offerings" at any time to clear the category filter.'],
+      'Switch between All Offerings, Career Bundles, Standalone CVs, Portfolios & Add-ons, Subscriptions, and Specialized Services. The count badge on each tab shows how many items are in that group right now.',
+    bullets: [
+      'Clicking a tab instantly narrows the grid below to just that group.',
+      'Notice the count numbers — they match the KPI stats row above.',
+    ],
   },
   {
-    stepId: 'search_bar',
+    stepId: 'search-bar',
     target: 'search-bar',
     placement: 'bottom',
-    title: 'Search across everything, not just names',
-    badge: 'Search',
+    title: 'Instant search across names, slugs & features',
+    badge: 'Search & Filters',
     icon: Search,
     iconColor: 'text-slate-600 bg-slate-50 border-slate-200',
     description:
-      'Type here and it matches against the offering name, its internal slug/key, the tagline, every deliverable bullet, and every "affects surface" tag — so you can find a package by a feature it includes, not just its title.',
-    bullets: ['Clear it instantly with the × button that appears once you start typing.'],
+      'Type any keyword — e.g. "Early", "Portfolio", "Executive", or even "DOCX" — and the grid instantly filters down. You can search by offering name, deliverable feature, or even target surface.',
+    bullets: ['A clear (X) icon appears as soon as you type, so you can reset in one click.'],
   },
   {
-    stepId: 'status_filter',
+    stepId: 'status-filter',
     target: 'status-filter',
     placement: 'bottom',
-    title: 'Narrow by publish status',
-    badge: 'Filter',
-    icon: CheckCircle2,
+    title: 'Filter by lifecycle status: Published vs Draft',
+    badge: 'Search & Filters',
+    icon: Tag,
     iconColor: 'text-emerald-600 bg-emerald-50 border-emerald-200',
     description:
-      'Switch between every status, Published Only (live to candidates right now), Drafts Only (saved but hidden), or Archived — useful for auditing what is actually visible on the public site today.',
-    bullets: [],
+      'Quickly isolate items that are Published (live to candidates) versus Draft (hidden from the public while you work on them). You can also view Archived packages here.',
+    bullets: ['Handy when you want to review all work-in-progress packages before making them live.'],
   },
   {
-    stepId: 'card_pricing',
+    stepId: 'offering-card',
+    target: 'offering-card',
+    placement: 'right',
+    title: 'The Offering Card — your package at a glance',
+    badge: 'Offering Card',
+    icon: Sparkles,
+    iconColor: 'text-azure-600 bg-azure-50 border-azure-200',
+    description:
+      'Each card represents one real package on the website. The top bar shows its category pill on the left, the live status badge (Published / Draft) on the right, and a "Most Popular" glow pill if flagged.',
+    bullets: [
+      'The card name, experience band, and discount badge are prominently displayed.',
+      'Next we will look at how the price and features are presented.',
+    ],
+  },
+  {
+    stepId: 'card-pricing',
     target: 'card-pricing',
     placement: 'right',
-    title: 'Every card shows the real checkout price',
+    title: 'Dynamic price + strikethrough + GST preview',
     badge: 'Offering Card · Pricing',
     icon: Tag,
     iconColor: 'text-emerald-600 bg-emerald-50 border-emerald-200',
     description:
-      'The bold number is what the candidate actually pays. If a strike-through original price is enabled in the editor, it appears beside it with the automatic "Save ₹X" badge — both update the moment you change the price in "Edit Offering."',
-    bullets: [],
+      'This shows the live selling price, any promotional strikethrough original price, and the +18% GST note. What you see here is the exact price sent to Razorpay checkout.',
+    bullets: [
+      'Hike or discount the price anytime via "Edit Offering."',
+      'Strikethrough is optional — if disabled, only the clean price is shown.',
+    ],
   },
   {
-    stepId: 'card_features',
+    stepId: 'card-features',
     target: 'card-features',
     placement: 'right',
-    title: 'Deliverables, exactly as candidates will see them',
+    title: 'Deliverables checklist — what the candidate gets',
     badge: 'Offering Card · Features',
     icon: CheckCircle2,
-    iconColor: 'text-cyan-600 bg-cyan-50 border-cyan-200',
+    iconColor: 'text-azure-600 bg-azure-50 border-azure-200',
     description:
-      'This list previews the package deliverables. A struck-through item means it is marked "excluded" in the editor but still shown for comparison. Anything past the first four collapses into a "+ N more" line.',
-    bullets: [],
+      'Every bullet listed here renders as an included/excluded deliverable on the public comparison tables and checkout. Green checkmarks mean included; strikethrough means excluded.',
+    bullets: [
+      'Add, remove, or reorder deliverables at will inside "Edit Offering."',
+      'Turnaround SLA (e.g. "Delivery in 2–3 Days *") is highlighted in the green badge right above.',
+    ],
   },
   {
-    stepId: 'card_impact',
+    stepId: 'card-impact',
     target: 'card-impact',
     placement: 'right',
-    title: '"Affects Live Website at" — know your blast radius per card',
-    badge: 'Offering Card · Impact',
+    title: 'Blast-radius transparency: where this card is live',
+    badge: 'Offering Card · Surfaces',
     icon: MapPin,
-    iconColor: 'text-azure-600 bg-azure-50 border-azure-200',
+    iconColor: 'text-cyan-600 bg-cyan-50 border-cyan-200',
     description:
       'This is the per-offering version of the surfaces bar up top: the exact live pages and checkout components that render this specific package. Add or remove tags from inside "Edit Offering."',
     bullets: [],
   },
   {
-    stepId: 'card_actions',
+    stepId: 'card-actions',
     target: 'card-actions',
     placement: 'right',
     title: 'Publish, edit, or delete — right from the card',
@@ -229,7 +257,7 @@ const TUTORIAL_STEPS = [
   },
 ];
 
-function useElementRect(target, isOpen) {
+function useElementRect(target, placement, isOpen) {
   const [rect, setRect] = useState(null);
 
   const measure = useCallback(() => {
@@ -242,42 +270,75 @@ function useElementRect(target, isOpen) {
       setRect(null);
       return;
     }
-    el.scrollIntoView({ block: 'center', behavior: 'smooth' });
-    // Let smooth scroll settle a frame before measuring.
-    requestAnimationFrame(() => {
-      const r = el.getBoundingClientRect();
-      setRect({ top: r.top, left: r.left, width: r.width, height: r.height });
-    });
-  }, [target]);
 
-  useLayoutEffect(() => {
-    if (!isOpen) return;
-    measure();
-    const t1 = setTimeout(measure, 150);
-    const t2 = setTimeout(measure, 400);
-    window.addEventListener('resize', measure);
-    window.addEventListener('scroll', measure, true);
+    const vh = window.innerHeight;
+    const vw = window.innerWidth;
+
+    // Intelligent scroll position based on placement and screen size:
+    // For wide/bottom elements (like kpi-stats, surfaces-bar, global-settings, category-tabs),
+    // scroll so the element sits near top (Y ≈ 70px) to maximize space below for the card.
+    // For right-side elements (like offering cards), center them vertically.
+    if (placement === 'bottom') {
+      const elTop = el.getBoundingClientRect().top + window.scrollY;
+      const targetY = Math.max(0, elTop - 72);
+      window.scrollTo({ top: targetY, behavior: 'smooth' });
+    } else if (placement === 'top') {
+      const elBottom = el.getBoundingClientRect().bottom + window.scrollY;
+      const targetY = Math.max(0, elBottom - vh + 100);
+      window.scrollTo({ top: targetY, behavior: 'smooth' });
+    } else {
+      // 'right' or 'left' or null: center target vertically
+      el.scrollIntoView({ block: 'center', behavior: 'smooth' });
+    }
+
+    const update = () => {
+      const r = el.getBoundingClientRect();
+      setRect({ top: r.top, left: r.left, width: r.width, height: r.height, bottom: r.bottom, right: r.right });
+    };
+
+    requestAnimationFrame(update);
+    const t1 = setTimeout(update, 120);
+    const t2 = setTimeout(update, 350);
     return () => {
       clearTimeout(t1);
       clearTimeout(t2);
-      window.removeEventListener('resize', measure);
-      window.removeEventListener('scroll', measure, true);
     };
-  }, [measure, isOpen]);
+  }, [target, placement]);
+
+  useLayoutEffect(() => {
+    if (!isOpen) return;
+    const cleanup = measure();
+    const handleScrollOrResize = () => {
+      if (!target) return;
+      const el = document.querySelector(`[data-tour="${target}"]`);
+      if (el) {
+        const r = el.getBoundingClientRect();
+        setRect({ top: r.top, left: r.left, width: r.width, height: r.height, bottom: r.bottom, right: r.right });
+      }
+    };
+    window.addEventListener('resize', handleScrollOrResize);
+    window.addEventListener('scroll', handleScrollOrResize, true);
+    return () => {
+      if (cleanup) cleanup();
+      window.removeEventListener('resize', handleScrollOrResize);
+      window.removeEventListener('scroll', handleScrollOrResize, true);
+    };
+  }, [measure, isOpen, target]);
 
   return rect;
 }
 
 function ProgressDots({ steps, currentIdx, onJump }) {
   return (
-    <div className="flex flex-wrap items-center justify-center gap-1.5">
+    <div className="flex flex-wrap items-center justify-center gap-1 sm:gap-1.5 px-2">
       {steps.map((s, idx) => (
         <button
           key={s.stepId}
           onClick={() => onJump(idx)}
-          title={s.title}
+          title={`Step ${idx + 1}: ${s.title}`}
+          aria-label={`Step ${idx + 1}`}
           className={`h-1.5 rounded-full transition-all duration-300 ${
-            idx === currentIdx ? 'w-6 bg-azure-600' : 'w-2 bg-slate-200 hover:bg-slate-300'
+            idx === currentIdx ? 'w-5 sm:w-6 bg-azure-600' : 'w-1.5 sm:w-2 bg-slate-200 hover:bg-slate-300'
           }`}
         />
       ))}
@@ -297,152 +358,249 @@ function TourCard({
   onPrev,
   onSkip,
   onJump,
-  style,
-  placement,
+  maxHeight,
 }) {
   const StepIcon = step.icon;
   return (
-    <motion.div
-      initial={{ opacity: 0, scale: 0.95, y: 10 }}
-      animate={{ opacity: 1, scale: 1, y: 0 }}
-      exit={{ opacity: 0, scale: 0.95, y: 10 }}
-      transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
-      style={style}
-      className="w-full max-w-md rounded-2xl bg-white p-5 shadow-2xl border border-slate-200"
+    <div
+      style={maxHeight ? { maxHeight: `${maxHeight}px` } : undefined}
+      className="flex flex-col max-h-[82vh] w-full rounded-2xl bg-white shadow-2xl border border-slate-200 overflow-hidden"
       role="dialog"
       aria-modal="true"
-      data-placement={placement}
     >
-      <div className="flex items-start justify-between gap-4 border-b border-slate-100 pb-3.5">
-        <div className="flex items-center gap-3">
-          <div className={`p-2 rounded-xl border ${step.iconColor}`}>
-            <StepIcon className="h-5 w-5" />
+      {/* Header - Non-shrinking */}
+      <div className="shrink-0 flex items-start justify-between gap-3 border-b border-slate-100 p-3.5 sm:p-4 bg-white">
+        <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
+          <div className={`p-1.5 sm:p-2 rounded-xl border shrink-0 ${step.iconColor}`}>
+            <StepIcon className="h-4.5 w-4.5 sm:h-5 sm:w-5" />
           </div>
-          <div>
-            <div className="flex items-center gap-2">
-              <span className="text-[11px] font-semibold uppercase tracking-wider text-azure-600 bg-azure-50 px-2 py-0.5 rounded-full">
+          <div className="min-w-0">
+            <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap">
+              <span className="text-[10px] sm:text-[11px] font-semibold uppercase tracking-wider text-azure-600 bg-azure-50 px-2 py-0.5 rounded-full">
                 {step.badge}
               </span>
-              <span className="text-[11px] text-slate-400 font-medium">
+              <span className="text-[10px] sm:text-[11px] text-slate-400 font-medium whitespace-nowrap">
                 Step {currentIdx + 1} of {total}
               </span>
             </div>
-            <h3 className="text-base font-bold text-slate-900 mt-1 leading-snug">{step.title}</h3>
+            <h3 className="text-xs sm:text-sm font-bold text-slate-900 mt-0.5 leading-snug break-words">
+              {step.title}
+            </h3>
           </div>
         </div>
         <button
           onClick={onSkip}
-          className="rounded-lg p-1.5 text-slate-400 hover:bg-slate-100 hover:text-slate-600 transition-colors shrink-0"
+          className="rounded-lg p-1 text-slate-400 hover:bg-slate-100 hover:text-slate-600 transition-colors shrink-0"
           title="Close Tutorial"
         >
-          <X className="h-4.5 w-4.5" />
+          <X className="h-4 w-4" />
         </button>
       </div>
 
-      <div className="py-4">
-        <p className="text-sm leading-relaxed text-slate-600">{step.description}</p>
-        {step.bullets.length > 0 && (
-          <div className="mt-3.5 space-y-2 bg-slate-50/70 border border-slate-200/70 rounded-xl p-3.5">
+      {/* Body - Smoothly scrollable if viewport height is small */}
+      <div className="flex-1 overflow-y-auto p-3.5 sm:p-4 space-y-2.5 overscroll-contain min-h-0">
+        <p className="text-xs leading-relaxed text-slate-600 break-words">{step.description}</p>
+        {step.bullets?.length > 0 && (
+          <div className="space-y-1.5 bg-slate-50/80 border border-slate-200/70 rounded-xl p-2.5 sm:p-3">
             {step.bullets.map((bullet, i) => (
-              <div key={i} className="flex items-start gap-2.5 text-xs text-slate-700">
-                <div className="mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-azure-600 text-white">
-                  <Check className="h-2.5 w-2.5" />
+              <div key={i} className="flex items-start gap-1.5 sm:gap-2 text-xs text-slate-700">
+                <div className="mt-0.5 flex h-3.5 w-3.5 shrink-0 items-center justify-center rounded-full bg-azure-600 text-white">
+                  <Check className="h-2 w-2" />
                 </div>
-                <span>{bullet}</span>
+                <span className="leading-relaxed break-words">{bullet}</span>
               </div>
             ))}
           </div>
         )}
       </div>
 
-      <div className="pb-4">
+      {/* Footer - Non-shrinking, always fully visible with buttons */}
+      <div className="shrink-0 border-t border-slate-100 bg-slate-50/80 p-2.5 sm:p-3 space-y-2">
         <ProgressDots steps={TUTORIAL_STEPS} currentIdx={currentIdx} onJump={onJump} />
-      </div>
 
-      <div className="flex items-center justify-between border-t border-slate-100 pt-3.5">
-        <div className="flex items-center gap-2">
-          <button
-            onClick={onSkip}
-            className="text-xs font-medium text-slate-500 hover:text-slate-700 hover:underline px-1 py-1"
-          >
-            Skip Tour
-          </button>
-          <button
-            onClick={onToggleAutoPlay}
-            title={autoPlay ? 'Pause auto-play' : 'Resume auto-play'}
-            className="flex items-center gap-1 text-xs font-medium text-slate-500 hover:text-slate-700 px-1 py-1"
-          >
-            {autoPlay ? <Pause className="h-3.5 w-3.5" /> : <Play className="h-3.5 w-3.5" />}
-            {autoPlay ? 'Auto' : 'Paused'}
-          </button>
-        </div>
+        <div className="flex items-center justify-between gap-2 pt-0.5">
+          <div className="flex items-center gap-1.5 sm:gap-2">
+            <button
+              onClick={onSkip}
+              className="text-xs font-semibold text-slate-500 hover:text-slate-700 hover:underline px-1 py-0.5"
+            >
+              Skip Tour
+            </button>
+            <button
+              onClick={onToggleAutoPlay}
+              title={autoPlay ? 'Pause auto-play' : 'Resume auto-play'}
+              className="inline-flex items-center gap-1 text-[11px] sm:text-xs font-semibold text-slate-600 hover:text-slate-900 bg-white border border-slate-200 rounded-md px-1.5 sm:px-2 py-0.5 shadow-2xs"
+            >
+              {autoPlay ? <Pause className="h-2.5 w-2.5 text-amber-500" /> : <Play className="h-2.5 w-2.5 text-emerald-600" />}
+              <span>{autoPlay ? 'Auto' : 'Paused'}</span>
+            </button>
+          </div>
 
-        <div className="flex items-center gap-2">
-          {!isFirst && (
-            <Button variant="secondary" size="sm" onClick={onPrev}>
-              <ArrowLeft className="mr-1.5 h-3.5 w-3.5" /> Back
-            </Button>
-          )}
-          <Button variant="primary" size="sm" onClick={onNext}>
-            {isLast ? (
-              <>
-                Get Started <Check className="ml-1.5 h-3.5 w-3.5" />
-              </>
-            ) : (
-              <>
-                Next <ArrowRight className="ml-1.5 h-3.5 w-3.5" />
-              </>
+          <div className="flex items-center gap-1.5 sm:gap-2">
+            {!isFirst && (
+              <Button variant="secondary" size="xs" onClick={onPrev}>
+                <ArrowLeft className="mr-1 h-3 w-3" /> Back
+              </Button>
             )}
-          </Button>
+            <Button variant="primary" size="xs" onClick={onNext}>
+              {isLast ? (
+                <>
+                  Get Started <Check className="ml-1 h-3 w-3" />
+                </>
+              ) : (
+                <>
+                  Next <ArrowRight className="ml-1 h-3 w-3" />
+                </>
+              )}
+            </Button>
+          </div>
         </div>
       </div>
-    </motion.div>
+    </div>
   );
 }
 
-function computeCardPosition(rect, placement) {
-  const CARD_W = 420;
-  const GAP = 18;
+/**
+ * Calculates absolute desktop pixel coordinates for targeted steps
+ * ensuring zero transforms, zero clipping, and smart placement above, below, or to the side.
+ */
+function computeTargetedPlacement(rect, preferredPlacement = 'bottom') {
+  if (!rect) return null;
   const vw = window.innerWidth;
   const vh = window.innerHeight;
 
-  if (!rect) {
-    return { position: 'fixed', top: '50%', left: '50%', transform: 'translate(-50%, -50%)' };
-  }
+  // Mobile / narrow viewports (< 768px): always centered modal overlay
+  if (vw < 768) return null;
 
-  let top, left, transform = '';
+  const cardWidth = Math.min(410, vw - 32);
+  const margin = 16;
+  const gap = 12;
+  const minCardHeight = 240;
 
-  if (placement === 'bottom') {
-    top = rect.top + rect.height + GAP;
-    left = Math.min(Math.max(rect.left, 16), vw - CARD_W - 16);
-  } else if (placement === 'top') {
-    // Roughly 420px of card height needed above the target; fall back to
-    // placing it below instead of letting it run off the top of the screen.
-    if (rect.top - GAP < 420) {
-      top = rect.top + rect.height + GAP;
-      left = Math.min(Math.max(rect.left, 16), vw - CARD_W - 16);
+  const spaceRight = vw - (rect.right + gap) - margin;
+  const spaceLeft = rect.left - gap - margin;
+  const spaceBelow = vh - (rect.bottom + gap) - margin;
+  const spaceAbove = rect.top - gap - margin;
+
+  // Decide effective placement
+  let effectivePlacement = preferredPlacement;
+
+  if (preferredPlacement === 'right') {
+    if (spaceRight >= cardWidth) {
+      effectivePlacement = 'right';
+    } else if (spaceLeft >= cardWidth) {
+      effectivePlacement = 'left';
+    } else if (spaceBelow >= 270) {
+      effectivePlacement = 'bottom';
+    } else if (spaceAbove >= 270) {
+      effectivePlacement = 'top';
     } else {
-      top = rect.top - GAP;
-      left = Math.min(Math.max(rect.left, 16), vw - CARD_W - 16);
-      transform = 'translateY(-100%)';
+      return null; // Fallback to centered modal
     }
-  } else if (placement === 'right') {
-    top = Math.min(Math.max(rect.top, 16), vh - 320);
-    left = rect.left + rect.width + GAP;
-    if (left + CARD_W > vw - 16) {
-      left = Math.max(rect.left - CARD_W - GAP, 16);
+  } else if (preferredPlacement === 'left') {
+    if (spaceLeft >= cardWidth) {
+      effectivePlacement = 'left';
+    } else if (spaceRight >= cardWidth) {
+      effectivePlacement = 'right';
+    } else if (spaceBelow >= 270) {
+      effectivePlacement = 'bottom';
+    } else if (spaceAbove >= 270) {
+      effectivePlacement = 'top';
+    } else {
+      return null;
     }
-  } else {
-    top = rect.top + rect.height + GAP;
-    left = Math.min(Math.max(rect.left, 16), vw - CARD_W - 16);
+  } else if (preferredPlacement === 'bottom') {
+    if (spaceBelow >= 260) {
+      effectivePlacement = 'bottom';
+    } else if (spaceAbove >= 260) {
+      effectivePlacement = 'top';
+    } else if (spaceRight >= cardWidth && rect.width < vw * 0.5) {
+      effectivePlacement = 'right';
+    } else {
+      return null;
+    }
+  } else if (preferredPlacement === 'top') {
+    if (spaceAbove >= 260) {
+      effectivePlacement = 'top';
+    } else if (spaceBelow >= 260) {
+      effectivePlacement = 'bottom';
+    } else if (spaceRight >= cardWidth && rect.width < vw * 0.5) {
+      effectivePlacement = 'right';
+    } else {
+      return null;
+    }
   }
 
-  // Keep on-screen vertically too.
-  if (!transform && top + 420 > vh) {
-    top = Math.max(vh - 440, 16);
+  // Now compute precise coordinates based on effectivePlacement:
+  if (effectivePlacement === 'right') {
+    const left = rect.right + gap;
+    const top = Math.max(margin, Math.min(rect.top - 6, vh - 350 - margin));
+    const maxHeight = Math.max(minCardHeight, vh - top - margin);
+    return {
+      position: 'fixed',
+      top: `${Math.round(top)}px`,
+      left: `${Math.round(left)}px`,
+      width: `${Math.round(cardWidth)}px`,
+      maxHeight: Math.round(maxHeight),
+      zIndex: 102,
+    };
   }
 
-  return { position: 'fixed', top, left, width: CARD_W, maxWidth: `calc(100vw - 32px)`, transform };
+  if (effectivePlacement === 'left') {
+    const left = Math.max(margin, rect.left - gap - cardWidth);
+    const top = Math.max(margin, Math.min(rect.top - 6, vh - 350 - margin));
+    const maxHeight = Math.max(minCardHeight, vh - top - margin);
+    return {
+      position: 'fixed',
+      top: `${Math.round(top)}px`,
+      left: `${Math.round(left)}px`,
+      width: `${Math.round(cardWidth)}px`,
+      maxHeight: Math.round(maxHeight),
+      zIndex: 102,
+    };
+  }
+
+  if (effectivePlacement === 'bottom') {
+    const top = rect.bottom + gap;
+    const maxHeight = Math.max(minCardHeight, vh - top - margin);
+    let left;
+    if (rect.width > cardWidth) {
+      // Wide element: place with pleasant left indent (24px into the target), clamped
+      left = Math.max(margin, Math.min(rect.left + 24, vw - cardWidth - margin));
+    } else {
+      // Narrow element: center horizontally on target
+      left = Math.max(margin, Math.min(rect.left + (rect.width - cardWidth) / 2, vw - cardWidth - margin));
+    }
+    return {
+      position: 'fixed',
+      top: `${Math.round(top)}px`,
+      left: `${Math.round(left)}px`,
+      width: `${Math.round(cardWidth)}px`,
+      maxHeight: Math.round(maxHeight),
+      zIndex: 102,
+    };
+  }
+
+  if (effectivePlacement === 'top') {
+    const bottom = vh - rect.top + gap;
+    const maxHeight = Math.max(minCardHeight, rect.top - gap - margin);
+    let left;
+    if (rect.width > cardWidth) {
+      left = Math.max(margin, Math.min(rect.left + 24, vw - cardWidth - margin));
+    } else {
+      left = Math.max(margin, Math.min(rect.left + (rect.width - cardWidth) / 2, vw - cardWidth - margin));
+    }
+    return {
+      position: 'fixed',
+      bottom: `${Math.round(bottom)}px`,
+      left: `${Math.round(left)}px`,
+      width: `${Math.round(cardWidth)}px`,
+      maxHeight: Math.round(maxHeight),
+      zIndex: 102,
+    };
+  }
+
+  return null;
 }
 
 export function CmsTutorialTour({ isOpen, onClose }) {
@@ -454,7 +612,7 @@ export function CmsTutorialTour({ isOpen, onClose }) {
   const isFirst = currentIdx === 0;
   const isLast = currentIdx === TUTORIAL_STEPS.length - 1;
 
-  const rect = useElementRect(step?.target, isOpen);
+  const rect = useElementRect(step?.target, step?.placement, isOpen);
 
   const finish = useCallback(() => {
     try {
@@ -506,11 +664,12 @@ export function CmsTutorialTour({ isOpen, onClose }) {
 
   if (!isOpen) return null;
 
-  const cardStyle = computeCardPosition(rect, step.placement);
+  const targetedStyle = step.target ? computeTargetedPlacement(rect, step.placement) : null;
+  const isCentered = !targetedStyle;
 
   return (
-    <div className="fixed inset-0 z-[100]">
-      {/* Dimmed backdrop with a spotlight cutout over the active element */}
+    <div className="fixed inset-0 z-[100] overflow-hidden">
+      {/* Dimmed backdrop with spotlight cutout */}
       <svg className="absolute inset-0 h-full w-full pointer-events-none" style={{ zIndex: 101 }}>
         <defs>
           <mask id="cms-tour-mask">
@@ -555,30 +714,57 @@ export function CmsTutorialTour({ isOpen, onClose }) {
         )}
       </svg>
 
-      <AnimatePresence mode="wait">
-        <TourCard
-          key={step.stepId}
-          step={step}
-          currentIdx={currentIdx}
-          total={TUTORIAL_STEPS.length}
-          isFirst={isFirst}
-          isLast={isLast}
-          autoPlay={autoPlay}
-          onToggleAutoPlay={() => setAutoPlay((p) => !p)}
-          onNext={() => {
-            setAutoPlay(false);
-            goNext();
-          }}
-          onPrev={() => {
-            setAutoPlay(false);
-            goPrev();
-          }}
-          onSkip={finish}
-          onJump={jumpTo}
-          style={{ ...cardStyle, zIndex: 102 }}
-          placement={step.placement}
-        />
-      </AnimatePresence>
+      {/* Modal / Card Presentation Layer */}
+      {isCentered ? (
+        /* Centered Modal: Flexbox container guarantees flawless centering on ALL viewports */
+        <div className="fixed inset-0 z-[102] flex items-center justify-center p-3 sm:p-5 pointer-events-none">
+          <div className="pointer-events-auto w-full max-w-lg">
+            <TourCard
+              step={step}
+              currentIdx={currentIdx}
+              total={TUTORIAL_STEPS.length}
+              isFirst={isFirst}
+              isLast={isLast}
+              autoPlay={autoPlay}
+              onToggleAutoPlay={() => setAutoPlay((p) => !p)}
+              onNext={() => {
+                setAutoPlay(false);
+                goNext();
+              }}
+              onPrev={() => {
+                setAutoPlay(false);
+                goPrev();
+              }}
+              onSkip={finish}
+              onJump={jumpTo}
+            />
+          </div>
+        </div>
+      ) : (
+        /* Desktop Targeted Placement: Placed adjacent to element without CSS transforms */
+        <div style={targetedStyle} className="pointer-events-auto flex flex-col">
+          <TourCard
+            step={step}
+            currentIdx={currentIdx}
+            total={TUTORIAL_STEPS.length}
+            isFirst={isFirst}
+            isLast={isLast}
+            autoPlay={autoPlay}
+            onToggleAutoPlay={() => setAutoPlay((p) => !p)}
+            onNext={() => {
+              setAutoPlay(false);
+              goNext();
+            }}
+            onPrev={() => {
+              setAutoPlay(false);
+              goPrev();
+            }}
+            onSkip={finish}
+            onJump={jumpTo}
+            maxHeight={targetedStyle.maxHeight}
+          />
+        </div>
+      )}
     </div>
   );
 }

@@ -288,30 +288,33 @@ export default function CmsPricingDashboard() {
     <>
       {/* Page Header */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between border-b border-line pb-5">
-        <div>
-          <div className="flex items-center gap-2.5">
-            <h1 className="text-h2 font-black text-ink">Pricing & Offerings CMS</h1>
-            <Badge tone="info" className="font-mono text-xs">
+        <div className="min-w-0">
+          <div className="flex flex-wrap items-center gap-2 sm:gap-2.5">
+            <h1 className="text-xl sm:text-2xl lg:text-3xl font-black text-ink tracking-tight">
+              Pricing & Offerings CMS
+            </h1>
+            <span className="inline-flex items-center gap-1.5 rounded-full border border-azure-200 bg-azure-50/90 px-2.5 py-0.5 text-xs font-semibold text-azure-700 shrink-0 shadow-2xs">
+              <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
               Live Dynamic Hub
-            </Badge>
+            </span>
           </div>
-          <p className="mt-1 text-sm text-slate-500">
+          <p className="mt-1 text-xs sm:text-sm text-slate-500 leading-relaxed max-w-2xl">
             Centrally manage all packages, price hikes, discount strikethroughs, deliverables, and track live surface impact.
           </p>
         </div>
 
-        <div className="flex flex-wrap items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2 shrink-0">
           {/* Tutorial Tour Trigger Button */}
           <Button
             data-tour="guide-button"
             variant="secondary"
             size="sm"
             onClick={() => setShowTutorial(true)}
-            className="border-azure-200 bg-azure-50/60 text-azure-700 hover:bg-azure-100/70"
+            className="border-azure-200 bg-azure-50/70 text-azure-700 hover:bg-azure-100 font-semibold"
             title="Open Interactive CMS Walkthrough"
           >
             <HelpCircle className="mr-1.5 h-4 w-4 text-azure-600" />
-            🎓 CMS Guide
+            CMS Guide
           </Button>
 
           {/* Reset Defaults */}
@@ -343,14 +346,17 @@ export default function CmsPricingDashboard() {
       </div>
 
       {/* Surface Impact Live Navigation Bar */}
-      <div data-tour="surfaces-bar" className="mt-4 flex flex-wrap items-center justify-between gap-3 rounded-xl bg-gradient-to-r from-slate-900 to-indigo-950 p-3.5 text-white shadow-sm">
-        <div className="flex items-center gap-2">
-          <MapPin className="h-4 w-4 text-cyan-400" />
-          <span className="text-xs font-semibold tracking-wide">
+      <div
+        data-tour="surfaces-bar"
+        className="mt-4 flex flex-col md:flex-row md:items-center justify-between gap-3 rounded-xl bg-gradient-to-r from-slate-900 to-indigo-950 p-3 sm:p-3.5 text-white shadow-sm"
+      >
+        <div className="flex items-center gap-2 min-w-0">
+          <MapPin className="h-4 w-4 text-cyan-400 shrink-0" />
+          <span className="text-xs font-semibold tracking-wide truncate sm:whitespace-normal">
             Verified Live Website Surfaces Affected by this CMS:
           </span>
         </div>
-        <div className="flex flex-wrap items-center gap-2 text-xs">
+        <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 text-[11px] sm:text-xs">
           <Link
             to="/resume-service"
             target="_blank"
@@ -385,52 +391,64 @@ export default function CmsPricingDashboard() {
         </div>
       </div>
 
-      {/* KPI Stats Row */}
-      <div data-tour="kpi-stats" className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
-        <div className="rounded-xl border border-slate-200 bg-white p-3.5 shadow-xs">
-          <p className="text-caption font-bold uppercase tracking-wider text-slate-400">Total Offerings</p>
-          <p className="mt-1 text-2xl font-black text-slate-900">{stats.totalItems || items.length}</p>
-          <p className="text-[11px] text-slate-500">{stats.publishedItems ?? items.filter(i => i.status === 'published').length} published</p>
+      {/* KPI Stats Row: 2-col on mobile, 3-col on tablet/laptop, 6-col on large desktop */}
+      <div data-tour="kpi-stats" className="mt-5 grid grid-cols-2 gap-2.5 sm:gap-3 sm:grid-cols-3 xl:grid-cols-6">
+        <div className="rounded-xl border border-slate-200 bg-white p-3 sm:p-3.5 shadow-xs min-w-0 flex flex-col justify-between">
+          <p className="text-[10px] sm:text-[11px] font-bold uppercase tracking-wider text-slate-400 leading-tight min-h-[1.75rem] flex items-center">
+            Total Offerings
+          </p>
+          <p className="mt-1 text-xl sm:text-2xl font-black text-slate-900 truncate">{stats.totalItems || items.length}</p>
+          <p className="text-[10px] sm:text-[11px] text-slate-500 truncate">{stats.publishedItems ?? items.filter(i => i.status === 'published').length} published</p>
         </div>
 
-        <div className="rounded-xl border border-slate-200 bg-white p-3.5 shadow-xs">
-          <p className="text-caption font-bold uppercase tracking-wider text-slate-400">Career Bundles</p>
-          <p className="mt-1 text-2xl font-black text-azure-600">
+        <div className="rounded-xl border border-slate-200 bg-white p-3 sm:p-3.5 shadow-xs min-w-0 flex flex-col justify-between">
+          <p className="text-[10px] sm:text-[11px] font-bold uppercase tracking-wider text-slate-400 leading-tight min-h-[1.75rem] flex items-center">
+            Career Bundles
+          </p>
+          <p className="mt-1 text-xl sm:text-2xl font-black text-azure-600 truncate">
             {items.filter((i) => i.category === 'bundle').length}
           </p>
-          <p className="text-[11px] text-slate-500">CV + Cover + LinkedIn</p>
+          <p className="text-[10px] sm:text-[11px] text-slate-500 truncate">CV + Cover + LinkedIn</p>
         </div>
 
-        <div className="rounded-xl border border-slate-200 bg-white p-3.5 shadow-xs">
-          <p className="text-caption font-bold uppercase tracking-wider text-slate-400">Standalone CVs</p>
-          <p className="mt-1 text-2xl font-black text-indigo-600">
+        <div className="rounded-xl border border-slate-200 bg-white p-3 sm:p-3.5 shadow-xs min-w-0 flex flex-col justify-between">
+          <p className="text-[10px] sm:text-[11px] font-bold uppercase tracking-wider text-slate-400 leading-tight min-h-[1.75rem] flex items-center">
+            Standalone CVs
+          </p>
+          <p className="mt-1 text-xl sm:text-2xl font-black text-indigo-600 truncate">
             {items.filter((i) => i.category === 'cv_only').length}
           </p>
-          <p className="text-[11px] text-slate-500">Entry to Executive</p>
+          <p className="text-[10px] sm:text-[11px] text-slate-500 truncate">Entry to Executive</p>
         </div>
 
-        <div className="rounded-xl border border-slate-200 bg-white p-3.5 shadow-xs">
-          <p className="text-caption font-bold uppercase tracking-wider text-slate-400">Portfolios & Add-ons</p>
-          <p className="mt-1 text-2xl font-black text-emerald-600">
+        <div className="rounded-xl border border-slate-200 bg-white p-3 sm:p-3.5 shadow-xs min-w-0 flex flex-col justify-between">
+          <p className="text-[10px] sm:text-[11px] font-bold uppercase tracking-wider text-slate-400 leading-tight min-h-[1.75rem] flex items-center">
+            Portfolios & Add-ons
+          </p>
+          <p className="mt-1 text-xl sm:text-2xl font-black text-emerald-600 truncate">
             {items.filter((i) => i.category === 'addon').length}
           </p>
-          <p className="text-[11px] text-slate-500">Visual & Web Decks</p>
+          <p className="text-[10px] sm:text-[11px] text-slate-500 truncate">Visual & Web Decks</p>
         </div>
 
-        <div className="rounded-xl border border-slate-200 bg-white p-3.5 shadow-xs">
-          <p className="text-caption font-bold uppercase tracking-wider text-slate-400">Subscriptions</p>
-          <p className="mt-1 text-2xl font-black text-purple-600">
+        <div className="rounded-xl border border-slate-200 bg-white p-3 sm:p-3.5 shadow-xs min-w-0 flex flex-col justify-between">
+          <p className="text-[10px] sm:text-[11px] font-bold uppercase tracking-wider text-slate-400 leading-tight min-h-[1.75rem] flex items-center">
+            Subscriptions
+          </p>
+          <p className="mt-1 text-xl sm:text-2xl font-black text-purple-600 truncate">
             {items.filter((i) => i.category === 'subscription').length}
           </p>
-          <p className="text-[11px] text-slate-500">Platform Access Tiers</p>
+          <p className="text-[10px] sm:text-[11px] text-slate-500 truncate">Platform Access Tiers</p>
         </div>
 
-        <div className="rounded-xl border border-slate-200 bg-white p-3.5 shadow-xs">
-          <p className="text-caption font-bold uppercase tracking-wider text-slate-400">Avg Selling Price</p>
-          <p className="mt-1 text-2xl font-black text-slate-900">
+        <div className="rounded-xl border border-slate-200 bg-white p-3 sm:p-3.5 shadow-xs min-w-0 flex flex-col justify-between">
+          <p className="text-[10px] sm:text-[11px] font-bold uppercase tracking-wider text-slate-400 leading-tight min-h-[1.75rem] flex items-center">
+            Avg Selling Price
+          </p>
+          <p className="mt-1 text-xl sm:text-2xl font-black text-slate-900 truncate">
             {formatCurrency(stats.averagePrice || 799)}
           </p>
-          <p className="text-[11px] text-slate-500">Across active catalog</p>
+          <p className="text-[10px] sm:text-[11px] text-slate-500 truncate">Across active catalog</p>
         </div>
       </div>
 
@@ -439,15 +457,15 @@ export default function CmsPricingDashboard() {
         <button
           type="button"
           onClick={() => setShowConfigBar(!showConfigBar)}
-          className="flex w-full items-center justify-between px-5 py-3.5 text-left bg-slate-50/70 hover:bg-slate-100/70 transition-colors"
+          className="flex w-full flex-col sm:flex-row sm:items-center justify-between gap-2 px-4 sm:px-5 py-3 sm:py-3.5 text-left bg-slate-50/70 hover:bg-slate-100/70 transition-colors"
         >
-          <div className="flex items-center gap-2.5">
-            <Settings2 className="h-4 w-4 text-azure-600" />
-            <span className="text-xs font-bold uppercase tracking-wider text-slate-700">
+          <div className="flex items-center gap-2.5 min-w-0">
+            <Settings2 className="h-4 w-4 text-azure-600 shrink-0" />
+            <span className="text-xs font-bold uppercase tracking-wider text-slate-700 truncate sm:whitespace-normal">
               Global Platform Settings (GST Rate, SLA Footnote & Announcement Banner)
             </span>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 shrink-0">
             <span className="text-xs text-slate-500">
               GST: <strong className="text-slate-800">{config.gstPercentage ?? 18}%</strong>
             </span>
@@ -550,8 +568,11 @@ export default function CmsPricingDashboard() {
         )}
       </div>
 
-      {/* Category Tabs */}
-      <div data-tour="category-tabs" className="mt-6 flex flex-wrap items-center gap-2 border-b border-slate-200 pb-3">
+      {/* Category Tabs: Horizontally scrollable on mobile with scrollbar hidden, wrapping on tablet/desktop */}
+      <div
+        data-tour="category-tabs"
+        className="mt-6 flex items-center gap-1.5 sm:gap-2 overflow-x-auto pb-2.5 border-b border-slate-200 scrollbar-none sm:flex-wrap"
+      >
         {CATEGORY_TABS.map((tab) => {
           const TabIcon = tab.icon;
           const count =
@@ -563,7 +584,7 @@ export default function CmsPricingDashboard() {
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
               className={cn(
-                'flex items-center gap-2 rounded-lg px-3.5 py-2 text-xs font-semibold transition-all',
+                'flex items-center gap-1.5 sm:gap-2 shrink-0 rounded-lg px-3 sm:px-3.5 py-1.5 sm:py-2 text-xs font-semibold transition-all',
                 isActive
                   ? 'bg-azure-600 text-white shadow-sm'
                   : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-50 hover:text-slate-900'
@@ -620,8 +641,8 @@ export default function CmsPricingDashboard() {
         </div>
       </div>
 
-      {/* Offerings Grid */}
-      <div className="mt-5 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+      {/* Offerings Grid: 1-col on mobile, 2-col on tablet/laptop, 3-col on large desktop */}
+      <div className="mt-5 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-5">
         {filteredItems.map((item, idx) => (
           <div
             key={item._id || item.key}
