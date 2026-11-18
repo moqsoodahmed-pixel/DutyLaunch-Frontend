@@ -31,6 +31,9 @@ export class ChunkErrorBoundary extends Component {
             msg.includes('Failed to fetch dynamically imported module') ||
             msg.includes('Importing a module script failed') ||
             msg.includes('error loading dynamically imported module') ||
+            msg.includes('MIME type') ||
+            msg.includes('text/html') ||
+            msg.includes('JavaScript-or-Wasm') ||
             // Vite/Rollup's own message on chunk 404
             msg.includes('Unable to preload CSS') ||
             error?.name === 'ChunkLoadError';
@@ -84,7 +87,15 @@ export class ChunkErrorBoundary extends Component {
                         </p>
                         <button
                             type="button"
-                            onClick={() => reloadOnceForNewDeploy({ manual: true })}
+                            onClick={() => {
+                                try {
+                                    sessionStorage.removeItem('dl:chunk-reloads');
+                                } catch {}
+                                if (typeof caches !== 'undefined' && caches.keys) {
+                                    caches.keys().then((keys) => keys.forEach((k) => caches.delete(k))).catch(() => {});
+                                }
+                                reloadOnceForNewDeploy({ manual: true });
+                            }}
                             style={{
                                 background: 'linear-gradient(to right, #1d5db8, #06b6d4)',
                                 color: '#fff',

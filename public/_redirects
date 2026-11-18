@@ -29,6 +29,9 @@
 # Proxy all API and upload requests to Railway backend
 /api/*                         https://dutylaunch-backend-production.up.railway.app/api/:splat  200
 
+# Return a real 404 for missing static assets so Cloudflare never serves index.html (text/html) as a JS module
+/assets/*                          /assets/:splat              404
+
 # SPA fallback: every other path is served the shell so the router can
 # resolve it. This must stay last — rules are matched in order.
 /*                             /index.html                200

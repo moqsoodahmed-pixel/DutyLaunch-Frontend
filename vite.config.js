@@ -57,6 +57,10 @@ export default defineConfig({
             id.includes('src/utils/authErrors')) {
             return 'authErrors';
           }
+          // Group shared UI components into a stable chunk to avoid micro-chunk fragmentation
+          if (id.includes('src/components/ui/')) {
+            return 'ui-elements';
+          }
           // Everything else goes into Rollup's default per-page chunks
           return undefined;
         },

@@ -17,13 +17,33 @@
   Referrer-Policy: strict-origin-when-cross-origin
   Strict-Transport-Security: max-age=31536000; includeSubDomains; preload
   Permissions-Policy: camera=(), microphone=(), geolocation=()
-  # Allow production Railway API backend and Cloudflare Insights in CSP
-  Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' https://checkout.razorpay.com https://*.razorpay.com https://static.cloudflareinsights.com; frame-src 'self' https://api.razorpay.com https://*.razorpay.com; frame-ancestors 'self'; object-src 'none'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: blob: https:; connect-src 'self' https://api.razorpay.com https://*.razorpay.com https://dutylaunch.com https://*.dutylaunch.com https://dutylaunch-backend-production.up.railway.app https://*.railway.app https://cloudflareinsights.com https://*.cloudflareinsights.com http://localhost:8080 http://127.0.0.1:8080 ws: wss:;
+  # Allow production Railway API backend, Cloudflare Insights, and Google Identity Services in CSP
+  Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' https://checkout.razorpay.com https://*.razorpay.com https://static.cloudflareinsights.com https://accounts.google.com https://*.google.com; frame-src 'self' https://api.razorpay.com https://*.razorpay.com https://accounts.google.com https://*.google.com; frame-ancestors 'self'; object-src 'none'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: blob: https:; connect-src 'self' https://api.razorpay.com https://*.razorpay.com https://dutylaunch.com https://*.dutylaunch.com https://dutylaunch-backend-production.up.railway.app https://*.railway.app https://cloudflareinsights.com https://*.cloudflareinsights.com https://accounts.google.com https://*.google.com https://*.googleapis.com http://localhost:8080 http://127.0.0.1:8080 ws: wss:;
 
 # 2) Bundles are content-hashed — a given filename never changes — so they
-#    can be cached for a year. "! Cache-Control" drops the no-cache rule
-#    above for these paths instead of merging the two values.
-/assets/*
+#    can be cached for a year. Match specific extensions so 404/fallback HTML
+#    never gets cached as immutable for 1 year.
+/assets/*.js
+  ! Cache-Control
+  Cache-Control: public, max-age=31536000, immutable
+
+/assets/*.css
+  ! Cache-Control
+  Cache-Control: public, max-age=31536000, immutable
+
+/assets/*.png
+  ! Cache-Control
+  Cache-Control: public, max-age=31536000, immutable
+
+/assets/*.jpg
+  ! Cache-Control
+  Cache-Control: public, max-age=31536000, immutable
+
+/assets/*.svg
+  ! Cache-Control
+  Cache-Control: public, max-age=31536000, immutable
+
+/assets/*.woff2
   ! Cache-Control
   Cache-Control: public, max-age=31536000, immutable
 
