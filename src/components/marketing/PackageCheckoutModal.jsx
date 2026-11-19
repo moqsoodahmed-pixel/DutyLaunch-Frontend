@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import {
   X,
   ShieldCheck,
@@ -124,6 +125,29 @@ export function PackageCheckoutModal({
   const [mockOrder, setMockOrder] = useState(null);
   const [selectedMethod, setSelectedMethod] = useState('upi'); // 'upi' | 'card' | 'netbanking'
 
+  // Lock background body scroll while checkout modal is open
+  useEffect(() => {
+    if (!isOpen) return;
+    const prevOverflow = document.body.style.overflow;
+    const prevPaddingRight = document.body.style.paddingRight;
+    const scrollbarWidth = window.innerWidth - document.documentElement.clientWidth;
+    document.body.style.overflow = 'hidden';
+    if (scrollbarWidth > 0) {
+      document.body.style.paddingRight = `${scrollbarWidth}px`;
+    }
+    const onKeyDown = (e) => {
+      if (e.key === 'Escape' && onClose && !loading) {
+        onClose();
+      }
+    };
+    window.addEventListener('keydown', onKeyDown);
+    return () => {
+      document.body.style.overflow = prevOverflow;
+      document.body.style.paddingRight = prevPaddingRight;
+      window.removeEventListener('keydown', onKeyDown);
+    };
+  }, [isOpen, onClose, loading]);
+
   if (!isOpen || !packageData) return null;
 
   const basePrice = packageData.price || 399;
@@ -204,7 +228,7 @@ export function PackageCheckoutModal({
       // 3. Initiate Payment Order on backend with selected addons
       const { data: order } = await paymentService.createOrder({
         itemType: 'cv-package',
-        itemId: packageData._id,
+        itemId: packageData._id || packageData.key || packageData.id,
         addonIds: selectedAddonIds,
       });
 
@@ -275,15 +299,15 @@ export function PackageCheckoutModal({
     }
   }
 
-  return (
+  const modalContent = (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-sm animate-fade-in overflow-y-auto"
+      className="fixed inset-0 z-[100] flex items-center justify-center p-3 sm:p-4 bg-slate-950/75 backdrop-blur-md animate-fade-in overflow-y-auto"
       role="dialog"
       aria-modal="true"
     >
-      <div className="relative w-full max-w-xl rounded-2xl bg-white shadow-2xl border border-slate-200 overflow-hidden my-8">
+      <div className="relative w-full max-w-xl max-h-[92vh] flex flex-col rounded-2xl bg-white shadow-2xl border border-slate-200 overflow-hidden my-auto">
         {/* Header */}
-        <div className="bg-gradient-to-r from-[#0d2a5c] via-[#123875] to-[#1a4a8d] px-6 py-5 text-white flex items-center justify-between">
+        <div className="bg-gradient-to-r from-[#0d2a5c] via-[#123875] to-[#1a4a8d] px-6 py-5 text-white flex items-center justify-between shrink-0">
           <div className="flex items-center gap-2.5">
             <div className="grid h-9 w-9 place-items-center rounded-xl bg-white/10 backdrop-blur-md text-azure-100">
               <ShieldCheck className="h-5 w-5 text-sky-300" />
@@ -310,7 +334,7 @@ export function PackageCheckoutModal({
           </button>
         </div>
 
-        <div className="p-6 space-y-5 max-h-[80vh] overflow-y-auto">
+        <div className="p-6 space-y-5 overflow-y-auto flex-1 min-h-0">
           {mockOrder ? (
             /* Dedicated Payment Gateway Simulator View */
             <div className="space-y-4 animate-fade-in">
@@ -747,4 +771,7 @@ export function PackageCheckoutModal({
       </div>
     </div>
   );
+
+  if (typeof document === 'undefined') return null;
+  return createPortal(modalContent, document.body);
 }

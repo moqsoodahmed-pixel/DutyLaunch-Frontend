@@ -139,7 +139,7 @@ export function Navbar() {
       <header
         ref={navRef}
         onMouseLeave={handleMenuLeave}
-        className={cn('sticky top-0 z-[70] transition-all duration-300 px-3 sm:px-4 lg:px-6', scrolled ? 'py-2' : 'py-3')}
+        className={cn('sticky top-0 z-[80] transition-all duration-300 px-3 sm:px-4 lg:px-6', scrolled ? 'py-2' : 'py-3')}
       >
         {/* Outer pill wrapper — overflow visible so dropdowns like ContactMenu are not clipped */}
         <div className="relative mx-auto w-full max-w-[80rem]">
