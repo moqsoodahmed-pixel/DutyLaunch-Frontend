@@ -128,10 +128,12 @@ export function PackageCheckoutModal({
   // Lock background body scroll while checkout modal is open
   useEffect(() => {
     if (!isOpen) return;
-    const prevOverflow = document.body.style.overflow;
+    const prevBodyOverflow = document.body.style.overflow;
+    const prevDocOverflow = document.documentElement.style.overflow;
     const prevPaddingRight = document.body.style.paddingRight;
     const scrollbarWidth = window.innerWidth - document.documentElement.clientWidth;
     document.body.style.overflow = 'hidden';
+    document.documentElement.style.overflow = 'hidden';
     if (scrollbarWidth > 0) {
       document.body.style.paddingRight = `${scrollbarWidth}px`;
     }
@@ -142,7 +144,8 @@ export function PackageCheckoutModal({
     };
     window.addEventListener('keydown', onKeyDown);
     return () => {
-      document.body.style.overflow = prevOverflow;
+      document.body.style.overflow = prevBodyOverflow;
+      document.documentElement.style.overflow = prevDocOverflow;
       document.body.style.paddingRight = prevPaddingRight;
       window.removeEventListener('keydown', onKeyDown);
     };
@@ -304,6 +307,11 @@ export function PackageCheckoutModal({
       className="fixed inset-0 z-[100] flex items-center justify-center p-3 sm:p-4 bg-slate-950/75 backdrop-blur-md animate-fade-in overflow-y-auto"
       role="dialog"
       aria-modal="true"
+      onClick={(e) => {
+        if (e.target === e.currentTarget && onClose && !loading) {
+          onClose();
+        }
+      }}
     >
       <div className="relative w-full max-w-xl max-h-[92vh] flex flex-col rounded-2xl bg-white shadow-2xl border border-slate-200 overflow-hidden my-auto">
         {/* Header */}

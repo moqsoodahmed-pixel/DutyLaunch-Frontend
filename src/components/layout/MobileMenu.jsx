@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { createPortal } from 'react-dom';
 import { Link } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
 import { ChevronDown, X } from 'lucide-react';
@@ -25,19 +26,19 @@ export function MobileMenu({ open, onClose }) {
      menu stayed on screen at full opacity even though `open` was false.
      The X then did nothing, because the menu was already "closed". The
      menu still animates in; it simply closes instantly. */
-  if (!open) return null;
+  if (!open || typeof document === 'undefined') return null;
 
-  return (
-        /* Full-screen on phones; from 640px a right-hand drawer over a dimmed
-           backdrop (tap the backdrop to close), so tablets don't get six
-           links stretched across the whole screen. */
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.18 }}
-          className="fixed inset-0 z-[80] lg:hidden sm:bg-ink-900/40"
-          onClick={onClose}
-        >
+  return createPortal(
+    /* Full-screen on phones; from 640px a right-hand drawer over a dimmed
+       backdrop (tap the backdrop to close), so tablets don't get six
+       links stretched across the whole screen. */
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.18 }}
+      className="fixed inset-0 z-[95] lg:hidden sm:bg-ink-900/40"
+      onClick={onClose}
+    >
         <motion.div
           initial={{ x: 24 }}
           animate={{ x: 0 }}
@@ -141,6 +142,7 @@ export function MobileMenu({ open, onClose }) {
             <p className="pt-1 text-center text-caption text-slate-500">{contact.email}</p>
           </div>
         </motion.div>
-        </motion.div>
+      </motion.div>,
+    document.body
   );
 }

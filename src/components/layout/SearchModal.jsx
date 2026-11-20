@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState, useMemo } from 'react';
+import { createPortal } from 'react-dom';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Search, X, ArrowRight } from 'lucide-react';
@@ -114,7 +115,9 @@ export function SearchModal({ onClose }) {
     }
   };
 
-  return (
+  if (typeof document === 'undefined') return null;
+
+  return createPortal(
     <div className="fixed inset-0 z-[120] flex items-start justify-center px-4 pt-20 sm:pt-28">
       {/* Translucent backdrop */}
       <motion.div
@@ -274,6 +277,7 @@ export function SearchModal({ onClose }) {
           </button>
         </div>
       </motion.div>
-    </div>
+    </div>,
+    document.body
   );
 }

@@ -9,8 +9,10 @@ import { Footer } from '../components/layout/Footer.jsx';
 export default function PublicLayout() {
   return (
     <div className="flex min-h-screen flex-col bg-glacier-100">
-      <AnnouncementBar />
-      <Navbar />
+      <div className="sticky top-0 z-[80] w-full">
+        <AnnouncementBar />
+        <Navbar />
+      </div>
       <main id="main" className="flex-1">
         {/* Only the page waits while its code loads; the navbar stays
             mounted, so its menus are never cut off mid-close. */}
